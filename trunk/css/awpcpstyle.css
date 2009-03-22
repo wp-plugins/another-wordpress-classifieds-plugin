@@ -1,0 +1,201 @@
+.inputbox {
+padding:5px;
+border:1px solid #888888;
+background-color:#ffffff;
+color:#000000;
+width:400px;
+}
+
+.messagedisplay {padding:5px;background-color: rgb(255, 251, 204);}
+.tenpad  {padding:100px;}
+
+
+table.listcatsh { width: 100%; padding: 0px; border: none; border: 1px solid #dddddd;}
+table.listcatsh td { width:33%;font-size: 12px; border: none; background-color: #F4F4F4;
+vertical-align: middle; padding: 7px; font-weight: bold; }
+table.listcatsh tr.special td { border-bottom: 1px solid #ff0000;  }
+table.listcatsc { width: 100%; padding: 0px; border: none; border: 1px solid #dddddd;}
+table.listcatsc td { width:33%;border: none;
+vertical-align: middle; padding: 5px; font-weight: normal; }
+table.listcatsc tr.special td { border-bottom: 1px solid #ff0000;  }
+
+
+table.awpcpuitableouter {width:100%;padding: 5px;border:none;}
+table.awpcpuitableouter td { vertical-align: top; padding: 10px; }
+
+table.awpcpuitableinner {width:100%;padding: 5px;border:none;}
+table.awpcpuitableinner td { vertical-align: middle; background: #eeeeee;padding:5px 0 5px 30px; }
+
+.toplevelitem {font-size:13px;color:#333333;font-weight:bold;}
+.toplevelitem a {font-weight:bold;font-size:13px;text-decoration:none;}
+.toplevelitem a:hover {font-weight:bold;font-size:13px;}
+
+
+.childitems {
+margin-left:50px;
+padding:2px;
+}
+
+.childitems a {font-size:13px;}
+
+.childitems ul {
+list-style:none;
+margin:0;}
+
+.childitems li {list-style:none;}
+
+.postaclassified {
+float:left;
+}
+
+.postaclassified a {
+font-size:14px;
+color:#444444;
+}
+
+.scbox {
+border:1px solid #dddddd;}
+.scbutton {border:1px dotted #dddddd;
+background:#cccccc;
+font-size:14px;
+color:#444444;}
+
+.classisearch {float:right;}
+
+.uiwelcome {
+margin:20px;}
+
+#classiwrapper {
+padding:5px;
+}
+
+#classiwrapper p {
+padding-bottom:5px;
+padding-top:10px;
+}
+
+
+#classiwrapper #postsearchads {
+padding:5px;
+
+}
+
+#classiwrapper ul#postsearchads {
+list-style:none;
+}
+
+#classiwrapper #postsearchads li {
+list-style:none;
+float:left;
+margin-right:5px;
+}
+
+#postsearchads .search {
+background: #ffffff url("../images/search_ico.png") no-repeat left center;
+padding-left:17px;
+}
+
+#postsearchads .edit {
+background: #ffffff url("../images/edit_ico.png") no-repeat left center;
+padding-left:17px;
+}
+
+#postsearchads .postad {
+background: #ffffff url("../images/post_ico.png") no-repeat left center;
+padding-left:17px;
+}
+
+#postsearchads .browse {
+background: #ffffff url("../images/browse_ico.png") no-repeat left center;
+padding-left:17px;
+}
+
+.editclassified {
+float:right;
+}
+
+
+.headeritem {width:98%;padding:5px;background:#eeeeee;font-size:16px;color:#333333;}
+
+
+#showad {
+margin-top:10px;}
+
+#showad .adtitle {
+background:#eeeeee;
+border-top:1px dotted #dddddd;
+border-bottom:1px dotted #dddddd;
+color:#333333;
+font-weight:bold;
+font-size:medium;
+padding:10px;
+}
+
+#showad .adbyline {
+border-bottom:1px dotted #dddddd;
+}
+
+#showad p {
+margin-top:10px;
+background:#f5f5f5;
+border:1px dotted #f9f9f9;
+padding:15px;
+}
+
+
+#displayimagethumbswrapper {}
+
+#displayimagethumbswrapper #displayimagethumbs {}
+#displayimagethumbswrapper #displayimagethumbs img {border:none;}
+
+#displayimagethumbswrapper #displayimagethumbs ul{list-style:none;}
+#displayimagethumbswrapper #displayimagethumbs li{list-style:none;float:left;margin:10px;}
+
+
+.classimenu1 {
+padding:15px;}
+
+.browseads {
+padding:10px;
+}
+
+table.displayads { width: 100%; padding: 0px; border: none;}
+table.displayads td { width:33%;font-size: 12px; border: none; background-color: #F4F4F4;
+vertical-align: middle; font-weight: bold; }
+table.displayads tr.special td { border-bottom: 1px solid #dddddd;  }
+
+		
+table.displayads .displayadsicell{
+background:none;
+border:none;
+font-weight:normal;
+}
+
+
+.cl-adsense {
+margin:10px 0 10px 0;
+text-align:center;
+
+}
+
+.alert {
+background:#ffffcc;
+color:#800000;
+font-weight:bold;
+padding:5px;
+}
+
+.alert a {
+color:#800000;
+font-weight:bold;
+text-decoration:underline;
+}
+
+.imgtransparency {
+-moz-opacity:.20; filter:alpha(opacity=20); opacity:.20;
+
+}
+
+.awpcpwidget {
+clear:both;
+overflow:hidden;}
