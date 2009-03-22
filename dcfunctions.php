@@ -1,0 +1,418 @@
+<?php
+if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You are not allowed to call this page directly.'); }
+
+//Start functions from dan caragea
+//---------------------------------------------------------------------------//
+// author: Dan Caragea <dan@rdsct.ro>
+// info:   general purpose functions
+//---------------------------------------------------------------------------//
+// copyright license
+//
+// permission is granted to anyone to use the functions listed in dcfunctions.php
+// for any purpose,
+// including commercial applications and to redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. the origin of this software must not be misrepresented;
+//    you must not claim that you wrote the original software.
+//    if you use this software in a product, an acknowledgment
+//    in the product documentation is required.
+//
+// 2. you must not alter the source code without prior consent from the author.
+//
+// 3. mail about the fact of using this class in production
+//    would be very appreciated.
+//
+// 4. this notice may not be removed or altered from any source distribution.
+//
+//---------------------------------------------------------------------------//
+
+function smart_table($array,$table_cols=1,$opentable,$closetable) {
+		  		$myreturn="$opentable\n";
+				$row=0;
+				$total_vals=count($array);
+				$i=1;
+				foreach ($array as $v) {
+					if ((($i-1)%$table_cols)==0) {
+						$myreturn.="<tr>\n";
+						$row++;
+					}
+					$myreturn.="\t<td width=\"".intval(100/$table_cols)."%\" valign=\"top\">$v</td>\n";
+					if ($i%$table_cols==0) {$myreturn.="</tr>\n";}
+					$i++;
+				}
+				$rest=($i-1)%$table_cols;
+				if ($rest!=0) {
+					$colspan=$table_cols-$rest;
+					$myreturn.="\t<td".(($colspan==1) ? '' : " colspan=\"$colspan\"")."></td>\n</tr>\n";
+				}
+				$myreturn.="$closetable\n";
+				return $myreturn;
+	}
+
+
+
+function make_seed() {
+    list($usec, $sec) = explode(' ', microtime());
+    return (int)$sec+(int)($usec*100000);
+}
+
+function general_error($errlevel,$message,$file='unset',$line='unset') {
+	$error=array();
+	$error['text']=$message."\n<br />";
+	if (!empty($GLOBALS['query'])) {
+		$error['text'].='Last query run: '.$GLOBALS['query']."\n<br />";
+	}
+	ob_start();
+	echo '<pre>';
+	print_r(debug_backtrace());
+	echo '</pre>';
+	$error['text'].=ob_get_contents();
+	ob_end_clean();
+
+	require_once _BASEPATH_.'/includes/classes/log_error.class.php';
+	new log_error($error);
+	if (defined('_DEBUG_') && _DEBUG_!=0) {
+		if (_DEBUG_==1) {
+			$error['text']=$message."\n<br /> Line: $line\n<br />File: $file\n<br />";
+		} elseif (_DEBUG_==2) {
+			// same full error
+			// $error['text']=$error['text'];
+		}
+	} else {
+		$error['text']='Sorry, a critical error has occured. If you are the site administrator please check out the error log to see the actual error.';
+	}
+	new log_error($error,array('log_mode'=>_ERRORLOG_STDOUT_));
+	if ($errlevel==E_USER_ERROR || (defined('_DEBUG_') && _DEBUG_!=0)) {
+		exit;
+	}
+}
+
+
+function vector2table($vector) {
+    $afis="<table>\n";
+    $i=1;
+    $afis.="<tr>\n\t<td class=title colspan=2>Table</td>\n</tr>\n";
+    while (list($k,$v) = each($vector)) {
+        $afis.="<tr class=".(($i%2) ? "trpar" : "trimpar").">\n\t<td>".htmlentities($k)."</td>\n\t<td>".htmlentities($v)."</td>\n</tr>\n";
+        $i++;
+    }
+    $afis.="</table>\n";
+    return $afis;
+}
+
+
+function vector2biditable($myarray,$rows,$cols) {
+	$myreturn="<table>\n";
+	for ($r=0;$r<$rows;$r++) {
+		$myreturn.="<tr>\n";
+		for ($c=0;$c<$cols;$c++) {
+			$myreturn.="\t<td>".$myarray[$r*$cols+$c]."</td>\n";
+		}
+		$myreturn.="</tr>\n";
+	}
+	$myreturn.="</table>\n";
+	return $myreturn;
+}
+
+
+function vector2options($show_vector,$selected_map_val,$exclusion_vector=array()) {
+	$myreturn='';
+	while (list($k,$v)=each($show_vector)) {
+		if (!in_array($k,$exclusion_vector)) {
+			$myreturn.="<option value=\"".$k."\"";
+			if ($k==$selected_map_val) {
+				$myreturn.=" selected";
+			}
+			$myreturn.=">".$v."</option>\n";
+		}
+	}
+	return $myreturn;
+}
+
+
+function vector2checkboxes($show_vector,$excluded_keys_vector,$checkname,$binvalue,$table_cols=1,$showlabel=true) {
+	$myreturn='<table>';
+	$i=0;
+	$row=0;
+	$myvector=array_flip(array_diff(array_flip($show_vector),$excluded_keys_vector));
+	$total_vals=count($myvector);
+	$i=1;
+	while (list($k,$v)=each($myvector)) {
+		if (($i%$table_cols)==1) {$myreturn.="<tr>\n";}
+		$myreturn.="\t<td>\n";
+		$myreturn.="\t\t<input type=\"checkbox\" name=\"".$checkname."[$k]\"";
+		if (isset($binvalue) && ($binvalue>0) && (($binvalue>>$k)%2)) {
+//print "binvalue=$binvalue k=$k<br>";
+			$myreturn.=" checked";
+		}
+		$myreturn.=">";
+		if ($showlabel) {
+			$myreturn.=$v;
+		}
+		$myreturn.="\n";
+		$myreturn.="\t</td>\n";
+		if ($i%$table_cols==0) {$myreturn.="</tr>\n";}
+		$i++;
+	}
+	$rest=($i-1)%$table_cols;
+	if ($rest!=0) {
+		$colspan=$table_cols-$rest;
+		$myreturn.="\t<td".(($colspan==1) ? ("") : (" colspan=\"$colspan\""))."></td>\n</tr>\n";
+	}
+	$myreturn.="</table>\n";
+	return $myreturn;
+}
+
+function vector2binvalues($myarray) {
+	$myreturn=0;
+	while (list($k,$v)=each($myarray)) {
+		$myreturn+=(1<<$k);
+	}
+	return $myreturn;
+}
+
+
+function binvalue2index($binvalue) {
+	$myarray=array();
+	$i=0;
+	while ($binvalue>0) {
+		if ($binvalue & 1) {
+			$myarray[]=$i;
+		}
+		$binvalue>>=1;
+		$i++;
+	}
+	return $myarray;
+}
+
+
+function array2string($myarray,$binvalue) {
+	$myreturn='';
+	while (list($k,$v)=each($myarray)) {
+		if (isset($binvalue) && ($binvalue>0) && (($binvalue>>$k)%2)) {
+			$myreturn.=$v.', ';
+		}
+	}
+	$myreturn=substr($myreturn,0,-2);
+	return $myreturn;
+}
+
+
+function del_keys($myarray,$keys) {
+	$myreturn=array();
+	while (list($k,$v)=each($myarray)) {
+		if (!in_array($k,$keys)) {
+			$myreturn[$k]=$v;
+		}
+	}
+	return $myreturn;
+}
+
+
+function del_empty_vals($myarray) {
+	$myreturn=array();
+	while (list($k,$v)=each($myarray)) {
+		if (!empty($v)) {
+			$myreturn[$k]=$v;
+		}
+	}
+	return $myreturn;
+}
+
+function stripslashes_mq($value,$trim=false,$stripsql=false) {
+	if (is_array($value)) {
+		$return=array();
+		while (list($k,$v)=each($value)) {
+			$return[stripslashes_mq($k)]=stripslashes_mq($v);
+		}
+	} else {
+		if ($trim) {
+			$value=trim($value);
+		}
+		if(get_magic_quotes_gpc() == 0) {
+			$return=$value;
+		} else {
+			$return=stripslashes($value);
+		}
+		if ($stripsql) {
+			$return=str_replace('\%','%',$return);
+			$return=str_replace('\_','_',$return);
+		}
+	}
+	return $return;
+}
+
+
+function addslashes_mq($value,$trim=false,$stripsql=false) {
+	if (is_array($value)) {
+		$return=array();
+		while (list($k,$v)=each($value)) {
+			$return[addslashes_mq($k)]=addslashes_mq($v);
+		}
+	} else {
+		if ($trim) {
+			$value=trim($value);
+		}
+		if(get_magic_quotes_gpc() == 0) {
+			$return=addslashes_mq($value);
+		} else {
+			$return=$value;
+		}
+		if ($stripsql) {
+			$return=str_replace('%','\%',$return);
+			$return=str_replace('_','\_',$return);
+		}
+	}
+	return $return;
+}
+
+function array2qs($myarray) {
+	$myreturn="";
+	while (list($k,$v)=each($myarray)) {
+		$myreturn.="$k=$v&";
+	}
+	$myreturn=substr($myreturn,0,-1);
+	return $myreturn;
+}
+
+
+function create_pager($from,$where,$offset,$results,$tpname) {
+	mt_srand(make_seed());
+	$radius=5;
+	global $PHP_SELF;
+	global $accepted_results_per_page;
+	$accepted_results_per_page=array("5"=>5,"10"=>10,"20"=>20,"30"=>30);
+
+	if(!isset($tpname) || empty($tpname)){
+	$tpname="$PHP_SELF";}
+
+
+	$params=array();
+	$params=array_merge($_GET,$_POST);
+	unset($params['offset'],$params['results'],$params['PHPSESSID']);
+	$myrand=mt_rand(1000,2000);
+	$myreturn="<form id=\"pagerform$myrand\" name=\"pagerform$myrand\" action=\"$tpname\" method=\"get\">\n";
+	$myreturn.="<table>\n";
+	$myreturn.="<tr>\n";
+	$myreturn.="\t<td>\n";
+	$query="SELECT count(*) FROM $from WHERE $where";
+	if (!($res=@mysql_query($query))) {die(mysql_error().' on line: '.__LINE__);}
+	$totalrows=mysql_result($res,0,0);
+	$total_pages=ceil($totalrows/$results);
+	$myreturn.="\t\t<a  href=\"$tpname?offset=0&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
+	$dotsbefore=false;
+	$dotsafter=false;
+	for ($i=1;$i<=$total_pages;$i++) {
+		if (((($i-1)*$results)<=$offset) && ($offset<$i*$results)) {
+			$myreturn.="$i&nbsp;";
+		} elseif (($i-1+$radius)*$results<$offset) {
+			if (!$dotsbefore) {
+				$myreturn.="...";
+				$dotsbefore=true;
+			}
+		} elseif (($i-1-$radius)*$results>$offset) {
+			if (!$dotsafter) {
+				$myreturn.="...";
+				$dotsafter=true;
+			}
+		} else {
+			$myreturn.="<a href=\"$tpname?offset=".(($i-1)*$results)."&results=$results&".array2qs($params)."\">$i</a>&nbsp;";
+		}
+	}
+	$myreturn.="<a href=\"$tpname?offset=".(($total_pages-1)*$results)."&results=$results&".array2qs($params)."\">&raquo;</a>&nbsp;\n";
+	$myreturn.="\t</td>\n";
+	$myreturn.="\t<td>\n";
+	$myreturn.="\t\t<input type=\"hidden\" name=\"offset\" value=\"$offset\" />\n";
+	while (list($k,$v)=each($params)) {
+		$myreturn.="\t\t<input type=\"hidden\" name=\"$k\" value=\"$v\" />\n";
+	}
+	$myreturn.="\t\t<select name=\"results\" onchange=\"document.pagerform$myrand.submit()\">\n";
+	$myreturn.=vector2options($accepted_results_per_page,$results);
+	$myreturn.="\t\t</select>\n";
+	$myreturn.="\t</td>\n";
+	$myreturn.="</tr>\n";
+	$myreturn.="</table>\n";
+	$myreturn.="</form>\n";
+	return $myreturn;
+}
+
+function _gdinfo() {
+	$myreturn=array();
+	if (function_exists('gd_info')) {
+		$myreturn=gd_info();
+	} else {
+		$myreturn=array('GD Version'=>'');
+		ob_start();
+		phpinfo(8);
+		$info=ob_get_contents();
+		ob_end_clean();
+		foreach (explode("\n",$info) as $line) {
+			if (strpos($line,'GD Version')!==false) {
+				$myreturn['GD Version']=trim(str_replace('GD Version', '', strip_tags($line)));
+			}
+		}
+	}
+	return $myreturn;
+	}
+
+
+function unix2dos($mystring) {
+	$mystring=preg_replace("/\r/m",'',$mystring);
+	$mystring=preg_replace("/\n/m","\r\n",$mystring);
+	return $mystring;
+}
+
+
+function send_email($from,$to,$subject,$message,$html=false,$attachments=array(),$bcc='') {
+	$separator='Next.Part.331925654896717'.mktime();
+	$att_separator='NextPart.is_a_file9817298743'.mktime();
+	$headers="From: $from\n";
+	$headers.="MIME-Version: 1.0\n";
+	if (!empty($bcc)) {
+		$headers.="Bcc: $bcc\n";
+	}
+	$text_header="Content-Type: text/plain; charset=\"iso-8859-1\"\nContent-Transfer-Encoding: 8bit\n\n";
+	$html_header="Content-Type: text/html; charset=\"iso-8859-1\"\nContent-Transfer-Encoding: 8bit\n\n";
+	$html_message=$message;
+	$text_message=$message;
+	$text_message=str_replace('&nbsp;',' ',$text_message);
+	$text_message=trim(strip_tags(stripslashes($text_message)));
+	// Bring down number of empty lines to 2 max
+	$text_message=preg_replace("/\n[\s]+\n/","\n",$text_message);
+	$text_message=preg_replace("/[\n]{3,}/", "\n\n",$text_message);
+	$text_message=wordwrap($text_message,72);
+	$message="\n\n--$separator\n".$text_header.$text_message;
+	if ($html) {
+		$message.="\n\n--$separator\n".$html_header.$html_message;
+	}
+	$message.="\n\n--$separator--\n";
+
+	if (!empty($attachments)) {
+		$headers.="Content-Type: multipart/mixed; boundary=\"$att_separator\";\n";
+		$message="\n\n--$att_separator\nContent-Type: multipart/alternative; boundary=\"$separator\";\n".$message;
+		while (list(,$file)=each($attachments)) {
+			$message.="\n\n--$att_separator\n";
+			$message.="Content-Type: application/octet-stream; name=\"".basename($file)."\"\n";
+			$message.="Content-Transfer-Encoding: base64\n";
+			$message.='Content-Disposition: attachment; filename="'.basename($file)."\"\n\n";
+			$message.=wordwrap(base64_encode(fread(fopen($file,'rb'),filesize($file))),72,"\n",1);
+		}
+		$message.="\n\n--$att_separator--\n";
+	} else {
+		$headers.="Content-Type: multipart/alternative;\n\tboundary=\"$separator\";\n";
+	}
+	$message='This is a multi-part message in MIME format.'.$message;
+	if (isset($_SERVER['WINDIR']) || isset($_SERVER['windir']) || isset($_ENV['WINDIR']) || isset($_ENV['windir'])) {
+		$message=unix2dos($message);
+	}
+//	$headers=unix2dos($headers);
+	$sentok=@mail($to,$subject,$message,$headers,"-f$from");
+	return $sentok;
+}
+
+
+
+//End Functions from Dan Caragea
+
+?>
