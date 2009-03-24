@@ -1615,6 +1615,14 @@ function awpcpui_process($awpcppagename) {
 			display_ads($where);
 		}
 
+		elseif($action == 'browsecat'){
+			if(isset($_REQUEST['category_id']) && !empty($_REQUEST['category_id'])){
+			$adcategory=$_REQUEST['category_id'];
+			$where="ad_category_id='$adcategory' OR ad_category_parent_id='$adcategory' AND disabled ='0'";
+			}
+					display_ads($where);
+		}
+
 		elseif($action == 'showad'){
 			if(isset($_REQUEST['id']) && !empty($_REQUEST['id'])){
 				$adid=$_REQUEST['id'];
