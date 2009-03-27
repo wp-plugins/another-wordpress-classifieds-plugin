@@ -756,15 +756,23 @@ function get_page_id($page_name){
 
 
 function get_currentpagename() {
-
 global $wpdb;
 $table_name6 = $wpdb->prefix . "awpcp_pagename";
+
+
+	if($wpdb->get_var("show tables like '$table_name6'") != $table_name6) {
+		$currentpagename='';
+	}
+
+	else {
 
 			 $query="SELECT userpagename from ".$table_name6."";
 			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
  				while ($rsrow=mysql_fetch_row($res)) {
  					list($currentpagename)=$rsrow;
 				}
+		}
+
 			return $currentpagename;
 
 }
@@ -820,6 +828,21 @@ function printmessage($message){
 	}
 
 }
+
+function field_exists($field){
+global $wpdb;
+$table_name4 = $wpdb->prefix . "awpcp_adsettings";
+
+			 $query="SELECT config_value FROM  ".$table_name4." WHERE config_option='$field'";
+			 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+			 	if (mysql_num_rows($res)) {
+				$myreturn=true;
+			} else { $myreturn=false; }
+
+	return $myreturn;
+}
+
+
 
 function doadexpirations(){
 
@@ -941,7 +964,6 @@ function init_awpcpsbarwidget() {
 	// Register Widgets
 	register_sidebar_widget('AWPCPClassifieds', 'widget_awpcplatestads');
 	register_widget_control('AWPCPClassifieds', 'widget_awpcplatestads_options', 350, 120);
-	//unregister_sidebar_widget ( "AWPCPClassifieds", "");
 
 }
 
@@ -949,6 +971,7 @@ function awpcp_sidebar_headlines($limit) {
 
 global $wpdb;
 $table_name3 = $wpdb->prefix . "awpcp_ads";
+
 
 $awpcppage=get_currentpagename();
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
@@ -958,10 +981,10 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 			$permastruc=get_option('permalink_structure');
 			if(!isset($permastruc) || empty($permastruc)){
 			$pageid=get_page_id($awpcppagename);
-			$quers="?page_id=$pageid&a=";}
+			$quers="$siteurl/?page_id=$pageid&a=";}
 			elseif(get_awpcp_option('seofriendlyurls') == '1'){
 			$quers="$siteurl/$awpcppagename/";}
-			else {$quers="?a=";}
+			else {$quers="$siteurl/$awpcppagename?a=";}
 
 if(!isset($limit) || empty ($limit)){
 $limit=10;}
@@ -1034,3 +1057,5 @@ function strip_html_tags( $text )
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+?>
