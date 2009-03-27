@@ -3,7 +3,7 @@ Contributors: awpcp.com
 Donate link: http://www.awpcp.com
 Tags: classifieds,ads, classified ads,classified,adsense,picture,paypal
 Requires at least: 2.7
-Tested up to: 2.7
+Tested up to: 2.7.1.
 Stable tag: trunk
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your wordpress blog. 
@@ -93,7 +93,13 @@ For screen shots of the application please visit http://www.awpcp.com/about
 
 == Frequently Asked Questions ==
 
-For Frequently asked questions about this plugin visit http://www.awpcp.com/category/questions-answers/
+Q. Is this product guaranteed to be free of bugs
+A. This product is not guaranteed to be free of bugs. This is an ongoing development project. If you encounter problems using the plugin please considering helping to improve the product by reporting the problems you encounter. 
+
+Q. Will this plugin work with versions of wordpress earlier than 2.7?
+A. The plugin has only been tested with any version of wordpress earlier than 2.7. If you wish to test it on earlier versions you are free to do so. If you find that it works on an earlier version please consider sharing this information for the benefit of others. At some point in the near future time will be set aside to test the plugin on earlier versions of wordpress.
+
+For more Frequently asked questions about this plugin visit http://www.awpcp.com/category/questions-answers/
 
 
 
