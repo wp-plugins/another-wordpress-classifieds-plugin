@@ -759,12 +759,17 @@ function get_currentpagename() {
 global $wpdb;
 $table_name6 = $wpdb->prefix . "awpcp_pagename";
 
+		$tableexists=false;
+		$query="SELECT count(*) FROM ".$table_name6."";
+		if (($res=mysql_query($query))) {
+			$tableexists=true;
+		}
 
-	if($wpdb->get_var("show tables like '$table_name6'") != $table_name6) {
-		$currentpagename='';
-	}
+		if(!$tableexists){
+			$currentpagename='';
+		}
 
-	else {
+		else {
 
 			 $query="SELECT userpagename from ".$table_name6."";
 			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
