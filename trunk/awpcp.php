@@ -67,7 +67,7 @@ $thisadminemail=get_option('admin_email');
 
 $tpd = basename(dirname(__FILE__));
 
-$awpcp_db_version = "1.0.1";
+$awpcp_db_version = "1.0.2";
 
 define( 'MAINUPLOADURL', $wpcontenturl . '/uploads');
 define('MAINUPLOADDIR', $wpcontentdir .'/uploads/');
@@ -1417,6 +1417,7 @@ $currentuipagename=get_currentpagename();
 	for ($i=0;$i<mysql_num_rows($res);$i++) {
 		list($config_option,$option_type)=mysql_fetch_row($res);
 		if (isset($_POST[$config_option])) {
+
 			$myoptions[$config_option]=addslashes_mq($_POST[$config_option],true);
 			$newuipagename=$myoptions['userpagename'];
 
@@ -1436,15 +1437,16 @@ $currentuipagename=get_currentpagename();
 		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 	}
 
+
+
 		// Create the classified user page if it does not exist
-			if(!isset($currentuipagename) && empty($currentuipagename)){
+			if(empty($currentuipagename)){
 			maketheclassifiedpage($newuipagename);}
 			elseif(isset($currentuipagename) && !empty($currentuipagename)){
 				if(findpage($currentuipagename)){updatetheclassifiedpagename($currentuipagename,$newuipagename);}
 				elseif(!(findpage($currentuipagename))){deleteuserpageentry($currentuipagename);maketheclassifiedpage($newuipagename);};
 
 			}
-
 	$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">The data has been updated!</div>";
 	global $message;
 }
@@ -1455,6 +1457,7 @@ $currentuipagename=get_currentpagename();
 		//////////////////////////////////////////////////////////////////////
 
 function maketheclassifiedpage($newuipagename){
+
 add_action('init', 'flush_rewrite_rules');
 global $wpdb,$table_prefix,$wp_rewrite;
 $table_name6 = $wpdb->prefix . "awpcp_pagename";
@@ -2765,7 +2768,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 		// Check for ad category
 		if(!isset($adcategory) || empty($adcategory)){
 			$error=true;
-			$adcategorymsg="<li>You did not select a category for your ad. select a category for your ad.</li>";
+			$adcategorymsg="<li>You did not select a category for your ad. Please select a category for your ad.</li>";
 		}
 
 		// Check for ad poster's name
