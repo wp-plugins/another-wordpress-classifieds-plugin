@@ -220,51 +220,37 @@ function del_empty_vals($myarray) {
 	return $myreturn;
 }
 
-function stripslashes_mq($value,$trim=false,$stripsql=false) {
-	if (is_array($value)) {
-		$return=array();
-		while (list($k,$v)=each($value)) {
-			$return[stripslashes_mq($k)]=stripslashes_mq($v);
-		}
-	} else {
-		if ($trim) {
-			$value=trim($value);
-		}
-		if(get_magic_quotes_gpc() == 0) {
-			$return=$value;
-		} else {
-			$return=stripslashes($value);
-		}
-		if ($stripsql) {
-			$return=str_replace('\%','%',$return);
-			$return=str_replace('\_','_',$return);
-		}
-	}
-	return $return;
+function stripslashes_mq($value) {
+if (is_array($value)) {
+$myreturn=array();
+while (list($k,$v)=each($value)) {
+$myreturn[stripslashes_mq($k)]=stripslashes_mq($v);
+}
+} else {
+if(get_magic_quotes_gpc()==0) {
+$myreturn=$value;
+} else {
+$myreturn=stripslashes($value);
+}
+}
+return $myreturn;
 }
 
 
-function addslashes_mq($value,$trim=false,$stripsql=false) {
-	if (is_array($value)) {
-		$return=array();
-		while (list($k,$v)=each($value)) {
-			$return[addslashes_mq($k)]=addslashes_mq($v);
-		}
-	} else {
-		if ($trim) {
-			$value=trim($value);
-		}
-		if(get_magic_quotes_gpc() == 0) {
-			$return=addslashes_mq($value);
-		} else {
-			$return=$value;
-		}
-		if ($stripsql) {
-			$return=str_replace('%','\%',$return);
-			$return=str_replace('_','\_',$return);
-		}
-	}
-	return $return;
+function addslashes_mq($value) {
+if (is_array($value)) {
+$myreturn=array();
+while (list($k,$v)=each($value)) {
+$myreturn[addslashes_mq($k)]=addslashes_mq($v);
+}
+} else {
+if(get_magic_quotes_gpc() == 0) {
+$myreturn=addslashes($value);
+} else {
+$myreturn=$value;
+}
+}
+return $myreturn;
 }
 
 function array2qs($myarray) {
