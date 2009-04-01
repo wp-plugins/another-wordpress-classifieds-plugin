@@ -214,9 +214,6 @@ $wp_rewrite->flush_rules();
 }
 
 
-
-
-
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// The funtion to add the reference to the plugin css style sheet to the header of the index page
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1837,6 +1834,8 @@ function awpcpui_process($awpcppagename) {
 			<div class=\"classifiedcats\">";
 			//Display the categories
 
+
+
 			global $wpdb;
 			$table_name1 = $wpdb->prefix . "awpcp_categories";
 
@@ -3209,7 +3208,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 										<div class=\"headeritem\">Image Upload</div>
 										<p id=\"ustatmsg\">
 
-										<form id=\"Form1\" name=\"Form1\" method=\"post\" ENCTYPE=\"Multipart/form-data\" action=\"\">
+										<form id=\"Form1\" name=\"Form1\" method=\"post\" ENCTYPE=\"Multipart/form-data\"  action=\"\">
 											<p id=\"showhideuploadform\">
 										    <input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"$max_image_size\" />
 										    <input type=\"hidden\" name=\"ADID\" value=\"$ad_id\" />
@@ -3358,7 +3357,7 @@ if(strcasecmp($editemail, $savedemail) == 0) {
 			<div class=\"headeritem\">Image Upload</div>
 			<p id=\"ustatmsg\">
 
-			<form id=\"Form1\" name=\"Form1\" method=\"post\" ENCTYPE=\"Multipart/form-data\" action=\"\">
+			<form id=\"Form1\" name=\"Form1\" method=\"post\" ENCTYPE=\"Multipart/form-data\"  action=\"\">
 				<p id=\"showhideuploadform\">
 				<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"$max_image_size\" />
 				<input type=\"hidden\" name=\"ADID\" value=\"$adid\" />
