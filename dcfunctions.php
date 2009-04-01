@@ -253,6 +253,57 @@ $myreturn=$value;
 return $myreturn;
 }
 
+if (!function_exists('file_put_contents')) {
+
+	function file_put_contents($myfilename,&$mydata) {
+		$myreturn=false;
+		if ($this->op_mode=='disk') {
+			if (is_file($myfilename) && !is_writable($myfilename)) {
+				@chmod($myfilename,0644);
+				if (!is_writable($myfilename)) {
+					@chmod($myfilename,0666);
+				}
+			}
+			if ((is_file($myfilename) && is_readable($myfilename) && is_writable($myfilename)) || !is_file($myfilename)) {
+				if ($handle=@fopen($myfilename,'wb')) {
+					if (@fwrite($handle,$mydata)) {
+						$myreturn=true;
+					}
+					@fclose($handle);
+				}
+			}
+		} elseif ($this->op_mode=='ftp') {
+			$myfilename=str_replace(_BASEPATH_.'/',_FTPPATH_,$myfilename);
+			$tmpfname=tempnam(_BASEPATH_.'/tmp','ftp');
+			$temp=fopen($tmpfname,'wb+');
+			fwrite($temp,$mydata);
+			rewind($temp);
+			$old_de=ini_get('display_errors');
+			ini_set('display_errors',0);
+			$myreturn=ftp_fput($this->ftp_id,$myfilename,$temp,FTP_BINARY);
+			fclose($temp);
+			@unlink($tmpfname);
+			ini_set('display_errors',$old_de);
+		}
+		return $myreturn;
+	}
+}
+
+if (!function_exists('file_get_contents')) {
+
+	function file_get_contents($file) {
+		$myreturn='';
+		if (function_exists('file_get_contents')) {
+			$myreturn=file_get_contents($file);
+		} else {
+			$myreturn=fread($fp=fopen($file,'rb'),filesize($file));
+			fclose($fp);
+		}
+		return $myreturn;
+	}
+}
+
+
 function array2qs($myarray) {
 	$myreturn="";
 	while (list($k,$v)=each($myarray)) {
