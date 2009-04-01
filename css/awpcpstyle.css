@@ -91,22 +91,22 @@ margin-right:5px;
 }
 
 #postsearchads .search {
-background: #ffffff url("../images/search_ico.png") no-repeat left center;
+background: transparent url("../images/search_ico.png") no-repeat left center;
 padding-left:17px;
 }
 
 #postsearchads .edit {
-background: #ffffff url("../images/edit_ico.png") no-repeat left center;
+background: transparent url("../images/edit_ico.png") no-repeat left center;
 padding-left:17px;
 }
 
 #postsearchads .postad {
-background: #ffffff url("../images/post_ico.png") no-repeat left center;
+background: transparent url("../images/post_ico.png") no-repeat left center;
 padding-left:17px;
 }
 
 #postsearchads .browse {
-background: #ffffff url("../images/browse_ico.png") no-repeat left center;
+background: transparent url("../images/browse_ico.png") no-repeat left center;
 padding-left:17px;
 }
 
