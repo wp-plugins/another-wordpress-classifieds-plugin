@@ -720,7 +720,9 @@ function cleanstring($text)
 $code_entities_match = array(' ','--','&quot;','!','@','#','$','%','^','&','*','(',')','+','{','}','|',':','"','<','>','?','[',']','\\',';',"'",',','.','/','*','+','~','`','=');
 $code_entities_replace = array('_','_','','','','','','','','','','','','','','','','','','','','','','','');
 $text = str_replace($code_entities_match, $code_entities_replace, $text);
-$text="".(filter_var($text, FILTER_SANITIZE_URL))."";
+if (version_compare(PHP_VERSION, '5.0.0', '>=')) {
+	$text="".(filter_var($text, FILTER_SANITIZE_URL))."";
+}
 return $text;
 }
 
