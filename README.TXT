@@ -99,7 +99,8 @@ A. This product is not guaranteed to be free of bugs. This is an ongoing develop
 Q. Will this plugin work with versions of wordpress earlier than 2.7?
 A. The plugin has only been tested with version 2.7. If you wish to test it on earlier versions you are free to do so. If you find that it works on an earlier version please consider sharing this information for the benefit of others. At some point in the near future time will be set aside to test the plugin on earlier versions of wordpress.
 
+Q. Does your plugin have any particular requirements for PHP or MySQL versions?
+A. Yes, you need PHP 5+ and Mysql 5+
+
+
 For more Frequently asked questions about this plugin visit http://www.awpcp.com/category/questions-answers/
-
-
-
