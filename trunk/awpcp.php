@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.2
+Version: 1.0.3
 Author: A. Lewis
 Author URI: http://www.awpcp.com
 */
@@ -40,34 +40,29 @@ Easy PHP Upload: http://www.finalwebsites.com/forums/topic/php-ajax-upload-examp
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-require(dirname(__FILE__).'/dcfunctions.php');
-require(dirname(__FILE__).'/functions_awpcp.php');
-
-
 if ( !defined('WP_CONTENT_DIR') )
 	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); // no trailing slash, full paths only - WP_CONTENT_URL is defined further down
 
 if ( !defined('WP_CONTENT_URL') )
 	define( 'WP_CONTENT_URL', get_option('siteurl') . '/wp-content'); // no trailing slash, full paths only - WP_CONTENT_URL is defined further down
 
-
-$plugin_path = WP_CONTENT_DIR.'/plugins/'.plugin_basename(dirname(__FILE__));
-$plugin_url = WP_CONTENT_URL.'/plugins/'.plugin_basename(dirname(__FILE__));
-
 $wpcontenturl=WP_CONTENT_URL;
 $wpcontentdir=WP_CONTENT_DIR;
 
-$imagespath = WP_CONTENT_DIR.'/plugins/'.plugin_basename(dirname(__FILE__)).'/images';
-$imagesurl = WP_CONTENT_URL.'/plugins/'.plugin_basename(dirname(__FILE__)).'/images';
+$awpcp_plugin_path = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
+$awpcp_plugin_url = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
+
+$imagespath = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'/images';
+$imagesurl = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'/images';
 
 $nameofsite=get_option('blogname');
 $siteurl=get_option('siteurl');
 $thisadminemail=get_option('admin_email');
 
+require("$awpcp_plugin_path/dcfunctions.php");
+require("$awpcp_plugin_path/functions_awpcp.php");
 
-$tpd = basename(dirname(__FILE__));
-
-$awpcp_db_version = "1.0.2";
+$awpcp_db_version = "1.0.3";
 
 define( 'MAINUPLOADURL', $wpcontenturl . '/uploads');
 define('MAINUPLOADDIR', $wpcontentdir .'/uploads/');
@@ -75,8 +70,7 @@ define( 'AWPCPUPLOADURL', $wpcontenturl . '/uploads/awpcp');
 define('AWPCPUPLOADDIR', $wpcontentdir .'/uploads/awpcp/');
 define( 'AWPCPTHUMBSUPLOADURL', $wpcontenturl . '/uploads/awpcp/thumbs');
 define('AWPCPTHUMBSUPLOADDIR', $wpcontentdir .'/uploads/awpcp/thumbs/');
-//define('AWPCPURL', $wpcontenturl.'/plugins/'.$tpd.'/' );
-define('AWPCPURL', $plugin_url.'/' );
+define('AWPCPURL', $awpcp_plugin_url );
 define('MENUICO', $imagesurl .'/menuico.png');
 
 
@@ -85,15 +79,28 @@ define('MENUICO', $imagesurl .'/menuico.png');
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function awpcpjs() {
-	global $plugin_url;
+	global $awpcp_plugin_url;
 	wp_enqueue_script('jquery');
 	wp_enqueue_script('jquery-form');
-	wp_enqueue_script('jquery-ui', $plugin_url.'/js/ui.tabs.pack.js', array('jquery'));
-	wp_enqueue_script('jquery-lava', $plugin_url.'/js/jquery.lavalamp.min.js', array('jquery'));
-	wp_enqueue_script('jquery-ea', $plugin_url.'/js/jquery.easing.min.js', array('jquery'));
-	wp_enqueue_script('jquery-sc', $plugin_url.'/js/scripts.js', array('jquery'));
+	wp_enqueue_script('thickbox');
+	wp_enqueue_script('jquery-ui', $awpcp_plugin_url.'js/ui.tabs.pack.js', array('jquery'));
+	wp_enqueue_script('jquery-lava', $awpcp_plugin_url.'js/jquery.lavalamp.min.js', array('jquery'));
+	wp_enqueue_script('jquery-ea', $awpcp_plugin_url.'js/jquery.easing.min.js', array('jquery'));
+	wp_enqueue_script('jquery-sc', $awpcp_plugin_url.'js/scripts.js', array('jquery'));
 }
 
+function awpcp_insert_thickbox() {
+    ?>
+
+    <link rel="stylesheet" href="<?= get_option(’siteurl’); ?>/<?= WPINC; ?>/js/thickbox/thickbox.css" type="text/css" media="screen" />
+
+    <script type="text/javascript">
+    var tb_pathToImage = "<?= get_option(’siteurl’); ?>/<?= WPINC; ?>/js/thickbox/loadingAnimation.gif";
+    var tb_closeImage = "<?= get_option(’siteurl’); ?>/<?= WPINC; ?>/js/thickbox/tb-close.png"
+    </script>
+
+    <?php
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Add actions and filters etc
@@ -104,6 +111,7 @@ function awpcpjs() {
 	add_action('admin_menu', 'awpcp_launch');
 	add_action('wp_head', 'awpcp_addcss');
 	add_action('wp_head', 'awpcp_insertjquery');
+	add_action('wp_head', 'awpcp_insert_thickbox', 10);
 	add_filter("the_content", "awpcpui_homescreen");
 	add_action( 'doadexpirations_hook', 'doadexpirations' );
 	add_action( 'init', 'prepawpcprwrules' );
@@ -116,11 +124,10 @@ function prepawpcprwrules(){
 global $wpdb;
 $table_name6 = $wpdb->prefix . "awpcp_pagename";
 
-	if($wpdb->get_var("show tables like '$table_name6'") != $table_name6) {
-		// awpcp_pagename table is missing so do not proceed
-	}
+	$tableexists=checkfortable($table_name6);
 
-	else {
+
+	if($tableexists){
 
 	//read the htacess file to make sure the plugin rules are not already appended
 	$permastruc=get_option('permalink_structure');
@@ -129,18 +136,19 @@ $table_name6 = $wpdb->prefix . "awpcp_pagename";
 		if(isset($permastruc) && !empty($permastruc)){
 
 
-		if(get_awpcp_option('seofriendlyurls') == 1){
+			if(get_awpcp_option('seofriendlyurls') == 1){
 
 
-			$filecontent=file_get_contents(ABSPATH . '/.htaccess');
+				$filecontent=file_get_contents(ABSPATH . '/.htaccess');
 
 
-			$awpcppage=get_currentpagename();
-			$pprefx = sanitize_title($awpcppage, $post_ID='');
-			$pageid=get_page_id($pprefx);
+				$awpcppage=get_currentpagename();
+				$pprefx = sanitize_title($awpcppage, $post_ID='');
+				$pageid=get_page_id($pprefx);
 
 
 				$rrules=0;
+
 				if(preg_match("/\b\/\?pagename=$pprefx&a=\b/i","$filecontent")){
 					$rrules=1;
 				}
@@ -161,22 +169,19 @@ function awpcp_rewrite() {
 
 	$table_name6 = $wpdb->prefix . "awpcp_pagename";
 
-		if($wpdb->get_var("show tables like '$table_name6'") != $table_name6) {
-			// awpcp_pagename table is missing so do not proceed
-		}
+	$tableexists=checkfortable($table_name6);
 
-		else {
+		if($tableexists){
 
+			$awpcppage=get_currentpagename();
+			$pprefx = sanitize_title($awpcppage, $post_ID='');
+			$pageid=get_page_id($pprefx);
+			$wp_rewrite->rules=array();
 
-		$awpcppage=get_currentpagename();
-		$pprefx = sanitize_title($awpcppage, $post_ID='');
-		$pageid=get_page_id($pprefx);
-		$wp_rewrite->rules=array();
-
-		add_action('init', 'flush_rewrite_rules');
+			add_action('init', 'flush_rewrite_rules');
 
 
-		$wp_rewrite->non_wp_rules = array(
+			$wp_rewrite->non_wp_rules = array(
 
 			$pprefx.'/browsecat/(.+)/(.+)' => '?pagename='.$pprefx.'&a=browsecat&category_id=$1',
 			$pprefx.'/showad/(.+)/(.+)' => '?pagename='.$pprefx.'&a=showad&id=$1',
@@ -189,15 +194,15 @@ function awpcp_rewrite() {
 			$pprefx.'/cancelpaypal/(.+)' => '?pagename='.$pprefx.'&a=cancelpaypal&i=$1',
 			$pprefx.'/2checkout'  => '?pagename='.$pprefx.'&a=2checkout',
 			$pprefx.'/contact/(.+)/(.+)' => '?pagename='.$pprefx.'&a=contact&i=$1',
-		);
+			);
 
 
-		$wp_rewrite->rules = array_merge($wp_rewrite->non_wp_rules,$wp_rewrite->rules);
-		$rwstring="# BEGIN WordPress\n";
-		$rwstring.=$wp_rewrite->mod_rewrite_rules();
-		$rwstring.="\n# END WordPress";
+			$wp_rewrite->rules = array_merge($wp_rewrite->non_wp_rules,$wp_rewrite->rules);
+			$rwstring="# BEGIN WordPress\n";
+			$rwstring.=$wp_rewrite->mod_rewrite_rules();
+			$rwstring.="\n# END WordPress";
 
-		htarw($rwstring);
+			htarw($rwstring);
 	}
 }
 
@@ -217,13 +222,10 @@ $wp_rewrite->flush_rules();
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// The funtion to add the reference to the plugin css style sheet to the header of the index page
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 		function awpcp_addcss() {
 			$awpcpstylesheet="awpcpstyle.css";
-			echo "\n".'<style type="text/css" media="screen">@import "'.AWPCPURL.'css/'.$awpcpstylesheet.'";</style>';
-
+			 echo "\n".'<style type="text/css" media="screen">@import "'.AWPCPURL.'css/'.$awpcpstylesheet.'";</style>';
 		}
-
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// The funtion to add the javascript codes to the header of the index page
@@ -231,13 +233,6 @@ $wp_rewrite->flush_rules();
 
 		function awpcp_insertjquery() {
 		echo "\n
-		<script type=\"text/javascript\">
-		var JQuery = jQuery.noConflict();
-		 JQuery(function() {
-		JQuery('#container-1 > ul').tabs();
-
-		});
-		</script>\n\n
 			<script type=\"text/javascript\">
 			var JQuery2 = jQuery.noConflict();
 			JQuery2(document).ready(function() {
@@ -424,7 +419,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('contactformcheckhuman', '1', 'Uncheck this box if you want to disable the math problem used to check if the person filling out the form to contact about an ad is human. ', '0'),
 		('seofriendlyurls', '0', 'Search Engine Friendly URLs? Checking the box will make all URLs generated by the plugin more search engine friendly. Unchecking the box will revert to the default link structure. This will only work if your main wordpress installation is using something other than the default permalink structure.', 0),
 		('allowhtmlinadtext', '0', 'Check this if you want to allow people to be able to use HTML in their ad text. Leave unchecked to disallow HTML. <b>It is highly recommended that you DO NOT ENABLE HTML as it could invite spam and other more malicious abuses.<\/b>', 0),
-		('notice_awaiting_approval_ad', 'All ads must first be approved by the administrator before they are activated in the system. As soon as an admin has approved your ad it will become visible in the system. Thank you for your business. If your ad does not pass approval your listing fee will be refunded.','The message to print after an ad has been posted if you are manually approving ads before they are displayed on the site', 2),
+		('notice_awaiting_approval_ad', 'All ads must first be approved by the administrator before they are activated in the system. As soon as an admin has approved your ad it will become visible in the system. Thank you for your business.','The message to print after an ad has been posted if you are manually approving ads before they are displayed on the site', 2),
 		('displayphonefield', '1', 'Uncheck this if you prefer to hide the phone input field. Check it to show the phone input field.', 0),
 		('displayphonefieldreqop', '0', 'If showing the phone input field check this if the user is required to enter a phone number. [SUGGESTION: It is probably better to leave unchecked so phone number is optional.]', 0),
 		('displaycityfield', '1', 'Uncheck this if you prefer to hide the city input field. Check it to show the city input field.', 0),
@@ -457,7 +452,23 @@ global $wpdb,$awpcp_db_version;
 
     if( $installed_ver != $awpcp_db_version ) {
 
-	// Do the updates
+
+    // 1.0.3 updates
+		if(!field_exists($field='onlyadmincanplaceads')){
+
+			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+			('onlyadmincanplaceads', '0', 'Check this box if you want to prevent anyone but the adminstrator from being able to post ads ', '0');");
+
+		}
+		if(!field_exists($field='hyperlinkurlsinadtest')){
+
+			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+			('hyperlinkurlsinadtest', '1', 'Uncheck this box if you do not want to make any URLs users place in ad text to be clickable ', '0');");
+
+		}
+
+
+	// 1.0.2 updates
 
 	// Fix the UTF-8 Charset problem and add option contactformcheckhuman to awpcp_adsettings (March 25 2009)
 
@@ -482,6 +493,8 @@ global $wpdb,$awpcp_db_version;
 						('contactformcheckhuman', '1', 'Uncheck this box if you want to disable the math problem used to check if the person filling out the form to contact about an ad is human. ', '0');");
 
 		}
+
+
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         update_option( "awpcp_db_version", $awpcp_db_version );
@@ -552,7 +565,9 @@ $table_name4 = $wpdb->prefix . "awpcp_adsettings";
 	echo "<div class=\"wrap\"><h2>AWPCP Classifieds Management System</h2>
 	$message <div style=\"padding:20px;\">Thank you for using AWPCP. Please use this plugin knowing that is it is a work in progress and is by no means guaranteed to be a bug-free product. Development of this plugin is not a full-time undertaking. Consequently upgrades will be slow in coming; however, please feel free to report bugs and request new features.</div><div style=\"clear:both;\"></div>";
 
-if($wpdb->get_var("show tables like '$table_name4'") != $table_name4) {
+$tableexists=checkfortable($table_name4);
+
+if(!$tableexists) {
 
 echo "<b>!!!!ALERT:</b>There appears to be a problem with the plugin. The plugin is activated but your database tables are missing. Please de-activate the plugin from your plugins page then try to reactivate it.";}
 
@@ -1177,7 +1192,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 							$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 							$pageid=get_page_id($awpcppagename);
 
-								$ad_title="<a href=\"$base/?page_id=$pageid&a=showad&id=$ad_id\" target=\"_blank\">".$rsrow[2]."</a>";
+								$ad_title="<a href=\"$base/?page_id=$pageid&a=showad&id=$ad_id\">".$rsrow[2]."</a>";
 								$handlelink="<a href=\"?page=Manage1&action=deletead&id=$ad_id&offset=$offset&results=$results\">Delete</a> | <a href=\"?page=Manage1&action=editad&id=$ad_id&offset=$offset&results=$results\">Edit</a>";
 
 								$approvelink='';
@@ -1384,7 +1399,7 @@ $from="$table_name5";
 
 
 	echo "</div>";
-die;
+	die;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1643,7 +1658,7 @@ return $content;
 
 function awpcpui_process($awpcppagename) {
 
-		global $plugin_url;
+		global $awpcp_plugin_url;
 
 		//Retrieve the welcome message for the user
 		$uiwelcome=get_awpcp_option('uiwelcome');
@@ -1820,20 +1835,37 @@ function awpcpui_process($awpcppagename) {
 
 
 			echo "
-			<div id=\"classiwrapper\">
-			<ul id=\"postsearchads\">
-			<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
-			<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
-			<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-			<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
-			</ul>
+				<div id=\"classiwrapper\">
+				<ul id=\"postsearchads\">";
+
+				$isadmin=checkifisadmin();
+
+				if(!(get_awpcp_option('onlyadmincanplaceads'))){
+					echo "
+							<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+							<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+						";
+				}
+
+				elseif(get_awpcp_option('onlyadmincanplaceads') && ($isadmin == '1')){
+					echo "
+							<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+							<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+						";
+				}
+
+				echo "
+						<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
+						<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+						</ul>
 
 
-			<div style=\"clear:both;\"></div>
-			<div class=\"uiwelcome\">$uiwelcome</div>
-			<div class=\"classifiedcats\">";
+						<div style=\"clear:both;\"></div>
+						<div class=\"uiwelcome\">$uiwelcome</div>
+						<div class=\"classifiedcats\">
+					";
+
 			//Display the categories
-
 
 
 			global $wpdb;
@@ -1912,7 +1944,7 @@ function awpcpui_process($awpcppagename) {
 				}
 
 				echo "$myreturn</div>";
-				echo "<font style=\"font-size:smaller\">Powered by <a href=\"http://www.awpcp.com\" target=\"_blank\">AWPCP</a> </font></div>";
+				echo "<font style=\"font-size:smaller\">Powered by <a href=\"http://www.awpcp.com\">Another Wordpress Classifieds Plugin</a> </font></div>";
 }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1927,14 +1959,18 @@ function awpcpui_process($awpcppagename) {
 function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$adaccesskey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$addetails,$adpaymethod,$offset,$results,$ermsg){
 
 
-	$isadmin=0;
-	global $user_level;
-	get_currentuserinfo();
+		$isadmin=checkifisadmin();
 
-		if($user_level == '10'){
-		$isadmin=1;
+		if(get_awpcp_option('onlyadmincanplaceads') && ($isadmin != '1')){
+
+		echo "
+				<div id=\"classiwrapper\">
+				<p>You do not have permission to perform the function you are trying to perform. Access to this page has been denied.</p>
+				</div>
+			";
 		}
 
+		else {
 
 		global $wpdb,$siteurl;
 		$table_name2 = $wpdb->prefix . "awpcp_adfees";
@@ -1992,12 +2028,28 @@ echo "
 
 if(!is_admin()){
 
-echo"<ul id=\"postsearchads\">
-$liplacead
-$lieditad
-<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
-</ul>";}
+	echo "
+			<ul id=\"postsearchads\">
+		";
+			if(!(get_awpcp_option('onlyadmincanplaceads'))){
+				echo "
+						$liplacead
+						$lieditad
+					";
+			}
+
+			elseif(get_awpcp_option('onlyadmincanplaceads') && ($isadmin == '1')){
+					echo "
+							$liplacead
+							$lieditad
+						";
+				}
+	echo "
+			<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
+			<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+			</ul>
+		";
+}
 
 		////////////////////////////////////////////////////////////////////////////////
 		// If running in pay mode get and display the payment option settings
@@ -2242,9 +2294,10 @@ echo "<div style=\"clear:both\"></div>";
 
 
 		}
-}
+	}
 				echo "<input type=\"submit\" class=\"scbutton\" value=\"Continue\"></form>";
 				echo "</div>";
+	}
 
 }
 
@@ -2258,70 +2311,102 @@ echo "<div style=\"clear:both\"></div>";
 
 function load_ad_edit_form($action,$awpcppagename,$editemail='',$adaccesskey='',$message=''){
 
-$quers='';
-global $siteurl;
-$permastruc=get_option(permalink_structure);
-if(!isset($permastruc) || empty($permastruc)){
-$pageid=get_page_id($awpcppagename);
-$quers="?page_id=$pageid&a=";}
-elseif(get_awpcp_option('seofriendlyurls') == '1'){
-$quers="$siteurl/$awpcppagename/";}
-else {$quers="?a=";}
+	$isadmin=checkifisadmin();
 
-if($action == 'placead'){
-$liplacead="<li class=\"postad\"><b>Placing Ad</b></li>";}
-else {$liplacead="<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>";}
-if($action== 'editad'){
-$lieditad="<li class=\"edit\"><b>Editing Ad: Step 1</b></li>";}
-else {$lieditad="<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>";}
+		if(get_awpcp_option('onlyadmincanplaceads') && ($isadmin != '1')){
 
-$checktheform="<script type=\"text/javascript\">
-	function checkform() {
-		var the=document.myform;
-
-		if ((the.editemail.value==\"\") || (the.editemail.value.indexOf('@')==-1) || (the.editemail.value.indexOf('.',the.editemail.value.indexOf('@')+2)==-1) || (the.editemail.value.lastIndexOf('.')==the.editemail.value.length-1)) {
-			alert('Either you did not enter your email address or the email address you entered is not valid.');
-			the.editemail.focus();
-			return false;
+		echo "
+				<div id=\"classiwrapper\">
+				<p>You do not have permission to perform the function you are trying to perform. Access to this page has been denied.</p>
+				</div>
+			";
 		}
 
-		if (the.adaccesskey.value==\"\") {
-			alert('You did not enter the access key. The access key was emailed to you when you first submitted your ad. You need this key in order to edit your ad.');
-			the.adaccesskey.focus();
-			return false;
-		}
+		else {
 
-		return true;
+
+			$quers='';
+			global $siteurl;
+			$permastruc=get_option(permalink_structure);
+			if(!isset($permastruc) || empty($permastruc)){
+			$pageid=get_page_id($awpcppagename);
+			$quers="?page_id=$pageid&a=";}
+			elseif(get_awpcp_option('seofriendlyurls') == '1'){
+			$quers="$siteurl/$awpcppagename/";}
+			else {$quers="?a=";}
+
+			if($action == 'placead'){
+			$liplacead="<li class=\"postad\"><b>Placing Ad</b></li>";}
+			else {$liplacead="<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>";}
+			if($action== 'editad'){
+			$lieditad="<li class=\"edit\"><b>Editing Ad: Step 1</b></li>";}
+			else {$lieditad="<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>";}
+
+			$checktheform="<script type=\"text/javascript\">
+				function checkform() {
+					var the=document.myform;
+
+					if ((the.editemail.value==\"\") || (the.editemail.value.indexOf('@')==-1) || (the.editemail.value.indexOf('.',the.editemail.value.indexOf('@')+2)==-1) || (the.editemail.value.lastIndexOf('.')==the.editemail.value.length-1)) {
+						alert('Either you did not enter your email address or the email address you entered is not valid.');
+						the.editemail.focus();
+						return false;
+					}
+
+					if (the.adaccesskey.value==\"\") {
+						alert('You did not enter the access key. The access key was emailed to you when you first submitted your ad. You need this key in order to edit your ad.');
+						the.adaccesskey.focus();
+						return false;
+					}
+
+					return true;
+				}
+
+			</script>";
+
+			if(!isset($message) || empty($message)){
+			$message="<p>Please enter the email address you used when you created your ad in addition to the ad access key that was emailed to you after your ad was submitted</p>";
+			}
+
+		echo "
+				<div id=\"classiwrapper\">
+				<ul id=\"postsearchads\">
+			";
+
+						if(!(get_awpcp_option('onlyadmincanplaceads'))){
+							echo "
+									$liplacead
+									$lieditad
+								";
+						}
+
+						elseif(get_awpcp_option('onlyadmincanplaceads') && ($isadmin == '1')){
+							echo "
+									$liplacead
+									$lieditad
+								";
+						}
+
+		echo "
+				<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
+				<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+				</ul><div style=\"clear:both\"></div>
+			";
+
+		echo "$message
+		$checktheform<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">
+		<input type=\"hidden\" name=\"awpcpagename\" value=\"$awpcpagename\">
+		<input type=\"hidden\" name=\"a\" value=\"doadedit1\">
+		<p>Enter your Email address<br/>
+		<input type=\"text\" name=\"editemail\" value=\"$editemail\" class=\"inputbox\"></p>
+		<p>Enter your ad access key<br/>
+		<input type=\"text\" name=\"adaccesskey\" value=\"$adaccesskey\" class=\"inputbox\"></p>
+		<input type=\"submit\" class=\"scbutton\" value=\"Continue\">
+		<br/>
+		</form>
+
+		</div>";
+
 	}
-
-</script>";
-
-if(!isset($message) || empty($message)){
-$message="<p>Please enter the email address you used when you created your ad in addition to the ad access key that was emailed to you after your ad was submitted</p>";
-}
-
-echo "
-<div id=\"classiwrapper\">
-<ul id=\"postsearchads\">
-$liplacead
-$lieditad
-<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
-</ul><div style=\"clear:both\"></div>";
-
-echo "$message
-$checktheform<form method=\"post\" name=\"myform\" action=\"\" onsubmit=\"return(checkform())\">
-<input type=\"hidden\" name=\"awpcpagename\" value=\"$awpcpagename\">
-<input type=\"hidden\" name=\"a\" value=\"doadedit1\">
-<p>Enter your Email address<br/>
-<input type=\"text\" name=\"editemail\" value=\"$editemail\" class=\"inputbox\"></p>
-<p>Enter your ad access key<br/>
-<input type=\"text\" name=\"adaccesskey\" value=\"$adaccesskey\" class=\"inputbox\"></p>
-<input type=\"submit\" class=\"scbutton\" value=\"Continue\">
-<br/>
-</form>
-
-</div>";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2402,13 +2487,32 @@ $message="<p></p>";
 }
 
 echo "
-<div id=\"classiwrapper\">
-<ul id=\"postsearchads\">
-<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
-<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
-<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
-</ul><div style=\"clear:both\"></div>";
+		<div id=\"classiwrapper\">
+		<ul id=\"postsearchads\">
+	";
+
+				$isadmin=checkifisadmin();
+
+				if(!(get_awpcp_option('onlyadmincanplaceads'))){
+					echo "
+							<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+							<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+						";
+				}
+
+				elseif(get_awpcp_option('onlyadmincanplaceads') && ($isadmin == '1')){
+					echo "
+							<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+							<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+						";
+				}
+
+echo "
+		<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
+		<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+		</ul><div style=\"clear:both\"></div>
+	";
+
 $theadtitle=get_adtitle($adid);
 $modtitle=cleanstring(theadtitle);
 $modtitle=add_dashes($modtitle);
@@ -2419,7 +2523,7 @@ $thead="<a href=\"".$quers."showad&id=$adid\">$theadtitle</a>";}
 
 
 echo "<p>You are responding to $thead.</p>$message
-$checktheform<form method=\"post\" name=\"myform\" action=\"\" onsubmit=\"return(checkform())\">
+$checktheform<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">
 <input type=\"hidden\" name=\"adid\" value=\"$adid\">
 <input type=\"hidden\" name=\"a\" value=\"docontact1\">
 <input type=\"hidden\" name=\"numval1\" value=\"$numval1\">
@@ -2572,16 +2676,32 @@ $message="<p>Use the form below to conduct a broad or narrow search. For a broad
 $allcategories=get_categorynameidall($searchcategory);
 
 echo "
-<div id=\"classiwrapper\">
-<ul id=\"postsearchads\">
-<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
-<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
-<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-<li class=\"search\"><b>Searching Ads</b></li>
-</ul><div style=\"clear:both\"></div>";
+		<div id=\"classiwrapper\">
+		<ul id=\"postsearchads\">
+	";
+				$isadmin=checkifisadmin();
+
+				if(!(get_awpcp_option('onlyadmincanplaceads'))){
+					echo "
+							<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+							<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+						";
+				}
+
+				elseif(get_awpcp_option('onlyadmincanplaceads') && ($isadmin == '1')){
+					echo "
+							<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+							<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+						";
+				}
+echo "
+		<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
+		<li class=\"search\"><b>Searching Ads</b></li>
+		</ul><div style=\"clear:both\"></div>
+	";
 
 echo "$message
-$checktheform<form method=\"post\" name=\"myform\" action=\"\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">
+$checktheform<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">
 <input type=\"hidden\" name=\"a\" value=\"dosearch\">
 <p>Search for ads containing this word or phrase:<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"keywordphrase\" value=\"$keywordphrase\"></p>
 <p>Limit search to Category<br/><select name=\"searchcategory\"><option value=\"\">Select your ad category</option>$allcategories</a></select></p>
@@ -2866,13 +2986,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 			if($adaction == 'editad'){
 
-				$isadmin=0;
-				global $user_level;
-				get_currentuserinfo();
-
-				if($user_level == '10'){
-					$isadmin=1;
-				}
+			$isadmin=checkifisadmin();
 
 				$qdisabled='';
 				if(!(is_admin())){
@@ -3016,7 +3130,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 					<div class=\"headeritem\">Image Upload</div>
 					<p id=\"ustatmsg\">
 
-					<form id=\"Form1\" name=\"Form1\" method=\"post\" ENCTYPE=\"Multipart/form-data\" action=\"\">
+					<form id=\"Form1\" name=\"Form1\" method=\"post\" ENCTYPE=\"Multipart/form-data\">
 						<p id=\"showhideuploadform\">
 					    <input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"$max_image_size\" />
 					    <input type=\"hidden\" name=\"ADID\" value=\"$ad_id\" />
@@ -3025,7 +3139,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 
 					        <input type=\"file\" name=\"fileToUpload\" id=\"fileToUpload\" size=\"18\" />
-					        <input type=\"Submit\" value=\"Submit\" id=\"buttonForm\" />
+					        <input type=\"Submit\" value=\"Submit\" id=\"awpcp_buttonForm\" />
 
 					    </p>
 					</form>
@@ -3033,10 +3147,13 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 					<p id=\"message\">
 
-					<p id=\"result\"><div style=\"clear:both\"></div>
-					";} else { $showimageuploadform='';
-					include(dirname(__FILE__).'/upload4jquery.php');
+					<p id=\"result\"><div style=\"clear:both\"></div>";
+					include("$awpcp_plugin_path/upload4jquery.php");
 					}
+					else {
+						$showimageuploadform="";
+					}
+
 
 					$uploadandpay.="$showimageuploadform";
 					}
@@ -3208,7 +3325,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 										<div class=\"headeritem\">Image Upload</div>
 										<p id=\"ustatmsg\">
 
-										<form id=\"Form1\" name=\"Form1\" method=\"post\" ENCTYPE=\"Multipart/form-data\"  action=\"\">
+										<form id=\"Form1\" name=\"Form1\" method=\"post\" ENCTYPE=\"Multipart/form-data\">
 											<p id=\"showhideuploadform\">
 										    <input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"$max_image_size\" />
 										    <input type=\"hidden\" name=\"ADID\" value=\"$ad_id\" />
@@ -3217,7 +3334,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 
 										        <input type=\"file\" name=\"fileToUpload\" id=\"fileToUpload\" size=\"18\" />
-										        <input type=\"Submit\" value=\"Submit\" id=\"buttonForm\" />
+										        <input type=\"Submit\" value=\"Submit\" id=\"awpcp_buttonForm\" />
 
 										    </p>
 										</form>
@@ -3225,12 +3342,13 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 										<p id=\"message\">
 
-										<p id=\"result\"><div style=\"clear:both\"></div>
-										";} else { $showimageuploadform='';
-										include(dirname(__FILE__).'/upload4jquery.php');
+										<p id=\"result\"><div style=\"clear:both\"></div>";
+										include("$awpcp_plugin_path/upload4jquery.php");
+										} else { $showimageuploadform="";
+
 										}
 					$finishbutton="<p>Please click the finish button to complete the process of submitting your listing</p>
-					<form method=\"post\" action=\"\">
+					<form method=\"post\" id=\"awpcpui_process\">
 					<input type=\"hidden\" name=\"a\" value=\"adpostfinish\">
 					<input type=\"hidden\" name=\"ad_id\" value=\"$ad_id\" />
 					<input type=\"hidden\" name=\"adkey\" value=\"$key\" />
@@ -3268,54 +3386,65 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 function editimages($adtermid,$adid,$adkey,$editemail) {
 
-$savedemail=get_adposteremail($adid);
+	global $wpdb;
+	$table_name5 = $wpdb->prefix . "awpcp_adphotos";
 
-			global $wpdb;
-			$table_name5 = $wpdb->prefix . "awpcp_adphotos";
+	$savedemail=get_adposteremail($adid);
 
-			$finishbutton="<p>Please click the finish button to complete the process of editing listing</p>
-							<form method=\"post\" action=\"\">
-							<input type=\"hidden\" name=\"a\" value=\"adpostfinish\" />
-							<input type=\"hidden\" name=\"ad_id\" value=\"$adid\" />
-							<input type=\"hidden\" name=\"adkey\" value=\"$adkey\" />
-							<input type=\"hidden\" name=\"adaction\" value=\"editad\" />
-							<input type=\"Submit\" value=\"Finish\"/>
-							</form>";
+		if(strcasecmp($editemail, $savedemail) == 0) {
 
-if(strcasecmp($editemail, $savedemail) == 0) {
+			$imagecode="<div class=\"headeritem\">Manage your ad images</div>";
 
+			if(!isset($adid) || empty($adid)){
+				$imagecode.="There has been a problem encountered. The system is unable to continue processing the task in progress. Please start over and if you encounter the problem again, please contact a system administrator.";
+			}
 
+			else {
 
-		$imagecode="<div class=\"headeritem\">Manage your ad images</div>";
-		if(!isset($adid) || empty($adid)){
-			$imagecode.="There has been a problem encountered. The system is unable to continue processing the task in progress. Please start over and if you encounter the problem again, please contact a system administrator.";
-		}
-
-		else {
+			// First make sure images are allowed
 
 			if(get_awpcp_option('imagesallowdisallow') == '1'){
 
-			if((get_awpcp_option('freepay') == '1') && isset($adtermid) && $adtermid != '0'){
-			$numimgsallowed=get_numimgsallowed($adtermid);}
-			else {$numimgsallowed=get_awpcp_option('imagesallowedfree');}
+				// Next figure out how many images user is allowed to upload
 
-			$totalimagesuploaded=get_total_imagesuploaded($adid);
+				if((get_awpcp_option('freepay') == '1') && isset($adtermid) && $adtermid != '0'){
+					$numimgsallowed=get_numimgsallowed($adtermid);
+				}
+				else {
+					$numimgsallowed=get_awpcp_option('imagesallowedfree');
+				}
 
-			if($totalimagesuploaded >= 1){
+				// Next figure out how many (if any) images the user has previously uploaded
 
-				$imagecode.="<p>Your images are displayed below. The total number of images you are allowed is: $numimgsallowed</p>";
-					if(($numimgsallowed - $totalimagesuploaded) == '0'){
-						$imagecode.="<p>If you want to change your images you will first need to delete the current images.</p>";
+				$totalimagesuploaded=get_total_imagesuploaded($adid);
+
+
+				// Next determine if the user has reached their image quota and act accordingly
+
+				if($totalimagesuploaded >= 1)
+				{
+
+					$imagecode.="<p>Your images are displayed below. The total number of images you are allowed is: $numimgsallowed</p>";
+
+					if(($numimgsallowed - $totalimagesuploaded) == '0')
+					{
+						$imagecode.=	"<p>If you want to change your images you will first need to delete the current images.</p>";
 					}
-					if(get_awpcp_option('imagesapprove') == 1){
-						$imagecode.="<p>Image approval is in effect so any new images you upload will not be visible to viewers until an admin has approved it.</p>";
+
+					if(get_awpcp_option('imagesapprove') == 1)
+					{
+						$imagecode.=	"<p>Image approval is in effect so any new images you upload will not be visible to viewers until an admin has approved it.</p>";
 					}
-				$imagecode.="<div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>";
-				$theimage='';
+
+					// Display the current images
+
+					$imagecode.="<div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>";
+
+					$theimage='';
 
 
-				$query="SELECT key_id,image_name,disabled FROM ".$table_name5." WHERE ad_id='$adid' ORDER BY image_name ASC";
-				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+					$query="SELECT key_id,image_name,disabled FROM ".$table_name5." WHERE ad_id='$adid' ORDER BY image_name ASC";
+					if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 					while ($rsrow=mysql_fetch_row($res)) {
 						list($ikey,$image_name,$disabled)=$rsrow;
@@ -3336,62 +3465,81 @@ if(strcasecmp($editemail, $savedemail) == 0) {
 						}
 
 						$dellink="<a href=\"?a=dp&k=$ikey\">Delete</a>";
-						$theimage.="<li><a href=\"".AWPCPUPLOADURL."/$image_name\"><img $transval src=\"".AWPCPTHUMBSUPLOADURL."/$image_name\"></a><br/>$dellink $imgstat</li>";
+						$theimage.="<li><a class=\"thickbox\" href=\"".AWPCPUPLOADURL."/$image_name\"><img $transval src=\"".AWPCPTHUMBSUPLOADURL."/$image_name\"></a><br/>$dellink $imgstat</li>";
 					}
 
 					$imagecode.=$theimage;
 					$imagecode.="</ul></div></div>";
 					$imagecode.="<div style=\"clear:both;\"></div>";
+				}
+
+				elseif($totalimagesuploaded < 1)
+				{
+
+					$imagecode.="You do not currently have any images uploaded. Use the upload form below to upload your images. If you do not wish to upload any images simply click the finish button. If uploading images, be careful not to click the finish button until after you've uploaded all your images. </p>";
+				}
+
+
+				if($totalimagesuploaded < $numimgsallowed)
+				{
+					$max_image_size=get_awpcp_option('maximagesize');
+
+					$showimageuploadform="
+
+								<div class=\"headeritem\">Image Upload</div>
+
+								<p id=\"ustatmsg\">
+
+								<form id=\"Form1\" name=\"Form1\" method=\"post\" ENCTYPE=\"Multipart/form-data\">
+									<p id=\"showhideuploadform\">
+									<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"$max_image_size\" />
+									<input type=\"hidden\" name=\"ADID\" value=\"$adid\" />
+									<input type=\"hidden\" name=\"ADTERMID\" value=\"$adtermid\" />
+									If adding images to your ad, select an image from your hard disk:<br/><br/>
+
+
+									<input type=\"file\" name=\"fileToUpload\" id=\"fileToUpload\" size=\"18\" />
+									<input type=\"Submit\" value=\"Submit\" id=\"awpcp_buttonForm\" />
+
+									</p>
+								</form>
+								<img id=\"loading\" src=\"".AWPCPURL."images/loading.gif\" style=\"display:none;\" />
+
+								<p id=\"message\">
+
+								<p id=\"result\"><div style=\"clear:both;\"></div>";
+								include("$awpcp_plugin_path/upload4jquery.php");
+				}
+				else
+				{
+					$showimageuploadform="";
+				}
+
 			}
-			elseif($totalimagesuploaded < 1){
-				$imagecode="<div class=\"headeritem\">Manage your ad images</div><p>You do not currently have any images uploaded. Use the upload form below to upload your images. If you do not wish to upload any images simply click the finish button. If uploading images, be careful not to click the finish button until after you've uploaded all your images. </p>";
-			}
 
-			if($totalimagesuploaded < $numimgsallowed){
-			$max_image_size=get_awpcp_option('maximagesize');
-
-
-			$showimageuploadform="<p>You can display [<b>$numimgsallowed</b>] images with your ad if desired.</p>";
-
-			$showimageuploadform.="
-			<div class=\"headeritem\">Image Upload</div>
-			<p id=\"ustatmsg\">
-
-			<form id=\"Form1\" name=\"Form1\" method=\"post\" ENCTYPE=\"Multipart/form-data\"  action=\"\">
-				<p id=\"showhideuploadform\">
-				<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"$max_image_size\" />
-				<input type=\"hidden\" name=\"ADID\" value=\"$adid\" />
-				<input type=\"hidden\" name=\"ADTERMID\" value=\"$adtermid\" />
-				If adding images to your ad, select an image from your hard disk:<br/><br/>
-
-
-				<input type=\"file\" name=\"fileToUpload\" id=\"fileToUpload\" size=\"18\" />
-				<input type=\"Submit\" value=\"Submit\" id=\"buttonForm\" />
-
-				</p>
-			</form>
-			<img id=\"loading\" src=\"".AWPCPURL."images/loading.gif\" style=\"display:none;\" />
-
-			<p id=\"message\">
-
-			<p id=\"result\"><div style=\"clear:both;\"></div>";} else { $showimageuploadform='';}
-			include(dirname(__FILE__).'/upload4jquery.php');
-			}
 			$imagecode.=$showimageuploadform;
 
+				$finishbutton="
+						<p>Please click the finish button to complete the process of editing listing</p>
+						<form method=\"post\" id=\"awpcpui_process\">
+						<input type=\"hidden\" name=\"a\" value=\"adpostfinish\" />
+						<input type=\"hidden\" name=\"ad_id\" value=\"$adid\" />
+						<input type=\"hidden\" name=\"adkey\" value=\"$adkey\" />
+						<input type=\"hidden\" name=\"adaction\" value=\"editad\" />
+						<input type=\"Submit\" value=\"Finish\"/>
+						</form>
 
+						";
 
 			$imagecode.="$finishbutton<div style=\"clear:both;\"></div>";
 
-
-			//$classicontent=$imagecode;
-			//global $classicontent;
+			}
 
 			echo "<div id=\"classiwrapper\">$imagecode</div>";
-
 		}
 
-	}
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3400,14 +3548,8 @@ if(strcasecmp($editemail, $savedemail) == 0) {
 
 
 function deletepic($picid,$adid,$adtermid,$adkey,$editemail){
-$isadmin=0;
-$savedemail=get_adposteremail($adid);
-global $user_level;
-get_currentuserinfo();
 
-	if($user_level == '10'){
-	$isadmin=1;
-	}
+$isadmin=checkifisadmin();
 
 	if((strcasecmp($editemail, $savedemail) == 0) || ($isadmin == 1 )) {
 
@@ -3457,54 +3599,64 @@ echo "</div>";
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function deletead($adid,$adkey,$editemail) {
-	$isadmin=0;
-	global $wpdb;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
-	$table_name5 = $wpdb->prefix . "awpcp_adphotos";
-	$savedemail=get_adposteremail($adid);
-	global $user_level;
-	get_currentuserinfo();
 
-	if($user_level == '10'){
-	$isadmin=1;
-	}
+		$isadmin=checkifisadmin();
 
-	if((strcasecmp($editemail, $savedemail) == 0) || ($isadmin == 1 )) {
+			if(get_awpcp_option('onlyadmincanplaceads') && ($isadmin != '1')){
 
-			// Delete ad image data from database and delete images from server
-
-			$query="SELECT image_name FROM ".$table_name5." WHERE ad_id='$adid'";
-			if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-
-			for ($i=0;$i<mysql_num_rows($res);$i++) {
-				$photo=mysql_result($res,$i,0);
-					if (file_exists(AWPCPUPLOADDIR.'/'.$photo)) {
-						@unlink(AWPCPUPLOADDIR.'/'.$photo);
-					}
-					if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo)) {
-						@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
-					}
+			echo "
+					<div id=\"classiwrapper\">
+					<p>You do not have permission to perform the function you are trying to perform. Access to this page has been denied.</p>
+					</div>
+				";
 			}
 
-				$query="DELETE FROM ".$table_name5." WHERE ad_id='$adid'";
-				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+		else {
 
-				// Now delete the ad
-				$query="DELETE FROM  ".$table_name3." WHERE ad_id='$adid'";
-				if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+			global $wpdb,$nameofsite;
+			$table_name3 = $wpdb->prefix . "awpcp_ads";
+			$table_name5 = $wpdb->prefix . "awpcp_adphotos";
+			$savedemail=get_adposteremail($adid);
 
-				if($isadmin == 1){
-					$message="The ad has been deleted";
-					return $message;
-				}
 
-				else {
-					echo "<div id=\"classiwrapper\"> Your ad details and any photos you have uploaded have been deleted from the system. </div>";
-				}
-	}
-	else {
-				echo "Problem encountered. Cannot complete  request.";
-	}
+			if((strcasecmp($editemail, $savedemail) == 0) || ($isadmin == 1 )) {
+
+					// Delete ad image data from database and delete images from server
+
+					$query="SELECT image_name FROM ".$table_name5." WHERE ad_id='$adid'";
+					if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+					for ($i=0;$i<mysql_num_rows($res);$i++) {
+						$photo=mysql_result($res,$i,0);
+							if (file_exists(AWPCPUPLOADDIR.'/'.$photo)) {
+								@unlink(AWPCPUPLOADDIR.'/'.$photo);
+							}
+							if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo)) {
+								@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
+							}
+					}
+
+						$query="DELETE FROM ".$table_name5." WHERE ad_id='$adid'";
+						if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+						// Now delete the ad
+						$query="DELETE FROM  ".$table_name3." WHERE ad_id='$adid'";
+						if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+						if(($isadmin == 1) && is_admin()) {
+							$message="The ad has been deleted";
+							return $message;
+						}
+
+						else {
+							echo "<div id=\"classiwrapper\"> Your ad details and any photos you have uploaded have been deleted from the system. Thank you for using $nameofsite </div>";
+						}
+			}
+			else {
+						echo "Problem encountered. Cannot complete  request.";
+			}
+
+		}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4284,7 +4436,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
   						while ($rsrow=mysql_fetch_row($res)) {
   						list($image_name)=$rsrow;
 
-  						echo "<li><a href=\"".AWPCPUPLOADURL."/$image_name\"><img src=\"".AWPCPTHUMBSUPLOADURL."/$image_name\"></a></li>";
+  						echo "<li><a class=\"thickbox\" href=\"".AWPCPUPLOADURL."/$image_name\"><img src=\"".AWPCPTHUMBSUPLOADURL."/$image_name\"></a></li>";
 
   						}
 
@@ -4306,8 +4458,9 @@ echo "</div><div style=\"clear:both;\"></div>";
 
 
 function display_ads($where) {
-$awpcppage=get_currentpagename();
-$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+
+	$awpcppage=get_currentpagename();
+	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
 						$quers='';
 						global $siteurl;
@@ -4320,25 +4473,41 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 						else {$quers="?a=";}
 
 
-echo "<div id=\"classiwrapper\">
+	echo "
+			<div id=\"classiwrapper\">
+			<ul id=\"postsearchads\">
+		";
 
-<ul id=\"postsearchads\">
-<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
-<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
-<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
-</ul>
+					$isadmin=checkifisadmin();
 
+					if(!(get_awpcp_option('onlyadmincanplaceads'))){
+						echo "
+								<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+								<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+							";
+					}
 
-<div style=\"clear:both;\"></div>";
+					elseif(get_awpcp_option('onlyadmincanplaceads') && ($isadmin == '1')){
+						echo "
+								<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+								<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+							";
+					}
+	echo "
+			<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
+			<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+			</ul>
+			<div style=\"clear:both;\"></div>
+		";
 
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
 
-$from="$table_name3";
-if(!isset($where) || empty($where)){
-	$where="disabled ='0'";
-}
+	$from="$table_name3";
+
+	if(!isset($where) || empty($where)){
+		$where="disabled ='0'";
+	}
 
 	if(get_awpcp_option('disablependingads') == 1) {
 		if(get_awpcp_option('freepay') == 1){
@@ -4452,15 +4621,29 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
 if(isset($adid) && !empty($adid)){
 echo "<div id=\"classiwrapper\">";
-echo "<ul id=\"postsearchads\">
-<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
-<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
-<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
-</ul>
+echo "<ul id=\"postsearchads\">";
 
+				$isadmin=checkifisadmin();
 
-<div style=\"clear:both;\"></div>";
+				if(!(get_awpcp_option('onlyadmincanplaceads'))){
+					echo "
+							<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+							<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+						";
+				}
+
+				elseif(get_awpcp_option('onlyadmincanplaceads') && ($isadmin == '1')){
+					echo "
+							<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+							<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+						";
+				}
+echo "
+		<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
+		<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+		</ul>
+		<div style=\"clear:both;\"></div>
+	";
 
 global $wpdb;
 $table_name3 = $wpdb->prefix . "awpcp_ads";
@@ -4517,7 +4700,14 @@ else {$showadsense='';}
 						echo "$showadsense";
 					}
 
+					if(get_awpcp_option('hyperlinkurlsinadtest')){
+						$addetails=preg_replace("/(http:\/\/[^\s]+)/","<a href=\"\$1\">\$1</a>",$addetails);
+					}
+
 					$addetails=preg_replace("/(\r\n)+|(\n|\r)+/", "<br /><br />", $addetails);
+
+
+
 					echo "<p class=\"addetails\">$addetails</p>";
 					if(get_awpcp_option('adsenseposition') == '2'){
 					echo "$showadsense";
@@ -4537,7 +4727,7 @@ else {$showadsense='';}
   						while ($rsrow=mysql_fetch_row($res)) {
   						list($image_name)=$rsrow;
 
-  						echo "<li><a href=\"".AWPCPUPLOADURL."/$image_name\"><img src=\"".AWPCPTHUMBSUPLOADURL."/$image_name\"></a></li>";
+  						echo "<li><a class=\"thickbox\" href=\"".AWPCPUPLOADURL."/$image_name\"><img src=\"".AWPCPTHUMBSUPLOADURL."/$image_name\"></a></li>";
 
   						}
 
