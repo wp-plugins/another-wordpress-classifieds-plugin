@@ -3148,7 +3148,8 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 					<p id=\"message\">
 
 					<p id=\"result\"><div style=\"clear:both\"></div>";
-					include("$awpcp_plugin_path/upload4jquery.php");
+										global $awpcp_plugin_path;
+										include($awpcp_plugin_path.'/upload4jquery.php');
 					}
 					else {
 						$showimageuploadform="";
@@ -3343,7 +3344,8 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 										<p id=\"message\">
 
 										<p id=\"result\"><div style=\"clear:both\"></div>";
-										include("$awpcp_plugin_path/upload4jquery.php");
+										global $awpcp_plugin_path;
+										include($awpcp_plugin_path.'/upload4jquery.php');
 										} else { $showimageuploadform="";
 
 										}
@@ -3508,7 +3510,8 @@ function editimages($adtermid,$adid,$adkey,$editemail) {
 								<p id=\"message\">
 
 								<p id=\"result\"><div style=\"clear:both;\"></div>";
-								include("$awpcp_plugin_path/upload4jquery.php");
+										global $awpcp_plugin_path;
+										include($awpcp_plugin_path.'/upload4jquery.php');
 				}
 				else
 				{
