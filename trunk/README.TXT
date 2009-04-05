@@ -37,6 +37,8 @@ Features:
 * Admin can edit user ads
 * Viewers can contact the ad poster. Ad poster's email is never shown
 * Ads can be searched by keyword, city, state, country, name of poster.
+* Classifieds can be setup so only admin can post ads
+* For sites where HTML will not be allowed in ad text admin has the option turn on or off hyperlinking of any URLs found in text
 
 These are just some of the features of Another Wordpress Classifieds Plugin
 
