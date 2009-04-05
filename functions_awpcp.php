@@ -764,10 +764,10 @@ return $text;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Get the id of a page by its name
-function get_page_id($page_name){
+function get_page_id($awpcppagename){
 	global $wpdb;
-	$pageid = $wpdb->get_var("SELECT ID FROM $wpdb->posts WHERE post_name = '".$page_name."'");
-	return $pageid;
+	$awpcpwppostpageid = $wpdb->get_var("SELECT ID FROM $wpdb->posts WHERE post_name = '".$awpcppagename."'");
+	return $awpcpwppostpageid;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1025,8 +1025,8 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 			global $siteurl;
 			$permastruc=get_option('permalink_structure');
 			if(!isset($permastruc) || empty($permastruc)){
-			$pageid=get_page_id($awpcppagename);
-			$quers="$siteurl/?page_id=$pageid&a=";}
+			$awpcpwppostpageid=get_page_id($awpcppagename);
+			$quers="$siteurl/?page_id=$awpcpwppostpageid&a=";}
 			elseif(get_awpcp_option('seofriendlyurls') == '1'){
 			$quers="$siteurl/$awpcppagename/";}
 			else {$quers="$siteurl/$awpcppagename?a=";}
