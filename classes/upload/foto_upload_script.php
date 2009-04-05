@@ -3,7 +3,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 
 include (dirname(__FILE__).'/upload_class.php');
 
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 ini_set("memory_limit", "64M");
 set_time_limit(60);
 
