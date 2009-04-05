@@ -11,7 +11,6 @@ $root = dirname(dirname(dirname(dirname(__FILE__))));
 }
 
 
-
 include(dirname(__FILE__).'/classes/upload/foto_upload_script.php');
 
 
