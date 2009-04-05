@@ -52,7 +52,7 @@ function smart_table($array,$table_cols=1,$opentable,$closetable) {
 
 
 
-function make_seed() {
+function create_awpcp_random_seed() {
     list($usec, $sec) = explode(' ', microtime());
     return (int)$sec+(int)($usec*100000);
 }
@@ -315,7 +315,7 @@ function array2qs($myarray) {
 
 
 function create_pager($from,$where,$offset,$results,$tpname) {
-	mt_srand(make_seed());
+	mt_srand(create_awpcp_random_seed());
 	$radius=5;
 	global $PHP_SELF;
 	global $accepted_results_per_page;
