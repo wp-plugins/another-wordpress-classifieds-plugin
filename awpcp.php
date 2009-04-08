@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.4
+Version: 1.0.4.1
 Author: A. Lewis
 Author URI: http://www.awpcp.com
 */
@@ -62,7 +62,7 @@ $thisadminemail=get_option('admin_email');
 require("$awpcp_plugin_path/dcfunctions.php");
 require("$awpcp_plugin_path/functions_awpcp.php");
 
-$awpcp_db_version = "1.0.4";
+$awpcp_db_version = "1.0.4.1";
 
 define( 'MAINUPLOADURL', $wpcontenturl . '/uploads');
 define('MAINUPLOADDIR', $wpcontentdir .'/uploads/');
@@ -453,6 +453,70 @@ global $wpdb,$awpcp_db_version;
 
 
     if( $installed_ver != $awpcp_db_version ) {
+
+
+    // 1.0.4.1 updates
+
+    if(!field_exists($field='notice_awaiting_approval_ad')){
+
+				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+				('notice_awaiting_approval_ad', 'All ads must first be approved by the administrator before they are activated in the system. As soon as an admin has approved your ad it will become visible in the system. Thank you for your business.','The message to print after an ad has been posted if you are manually approving ads before they are displayed on the site', 2);");
+			}
+
+			if(!field_exists($field='displayphonefield')){
+
+				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+				('displayphonefield', '1', 'Uncheck this if you prefer to hide the phone input field. Check it to show the phone input field.', 0);");
+			}
+
+			if(!field_exists($field='displayphonefieldreqop')){
+
+				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+				('displayphonefieldreqop', '0', 'If showing the phone input field check this if the user is required to enter a phone number. [SUGGESTION: It is probably better to leave unchecked so phone number is optional.]', 0);");
+			}
+
+			if(!field_exists($field='displaycityfield')){
+
+				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+				('displaycityfield', '1', 'Uncheck this if you prefer to hide the city input field. Check it to show the city input field.', 0);");
+			}
+
+			if(!field_exists($field='displaycityfieldreqop')){
+
+				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+				('displaycityfieldreqop', '0', 'If showing the city input field check this if the user is required to enter a city. [SUGGESTION: It is probably better to leave unchecked so city is optional.]', 0);");
+			}
+
+			if(!field_exists($field='displaystatefield')){
+
+				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+				('displaystatefield', '1', 'Uncheck this if you prefer to hide the state input field. Check it to show the state input field.', 0);");
+			}
+
+			if(!field_exists($field='displaystatefieldreqop')){
+
+				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+				('displaystatefieldreqop', '0', 'If showing the state field check this if the user is required to enter a state. [SUGGESTION: It is probably better to leave unchecked so state is optional.]', 0);");
+			}
+
+			if(!field_exists($field='displaycountryfield')){
+
+				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+				('displaycountryfield', '1', 'Uncheck this if you prefer to hide the country input field. Check it to show the country input field.', 0);");
+			}
+
+			if(!field_exists($field='displaycountryfieldreqop')){
+
+				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+				('displaycountryfieldreqop', '0', 'If showing the country input field, check this if the user is required to enter a country. [SUGGESTION: It is probably better to leave unchecked so country is optional.]', 0);");
+			}
+
+
+			if(!field_exists($field='uiwelcome')){
+
+				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+				('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side', 2);");
+		}
 
 
     // 1.0.3 updates
