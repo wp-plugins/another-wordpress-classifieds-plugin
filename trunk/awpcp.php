@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.4.1
+Version: 1.0.4.2
 Author: A. Lewis
 Author URI: http://www.awpcp.com
 */
@@ -63,7 +63,7 @@ $thisadminemail=get_option('admin_email');
 require("$awpcp_plugin_path/dcfunctions.php");
 require("$awpcp_plugin_path/functions_awpcp.php");
 
-$awpcp_db_version = "1.0.4.1";
+$awpcp_db_version = "1.0.4.2";
 
 define( 'MAINUPLOADURL', $wpcontenturl . '/uploads');
 define('MAINUPLOADDIR', $wpcontentdir .'/uploads/');
@@ -457,10 +457,14 @@ global $wpdb,$awpcp_db_version;
 
     if( $installed_ver != $awpcp_db_version ) {
 
+	// 1.0.4.2 installation updates - no database changes
 
-    // 1.0.4.1 updates
 
-    if(!field_exists($field='notice_awaiting_approval_ad')){
+    // 1.0.4.1 installation updates - checking for fields notice_awaiting_approval_ad,displayphonefiled,displayphonefieldreqop,displaycityfield,displaycityfieldreqop
+    // displaystatefield, displaystatefieldreqop, displaycountryfield, displaycountryfieldreqop and uiwelcome - In 1.0.4 these fields were not inserted
+    // due to misplaced semi-colon after field hyperlinkurlintext
+
+   	 		if(!field_exists($field='notice_awaiting_approval_ad')){
 
 				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
 				('notice_awaiting_approval_ad', 'All ads must first be approved by the administrator before they are activated in the system. As soon as an admin has approved your ad it will become visible in the system. Thank you for your business.','The message to print after an ad has been posted if you are manually approving ads before they are displayed on the site', 2);");
@@ -522,7 +526,7 @@ global $wpdb,$awpcp_db_version;
 		}
 
 
-    // 1.0.3 updates
+    // 1.0.3 installation updates
 		if(!field_exists($field='onlyadmincanplaceads')){
 
 			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
@@ -537,7 +541,7 @@ global $wpdb,$awpcp_db_version;
 		}
 
 
-	// 1.0.2 updates
+	// 1.0.2 installation updates
 
 	// Fix the UTF-8 Charset problem and add option contactformcheckhuman to awpcp_adsettings (March 25 2009)
 
