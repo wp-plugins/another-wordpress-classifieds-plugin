@@ -48,6 +48,7 @@ if ( !defined('WP_CONTENT_URL') )
 
 $wpcontenturl=WP_CONTENT_URL;
 $wpcontentdir=WP_CONTENT_DIR;
+$wpinc=WPINC;
 
 $awpcp_plugin_path = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
 $awpcp_plugin_url = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
@@ -90,16 +91,18 @@ function awpcpjs() {
 }
 
 function awpcp_insert_thickbox() {
-    ?>
+    global $siteurl,$wpinc;
 
-    <link rel="stylesheet" href="<?= get_option(’siteurl’); ?>/<?= WPINC; ?>/js/thickbox/thickbox.css" type="text/css" media="screen" />
+    echo "\n".'
+
+    <link rel="stylesheet" href="'.$siteurl.'/'.$wpinc.'/js/thickbox/thickbox.css" type="text/css" media="screen" />
 
     <script type="text/javascript">
-    var tb_pathToImage = "<?= get_option(’siteurl’); ?>/<?= WPINC; ?>/js/thickbox/loadingAnimation.gif";
-    var tb_closeImage = "<?= get_option(’siteurl’); ?>/<?= WPINC; ?>/js/thickbox/tb-close.png"
+    var tb_pathToImage = "'.$siteurl.'/'.$wpinc.'/js/thickbox/loadingAnimation.gif";
+    var tb_closeImage = "'.$siteurl.'/'.$wpinc.'/js/thickbox/tb-close.png"
     </script>
 
-    <?php
+    ';
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
