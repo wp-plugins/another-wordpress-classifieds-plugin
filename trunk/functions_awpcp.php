@@ -4,6 +4,8 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Another Wordpress Classifieds Plugin: This file: functions_awpcp.php
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: retrieve individual options from settings table
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,14 +32,28 @@ function get_awpcp_option($option) {
 
 function checkifisadmin() {
 
-	$isadmin=0;
-
-	global $user_level;
+	global $current_user;
 	get_currentuserinfo();
 
-	if($user_level == '10'){
-		$isadmin=1;
+$thisuserlevel=$current_user->user_level;
+
+if(!isset($thisuserlevel) || empty($thisuserlevel)) {
+
+if(is_admin()) {
+
+	// This is assumptive and here because some users
+	// run plugins that alter the wordpress user_level
+	// structure thereby rendering $current_user->user_level
+	// null and void
+
+	$thisuserlevel = "10";
+
 	}
+}
+
+	if($thisuserlevel == '10'){
+		$isadmin=1;
+	} else { $isadmin = 0; }
 
 return $isadmin;
 
@@ -743,7 +759,7 @@ function cleanstring($text)
 $code_entities_match = array(' ','--','&quot;','!','@','#','$','%','^','&','*','(',')','+','{','}','|',':','"','<','>','?','[',']','\\',';',"'",',','.','/','*','+','~','`','=');
 $code_entities_replace = array('_','_','','','','','','','','','','','','','','','','','','','','','','','');
 $text = str_replace($code_entities_match, $code_entities_replace, $text);
-if (version_compare(PHP_VERSION, '5.0.0', '>=')) {
+if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
 	$text="".(filter_var($text, FILTER_SANITIZE_URL))."";
 }
 return $text;
@@ -766,13 +782,91 @@ return $text;
 // Get the id of a page by its name
 function get_page_id($awpcppagename){
 	global $wpdb;
-	$awpcpwppostpageid = $wpdb->get_var("SELECT ID FROM $wpdb->posts WHERE post_name = '".$awpcppagename."'");
+	$awpcpwppostpageid = $wpdb->get_var("SELECT ID FROM $wpdb->posts WHERE post_name = '$awpcppagename'");
 	return $awpcpwppostpageid;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: setup the structure of the URLs based on if permalinks are on and SEO urls are turned on
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function setup_url_structure($awpcppagename) {
+
+			$quers='';
+			global $siteurl;
+			$permastruc=get_option('permalink_structure');
+
+			//Get the ID of the classifieds page
+			$awpcpwppostpageid=get_page_id($awpcppagename);
+
+			// Get the parent ID of the classifieds page in order to check if the page is or is not a child
+			$awpcppageparentid=get_page_parent_id($awpcpwppostpageid);
+
+			if($awpcppageparentid == '0')
+			{
+				//The page is not a child so do nothing
+				$awpcpparentpagename='';
+			}
+			elseif($awpcppageparentid >= '1')
+			{
+				// The page has a parent so get the parent page name and append to siteurl
+				$awpcpparentpagename=get_awpcp_parent_page_name($awpcppageparentid);
+				$siteurl.="/$awpcpparentpagename";
+			}
+
+			if(!isset($permastruc) || empty($permastruc))
+			{
+				$quers="?page_id=$awpcpwppostpageid&a=";
+			}
+			elseif(get_awpcp_option('seofriendlyurls') == '1'){
+				$quers="$siteurl/$awpcppagename/";
+			}
+			else {
+				$quers="$siteurl?a=";
+			}
+
+			return $quers;
+		}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: get the parent_id of the post
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function get_page_parent_id($awpcpwppostpageid){
+	global $wpdb;
+	$awpcppageparentid = $wpdb->get_var("SELECT post_parent FROM $wpdb->posts WHERE ID = '$awpcpwppostpageid'");
+	return $awpcppageparentid;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: get the page name where the parent id is present
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function get_awpcp_parent_page_name($awpcppageparentid) {
+
+	global $wpdb;
+	$awpcpparentpagename = $wpdb->get_var("SELECT post_name FROM $wpdb->posts WHERE ID = '$awpcppageparentid'");
+	return $awpcpparentpagename;
+
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: check if a specific database table exists
@@ -887,6 +981,24 @@ $table_name4 = $wpdb->prefix . "awpcp_adsettings";
 	return $myreturn;
 }
 
+
+function awpcpLimitText($Text,$Min,$Max,$MinAddChar) {
+	    if (strlen($Text) < $Min) {
+	        $Limit = $Min-strlen($Text);
+	        $Text .= $MinAddChar;
+	    }
+	    elseif (strlen($Text) >= $Max) {
+	        $words = explode(" ", $Text);
+	        $check=1;
+	        while (strlen($Text) >= $Max) {
+	            $c=count($words)-$check;
+	            $Text=substr($Text,0,(strlen($words[$c])+1)*(-1));
+	            $check++;
+	        }
+	    }
+
+	    return $Text;
+}
 
 
 function doadexpirations(){
@@ -1020,16 +1132,8 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 
 $awpcppage=get_currentpagename();
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
-
-			$quers='';
-			global $siteurl;
-			$permastruc=get_option('permalink_structure');
-			if(!isset($permastruc) || empty($permastruc)){
-			$awpcpwppostpageid=get_page_id($awpcppagename);
-			$quers="$siteurl/?page_id=$awpcpwppostpageid&a=";}
-			elseif(get_awpcp_option('seofriendlyurls') == '1'){
-			$quers="$siteurl/$awpcppagename/";}
-			else {$quers="$siteurl/$awpcppagename?a=";}
+$permastruc=get_option('permalink_structure');
+$quers=setup_url_structure($awpcppagename);
 
 if(!isset($limit) || empty ($limit)){
 $limit=10;}
