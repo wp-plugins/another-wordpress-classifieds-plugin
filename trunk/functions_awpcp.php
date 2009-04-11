@@ -803,6 +803,7 @@ function setup_url_structure($awpcppagename) {
 			//Get the ID of the classifieds page
 			$awpcpwppostpageid=get_page_id($awpcppagename);
 
+
 			// Get the parent ID of the classifieds page in order to check if the page is or is not a child
 			$awpcppageparentid=get_page_parent_id($awpcpwppostpageid);
 
@@ -826,7 +827,7 @@ function setup_url_structure($awpcppagename) {
 				$quers="$siteurl/$awpcppagename/";
 			}
 			else {
-				$quers="$siteurl?a=";
+				$quers="$siteurl/$awpcppagename/?a=";
 			}
 
 			return $quers;
