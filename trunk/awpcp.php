@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.4.2
+Version: 1.0.4.3
 Author: A. Lewis
 Author URI: http://www.awpcp.com
 */
@@ -63,7 +63,7 @@ $thisadminemail=get_option('admin_email');
 require("$awpcp_plugin_path/dcfunctions.php");
 require("$awpcp_plugin_path/functions_awpcp.php");
 
-$awpcp_db_version = "1.0.4.2";
+$awpcp_db_version = "1.0.4.3";
 
 define( 'MAINUPLOADURL', $wpcontenturl . '/uploads');
 define('MAINUPLOADDIR', $wpcontentdir .'/uploads/');
@@ -1895,15 +1895,8 @@ function awpcpui_process($awpcppagename) {
 
 		else {
 
-			$quers='';
-			global $siteurl;
+			$quers=setup_url_structure($awpcppagename);
 			$permastruc=get_option('permalink_structure');
-			if(!isset($permastruc) || empty($permastruc)){
-			$awpcpwppostpageid=get_page_id($awpcppagename);
-			$quers="?page_id=$awpcpwppostpageid&a=";}
-			elseif(get_awpcp_option('seofriendlyurls') == '1'){
-			$quers="$siteurl/$awpcppagename/";}
-			else {$quers="?a=";}
 
 
 
@@ -2052,14 +2045,9 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 		$images='';
 		$displaydeleteadlink='';
 
-		$quers='';
+		$quers=setup_url_structure($awpcppagename);
 		$permastruc=get_option(permalink_structure);
-		if(!isset($permastruc) || empty($permastruc)){
-		$awpcpwppostpageid=get_page_id($awpcppagename);
-		$quers="?page_id=$awpcpwppostpageid&a=";}
-		elseif(get_awpcp_option('seofriendlyurls') == '1'){
-		$quers="$siteurl/$awpcppagename/";}
-		else {$quers="?a=";}
+
 
 
 			if($action == 'placead'){
@@ -2400,15 +2388,9 @@ function load_ad_edit_form($action,$awpcppagename,$editemail='',$adaccesskey='',
 		else {
 
 
-			$quers='';
-			global $siteurl;
+			$quers=setup_url_structure($awpcppagename);
 			$permastruc=get_option(permalink_structure);
-			if(!isset($permastruc) || empty($permastruc)){
-			$awpcpwppostpageid=get_page_id($awpcppagename);
-			$quers="?page_id=$awpcpwppostpageid&a=";}
-			elseif(get_awpcp_option('seofriendlyurls') == '1'){
-			$quers="$siteurl/$awpcppagename/";}
-			else {$quers="?a=";}
+
 
 			if($action == 'placead'){
 			$liplacead="<li class=\"postad\"><b>Placing Ad</b></li>";}
@@ -2498,15 +2480,9 @@ $awpcppage=get_currentpagename();
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
 
-$quers='';
-global $siteurl;
+$quers=setup_url_structure($awpcppagename);
 $permastruc=get_option(permalink_structure);
-if(!isset($permastruc) || empty($permastruc)){
-$awpcpwppostpageid=get_page_id($awpcppagename);
-$quers="?page_id=$awpcpwppostpageid&a=";}
-elseif(get_awpcp_option('seofriendlyurls') == '1'){
-$quers="$siteurl/$awpcppagename/";}
-else {$quers="?a=";}
+
 
 $numval1=rand(1,100);
 $numval2=rand(1,100);
@@ -2717,15 +2693,8 @@ function load_ad_search_form($keywordphrase,$searchname,$searchcity,$searchstate
 $awpcppage=get_currentpagename();
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
-$quers='';
-global $siteurl;
+$quers=setup_url_structure($awpcppagename);
 $permastruc=get_option(permalink_structure);
-if(!isset($permastruc) || empty($permastruc)){
-$awpcpwppostpageid=get_page_id($awpcppagename);
-$quers="?page_id=$awpcpwppostpageid&a=";}
-elseif(get_awpcp_option('seofriendlyurls') == '1'){
-$quers="$siteurl/$awpcppagename/";}
-else {$quers="?a=";}
 
 
 $checktheform="<script type=\"text/javascript\">
@@ -3261,24 +3230,9 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 						$custom.="_";
 						$custom.="$key";
 
-						$quers='';
+						$quers=setup_url_structure($awpcppagename);
 						$permastruc=get_option('permalink_structure');
-						if(!isset($permastruc) || empty($permastruc)){
-							$awpcpwppostpageid=get_page_id($awpcppagename);
-							$quers="$base/?page_id=$awpcpwppostpageid&a=";
-						}
-						elseif(get_awpcp_option('seofriendlyurls') == '1'){
-							$quers="$base/$awpcppagename/";
-						}
-						else {
-							$quers="$base/$awpcppagename/?a=";
-						}
 
-						if(get_awpcp_option('paylivetestmode') == 1){
-							$paypalurl="http://www.paypal.com/cgi-bin/webscr";
-						}else {
-							$paypalurl="https://www.sandbox.paypal.com/cgi-bin/webscr";
-						}
 
 
 
@@ -3332,18 +3286,9 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 								$custom.="_";
 								$custom.="$key";
 
-						$quers='';
+						$quers=setup_url_structure($awpcppagename);
 						$permastruc=get_option('permalink_structure');
-						if(!isset($permastruc) || empty($permastruc)){
-							$awpcpwppostpageid=get_page_id($awpcppagename);
-							$quers="$base/?page_id=$awpcpwppostpageid&a=";
-						}
-						elseif(get_awpcp_option('seofriendlyurls') == '1'){
-							$quers="$base/$awpcppagename/";
-						}
-						else {
-							$quers="$base/$awpcppagename/?a=";
-						}
+
 
 							$showpaybutton.="
 							<form action=\"https://www2.2checkout.com/2co/buyer/purchase\" method=\"post\">
@@ -4370,14 +4315,9 @@ $custom="$ad_id";
 $custom.="_";
 $custom.="$key";
 
-$quers='';
+						$quers=setup_url_structure($awpcppagename);
 						$permastruc=get_option('permalink_structure');
-						if(!isset($permastruc) || empty($permastruc)){
-						$awpcpwppostpageid=get_page_id($awpcppagename);
-						$quers="$base/?page_id=$awpcpwppostpageid&a=";}
-						elseif(get_awpcp_option('seofriendlyurls') == '1'){
-						$quers="$base/$awpcppagename/";}
-						else {$quers="$base/$awpcppagename/?a=";}
+
 
 						if(get_awpcp_option('paylivetestmode') == 1){
 							$paypalurl="http://www.paypal.com/cgi-bin/webscr";
@@ -4540,19 +4480,13 @@ echo "</div><div style=\"clear:both;\"></div>";
 
 
 function display_ads($where) {
-
+global $siteurl;
 	$awpcppage=get_currentpagename();
 	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
-						$quers='';
-						global $siteurl;
+						$quers=setup_url_structure($awpcppagename);
 						$permastruc=get_option('permalink_structure');
-						if(!isset($permastruc) || empty($permastruc)){
-						$awpcpwppostpageid=get_page_id($awpcppagename);
-						$quers="?page_id=$awpcpwppostpageid&a=";}
-						elseif(get_awpcp_option('seofriendlyurls') == '1'){
-						$quers="$siteurl/$awpcppagename/";}
-						else {$quers="?a=";}
+
 
 
 	echo "
@@ -4689,16 +4623,10 @@ if(!isset($adid) || empty($adid)){
 
 $awpcppage=get_currentpagename();
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
-
-						$quers='';
-						global $siteurl;
+global $siteurl;
+						$quers=setup_url_structure($awpcppagename);
 						$permastruc=get_option(permalink_structure);
-						if(!isset($permastruc) || empty($permastruc)){
-						$awpcpwppostpageid=get_page_id($awpcppagename);
-						$quers="?page_id=$awpcpwppostpageid&a=";}
-						elseif(get_awpcp_option('seofriendlyurls') == '1'){
-						$quers="$siteurl/$awpcppagename/";}
-						else {$quers="?a=";}
+
 
 
 if(isset($adid) && !empty($adid)){
