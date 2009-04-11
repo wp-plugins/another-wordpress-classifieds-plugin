@@ -534,25 +534,54 @@ function get_categorynameidall($cat_id = 0)
 
 			global $wpdb;
 			$table_name1 = $wpdb->prefix . "awpcp_categories";
+			$optionitem='';
 
-		 	$catnid=$wpdb->get_results("select category_id as cat_ID, category_parent_id as cat_parent_ID, category_name as cat_name from ".$table_name1."");
+			// Start with the main categories
 
-		 	foreach($catnid as $categories)
-		 	{
+			$query="SELECT category_id,category_name FROM ".$table_name1." WHERE category_parent_id='0' ORDER BY category_name ASC";
+			if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
-		 	if($categories->cat_parent_ID == '0'){
-		 	$opstyle="style=\"background-color:#eeeeee;margin-bottom:3px;\"";}else{$opstyle='';}
+					while ($rsrow=mysql_fetch_row($res)) {
 
-		  	if($categories->cat_ID == $cat_id)
-		   	{
-		   		$optionitem .= "<option $opstyle selected value='$categories->cat_ID'>$categories->cat_name</option>";
-		   	}
-		  	else
-		   	{
-		   		$optionitem .= "<option $opstyle value='$categories->cat_ID'>$categories->cat_name</option>";
-		   	}
+						$cat_ID=$rsrow[0];
+						$cat_name=$rsrow[1];
 
-		 	}
+						$opstyle="style=\"background-color:#eeeeee;margin-bottom:3px;\"";
+
+						if($cat_ID == $cat_id)
+						{
+							$maincatoptionitem = "<option $opstyle selected value='$cat_ID'>$cat_name</option>";
+						}
+						else {
+							$maincatoptionitem = "<option $opstyle value='$cat_ID'>$cat_name</option>";
+						}
+
+						$optionitem.="$maincatoptionitem";
+
+						// While still looping through main categories get any sub categories of the main category
+
+						$maincatid=$cat_ID;
+
+		   					$query="SELECT category_id,category_name FROM ".$table_name1." WHERE category_parent_id='$maincatid' ORDER BY category_name ASC";
+							if (!($res2=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+							while ($rsrow2=mysql_fetch_row($res2)) {
+
+
+								$subcat_ID=$rsrow2[0];
+								$subcat_name=$rsrow2[1];
+
+								if($subcat_ID == $cat_id)
+								{
+									$subcatoptionitem = "<option selected value='$subcat_ID'>$subcat_name</option>";
+								}
+								else {
+									$subcatoptionitem = "<option  value='$subcat_ID'>$subcat_name</option>";
+								}
+
+								$optionitem.="$subcatoptionitem";
+							}
+		   			}
 
 		 	return $optionitem;
 	}
