@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.4.3
+Version: 1.0.4.4
 Author: A. Lewis
 Author URI: http://www.awpcp.com
 */
@@ -63,7 +63,7 @@ $thisadminemail=get_option('admin_email');
 require("$awpcp_plugin_path/dcfunctions.php");
 require("$awpcp_plugin_path/functions_awpcp.php");
 
-$awpcp_db_version = "1.0.4.3";
+$awpcp_db_version = "1.0.4.4";
 
 define( 'MAINUPLOADURL', $wpcontenturl . '/uploads');
 define('MAINUPLOADDIR', $wpcontentdir .'/uploads/');
@@ -235,63 +235,73 @@ $wp_rewrite->flush_rules();
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		function awpcp_insertjquery() {
-		echo "\n
-			<script type=\"text/javascript\">
-			var JQuery2 = jQuery.noConflict();
-			JQuery2(document).ready(function() {
-				JQuery2(\"#loading\")
-				.ajaxStart(function(){
-					JQuery2(this).show();
-				})
-				.ajaxComplete(function(){
-					JQuery2(this).hide();
-				});
-				var options = {
-					beforeSubmit:  showRequest,
-					success:       showResponse,
-					url:       '".AWPCPURL."upload4jquery.php',  // your upload script
-					dataType:  'json'
-				};
-				JQuery2('#Form1').submit(function() {
-					document.getElementById('message').innerHTML = '';
-					JQuery2(this).ajaxSubmit(options);
-					return false;
-				});
-			});
+				echo "\n
+					<script type=\"text/javascript\">
+					var JQuery2 = jQuery.noConflict();
+					JQuery2(document).ready(function() {
+						JQuery2(\"#loading\")
+						.ajaxStart(function(){
+							JQuery2(this).show();
+						})
+						.ajaxComplete(function(){
+							JQuery2(this).hide();
+						});
 
-			function showRequest(formData, jqForm, options) {
-				var fileToUploadValue = JQuery2('input[@name=fileToUpload]').fieldValue();
-				if (!fileToUploadValue[0]) {
-					document.getElementById('message').innerHTML = 'Please select a file.';
-					return false;
-				}
+						var MAX_FILE_SIZE = JQuery('input[name=MAX_FILE_SIZE]').val();
+						var ADID = JQuery('input[name=ADID]').val();
+						var ADTERMID = JQuery('input[name=ADTERMID]').val();
 
-				return true;
-			}
 
-			function showResponse(data, statusText)  {
-				if (statusText == 'success') {
+						var dataString = 'MAX_FILE_SIZE='+ MAX_FILE_SIZE + '&ADID=' + ADID + '&ADTERMID=' + ADTERMID;
 
-					if (data.img != '') {
-						document.getElementById('result').innerHTML = '<img src=\"".AWPCPUPLOADURL."/thumbs/'+data.img+'\" />';
-						document.getElementById('ustatmsg').innerHTML = data.ustatmsg;
-						document.getElementById('message').innerHTML = data.error;
-					} else {
-						document.getElementById('message').innerHTML = data.error;
-						document.getElementById('ustatmsg').innerHTML = data.ustatmsg;
 
+						var options = {
+							beforeSubmit:  awpcpshowRequest,
+							success:       awpcpshowResponse,
+							url:       '".AWPCPURL."upload4jquery.php?+dataString',  // your upload script
+							dataType:  'json'
+						};
+						JQuery2('#Form1').submit(function() {
+							document.getElementById('message').innerHTML = '';
+							JQuery2(this).ajaxSubmit(options);
+							return false;
+						});
+					});
+
+					function awpcpshowRequest(formData, jqForm, options) {
+						var fileToUploadValue = JQuery2('input[@name=fileToUpload]').fieldValue();
+						if (!fileToUploadValue[0]) {
+							document.getElementById('message').innerHTML = 'Please select a file.';
+							return false;
+						}
+
+						return true;
 					}
 
-					if(data.showhideuploadform == '1'){
-							document.getElementById(\"showhideuploadform\").style.display=\"none\";
-					}
-				} else {
-					document.getElementById('message').innerHTML = 'Unknown error!';
-					document.getElementById('ustatmsg').innerHTML = data.ustatmsg;
-				}
-			}
+					function awpcpshowResponse(data, statusText)  {
+						if (statusText == 'success') {
 
-			</script>\n";
+							if (data.img != '') {
+								document.getElementById('result').innerHTML = '<img src=\"".AWPCPUPLOADURL."/thumbs/'+data.img+'\" />';
+								document.getElementById('ustatmsg').innerHTML = data.ustatmsg;
+								document.getElementById('message').innerHTML = data.error;
+							} else {
+								document.getElementById('message').innerHTML = data.error;
+								document.getElementById('ustatmsg').innerHTML = data.ustatmsg;
+
+							}
+
+							if(data.showhideuploadform == '1'){
+									document.getElementById(\"showhideuploadform\").style.display=\"none\";
+							}
+						} else {
+							document.getElementById('message').innerHTML = 'Unknown error!';
+							document.getElementById('ustatmsg').innerHTML = data.ustatmsg;
+						}
+					}
+				</script>
+
+		\n";
 		}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -410,6 +420,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('maximagesize', '150000', 'If allowing images set the maximum file size that can be uploaded per image.', 1),
 		('maxcharactersallowed', '750', 'What is the maximum number of characters the text of an ad can contain?', 1),
 		('paypalemail', 'xxx@xxxxxx.xxx', 'Email address for paypal payments [if running in paymode and if paypal is activated]', 1),
+		('paypalcurrencycode', 'USD', 'The currency in which you would like to receive your paypal payments', 1),
 		('2checkout', 'xxxxxxx', 'Account for 2Checkout payments [if running in pay mode and if 2Checkout is activated]', 1),
 		('activatepaypal', '1', 'Check to activate paypal as a payment gateway. Uncheck to deactivate. [If running in pay mode]', 0),
 		('activate2checkout', '1', 'Check to activate 2Checkout as a payment gateway. Uncheck to deactivate. [If running in pay mode] ', 0),
@@ -456,6 +467,18 @@ global $wpdb,$awpcp_db_version;
 
 
     if( $installed_ver != $awpcp_db_version ) {
+
+    // 1.0.4.4 installaiton updates
+
+     		if(!field_exists($field='paypalcurrencycode')){
+
+					$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+					('paypalcurrencycode', 'USD', 'The currency in which you would like to receive your paypal payments', 1);");
+			}
+
+
+
+    // 1.0.4.3 installation updates - no database changes
 
 	// 1.0.4.2 installation updates - no database changes
 
@@ -887,136 +910,273 @@ function awpcp_opsconfig_categories(){
 
 global $wpdb;
 global $message;
-global $clearedits;
-global $clearaction;
-
+global $imagesurl;
 
 
 $table_name1 = $wpdb->prefix . "awpcp_categories";
+$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
+$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
+
+
 $cat_ID='';
 $category_name='';
 $aeaction='';
 $category_parent_id='';
+$promptmovetocat='';
+$aeaction='';
 
 		///////////////////////////////////////////////////
-		// Check for existence of a category ID
-		//////////////////////////////////////////////////
+		// Check for existence of a category ID and action
 
-	if(isset($_REQUEST['cat_ID']) && !empty($_REQUEST['cat_ID'])){
+	if( isset($_REQUEST['editcat']) && !empty($_REQUEST['editcat']) )
+	{
+		$cat_ID=$_REQUEST['editcat'];
+		$action = "edit";
+	}
 
-		if(isset($clearedits)){unset($cat_ID);}// Doing this to clear the edit box in order to prevent accidental modification of cateogory already edited
+	elseif( isset($_REQUEST['delcat']) && !empty($_REQUEST['delcat']) )
+	{
+		$cat_ID=$_REQUEST['delcat'];
+		$action = "delcat";
+	}
 
-		else {
-		$cat_ID=$_REQUEST['cat_ID'];
-		$category_name=get_adcatname($cat_ID);
-		$cat_parent_ID=get_cat_parent_ID($cat_ID);
+	elseif(isset($_REQUEST['cat_ID']) && !empty($_REQUEST['cat_ID']))
+		{
+			$cat_ID=$_REQUEST['cat_ID'];
+		}
+
+
+	if( !isset($action)  || empty($action) )
+	{
+		if( isset($_REQUEST['action']) && !empty($_REQUEST['action']) )
+		{
+			$action=$_REQUEST['action'];
 		}
 
 	}
 
 
-	if(isset($_REQUEST['action']) && !empty($_REQUEST['action'])){
+	if( $action == 'edit' )
+	{
+		$aeaction='edit';
+	}
 
-	$action=$_REQUEST['action'];}
-
-	if(isset($clearaction)){unset($action);}
-
-	if($action == 'edit'){$aeaction="edit";$backfont="background:#FFFFcc";}
-	if($action == 'delcat'){$aeaction="delete";$backfont="background:#D54E21;color:white;";}
-	if($aeaction == 'edit'){$aeword1="You are currently editing the category shown in the box.";$aeword2="Edit Current Category";$aeword3="Parent Category";$addnewlink="<a href=\"?page=Configure3\">Add A New Category</a>";}
-	elseif($aeaction == 'delete'){$aeword1="If you're sure that you want to delete this category please press the delete button"; $aeword2="Delete this category";$aeword3="The Category is listed in";$addnewlink="<a href=\"?page=Configure3\">Add A New Category</a>";}
-	else {$aeword1="Enter the category name";$aeword2="Add New Category";$aeword3="Parent Category";$addnewlink='';$backfont="background:#eeeeee";}
+	if( $action == 'delcat' )
+	{
+		$aeaction='delete';
+	}
 
 
-		/////////////////////////////////
-		// Start the page display
-		/////////////////////////////////
+		$category_name=get_adcatname($cat_ID);
+		$cat_parent_ID=get_cat_parent_ID($cat_ID);
 
-echo "<div class=\"wrap\">
-<h2>AWPCP Classifieds Management System: Categories Management</h2>
- $message <p style=\"padding:10px;\">Below you can add and edit your categories. Each category can have multiple subcategories; however subcategories cannot have sub-categories. In other words you can have a parent category with children but the children cannot then have children.</p>
+			if($aeaction == 'edit')
+			{
+				$aeword1="You are currently editing the category shown below.";
+				$aeword2="Edit Current Category";
+				$aeword3="Parent Category";
+				$addnewlink="<a href=\"?page=Configure3\">Add A New Category</a>";
+			}
+			elseif($aeaction == 'delete')
+			{
+				if( $cat_ID != 1)
+				{
 
- <div style=\"width:30%;float:left;padding:10px;border-bottom:1px solid #dddddd;border-top:1px dotted #dddddd;$backfont\">
- <form method=\"post\" id=\"awpcp_launch\">
- <input type=\"hidden\" name=\"category_id\" value=\"$cat_ID\" />
-  <input type=\"hidden\" name=\"aeaction\" value=\"$aeaction\" />
+					$aeword1="If you're sure that you want to delete this category please press the delete button";
+					$aeword2="Delete this category";
+					$aeword3="Parent Category";
+					$addnewlink="<a href=\"?page=Configure3\">Add A New Category</a>";
 
-<p>$aeword1</p>
-<input name=\"category_name\" id=\"cat_name\" type=\"text\" class=\"inputbox\" value=\"$category_name\" size=\"40\"/>
+					if(ads_exist_cat($cat_ID))
+					{
+						if( category_is_child($cat_ID) ) {
+							$movetocat=get_cat_parent_ID($cat_ID);
+						}
+						else
+						{
+							$movetocat='1';
+						}
+
+						$movetoname=get_adcatname($movetocat);
+						if( empty($movetoname) )
+						{
+							$movetoname="Untitled";
+						}
+
+						$promptmovetocat="<p>The category contains ads. The ads will be moved to <b>\"$movetoname\"</b> if you do not select a category to move them to.</p>";
+
+						$defaultcatname=get_adcatname($catid=1);
+
+						if( empty($defaultcatname) )
+						{
+							$defaultcatname="Untitled";
+						}
+
+						if(category_has_children($cat_ID))
+						{
+							$promptmovetocat.="<p>The category also has children. The children will be adopted by <b>\"$defaultcatname\"</b> if you do not specify a move-to category. <b>Note:</b> The move-to category specified applies to both ads and categories.</p>";
+						}
+						$promptmovetocat.="<p align=\"center\"><select name=\"movetocat\"><option value=\"0\">Please select a Move-To category</option>";
+						$categories=  get_categorynameid($cat_ID,$cat_parent_ID,$exclude=$cat_ID);
+						$promptmovetocat.="$categories</select>";
+					}
+
+					$thecategoryparentname=get_adparentcatname($cat_parent_ID);
+				}
+				else
+				{
+					$aeword1="Sorry but you cannot delete <b>$category_name</b>. It is the default category. The default category cannot be deleted.";
+					$aeword2='';
+					$aeword3='';
+					$addnewlink="<a href=\"?page=Configure3\">Add A New Category</a>";
+				}
+			}
+			else
+			{
+				if( empty($aeaction) )
+				{
+					$aeaction="newcategory";
+				}
+
+				$aeword1="Enter the category name";
+				$aeword2="Add New Category";
+				$aeword3="List Category Under";
+				$addnewlink='';
+
+			}
 
 
-<p style=\"margin-top:10px;\"> $aeword3</p>
-<p><select name=\"category_parent_id\"><option value=\"0\">Save as Top Level Category</option>";
-$categories=  get_categorynameid($cat_ID,$cat_parent_ID);
-echo "$categories
-</select></p>
+			if($aeaction == 'delete')
+			{
+				if($cat_ID == 1)
+				{
+					$categorynameinput='';
+					$selectinput='';
+				}
+				else
+				{
+					$categorynameinput="<p style=\"background:transparent url($imagesurl/delete_ico.png) left center no-repeat;padding-left:20px;\">Category to Delete: $category_name</p>";
+					$selectinput="<p style=\"background:#D54E21;padding:3px;color:#ffffff;\">$thecategoryparentname</p>";
+					$submitbuttoncode="<input type=\"submit\" class=\"button\" name=\"createeditadcategory\" value=\"$aeword2\" />";
+				}
+			}
+			elseif($aeaction == 'edit')
+			{
+					$categorynameinput="<p style=\"background:transparent url($imagesurl/edit_ico.png) left center no-repeat;padding-left:20px;\">Category to Edit: $category_name</p><p><input name=\"category_name\" id=\"cat_name\" type=\"text\" class=\"inputbox\" value=\"$category_name\" size=\"40\"/></p>";
+					$selectinput="<p><select name=\"category_parent_id\"><option value=\"0\">Save as Top Level Category</option>";
+					$categories=  get_categorynameid($cat_ID,$cat_parent_ID,$exclude='');
+					$selectinput.="$categories
+					</select></p>";
+					$submitbuttoncode="<input type=\"submit\" class=\"button\" name=\"createeditadcategory\" value=\"$aeword2\" />";
+			}
+			else {
+				$categorynameinput="<p style=\"background:transparent url($imagesurl/post_ico.png) left center no-repeat;padding-left:20px;\">Add a New Category</p><input name=\"category_name\" id=\"cat_name\" type=\"text\" class=\"inputbox\" value=\"$category_name\" size=\"40\"/>";
+				$selectinput="<p><select name=\"category_parent_id\"><option value=\"0\">Save as Top Level Category</option>";
+				$categories=  get_categorynameid($cat_ID,$cat_parent_ID,$exclude='');
+				$selectinput.="$categories
+				</select></p>";
+				$submitbuttoncode="<input type=\"submit\" class=\"button\" name=\"createeditadcategory\" value=\"$aeword2\" />";
+			}
 
- <p class=\"submit\"><input type=\"submit\" class=\"button\" name=\"createeditadcategory\" value=\"$aeword2\" /> $addnewlink</p>
- </form>
- </div>
- <div style=\"padding:10px;float:left;width:60%\">
+				/////////////////////////////////
+				// Start the page display
+				/////////////////////////////////
 
- <h3>Categories List</h3>";
+		echo "<div class=\"wrap\">
+		<h2>AWPCP Classifieds Management System: Categories Management</h2>
+		 $message <div style=\"padding:10px;\"><p>Below you can add and edit your categories. For more information about managing your categories visit <a href=\"http://www.awpcp.com/about/categories/\">Useful Information for Classifieds Categories Management</a>  </p>
+		 </div>
 
- 	///////////////////////////////////////////////////////////
- 	// Show the paginated categories list for management
- 	//////////////////////////////////////////////////////////
+		 <div style=\"width:30%;float:left;padding:10px;border-bottom:1px solid #dddddd;border-top:1px dotted #dddddd;$backfont\">
+		 <form method=\"post\" id=\"awpcp_launch\">
+		 <input type=\"hidden\" name=\"category_id\" value=\"$cat_ID\" />
+		  <input type=\"hidden\" name=\"aeaction\" value=\"$aeaction\" />
+		  <input type=\"hidden\" name=\"offset\" value=\"$offset\" />
+		  <input type=\"hidden\" name=\"results\" value=\"$results\" />
 
- $from="$table_name1";
- $where="category_name <> ''";
- $offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
- $results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
- $pager1=create_pager($from,$where,$offset,$results,$tpname='');
- $pager2=create_pager($from,$where,$offset,$results,$tpname='');
+		<p>$aeword1</p>
+		$categorynameinput
 
- echo "$pager1 <form>";
 
- $items=array();
-  $query="SELECT category_id,category_name,category_parent_id FROM $from WHERE $where ORDER BY category_name ASC LIMIT $offset,$results";
-  if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-  	while ($rsrow=mysql_fetch_row($res)) {
-  		$thecategory_id=$rsrow[0];
-  		$thecategory_name="<a href=\"?page=Configure3&cat_ID=".$rsrow[0]."&action=edit\">".$rsrow[1]."</a>";
-  		$thecategory_parent_id=$rsrow[2];
+		<p style=\"margin-top:10px;\"> $aeword3</p>
+		$selectinput
 
-  		$thecategory_parent_name=get_adparentcatname($thecategory_parent_id);
+		$promptmovetocat
 
-  		$items[]="<tr><td style=\"width:40%;padding:5px;border-bottom:1px dotted #dddddd;\">$thecategory_name</td>
-  		<td style=\"width:40%;padding:5px;border-bottom:1px dotted #dddddd;\">$thecategory_parent_name</td>
-  		<td style=\"padding:5px;border-bottom:1px dotted #dddddd;font-size:smaller;\"><a href=\"?page=Configure3&cat_ID=$thecategory_id&action=edit\">Edit</a> | <a href=\"?page=Configure3&cat_ID=$thecategory_id&action=delcat\">Delete</a></td></tr>";
-  		}
+		 <p class=\"submit\">$submitbuttoncode $addnewlink</p>
+		 </form>
+		 </div>
+		 <div style=\"margin:0;padding:0px 0px 10px 10px;float:left;width:60%\">";
 
-  		$opentable="<table class=\"listcatsh\">
- 	 	<tr><td style=\"width:40%;padding:5px;\">Category Name</td>
-		<td style=\"width:40%;padding:5px;\">Parent</td>
-		<td style=\"width:20%;padding:5px;;\">Action</td></tr>";
-		$closetable="<tr><td style=\"width:40%;padding:5px;\">Category Name</td>
-	 	<td style=\"width:40%;padding:5px;\">Parent</td>
-	 	<td style=\"width:20%;padding:5px;\">Action</td></tr>
-		</table>";
+			///////////////////////////////////////////////////////////
+			// Show the paginated categories list for management
+			//////////////////////////////////////////////////////////
 
-  		$theitems=smart_table($items,intval($results/$results),$opentable,$closetable);
- 		$showcategories.="$theitems";
+		 $from="$table_name1";
+		 $where="category_name <> ''";
 
-echo "
-<style>
-table.listcatsh { width: 100%; padding: 0px; border: none; border: 1px solid #dddddd;}
-table.listcatsh td { width:33%;font-size: 12px; border: none; background-color: #F4F4F4;
-vertical-align: middle; font-weight: bold; }
-table.listcatsh tr.special td { border-bottom: 1px solid #ff0000;  }
-table.listcatsc { width: 100%; padding: 0px; border: none; border: 1px solid #dddddd;}
-table.listcatsc td { width:33%;border: none;
-vertical-align: middle; padding: 5px; font-weight: normal; }
-table.listcatsc tr.special td { border-bottom: 1px solid #ff0000;  }
-</style>
- $showcategories
- </form>$pager2</div>";
+		 $pager1=create_pager($from,$where,$offset,$results,$tpname='');
+		 $pager2=create_pager($from,$where,$offset,$results,$tpname='');
+
+		 echo "$pager1 $checkboxjs<form name=\"mycats\" id=\"mycats\" method=\"post\">
+		 <p><input type=\"submit\" name=\"deletemultiplecategories\" class=\"button\" value=\"Delete Selected Categories\">
+		 <input type=\"submit\" name=\"movemultiplecategories\" class=\"button\" value=\"Move Selected Categories\">
+		 <select name=\"moveadstocategory\"><option value=\"0\">Select Move-To category</option>";
+					$movetocategories=  get_categorynameid($cat_id = 0,$cat_parent_id= 0,$exclude);
+					echo "$movetocategories</select></p>
+		<p>If deleting categories
+		<input type=\"radio\" name=\"movedeleteads\" value=\"1\" checked>Move Ads if any <input type=\"radio\" name=\"movedeleteads\" value=\"2\">Delete Ads if any</p>";
+
+		 	$items=array();
+		  $query="SELECT category_id,category_name,category_parent_id FROM $from WHERE $where ORDER BY category_name ASC LIMIT $offset,$results";
+		  if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+			while ($rsrow=mysql_fetch_row($res))
+			{
+				$thecategory_id=$rsrow[0];
+				$thecategory_name="<a href=\"?page=Manage1&fromid=".$rsrow[0]."&action=display\">".$rsrow[1]."</a>";
+				$thecategory_parent_id=$rsrow[2];
+
+				$thecategory_parent_name=get_adparentcatname($thecategory_parent_id);
+				$totaladsincat=total_ads_in_cat($thecategory_id);
+
+				$items[]="<tr><td style=\"width:40%;padding:5px;border-bottom:1px dotted #dddddd;font-weight:normal;\"><input type=\"checkbox\" name=\"category_to_delete_or_move[]\" value=\"$thecategory_id\">$thecategory_name ($totaladsincat)</td>
+				<td style=\"width:40%;padding:5px;border-bottom:1px dotted #dddddd;font-weight:normal;\">$thecategory_parent_name</td>
+				<td style=\"padding:5px;border-bottom:1px dotted #dddddd;font-size:smaller;font-weight:normal;\"><input type=\"image\" name=\"editcat\" value=\"$thecategory_id\" src=\"$imagesurl/edit_ico.png\"> <input type=\"image\" name=\"delcat\" value=\"$thecategory_id\" src=\"$imagesurl/delete_ico.png\"> <!--<a href=\"?page=Configure3&cat_ID=$thecategory_id&action=edit&offset=$offset&results=$results\">Edit</a> | <a href=\"?page=Configure3&cat_ID=$thecategory_id&action=delcat&offset=$offset&results=$results\">Delete</a>--></td></tr>";
+			}
+
+				$opentable="<table class=\"listcatsh\">
+				<tr><td style=\"width:40%;padding:5px;\"><input type=\"checkbox\" onclick=\"CheckAll()\">Category Name (Total Ads)</td>
+				<td style=\"width:40%;padding:5px;\">Parent</td>
+				<td style=\"width:20%;padding:5px;;\">Action</td></tr>";
+				$closetable="<tr><td style=\"width:40%;padding:5px;\">Category Name (Total Ads)</td>
+				<td style=\"width:40%;padding:5px;\">Parent</td>
+				<td style=\"width:20%;padding:5px;\">Action</td></tr>
+				</table>";
+
+				$theitems=smart_table($items,intval($results/$results),$opentable,$closetable);
+				$showcategories.="$theitems";
+
+		echo "
+		<style>
+		table.listcatsh { width: 100%; padding: 0px; border: none; border: 1px solid #dddddd;}
+		table.listcatsh td { width:33%;font-size: 12px; border: none; background-color: #F4F4F4;
+		vertical-align: middle; font-weight: bold; }
+		table.listcatsh tr.special td { border-bottom: 1px solid #ff0000;  }
+		table.listcatsc { width: 100%; padding: 0px; border: none; border: 1px solid #dddddd;}
+		table.listcatsc td { width:33%;border: none;
+		vertical-align: middle; padding: 5px; font-weight: normal; }
+		table.listcatsc tr.special td { border-bottom: 1px solid #ff0000;  }
+		</style>
+		 $showcategories
+		</form>$pager2</div>";
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: Manage categories
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function awpcp_manage_viewimages(){
 global $message;
 
@@ -1665,38 +1825,284 @@ if(isset($_REQUEST['createeditadcategory']) && !empty($_REQUEST['createeditadcat
 
 		global $wpdb;
 		$table_name1 = $wpdb->prefix . "awpcp_categories";
+		$table_name3 = $wpdb->prefix . "awpcp_ads";
 
 		$category_id=addslashes_mq($_REQUEST['category_id']);
 		$category_name=addslashes_mq($_REQUEST['category_name']);
 		$category_parent_id=addslashes_mq($_REQUEST['category_parent_id']);
 		$aeaction=addslashes_mq($_REQUEST['aeaction']);
+		$movetocat=addslashes_mq($_REQUEST['movetocat']);
+		$deletetheads=$_REQUEST['deletetheads'];
 
-		if($aeaction == 'delete'){
-			$query="DELETE FROM  ".$table_name1." WHERE category_id='$category_id'";
-			if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-			$handleword="deleted";
-			$clearedits=true;
-			$clearaction=true;
 
-		}
 
-		else {
+			if($aeaction == 'newcategory')
+			{
+					$query="INSERT INTO ".$table_name1." SET category_name='$category_name',category_parent_id='$category_parent_id'";
+					@mysql_query($query);
+					$themessagetoprint="The new category has sucessfully added.";
 
-			if($aeaction == 'edit'){
-				$query="UPDATE ".$table_name1." SET category_name='$category_name',category_parent_id='$category_parent_id' WHERE category_id='$category_id'";
-				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-				$handleword="updated";
-				$clearedits=true;
-				$clearaction=true;
+			}
 
-			}else {
-				$query="INSERT INTO ".$table_name1." SET category_name='$category_name',category_parent_id='$category_parent_id'";
-				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-				$handleword="added";
+			elseif($aeaction == 'delete')
+			{
+
+
+				// Make sure this is not the default category. If it is the default category alert that the default category can only be renamed not deleted
+				if($category_id == '1')
+				{
+					$themessagetoprint="Sorry but you cannot delete the default category. The default category can only be renamed";
+				}
+
+				else
+				{
+					//Proceed with the delete instructions
+
+					// Move any ads that the category contains if move-to category value is set and does not equal zero
+
+					if( isset($movetocat) && !empty($movetocat) && ($movetocat != 0) )
+					{
+
+						$movetocatparent=get_cat_parent_ID($movetocat);
+
+						$query="UPDATE ".$table_name3." SET ad_category_id='$movetocat' ad_category_parent_id='$movetocatparent' WHERE ad_category_id='$category_id'";
+						@mysql_query($query);
+
+						// Must also relocate ads where the main category was a child of the category being deleted
+						$query="UPDATE ".$table_name3." SET ad_category_parent_id='$movetocat' WHERE ad_category_parent_id='$category_id'";
+						@mysql_query($query);
+
+						// Must also relocate any children categories to the the move-to-cat
+						$query="UPDATE ".$table_name1." SET category_parent_id='$movetocat' WHERE category_parent_id='$category_id'";
+						@mysql_query($query);
+
+					}
+
+
+					// Else if the move-to value is zero move the ads to the parent category if category is a child or the default category if
+					// category is not a child
+
+					elseif( !isset($movetocat) || empty($movetocat) || ($movetocat == 0) )
+					{
+
+						// If the category has a parent move the ads to the parent otherwise move the ads to the default
+
+						if( category_is_child($category_id) )
+						{
+
+							$movetocat=get_cat_parent_ID($category_id);
+						}
+						else
+						{
+							$movetocat='1';
+						}
+
+						$movetocatparent=get_cat_parent_ID($movetocat);
+
+
+
+							// Adjust any ads transferred from the main category
+							$query="UPDATE ".$table_name3." SET ad_category_id='$movetocat', ad_category_parent_id='$movetocatparent' WHERE ad_category_id='$category_id'";
+							@mysql_query($query);
+
+							// Must also relocate any children categories to the the move-to-cat
+							$query="UPDATE ".$table_name1." SET category_parent_id='$movetocat' WHERE category_parent_id='$category_id'";
+							@mysql_query($query);
+
+							// Adjust  any ads transferred from children categories
+							$query="UPDATE ".$table_name3." SET ad_category_parent_id='$movetocat' WHERE ad_category_parent_id='$category_id'";
+							if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+
+					}
+
+					$query="DELETE FROM  ".$table_name1." WHERE category_id='$category_id'";
+					@mysql_query($query);
+					$themessagetoprint="The category has been deleted";
+
+				}
+
+			}
+
+			elseif($aeaction == 'edit')
+			{
+					$query="UPDATE ".$table_name1." SET category_name='$category_name',category_parent_id='$category_parent_id' WHERE category_id='$category_id'";
+					@mysql_query($query);
+
+					$query="UPDATE ".$table_name3." SET ad_category_parent_id='$category_parent_id' WHERE ad_category_id='$category_id'";
+					@mysql_query($query);
+
+					$themessagetoprint="The category edit has been sucessfully completed";
+
+			}
+
+			$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">$themessagetoprint</div>";
+
+
+}
+
+// Move multiple categories
+
+if( isset($_REQUEST['movemultiplecategories']) && !empty($_REQUEST['movemultiplecategories']) )
+{
+
+
+
+	global $wpdb;
+	$table_name1 = $wpdb->prefix . "awpcp_categories";
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+	// First get the array of categories to be deleted
+	$categoriestomove=addslashes_mq($_REQUEST['category_to_delete_or_move']);
+
+	// Next get the value for where the admin wants to move the ads
+	if( isset($_REQUEST['moveadstocategory']) && !empty($_REQUEST['moveadstocategory'])  && ($_REQUEST['moveadstocategory'] != 0) )
+	{
+		$moveadstocategory=addslashes_mq($_REQUEST['moveadstocategory']);
+
+		// Next loop through the categories and move them to the new category
+
+		foreach($categoriestomove as $cattomove){
+
+			if($cattomove != $moveadstocategory)
+			{
+
+				// First update all the ads in the category to take on the new parent ID
+				$query="UPDATE ".$table_name3." SET ad_category_parent_id='$moveadstocategory' WHERE ad_category_id='$cattomove'";
+				@mysql_query($query);
+
+				$query="UPDATE ".$table_name1." SET category_parent_id='$moveadstocategory' WHERE category_id='$cattomove'";
+				@mysql_query($query);
 			}
 
 		}
-		$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">The new category/sub-category has been $handleword!</div>";
+
+		$themessagetoprint="With the exception of any category that was being moved to itself, the categories have been moved.";
+
+
+	}
+	else
+	{
+		$themessagetoprint="The categories have not been moved because you did not indicate where you want the categories to be moved to.";
+	}
+
+	$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">$themessagetoprint</div>";
+}
+
+// Delete multiple categories
+
+if( isset($_REQUEST['deletemultiplecategories']) && !empty($_REQUEST['deletemultiplecategories']) )
+{
+
+
+global $wpdb;
+$table_name1 = $wpdb->prefix . "awpcp_categories";
+$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+	// First get the array of categories to be deleted
+	$categoriestodelete=addslashes_mq($_REQUEST['category_to_delete_or_move']);
+
+
+	// Next get the value of move/delete ads
+	if( isset($_REQUEST['movedeleteads']) && !empty($_REQUEST['movedeleteads']) )
+	{
+		$movedeleteads=addslashes_mq($_REQUEST['movedeleteads']);
+	}
+	else
+	{
+		$movedeleteads=1;
+	}
+
+	// Next get the value for where the admin wants to move the ads
+	if( isset($_REQUEST['moveadstocategory']) && !empty($_REQUEST['moveadstocategory'])  && ($_REQUEST['moveadstocategory'] != 0) )
+	{
+		$moveadstocategory=addslashes_mq($_REQUEST['moveadstocategory']);
+	}
+	else
+	{
+		$moveadstocategory=1;
+	}
+
+
+	// Next make sure there is a default category with an ID of 1 because any ads that exist in the
+	// categories will need to be moved to a default category if admin has checked move ads but
+	// has not selected a move to category
+
+
+				if( ($moveadstocategory == 1) && (!(defaultcatexists($defid='1'))) )
+				{
+					createdefaultcategory($idtomake='1',$titletocallit='Untitled');
+				}
+
+	// Next loop through the categories and move all their ads
+
+
+	foreach($categoriestodelete as $cattodel){
+
+
+		// Make sure this is not the default category which cannot be deleted
+		if($cattodel != 1)
+		{
+
+			// If admin has instructed moving ads move the ads
+			if($movedeleteads == 1)
+			{
+
+				// Now move the ads if any
+				$movetocat=$moveadstocategory;
+				$movetocatparent=get_cat_parent_ID($movetocat);
+
+
+				// Move the ads in the category main
+					$query="UPDATE ".$table_name3." SET ad_category_id='$movetocat',ad_category_parent_id='$movetocatparent' WHERE ad_category_id='$cattodel'";
+					@mysql_query($query);
+
+				// Must also relocate ads where the main category was a child of the category being deleted
+					$query="UPDATE ".$table_name3." SET ad_category_parent_id='$movetocat' WHERE ad_category_parent_id='$cattodel'";
+					@mysql_query($query);
+
+				// Must also relocate any children categories that do not exist in the categories to delete loop to the the move-to-cat
+					$query="UPDATE ".$table_name1." SET category_parent_id='$movetocat' WHERE category_parent_id='$cattodel' AND category_id !IN '$categoriestodelete";
+					@mysql_query($query);
+			}
+			elseif($movedeleteads == 2)
+			{
+
+				$movetocat=$moveadstocategory;
+
+					// If the category has children move the ads in the child categories to the default category
+
+					if( category_has_children($cattodel) )
+					{
+
+						//  Relocate the ads ads in any children categories of the category being deleted
+
+						$query="UPDATE ".$table_name3." SET ad_category_parent_id='$movetocat' WHERE ad_category_parent_id='$cattodel'";
+						@mysql_query($query);
+
+						// Relocate any children categories that exist under the category being deleted
+						$query="UPDATE ".$table_name1." SET category_parent_id='$movetocat' WHERE category_parent_id='$cattodel'";
+						@mysql_query($query);
+					}
+
+
+						// Now delete the ads because the admin has checked Delete ads if any
+						massdeleteadsfromcategory($cattodel);
+			}
+
+					// Now delete the categories
+					$query="DELETE FROM  ".$table_name1." WHERE category_id='$cattodel'";
+					@mysql_query($query);
+					$themessagetoprint="The categories have been deleted";
+
+		}
+
+	}
+
+
+
+	$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">$themessagetoprint</div>";
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1713,14 +2119,23 @@ global $classicontent;
 $awpcppage=get_currentpagename();
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
-if(is_page($awpcppagename)) {
+$awpcppageid=get_page_id($awpcppagename);
 
-if(!isset($classicontent) || empty($classicontent)){
-$classicontent=awpcpui_process($awpcppagename);}
-
-$content = preg_replace( "/\[\[AWPCPCLASSIFIEDSUI\]\]/", $classicontent, $content);
+if( !is_page($awpcppagename) || !is_page($awpcppageid) ) {
 
 }
+
+else
+{
+
+	if(!isset($classicontent) || empty($classicontent))
+	{
+		$classicontent=awpcpui_process($awpcppagename);
+	}
+
+	$content = preg_replace( "/\[\[AWPCPCLASSIFIEDSUI\]\]/", $classicontent, $content);
+}
+
 return $content;
 }
 
@@ -1731,7 +2146,10 @@ return $content;
 
 function awpcpui_process($awpcppagename) {
 
-		global $awpcp_plugin_url;
+// Make sure you don't have multiple classifieds pages
+checkfortotalpageswithawpcpname($awpcppagename);
+
+	global $awpcp_plugin_url;
 
 		//Retrieve the welcome message for the user
 		$uiwelcome=get_awpcp_option('uiwelcome');
@@ -2343,7 +2761,41 @@ echo "<div style=\"clear:both\"></div>";
 								$ischecked="checked"; }
 								else { $ischecked=''; }
 
-								$adtermscode.="<input type=\"radio\" name=\"adterm_id\" value=\"$savedadtermid\" $ischecked>$adterm_name ($amount for a $rec_period $termname listing)<br/>";
+						$amtcurrencycode=get_awpcp_option('paypalcurrencycode');
+
+								if(
+								($amtcurrencycode == 'CAD') ||
+								($amtcurrencycode == 'AUD') ||
+								($amtcurrencycode == 'NZD') ||
+								($amtcurrencycode == 'SGD') ||
+								($amtcurrencycode == 'HKD') ||
+								($amtcurrencycode == 'USD') )
+								{
+								$thecurrencysymbol="$";
+								}
+
+								if( ($amtcurrencycode == 'JPY') )
+								{
+									$thecurrencysymbol="&yen;";
+								}
+
+								if( ($amtcurrencycode == 'EUR') )
+								{
+									$thecurrencysymbol="&euro;";
+								}
+
+								if( ($amtcurrencycode == 'GBP') )
+								{
+									$thecurrencysymbol="&pound;";
+								}
+
+
+								$putamtcurrencycode="";
+								if(empty($thecurrencysymbol)) {
+									$putamtcurrencycode="$amtcurrencycode";
+								}
+
+								$adtermscode.="<input type=\"radio\" name=\"adterm_id\" value=\"$savedadtermid\" $ischecked>$adterm_name ($thecurrencysymbol$amount $putamtcurrencycode for a $rec_period $termname listing)<br/>";
 							}
 
 						}
@@ -3069,8 +3521,14 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 			$disabled='1';}else {$disabled='0';}
 
 			if($disabled == 0){
-				if(get_awpcp_option('freepay') == '1'){
-				$disabled='1';}
+
+				if(get_awpcp_option('freepay') == '1') {
+
+					$feeamt=get_adfee_amount($adterm_id);
+
+					if($feeamt <= '0') {$disabled='0';}
+					else {$disabled='1';}
+				}
 			}
 
 
@@ -3103,11 +3561,9 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 				if(get_awpcp_option('freepay') == '1'){
 
-				if(get_awpcp_option('imagesallowdisallow') == '1'){
-				$txtuploadimages1="| Upload Images";}
-				else {$txtuploadimages1="";}
 
-					$uploadandpay="<div class=\"headeritem\">Step 2: Review Ad $txtuploadimages1 | Pay Fee</div>";
+				$uploadandpay='';
+
 
 					///////////////////////////////////////////////////////////////////////////////////////////////////
 					// Step:1 Find out how many images are allowed for the selected ad term if allow images is on
@@ -3117,9 +3573,30 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 						if(get_awpcp_option('freepay') == '1'){
 						$numimgsallowed=get_numimgsallowed($adterm_id);}
-						else {$numimgsallowed=get_awpcp_option('imagesallowedfree');}
+						else { $numimgsallowed=get_awpcp_option('imagesallowedfree'); }
+						$feeamt=get_adfee_amount($adterm_id);
 
 					}
+
+					if( $numimgsallowed > '0')
+					{
+						$txtuploadimages1="| Upload Images";
+					}
+					else
+					{
+						$txtuploadimages1="";
+					}
+
+					if($feeamt <= '0')
+					{
+						$txtpayfee='';
+					}
+					else
+					{
+						$txtpayfee=" | Pay Fee";
+					}
+
+					$uploadandpay="<div class=\"headeritem\">Step 2: Review Ad $txtuploadimages1 $txtpayfee</div>";
 
 					////////////////////////////////////////////////////////////////////////////////////
 					// Step:2 Show a sample of how the ad is going to look
@@ -3132,7 +3609,8 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 						$location="";
 					}
 
-					else {
+					else
+					{
 						$location="Location:";
 
 						if(isset($adcontact_city)){
@@ -3157,7 +3635,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 					// Step:3 Configure the upload form if images are allowed
 					////////////////////////////////////////////////////////////////////////////////////
 
-					if(get_awpcp_option('imagesallowdisallow') == '1'){
+					if( (get_awpcp_option('imagesallowdisallow') == '1') && ( $numimgsallowed > '0' ) ) {
 
 					$totalimagesuploaded=get_total_imagesuploaded($ad_id);
 
@@ -3192,8 +3670,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 					<p id=\"message\">
 
 					<p id=\"result\"><div style=\"clear:both\"></div>";
-					global $awpcp_plugin_path;
-					include($awpcp_plugin_path.'upload4jquery.php');
+
 					}
 					else {
 						$showimageuploadform="";
@@ -3218,61 +3695,75 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 					// Step:5 Setup the payment buttons
 					////////////////////////////////////////////////////////////////////////////
 
-					$showpaybutton="<div class=\"headeritem\">Payment</div><p>Please click the  button below to submit payment for your ad listing.</p>";
+					if($amount <= 0)
+					{
+						$showpaybutton='';
+					}
+
+					else {
+
+						$showpaybutton="<div class=\"headeritem\">Payment</div><p>Please click the  button below to submit payment for your ad listing.</p>";
 
 						////////////////////////////////////////////////////////////////////////////
 						// Print the paypal button option if paypal is activated
 						////////////////////////////////////////////////////////////////////////////
 
 						if($adpaymethod == 'paypal'){
-						$base=get_option('siteurl');
-						$custom="$ad_id";
-						$custom.="_";
-						$custom.="$key";
 
-						$quers=setup_url_structure($awpcppagename);
-						$permastruc=get_option('permalink_structure');
+								$custom="$ad_id";
+								$custom.="_";
+								$custom.="$key";
+
+								$quers=setup_url_structure($awpcppagename);
+
+								if(get_awpcp_option('paylivetestmode') == 1){
+									$paypalurl="http://www.paypal.com/cgi-bin/webscr";
+								}else {
+									$paypalurl="https://www.sandbox.paypal.com/cgi-bin/webscr";
+								}
 
 
+								$showpaybutton.="
+								<form action=\"$paypalurl\" method=\"post\">
+								<input type=\"hidden\" name=\"cmd\" value=\"_xclick\" />";
 
+								if(get_awpcp_option('paylivetestmode') == 0){
+									$showpaybutton.="<input type=\"hidden\" name=\"test_ipn\" value=\"1\" />";
+								}
 
-						$showpaybutton.="
-									<form action=\"$paypalurl\" method=\"post\">
-									<input type=\"hidden\" name=\"cmd\" value=\"_xclick\" />";
+								$showpaybutton.="
+								<input type=\"hidden\" name=\"business\" value=\"".get_awpcp_option('paypalemail')."\" />
+								<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />";
 
-										if(get_awpcp_option('paylivetestmode') == 0){
-										$showpaybutton.="<input type=\"hidden\" name=\"test_ipn\" value=\"1\" />";
-										}
+								if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
+									$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou/$custom\" />";
+								}else {
+									$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou&i=$custom\" />";
+								}
 
-									$showpaybutton.="
-									<input type=\"hidden\" name=\"business\" value=\"".get_awpcp_option('paypalemail')."\" />
-									<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />";
+								$showpaybutton.="$codepaypalthank";
 
-									if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
-										$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou/$custom\" />";
-									}else {
-										$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou&i=$custom\" />";
-									}
-									$showpaybutton.="$codepaypalthank";
-									if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
+								if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
 									$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal/$custom\" />";
-									}else {
-										$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal&i=$custom\" />";
-									}
-									$showpaybutton.="$codepaypalcancel";
-									$showpaybutton.="<input type=\"hidden\" name=\"notify_url\" value=\"".$quers."paypal\" />
-									<input type=\"hidden\" name=\"no_note\" value=\"1\" />
-									<input type=\"hidden\" name=\"quantity\" value=\"1\" />
-									<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />
-									<input type=\"hidden\" name=\"rm\" value=\"2\" />
-									<input type=\"hidden\" name=\"item_name\" value=\"$adterm_name\" />
-									<input type=\"hidden\" name=\"item_number\" value=\"$adterm_id\" />
-									<input type=\"hidden\" name=\"amount\" value=\"$amount\" />
-									<input type=\"hidden\" name=\"custom\" value=\"$custom\" />
-									<input type=\"hidden\" name=\"src\" value=\"1\" />
-									<input type=\"hidden\" name=\"sra\" value=\"1\" />
-									<input class=\"button\" type=\"submit\" value=\"Pay With PayPal\">
-									</form>";
+								}else {
+									$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal&i=$custom\" />";
+								}
+
+								$showpaybutton.="$codepaypalcancel";
+								$showpaybutton.="<input type=\"hidden\" name=\"notify_url\" value=\"".$quers."paypal\" />
+								<input type=\"hidden\" name=\"no_note\" value=\"1\" />
+								<input type=\"hidden\" name=\"quantity\" value=\"1\" />
+								<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />
+								<input type=\"hidden\" name=\"rm\" value=\"2\" />
+								<input type=\"hidden\" name=\"item_name\" value=\"$adterm_name\" />
+								<input type=\"hidden\" name=\"item_number\" value=\"$adterm_id\" />
+								<input type=\"hidden\" name=\"amount\" value=\"$amount\" />
+								<input type=\"hidden\" name=\"currency_code\" value=\"".get_awpcp_option('paypalcurrencycode')."\" />
+								<input type=\"hidden\" name=\"custom\" value=\"$custom\" />
+								<input type=\"hidden\" name=\"src\" value=\"1\" />
+								<input type=\"hidden\" name=\"sra\" value=\"1\" />
+								<input class=\"button\" type=\"submit\" value=\"Pay With PayPal\">
+								</form>";
 						}
 
 						/////////////////////////////////////////////////////////////////////////////
@@ -3281,14 +3772,11 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 						elseif($adpaymethod == '2checkout'){
 
-								$base=get_option('siteurl');
 								$custom="$ad_id";
 								$custom.="_";
 								$custom.="$key";
 
-						$quers=setup_url_structure($awpcppagename);
-						$permastruc=get_option('permalink_structure');
-
+							$quers=setup_url_structure($awpcppagename);
 
 							$showpaybutton.="
 							<form action=\"https://www2.2checkout.com/2co/buyer/purchase\" method=\"post\">
@@ -3311,9 +3799,22 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 									$showpaybutton.="<input name=\"submit\" class=\"button\" type=\"submit\" value=\"Pay With 2Checkout\" /></form>";
 
 						}
-
+				}
 
 				$uploadandpay.="$showpaybutton";
+
+				if( $feeamt <= '0' )
+				{
+
+					$finishbutton="<p>Please click the finish button to complete the process of submitting your listing</p>
+								<form method=\"post\" id=\"awpcpui_process\">
+								<input type=\"hidden\" name=\"a\" value=\"adpostfinish\">
+								<input type=\"hidden\" name=\"ad_id\" value=\"$ad_id\" />
+								<input type=\"hidden\" name=\"adkey\" value=\"$key\" />
+								<input type=\"Submit\" value=\"Finish\"/>
+								</form>";
+					$uploadandpay.="$finishbutton";
+				}
 
 				////////////////////////////////////////////////////////////////////////////
 				// Display the content
@@ -3364,8 +3865,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 										<p id=\"message\">
 
 										<p id=\"result\"><div style=\"clear:both\"></div>";
-										global $awpcp_plugin_path;
-										include($awpcp_plugin_path.'upload4jquery.php');
+
 
 					} else {
 						$showimageuploadform="";
@@ -3534,8 +4034,7 @@ function editimages($adtermid,$adid,$adkey,$editemail) {
 								<p id=\"message\">
 
 								<p id=\"result\"><div style=\"clear:both;\"></div>";
-										global $awpcp_plugin_path;
-										include($awpcp_plugin_path.'upload4jquery.php');
+
 				}
 				else
 				{
