@@ -319,6 +319,7 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 	$radius=5;
 	global $PHP_SELF;
 	global $accepted_results_per_page;
+
 	$accepted_results_per_page=array("5"=>5,"10"=>10,"20"=>20,"30"=>30);
 
 	if(!isset($tpname) || empty($tpname)){
@@ -327,9 +328,17 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 
 	$params=array();
 	$params=array_merge($_GET,$_POST);
-	unset($params['offset'],$params['results'],$params['PHPSESSID']);
+	unset($params['offset'],$params['results'],$params['PHPSESSID'],$params['aeaction'],$params['category_id'],$params['cat_ID'],$params['action'],$params['aeaction'],$params['category_name'],$params['category_parent_id'],$params['createeditadcategory'],$params['deletemultiplecategories'],$params['movedeleteads'],$params['moveadstocategory'],$params['category_to_delete'],$params['tpname']);
+
+	$cid='';
+	if( isset($_REQUEST['a']) && !empty($_REQUEST['a']) && ($_REQUEST['a'] == 'browsecat') )
+	{
+		$cid=$_REQUEST['category_id'];
+		$params['category_id']=$cid;
+	}
+
 	$myrand=mt_rand(1000,2000);
-	$myreturn="<form id=\"pagerform$myrand\" name=\"pagerform$myrand\" action=\"$tpname\" method=\"get\">\n";
+	$myreturn="<form id=\"pagerform$myrand\" name=\"pagerform$myrand\" action=\"\" method=\"get\">\n";
 	$myreturn.="<table>\n";
 	$myreturn.="<tr>\n";
 	$myreturn.="\t<td>\n";
