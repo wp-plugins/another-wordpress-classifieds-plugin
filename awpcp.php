@@ -823,7 +823,7 @@ $table_name2 = $wpdb->prefix . "awpcp_adfees";
 
 echo "<div class=\"wrap\">
 <h2>AWPCP Classifieds Management System: Listing Fees Management</h2>
- $message <p style=\"padding:10px;border:1px solid#dddddd;\">Below you can add and edit your listing fees. As an example you can add an entry set at $9.99 for a 30 day listing, then another entry set at $17.99 for a 60 day listing. For each entry you can set a specific number of images a user can upload. If you have allow images turned off in your main configuration settings the value you add here will not matter as an upload option will not be included in the ad post form. You can also set a text limit for the ads. The value is in words.</p>";
+ $message <p style=\"padding:10px;border:1px solid#dddddd;\">Below you can add and edit your listing fees. As an example you can add an entry set at $9.99 for a 30 day listing, then another entry set at $17.99 for a 60 day listing. For each entry you can set a specific number of images a user can upload. If you have allow images turned off in your main configuration settings the value you add here will not matter as an upload option will not be included in the ad post form.</p>";
 
  		///////////////////////////////////////
  		// Handle case of adding new settings
@@ -5299,7 +5299,7 @@ $tmesage.="</p>";
 	$message <div style=\"padding:20px;\">Thank you for using AWPCP. You have arrived at this page by clicking the Uninstall link. For now this plugin does not provide a handy point and click method for uninstalling the database tables that are created when you activate the plugin. When you deactivate the plugin, the tables and their contents remain in the database, also the plugin classifieds page is still displayed to your users.
 	<p>To fix this problem, you need to manually delete the page <b>$awpcppagename</b> and manually drop the plugin tables from your database.</p>
 	<p>$tmessage</p>
-	<p>A point and click method of uninstalling the plugin is planned for a future release.</p>
+	<p>A point and click method for uninstalling the plugin is planned for a future release.</p>
 </div><div style=\"clear:both;\"></div>";
 
 
