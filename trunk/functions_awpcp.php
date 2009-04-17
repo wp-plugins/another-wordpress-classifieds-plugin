@@ -896,7 +896,7 @@ function setup_url_structure($awpcppagename) {
 
 
 			$quers='';
-			global $siteurl;
+			$theblogurl=get_bloginfo('url');
 			$permastruc=get_option('permalink_structure');
 
 			//Get the ID of the classifieds page
@@ -915,22 +915,23 @@ function setup_url_structure($awpcppagename) {
 			{
 				// The page has a parent so get the parent page name and append to siteurl
 				$awpcpparentpagename=get_awpcp_parent_page_name($awpcppageparentid);
-				$siteurl.="/$awpcpparentpagename";
+				$theblogurl.="/$awpcpparentpagename";
 			}
 
 			if(!isset($permastruc) || empty($permastruc))
 			{
-				$quers="?page_id=$awpcpwppostpageid&a=";
+				$quers="$theblogurl?page_id=$awpcpwppostpageid&a=";
 			}
 			elseif(get_awpcp_option('seofriendlyurls') == '1'){
-				$quers="$siteurl/$awpcppagename/";
+				$quers="$theblogurl/$awpcppagename/";
 			}
 			else {
-				$quers="$siteurl/$awpcppagename/?a=";
+				$quers="$theblogurl/$awpcppagename/?a=";
 			}
 
 			return $quers;
 		}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: setup structure of URLs based on if permalinks are on and SEO urls are turned on
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
