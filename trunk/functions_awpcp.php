@@ -899,6 +899,12 @@ function setup_url_structure($awpcppagename) {
 			$theblogurl=get_bloginfo('url');
 			$permastruc=get_option('permalink_structure');
 
+
+			if( strstr($permastruc,'index.php') )
+			{
+				$theblogurl.="/index.php";
+			}
+
 			//Get the ID of the classifieds page
 			$awpcpwppostpageid=get_page_id($awpcppagename);
 
