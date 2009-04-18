@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.4.4
+Version: 1.0.4.5
 Author: A. Lewis
 Author URI: http://www.awpcp.com
 */
@@ -63,7 +63,7 @@ $thisadminemail=get_option('admin_email');
 require("$awpcp_plugin_path/dcfunctions.php");
 require("$awpcp_plugin_path/functions_awpcp.php");
 
-$awpcp_db_version = "1.0.4.4";
+$awpcp_db_version = "1.0.4.5";
 
 define( 'MAINUPLOADURL', $wpcontenturl . '/uploads');
 define('MAINUPLOADDIR', $wpcontentdir .'/uploads/');
