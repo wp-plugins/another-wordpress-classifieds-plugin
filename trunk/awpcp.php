@@ -99,7 +99,7 @@ function awpcp_insert_thickbox() {
 
     <script type="text/javascript">
     var tb_pathToImage = "'.$siteurl.'/'.$wpinc.'/js/thickbox/loadingAnimation.gif";
-    var tb_closeImage = "'.$siteurl.'/'.$wpinc.'/js/thickbox/tb-close.png"
+    var tb_closeImage = "'.$siteurl.'/'.$wpinc.'/js/thickbox/tb-close.png";
     </script>
 
     ';
@@ -239,7 +239,7 @@ $wp_rewrite->flush_rules();
 					<script type=\"text/javascript\">
 					var JQuery2 = jQuery.noConflict();
 					JQuery2(document).ready(function() {
-						JQuery2(\"#loading\")
+						JQuery2('#loading')
 						.ajaxStart(function(){
 							JQuery2(this).show();
 						})
@@ -247,9 +247,9 @@ $wp_rewrite->flush_rules();
 							JQuery2(this).hide();
 						});
 
-						var MAX_FILE_SIZE = JQuery('input[name=MAX_FILE_SIZE]').val();
-						var ADID = JQuery('input[name=ADID]').val();
-						var ADTERMID = JQuery('input[name=ADTERMID]').val();
+						var MAX_FILE_SIZE = JQuery2('input[name=MAX_FILE_SIZE]').val();
+						var ADID = JQuery2('input[name=ADID]').val();
+						var ADTERMID = JQuery2('input[name=ADTERMID]').val();
 
 
 						var dataString = 'MAX_FILE_SIZE='+ MAX_FILE_SIZE + '&ADID=' + ADID + '&ADTERMID=' + ADTERMID;
@@ -414,7 +414,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('useadsense', '1', 'Should adsense ads be displayed in ads? Check to activate. Uncheck to deactivate.', 0),
 		('adsense', 'Replace this text with your adsense code', 'Your adsense code (Best if 468 by 60 text or banner.', 2),
 		('adsenseposition', '2', 'Where do you want to display your adsense code? 1= directly above the ad text body 2= directly under the ad text body 3=below the ad images if there are any.', 1),
-		('addurationfreemode', '0', 'If you are running in free mode enter the value in days for the number of days ads can stay in the system before they expire. If you do not want the ads to expire leave the value set to zero [0] Note that [0] is treated like a period of25 years. Also note that expired ads are automatically deleted from the system.', 1),
+		('addurationfreemode', '0', 'If you are running in free mode enter the value in days for the number of days ads can stay in the system before they expire. If you do not want the ads to expire leave the value set to zero [0] Note that [0] is treated like a period of 25 years. Also note that expired ads are automatically deleted from the system.', 1),
 		('imagesallowdisallow', '1', 'Uncheck to disallow images in ads. Check to allow. [Affects both free and paid]', 0),
 		('imagesallowedfree', '4', 'If allowing images and running in free mode, how many images are allowed per ad?', 1),
 		('maximagesize', '150000', 'If allowing images set the maximum file size that can be uploaded per image.', 1),
@@ -2577,7 +2577,7 @@ echo "<div style=\"clear:both\"></div>";
 
 				if((get_awpcp_option(displayphonefield) == '1')
 				&&(get_awpcp_option(displayphonefieldreqop) == '1')){
-				$phonecheck="if(the.adcontact_phone.value==\"\") {
+				$phonecheck="if(the.adcontact_phone.value==='') {
 							alert('You did not fill out a phone number for the ad contact person. The information is required.');
 							the.adcontact_phone.focus();
 							return false;
@@ -2585,7 +2585,7 @@ echo "<div style=\"clear:both\"></div>";
 
 				if((get_awpcp_option(displaycityfield) == '1')
 				&&(get_awpcp_option(displaycityfieldreqop) == '1')){
-				$citycheck="if(the.adcontact_city.value==\"\") {
+				$citycheck="if(the.adcontact_city.value==='') {
 							alert('You did not fill out your city. The information is required.');
 							the.adcontact_city.focus();
 							return false;
@@ -2593,7 +2593,7 @@ echo "<div style=\"clear:both\"></div>";
 
 				if((get_awpcp_option(displaystatefield) == '1')
 				&&(get_awpcp_option(displaystatefieldreqop) == '1')){
-				$statecheck="if(the.adcontact_state.value==\"\") {
+				$statecheck="if(the.adcontact_state.value==='') {
 							alert('You did not fill out your state. The information is required.');
 							the.adcontact_state.focus();
 							return false;
@@ -2601,7 +2601,7 @@ echo "<div style=\"clear:both\"></div>";
 
 				if((get_awpcp_option(displaycountryfield) == '1')
 				&&(get_awpcp_option(displaycountryfieldreqop) == '1')){
-				$countrycheck="if(the.adcontact_country.value==\"\") {
+				$countrycheck="if(the.adcontact_country.value==='') {
 							alert('You did not fill out your country. The information is required.');
 							the.adcontact_country.focus();
 							return false;
@@ -2615,7 +2615,7 @@ echo "<div style=\"clear:both\"></div>";
 						}";}else {$paymethodcheck='';}
 
 				if(get_awpcp_option(freepay) == '1') {
-				$adtermcheck="if(the.adterm_id.value==\"\") {
+				$adtermcheck="if(the.adterm_id.value==='') {
 							alert('You did not select your ad term choice. The information is required.');
 							the.adterm_id.focus();
 							return false;
@@ -2625,35 +2625,35 @@ echo "<div style=\"clear:both\"></div>";
 				$checktheform="<script type=\"text/javascript\">
 					function checkform() {
 						var the=document.myform;
-						if (the.adtitle.value==\"\") {
+						if (the.adtitle.value==='') {
 							alert('You did not fill out an ad title');
 							the.adtitle.focus();
 							return false;
 						}
-						if (the.adcategory.value==\"\") {
+						if (the.adcategory.value==='') {
 							alert('You did not select an ad category');
 							the.adcategory.focus();
 							return false;
 						}
-						if (the.adcontact_name.value==\"\") {
+						if (the.adcontact_name.value==='') {
 							alert('You did not fill in the name of the ad contact person');
 							the.adcontact_name.focus();
 							return false;
 						}
-						if ((the.adcontact_email.value==\"\") || (the.adcontact_email.value.indexOf('@')==-1) || (the.adcontact_email.value.indexOf('.',the.adcontact_email.value.indexOf('@')+2)==-1) || (the.adcontact_email.value.lastIndexOf('.')==the.adcontact_email.value.length-1)) {
+						if ((the.adcontact_email.value==='') || (the.adcontact_email.value.indexOf('@')==-1) || (the.adcontact_email.value.indexOf('.',the.adcontact_email.value.indexOf('@')+2)==-1) || (the.adcontact_email.value.lastIndexOf('.')==the.adcontact_email.value.length-1)) {
 							alert('Either you did not enter your email address or the email address you entered is not valid.');
 							the.adcontact_email.focus();
 							return false;
 						}
 
-						$phonecheck
-						$citycheck
-						$statecheck
-						$countrycheck
-						$paymethodcheck
-						$adtermcheck
+						$phonecheck;
+						$citycheck;
+						$statecheck;
+						$countrycheck;
+						$paymethodcheck;
+						$adtermcheck;
 
-						if (the.addetails.value==\"\") {
+						if (the.addetails.value==='') {
 							alert('You did not fill in any details for your ad.');
 							the.addetails.focus();
 							return false;
@@ -2665,11 +2665,15 @@ echo "<div style=\"clear:both\"></div>";
 
 
 							function textCounter(field, countfield, maxlimit) {
-							if (field.value.length > maxlimit) // if too long...trim it!
-							field.value = field.value.substring(0, maxlimit);
-							// otherwise, update 'characters left' counter
-							else
-							countfield.value = maxlimit - field.value.length;
+							if (field.value.length > maxlimit)
+							{ // if too long...trim it!
+								field.value = field.value.substring(0, maxlimit);
+							}
+								// otherwise, update 'characters left' counter
+
+								else {
+									countfield.value = maxlimit - field.value.length;
+								}
 							}
 
 				</script>";
@@ -2855,13 +2859,13 @@ function load_ad_edit_form($action,$awpcppagename,$editemail='',$adaccesskey='',
 				function checkform() {
 					var the=document.myform;
 
-					if ((the.editemail.value==\"\") || (the.editemail.value.indexOf('@')==-1) || (the.editemail.value.indexOf('.',the.editemail.value.indexOf('@')+2)==-1) || (the.editemail.value.lastIndexOf('.')==the.editemail.value.length-1)) {
+					if ((the.editemail.value==='') || (the.editemail.value.indexOf('@')==-1) || (the.editemail.value.indexOf('.',the.editemail.value.indexOf('@')+2)==-1) || (the.editemail.value.lastIndexOf('.')==the.editemail.value.length-1)) {
 						alert('Either you did not enter your email address or the email address you entered is not valid.');
 						the.editemail.focus();
 						return false;
 					}
 
-					if (the.adaccesskey.value==\"\") {
+					if (the.adaccesskey.value==='') {
 						alert('You did not enter the access key. The access key was emailed to you when you first submitted your ad. You need this key in order to edit your ad.');
 						the.adaccesskey.focus();
 						return false;
@@ -2944,7 +2948,7 @@ if(get_awpcp_option('contactformcheckhuman') == 1){
 
 	$conditionscheckhuman="
 
-			if (the.checkhuman.value==\"\") {
+			if (the.checkhuman.value==='') {
 				alert('You did not enter the sum of $numval1 plus $numval2. Please enter the sum of $numval1 plus $numval2');
 				the.checkhuman.focus();
 				return false;
@@ -2962,23 +2966,23 @@ $checktheform="<script type=\"text/javascript\">
 	function checkform() {
 		var the=document.myform;
 
-		if (the.sendersname.value==\"\") {
+		if (the.sendersname.value==='') {
 			alert('You did not enter your name. Please enter your name.');
 			the.sendersname.focus();
 			return false;
 		}
-		if ((the.sendersemail.value==\"\") || (the.sendersemail.value.indexOf('@')==-1) || (the.sendersemail.value.indexOf('.',the.sendersemail.value.indexOf('@')+2)==-1) || (the.sendersemail.value.lastIndexOf('.')==the.sendersemail.value.length-1)) {
+		if ((the.sendersemail.value==='') || (the.sendersemail.value.indexOf('@')==-1) || (the.sendersemail.value.indexOf('.',the.sendersemail.value.indexOf('@')+2)==-1) || (the.sendersemail.value.lastIndexOf('.')==the.sendersemail.value.length-1)) {
 			alert('Either you did not enter your email address or the email address you entered is not valid.');
 			the.sendersemail.focus();
 			return false;
 		}
-		if (the.contactmessage.value==\"\") {
+		if (the.contactmessage.value==='') {
 			alert('You did not enter any message. Please enter a message');
 			the.contactmessage.focus();
 			return false;
 		}
 
-		$conditionscheckhuman
+		$conditionscheckhuman;
 
 		return true;
 	}
@@ -3152,8 +3156,8 @@ $permastruc=get_option(permalink_structure);
 $checktheform="<script type=\"text/javascript\">
 	function checkform() {
 		var the=document.myform;
-		if (the.keywordphrase.value==\"\") {
-			if( (the.searchname.value==\"\") && (the.searchcity.value==\"\") && (the.searchstate.value==\"\") && (the.searchcountry.value==\"\") && (the.searchcategory.value==\"\")){
+		if (the.keywordphrase.value==='') {
+			if( (the.searchname.value==='') && (the.searchcity.value==='') && (the.searchstate.value==='') && (the.searchcountry.value==='') && (the.searchcategory.value==='')){
 				alert('You did not enter a keyword or phrase to search for. You must at the very least provide a keyword or phrase to search for.');
 				the.keywordphrase.focus();
 				return false;
