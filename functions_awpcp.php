@@ -897,8 +897,9 @@ function setup_url_structure($awpcppagename) {
 
 			$quers='';
 			$theblogurl=get_bloginfo('url');
-			$permastruc=get_option('permalink_structure');
 
+
+			$permastruc=get_option('permalink_structure');
 
 			if( strstr($permastruc,'index.php') )
 			{
@@ -932,6 +933,7 @@ function setup_url_structure($awpcppagename) {
 				$quers="$theblogurl/$awpcppagename/";
 			}
 			else {
+
 				$quers="$theblogurl/$awpcppagename/?a=";
 			}
 
@@ -1036,7 +1038,7 @@ function deleteuserpageentry($currentuipagename) {
 global $wpdb;
 $table_name6 = $wpdb->prefix . "awpcp_pagename";
 
-			 $query="DELETE FROM ".$table_name6." WHERE userpagename='$currentuipagename'";
+			 $query="TRUNCATE ".$table_name6."";
 			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 			 mysql_query($query);
 }
@@ -1415,7 +1417,9 @@ $limit=10;}
 // START FUNCTION: make sure there's not more than one page with the name of the classifieds page
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function checkfortotalpageswithawpcpname($awpcppagename) {
+function checkfortotalpageswithawpcpname($awpcppage) {
+
+$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
 	$pageswithawpcpname=array();
 	global $wpdb,$table_prefix;
@@ -1444,15 +1448,61 @@ function checkfortotalpageswithawpcpname($awpcppagename) {
 
 		}
 
+			deleteuserpageentry($awpcppage);
+
 			//Now recreate the page
-			$cpagename=get_awpcp_option('userpagename');
-			maketheclassifiedpage($cpagename);
+
+			maketheclassifiedpage($awpcppage);
 	}
 }
+
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: make sure there's not more than one page with the name of the classifieds page
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: check a specific ad to see if it is disabled or enabled
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function check_if_ad_is_disabled($adid) {
+global $wpdb;
+$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+	$myreturn=false;
+		$query="SELECT disabled FROM ".$table_name3." WHERE ad_id='$adid'";
+		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+
+			while ($rsrow=mysql_fetch_row($res))
+			{
+		 		list($adstatusdisabled)=$rsrow;
+			}
+				if ($adstatusdisabled == 1)
+				{
+					$myreturn=true;
+				}
+
+	return $myreturn;
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: check a specific ad to see if it is disabled or enabled
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+if ( !function_exists( 'property_exists' ) ) {
+    function property_exists( $class, $property ) {
+        if ( is_object( $class ) ) {
+            $vars = get_object_vars( $class );
+        } else {
+            $vars = get_class_vars( $class );
+        }
+        return array_key_exists( $property, $vars );
+    }
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: Clear HTML tags
