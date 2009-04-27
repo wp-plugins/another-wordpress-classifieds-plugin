@@ -26,6 +26,7 @@ function get_awpcp_option($option) {
 	return $myreturn;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1423,6 +1424,7 @@ $limit=10;}
 // START FUNCTION: make sure there's not more than one page with the name of the classifieds page
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 function checkfortotalpageswithawpcpname($awpcppage) {
 
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
@@ -1430,7 +1432,7 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 	$pageswithawpcpname=array();
 	global $wpdb,$table_prefix;
 
-	$query="SELECT ID FROM $wpdb->posts WHERE post_name = '$awpcppagename'";
+	$query="SELECT ID FROM $wpdb->posts WHERE post_title='$awpcppage' AND post_name = '$awpcppagename'";
 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 	if (mysql_num_rows($res))
@@ -1456,13 +1458,8 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
 			deleteuserpageentry($awpcppage);
 
-			//Now recreate the page
-
-			maketheclassifiedpage($awpcppage);
 	}
 }
-
-
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
