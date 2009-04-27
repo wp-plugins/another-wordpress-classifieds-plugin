@@ -42,7 +42,7 @@ class file_upload {
 
 
 
-	function file_upload() {
+	 function file_upload() {
 		$this->language = "en"; // choice of en, nl, es
 		$this->rename_file = false;
 		$this->ext_string = "";
