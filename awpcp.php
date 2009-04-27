@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.4.6
+Version: 1.0.4.7
 Author: A. Lewis
 Author URI: http://www.awpcp.com
 */
@@ -65,7 +65,7 @@ $thisadminemail=get_option('admin_email');
 require("$awpcp_plugin_path/dcfunctions.php");
 require("$awpcp_plugin_path/functions_awpcp.php");
 
-$awpcp_db_version = "1.0.4.6";
+$awpcp_db_version = "1.0.4.7";
 
 define( 'MAINUPLOADURL', $wpcontenturl . '/uploads');
 define('MAINUPLOADDIR', $wpcontentdir .'/uploads/');
@@ -366,6 +366,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	INSERT INTO " . $table_name4 . " (`config_option`, `config_value`, `config_diz`, `option_type`) VALUES
 		('userpagename', 'AWPCP', 'The name of the page for the user side access to the classifieds [CAUTION: Please make sure you do not already have a page using the same name because the current page will be overwritten]', 1),
 		('freepay', '0', 'You can run a free or paid classified listing service. With the box checked you are running in pay mode. With the box unchecked you are running in free mode', 0),
+		('requireuserregistration', '0', 'You can require users to be registered before they can post an ad. With the box checked you are running in registration required mode. With the box unchecked anyone can post an ad whether or not they are registered.', 0),
 		('paylivetestmode', '1', 'By default both paypal and 2checkout are running in live mode. If you prefer to test to make sure payments are being processed to your accounts uncheck this box to switch to sandbox test mode.', 0),
 		('useadsense', '1', 'Should adsense ads be displayed in ads? Check to activate. Uncheck to deactivate.', 0),
 		('adsense', 'Replace this text with your adsense code', 'Your adsense code (Best if 468 by 60 text or banner.', 2),
@@ -400,7 +401,8 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('displaystatefieldreqop', '0', 'If showing the state field check this if the user is required to enter a state. [SUGGESTION: It is probably better to leave unchecked so state is optional.]', 0),
 		('displaycountryfield', '1', 'Uncheck this if you prefer to hide the country input field. Check it to show the country input field.', 0),
 		('displaycountryfieldreqop', '0', 'If showing the country input field, check this if the user is required to enter a country. [SUGGESTION: It is probably better to leave unchecked so country is optional.]', 0),
-		('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side', 2);";
+		('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side', 2),
+		('showlatestawpcpnews', '1', 'Uncheck this to remove the news feed that shows the latest news about Another Wordpress Classifieds Plugin. If you want to be made immediately aware of bug fixes and new features added to the plugin you should leave the value checked.', 0);";
 
       require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
       dbDelta($sql);
@@ -425,6 +427,19 @@ global $wpdb,$awpcp_db_version;
 
     if( $installed_ver != $awpcp_db_version ) {
 
+    // 1.0.5 updates
+
+    		if(!field_exists($field='showlatestawpcpnews')){
+
+				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+				('showlatestawpcpnews', '1', 'Uncheck this to remove the news feed that shows the latest news about Another Wordpress Classifieds Plugin. If you want to be made immediately aware of bug fixes and new features added to the plugin you should leave the value checked.', 0);");
+			}
+
+			if(!field_exists($field='requireuserregistration')){
+
+				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+				('requireuserregistration', '0', 'You can require users to be registered before they can post an ad. With the box checked you are running in registration required mode. With the box unchecked anyone can post an ad whether or not they are registered.', 0);");
+		}
 
 	// 1.0.4.4 installation updates
 
@@ -675,6 +690,37 @@ echo "<div style=\"border-top:1px solid #dddddd;border-bottom:1px dotted #dddddd
 
 echo "<div style=\"border-top:1px solid #dddddd;border-bottom:1px dotted #dddddd;padding:10px;background:#f5f5f5;\">Use the buttons on the right to configure your various options</div>";
 
+if(get_awpcp_option(showlatestawpcpnews)){
+	echo "<div style=\"border-top:1px solid #dddddd;border-bottom:1px dotted #dddddd;padding:10px;background:#f5f5f5;\"><h4>Latest News About Another Wordpress Classifieds Plugin</h4><div style=\"margin:15px 25px 25px 0px;\">";
+	$i=0;
+	require_once $awpcp_plugin_path.'/classes/feed_reader.class.php';
+	$fr=new feedReader();
+	$ok=$fr->getFeed("http://feeds2.feedburner.com/Awpcp?num=10");
+
+	$fr->parseFeed();
+
+	$awpcp_news=$fr->getFeedOutputData();
+
+		if(isset($awpcp_news['item']) && !empty($awpcp_news['item'])){
+		$awpcp_news=$awpcp_news['item'];
+
+			for ($i=0;$i<5;$i++) {
+
+			$awpcpnewslink=$awpcp_news[$i]['link'];
+			$awpcpnewstitle=$awpcp_news[$i]['title'];
+			$awpcpnewsdescription=$awpcp_news[$i]['description'];
+			$awpcpnewsdescription = strip_tags($awpcpnewsdescription);
+			$awpcpnewsdescription = str_replace(' ',' ',$awpcpnewsdescription );
+			$awpcpnewsdescription=awpcpLimitText($awpcpnewsdescription,10,150,"");
+
+			$awpcpnewsline="<span style=\"margin:0; padding:3px 0 3px 0px;\"><a style=\"text-decoration:none;\" href=\"$awpcpnewslink\" target=\"_blank\">$awpcpnewstitle</a></span><p style=\"padding:0 0 15px 0; margin:0;\">$awpcpnewsdescription <a style=\"font-size:x-small\" href=\"$awpcpnewslink\" target=\"_blank\">Read full text</a></p>";
+			echo $awpcpnewsline;
+			}
+
+		}
+
+	echo "</div></div>";
+}
 
 echo "
 
@@ -1854,9 +1900,6 @@ $error=false;
 		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 
-
-
-
 		// Create the classified user page if it does not exist
 			if(empty($currentuipagename))
 			{
@@ -1902,6 +1945,10 @@ add_action('init', 'flush_rewrite_rules');
 global $wpdb,$table_prefix,$wp_rewrite;
 $table_name6 = $wpdb->prefix . "awpcp_pagename";
 $pdate = date("Y-m-d");
+
+// First delete any pages already existing with the title and post name of the new page to be created
+checkfortotalpageswithawpcpname($newuipagename);
+
 
 $post_name = sanitize_title($newuipagename, $post_ID='');
 
@@ -2654,6 +2701,7 @@ global $wpdb,$siteurl;
 		}
 
 		elseif(get_awpcp_option('requireuserregistration') && !is_user_logged_in()){
+		$quers=setup_url_structure($awpcppagename);
 
 			$putregisterlink="<a href=\"$siteurl/wp-login.php?action=register\" title=\"Register\"><b>Register</b></a>";
 
@@ -2675,7 +2723,7 @@ global $wpdb,$siteurl;
 				  	<p><label><input name=\"rememberme\" id=\"rememberme\" value=\"forever\" tabindex=\"90\" type=\"checkbox\"> Remember Me</label></p>
 				  	<p align=\"center\">
 				  		<input name=\"wp-submit\" id=\"wp-submit\" value=\"Log In\" class=\"submitbutton\" tabindex=\"100\" type=\"submit\">
-				  		<input name=\"redirect_to\" value=\"$siteurl\" type=\"hidden\">
+				  		<input name=\"redirect_to\" value=\"".$quers."placead\" type=\"hidden\">
 				  		<input name=\"testcookie\" value=\"1\" type=\"hidden\">
 				  	</p>
   				</form>
