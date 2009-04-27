@@ -39,6 +39,7 @@ Easy PHP Upload: http://www.finalwebsites.com/forums/topic/php-ajax-upload-examp
 */
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+session_start();
 
 if ( !defined('WP_CONTENT_DIR') )
 	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); // no trailing slash, full paths only - WP_CONTENT_URL is defined further down
@@ -55,6 +56,7 @@ $awpcp_plugin_url = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"
 
 $imagespath = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'/images';
 $imagesurl = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'/images';
+
 
 $nameofsite=get_option('blogname');
 $siteurl=get_option('siteurl');
@@ -86,6 +88,7 @@ function awpcpjs() {
 	wp_enqueue_script('thickbox');
 	wp_enqueue_script('jquery-chuch', $awpcp_plugin_url.'js/checkuncheckboxes.js', array('jquery'));
 
+
 }
 
 function awpcp_insert_thickbox() {
@@ -103,6 +106,8 @@ function awpcp_insert_thickbox() {
     ';
 }
 
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Add actions and filters etc
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -110,8 +115,8 @@ function awpcp_insert_thickbox() {
 	add_action('init', 'awpcp_install');
 	add_action ('wp_print_scripts', 'awpcpjs',1);
 	add_action('wp_head', 'awpcp_addcss');
-	add_action('wp_head', 'awpcp_insertjquery');
 	add_action('wp_head', 'awpcp_insert_thickbox', 10);
+	add_action('wp_head', 'awpcp_insertjquery');
 	add_action( 'doadexpirations_hook', 'doadexpirations' );
 	add_action('admin_menu', 'awpcp_launch');
 	add_action("plugins_loaded", "init_awpcpsbarwidget");
@@ -185,7 +190,7 @@ $wp_rewrite->flush_rules();
 		// The funtion to add the javascript codes to the header of the index page
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	function awpcp_insertjquery() {
+		function awpcp_insertjquery() {
 		echo "\n
 			<script type=\"text/javascript\">
 			var AWPCPJQUERY = jQuery.noConflict();
@@ -254,6 +259,7 @@ $wp_rewrite->flush_rules();
 
 \n";
 		}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PROGRAM FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -408,6 +414,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
    }
 
   else {
+
 global $wpdb,$awpcp_db_version;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //	Update the database tables in the event of a new version of plugin
@@ -418,85 +425,89 @@ global $wpdb,$awpcp_db_version;
 
     if( $installed_ver != $awpcp_db_version ) {
 
-    // 1.0.4.4 installaiton updates
 
-     		if(!field_exists($field='paypalcurrencycode')){
+	// 1.0.4.4 installation updates
 
-					$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
-					('paypalcurrencycode', 'USD', 'The currency in which you would like to receive your paypal payments', 1);");
-			}
+ 		if(!field_exists($field='paypalcurrencycode')){
+
+				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+				('paypalcurrencycode', 'USD', 'The currency in which you would like to receive your paypal payments', 1);");
+		}
 
 
 
-    // 1.0.4.3 installation updates - no database changes
 
 	// 1.0.4.2 installation updates - no database changes
 
 
-    // 1.0.4.1 installation updates - checking for fields notice_awaiting_approval_ad,displayphonefiled,displayphonefieldreqop,displaycityfield,displaycityfieldreqop
-    // displaystatefield, displaystatefieldreqop, displaycountryfield, displaycountryfieldreqop and uiwelcome - In 1.0.4 these fields were not inserted
+	// 1.0.4.1 installation updates - checking for fields notice_awaiting_approval_ad,displayphonefiled,displayphonefieldreqop,displaycityfield,displaycityfieldreqop
+	// displaystatefield, displaystatefieldreqop, displaycountryfield, displaycountryfieldreqop and uiwelcome - In 1.0.4 these fields were not inserted
     // due to misplaced semi-colon after field hyperlinkurlintext
 
-   	 		if(!field_exists($field='notice_awaiting_approval_ad')){
+		if(!field_exists($field='notice_awaiting_approval_ad')){
 
-				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
-				('notice_awaiting_approval_ad', 'All ads must first be approved by the administrator before they are activated in the system. As soon as an admin has approved your ad it will become visible in the system. Thank you for your business.','The message to print after an ad has been posted if you are manually approving ads before they are displayed on the site', 2);");
-			}
-
-			if(!field_exists($field='displayphonefield')){
-
-				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
-				('displayphonefield', '1', 'Uncheck this if you prefer to hide the phone input field. Check it to show the phone input field.', 0);");
-			}
-
-			if(!field_exists($field='displayphonefieldreqop')){
-
-				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
-				('displayphonefieldreqop', '0', 'If showing the phone input field check this if the user is required to enter a phone number. [SUGGESTION: It is probably better to leave unchecked so phone number is optional.]', 0);");
-			}
-
-			if(!field_exists($field='displaycityfield')){
-
-				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
-				('displaycityfield', '1', 'Uncheck this if you prefer to hide the city input field. Check it to show the city input field.', 0);");
-			}
-
-			if(!field_exists($field='displaycityfieldreqop')){
-
-				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
-				('displaycityfieldreqop', '0', 'If showing the city input field check this if the user is required to enter a city. [SUGGESTION: It is probably better to leave unchecked so city is optional.]', 0);");
-			}
-
-			if(!field_exists($field='displaystatefield')){
-
-				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
-				('displaystatefield', '1', 'Uncheck this if you prefer to hide the state input field. Check it to show the state input field.', 0);");
-			}
-
-			if(!field_exists($field='displaystatefieldreqop')){
-
-				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
-				('displaystatefieldreqop', '0', 'If showing the state field check this if the user is required to enter a state. [SUGGESTION: It is probably better to leave unchecked so state is optional.]', 0);");
-			}
-
-			if(!field_exists($field='displaycountryfield')){
-
-				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
-				('displaycountryfield', '1', 'Uncheck this if you prefer to hide the country input field. Check it to show the country input field.', 0);");
-			}
-
-			if(!field_exists($field='displaycountryfieldreqop')){
-
-				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
-				('displaycountryfieldreqop', '0', 'If showing the country input field, check this if the user is required to enter a country. [SUGGESTION: It is probably better to leave unchecked so country is optional.]', 0);");
-			}
-
-
-			if(!field_exists($field='uiwelcome')){
-
-				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
-				('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side', 2);");
+			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+			('notice_awaiting_approval_ad', 'All ads must first be approved by the administrator before they are activated in the system. As soon as an admin has approved your ad it will become visible in the system. Thank you for your business.','The message to print after an ad has been posted if you are manually approving ads before they are displayed on the site', 2);");
 		}
+
+		if(!field_exists($field='displayphonefield')){
+
+			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+			('displayphonefield', '1', 'Uncheck this if you prefer to hide the phone input field. Check it to show the phone input field.', 0);");
+		}
+
+		if(!field_exists($field='displayphonefieldreqop')){
+
+			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+			('displayphonefieldreqop', '0', 'If showing the phone input field check this if the user is required to enter a phone number. [SUGGESTION: It is probably better to leave unchecked so phone number is optional.]', 0);");
+		}
+
+		if(!field_exists($field='displaycityfield')){
+
+			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+			('displaycityfield', '1', 'Uncheck this if you prefer to hide the city input field. Check it to show the city input field.', 0);");
+		}
+
+		if(!field_exists($field='displaycityfieldreqop')){
+
+			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+			('displaycityfieldreqop', '0', 'If showing the city input field check this if the user is required to enter a city. [SUGGESTION: It is probably better to leave unchecked so city is optional.]', 0);");
+		}
+
+		if(!field_exists($field='displaystatefield')){
+
+			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+			('displaystatefield', '1', 'Uncheck this if you prefer to hide the state input field. Check it to show the state input field.', 0);");
+		}
+
+		if(!field_exists($field='displaystatefieldreqop')){
+
+			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+			('displaystatefieldreqop', '0', 'If showing the state field check this if the user is required to enter a state. [SUGGESTION: It is probably better to leave unchecked so state is optional.]', 0);");
+		}
+
+		if(!field_exists($field='displaycountryfield')){
+
+			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+			('displaycountryfield', '1', 'Uncheck this if you prefer to hide the country input field. Check it to show the country input field.', 0);");
+		}
+
+		if(!field_exists($field='displaycountryfieldreqop')){
+
+			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+			('displaycountryfieldreqop', '0', 'If showing the country input field, check this if the user is required to enter a country. [SUGGESTION: It is probably better to leave unchecked so country is optional.]', 0);");
+		}
+
+
+		if(!field_exists($field='uiwelcome')){
+
+			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+			('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side', 2);");
+		}
+
+
+
+	// 1.0.4 installation updates - no database changes
 
 
     // 1.0.3 installation updates
@@ -582,11 +593,9 @@ $awpcppagename = sanitize_title($pagename, $post_ID='');
 
 function awpcp_launch(){
 add_menu_page('AWPCP Classifieds Management System', 'Classifieds', '10', 'awpcp.php', 'awpcp_home_screen', MENUICO);
-add_submenu_page('awpcp.php', 'AWPCP General Settings', 'Configure', '10', 'awpcp.php', 'awpcp_home_screen');
 add_submenu_page('awpcp.php', 'Configure General Options ', 'Settings', '10', 'Configure1', 'awpcp_opsconfig_settings');
 add_submenu_page('awpcp.php', 'Listing Fees Setup', 'Fees', '10', 'Configure2', 'awpcp_opsconfig_fees');
 add_submenu_page('awpcp.php', 'Add/Edit Categories', 'Categories', '10', 'Configure3', 'awpcp_opsconfig_categories');
-add_submenu_page('awpcp.php', 'Manage Ads', 'Manage', '10', 'awpcp.php', 'awpcp_home_screen');
 add_submenu_page('awpcp.php', 'View Ad Listings', 'Listings', '10', 'Manage1', 'awpcp_manage_viewlistings');
 add_submenu_page('awpcp.php', 'View Ad Images', 'Images', '10', 'Manage2', 'awpcp_manage_viewimages');
 add_submenu_page('awpcp.php', 'Uninstall AWPCP', 'Uninstall', '10', 'Manage3', 'awpcp_uninstall');
@@ -606,7 +615,7 @@ function awpcp_manage(){}
 
 function awpcp_home_screen(){
 
-global $message,$user_identity,$wpdb;
+global $message,$user_identity,$wpdb,$awpcp_plugin_path;
 $table_name4 = $wpdb->prefix . "awpcp_adsettings";
 
 
@@ -662,8 +671,13 @@ if(get_awpcp_option(freepay) == '1'){
 echo "<div style=\"border-top:1px solid #dddddd;border-bottom:1px dotted #dddddd;padding:10px;background:#f5f5f5;\"> You currently have your system configured to run in pay mode. To change to <b>free</b> mode go to \"Manage General Options\" and check the box that accompanies the text [ <em>You can run a free or paid classified listing service. With the box checked you are running in pay mode. With the box unchecked you are running in free mode</em> ]</div>";}
 
 
+
+
+echo "<div style=\"border-top:1px solid #dddddd;border-bottom:1px dotted #dddddd;padding:10px;background:#f5f5f5;\">Use the buttons on the right to configure your various options</div>";
+
+
 echo "
-<div style=\"border-top:1px solid #dddddd;border-bottom:1px dotted #dddddd;padding:10px;background:#f5f5f5;\">Use the buttons on the right to configure your various options</div>
+
 </div>
 <div style=\"float:left;width:30%;margin:0 0 0 20px;\">
 <ul>
@@ -775,7 +789,7 @@ $table_name2 = $wpdb->prefix . "awpcp_adfees";
 
 echo "<div class=\"wrap\">
 <h2>AWPCP Classifieds Management System: Listing Fees Management</h2>
- $message <p style=\"padding:10px;border:1px solid#dddddd;\">Below you can add and edit your listing fees. As an example you can add an entry set at $9.99 for a 30 day listing, then another entry set at $17.99 for a 60 day listing. For each entry you can set a specific number of images a user can upload. If you have allow images turned off in your main configuration settings the value you add here will not matter as an upload option will not be included in the ad post form.</p>";
+ $message <p style=\"padding:10px;border:1px solid#dddddd;\">Below you can add and edit your listing fees. As an example you can add an entry set at $9.99 for a 30 day listing, then another entry set at $17.99 for a 60 day listing. For each entry you can set a specific number of images a user can upload. If you have allow images turned off in your main configuration settings the value you add here will not matter as an upload option will not be included in the ad post form. You can also set a text limit for the ads. The value is in words.</p>";
 
  		///////////////////////////////////////
  		// Handle case of adding new settings
@@ -1129,6 +1143,7 @@ $aeaction='';
 // END FUNCTION: Manage categories
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 function awpcp_manage_viewimages(){
 global $message;
 
@@ -1313,7 +1328,186 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 
 	}
 
+	elseif($laction == 'viewad'){
 
+		if(isset($actonid) && !empty($actonid)){
+
+			global $wpdb;
+			$table_name3 = $wpdb->prefix . "awpcp_ads";
+			$table_name5 = $wpdb->prefix . "awpcp_adphotos";
+
+			$awpcppage=get_currentpagename();
+			$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+			$quers=setup_url_structure($awpcppagename);
+
+			if(get_awpcp_option('useadsense') == '1')
+			{
+				$adsensecode=get_awpcp_option('adsense');
+				$showadsense="<p class=\"cl-adsense\">$adsensecode</p>";
+			}
+			else
+			{
+				$showadsense='';
+			}
+
+			$query="SELECT ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_details from ".$table_name3." WHERE ad_id='$actonid'";
+			if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+				while ($rsrow=mysql_fetch_row($res))
+				{
+					list($ad_title,$adcontact_name,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$addetails)=$rsrow;
+				}
+
+			////////////////////////////////////////////////////////////////////////////////////
+			// Step:2 Show a sample of how the ad is going to look
+			////////////////////////////////////////////////////////////////////////////////////
+
+			if(!isset($adcontact_name) || empty($adcontact_name))
+			{
+				$adcontact_name="Not Supplied";
+			}
+			if(!isset($adcontact_phone) || empty($adcontact_phone))
+			{
+				$adcontact_phone="Not Supplied";
+			}
+
+
+			if( empty($ad_contact_city) && empty($adcontact_state) && empty($adcontact_country) )
+			{
+				$location="";
+			}
+			else
+			{
+
+				$location="Location:";
+				if(isset($adcontact_city))
+				{
+					$location.="$adcontact_city";
+				}
+				if(isset($adcontact_state))
+				{
+					$location.=" $adcontact_state";
+				}
+				if(isset($adcontact_country))
+				{
+					$location.=" $adcontact_country";
+				}
+			}
+
+
+			$modtitle=cleanstring($ad_title);
+			$modtitle=add_dashes($modtitle);
+
+			if(get_awpcp_option('seofriendlyurls') == 1 && isset($permastruc))
+			{
+				$codecontact="contact/$actonid/$modtitle";
+			}
+			else
+			{
+				$codecontact="contact&i=$actonid";
+			}
+
+
+
+			echo "<div id=\"showad\"><div class=\"adtitle\">$ad_title </div><div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a> Phone: $adcontact_phone $location</div>";
+
+
+			if(get_awpcp_option('adsenseposition') == '1' ){
+				echo "$showadsense";
+			}
+
+			if(get_awpcp_option('hyperlinkurlsinadtext')){
+				$addetails=preg_replace("/(http:\/\/[^\s]+)/","<a href=\"\$1\">\$1</a>",$addetails);
+			}
+
+			$addetails=preg_replace("/(\r\n)+|(\n|\r)+/", "<br /><br />", $addetails);
+
+
+
+			echo "<p class=\"addetails\">$addetails</p>";
+
+			if(get_awpcp_option('adsenseposition') == '2')
+			{
+				echo "$showadsense";
+			}
+
+			echo "</div><div style=\"clear:both;\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul style=\"list-style:none;float:left;\">";
+
+			$theimage='';
+
+			if(get_awpcp_option('imagesallowdisallow') == '1')
+			{
+
+				$totalimagesuploaded=get_total_imagesuploaded($actonid);
+
+				if($totalimagesuploaded >=1)
+				{
+
+					$query="SELECT image_name FROM ".$table_name5." WHERE ad_id='$actonid' AND disabled='0' ORDER BY image_name ASC";
+					if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+						while ($rsrow=mysql_fetch_row($res))
+						{
+							list($image_name)=$rsrow;
+
+							echo "<li style=\"list-style:none;float:left;padding-right:10px;\"><a class=\"thickbox\" href=\"".AWPCPUPLOADURL."/$image_name\"><img src=\"".AWPCPTHUMBSUPLOADURL."/$image_name\"></a></li>";
+
+						}
+
+				}
+
+			}
+
+			echo "</ul></div><div style=\"clear:both;\"></div>";
+
+			if(get_awpcp_option('adsenseposition') == '3')
+			{
+				echo "$showadsense";
+			}
+			echo "</div>";
+
+				// start insert delete | edit | approve/disable admin links
+
+				$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
+				$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
+
+					$deletelink=  "<a href=\"?page=Manage1&action=deletead&id=$actonid&offset=$offset&results=$results\">Delete</a>";
+					$editlink=" |  <a href=\"?page=Manage1&action=editad&id=$actonid&offset=$offset&results=$results\">Edit</a>";
+
+
+					echo"$deletelink $editlink";
+
+
+				if(get_awpcp_option('adapprove') == 1 || get_awpcp_option('freepay')  == 1)
+				{
+
+					$adstatusdisabled=check_if_ad_is_disabled($adid);
+
+					if($adstatusdisabled)
+					{
+						$approvelink=" | <a href=\"?page=Manage1&action=approvead&id=$actonid&offset=$offset&results=$results\">Approve</a> ";
+					}
+					else
+					{
+						$approvelink=" | <a href=\"?page=Manage1&action=rejectad&id=$actonid&offset=$offset&results=$results\">Disable </a> ";
+					}
+
+					echo"$approvelink";
+				}
+
+					echo "</div>";
+
+				// end insert delete | edit | approve/disable admin links
+
+			echo "<p style=\"margin-bottom:25px;\"></p></div>";
+		}
+		else
+		{
+			echo "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">No ad ID was supplied</div>";
+
+		}
+
+	}
 
 	elseif($laction == 'viewimages'){
 		if(isset($_REQUEST['id']) && !empty($_REQUEST['id'])){
@@ -1379,7 +1573,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 							$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 							$awpcpwppostpageid=get_page_id($awpcppagename);
 
-								$ad_title="<a href=\"$base/?page_id=$awpcpwppostpageid&a=showad&id=$ad_id\">".$rsrow[2]."</a>";
+								$ad_title="<a href=\"?page=Manage1&action=viewad&id=$ad_id&offset=$offset&results=$results\">".$rsrow[2]."</a>";
 								$handlelink="<a href=\"?page=Manage1&action=deletead&id=$ad_id&offset=$offset&results=$results\">Delete</a> | <a href=\"?page=Manage1&action=editad&id=$ad_id&offset=$offset&results=$results\">Edit</a>";
 
 								$approvelink='';
@@ -1660,6 +1854,9 @@ $error=false;
 		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 
+
+
+
 		// Create the classified user page if it does not exist
 			if(empty($currentuipagename))
 			{
@@ -1693,7 +1890,6 @@ $error=false;
 
 	global $message;
 }
-
 
 
 		///////////////////////////////////////////////////////////////////////
@@ -1733,6 +1929,7 @@ $post_name = sanitize_title($newuipagename, $post_ID='');
 		$query="INSERT INTO ".$table_name6." SET userpagename='$newuipagename'";
 		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 }
+
 
 
 
@@ -2146,7 +2343,11 @@ return $content;
 
 function awpcpui_process($awpcppagename) {
 
-	global $awpcp_plugin_url;
+// Make sure you don't have multiple classifieds pages
+
+
+
+		global $awpcp_plugin_url;
 
 		//Retrieve the welcome message for the user
 		$uiwelcome=get_awpcp_option('uiwelcome');
@@ -2310,10 +2511,8 @@ function awpcpui_process($awpcppagename) {
 
 		else {
 
+
 			$quers=setup_url_structure($awpcppagename);
-			$permastruc=get_option('permalink_structure');
-
-
 
 			echo "
 				<div id=\"classiwrapper\">
@@ -2322,6 +2521,7 @@ function awpcpui_process($awpcppagename) {
 				$isadmin=checkifisadmin();
 
 				if(!(get_awpcp_option('onlyadmincanplaceads'))){
+
 					echo "
 							<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
 							<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
@@ -2342,6 +2542,7 @@ function awpcpui_process($awpcppagename) {
 
 
 						<div style=\"clear:both;\"></div>
+
 						<div class=\"uiwelcome\">$uiwelcome</div>
 						<div class=\"classifiedcats\">
 					";
@@ -2351,6 +2552,7 @@ function awpcpui_process($awpcppagename) {
 
 			global $wpdb;
 			$table_name1 = $wpdb->prefix . "awpcp_categories";
+			$permastruc=get_option('permalink_structure');
 
 			$table_cols=1;
 			$query="SELECT category_id,category_name FROM ".$table_name1." WHERE category_parent_id='0' ORDER BY category_name ASC";
@@ -2439,7 +2641,7 @@ function awpcpui_process($awpcppagename) {
 
 function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$adaccesskey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$addetails,$adpaymethod,$offset,$results,$ermsg){
 
-
+global $wpdb,$siteurl;
 		$isadmin=checkifisadmin();
 
 		if(get_awpcp_option('onlyadmincanplaceads') && ($isadmin != '1')){
@@ -2451,9 +2653,41 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 			";
 		}
 
+		elseif(get_awpcp_option('requireuserregistration') && !is_user_logged_in()){
+
+			$putregisterlink="<a href=\"$siteurl/wp-login.php?action=register\" title=\"Register\"><b>Register</b></a>";
+
+
+			echo "
+				<div id=\"classiwrapper\">
+				<p>Only registered users can post ads. Please $putregisterlink in order to post an ad. If you are already registered, please login below in order to post your ad.</p>
+				<h2>Login</h2>
+				  <form name=\"loginform\" id=\"loginform\" action=\"$siteurl/wp-login.php\" method=\"post\">
+				  	<p>
+				  		<label>Username<br>
+				  		<input name=\"log\" id=\"user_login\" value=\"\" class=\"textinput\" size=\"20\" tabindex=\"10\" type=\"text\"></label>
+				  	</p>
+
+				  	<p>
+				  		<label>Password<br>
+				  		<input name=\"pwd\" id=\"user_pass\" value=\"\" class=\"textinput\" size=\"20\" tabindex=\"20\" type=\"password\"></label>
+				  	</p>
+				  	<p><label><input name=\"rememberme\" id=\"rememberme\" value=\"forever\" tabindex=\"90\" type=\"checkbox\"> Remember Me</label></p>
+				  	<p align=\"center\">
+				  		<input name=\"wp-submit\" id=\"wp-submit\" value=\"Log In\" class=\"submitbutton\" tabindex=\"100\" type=\"submit\">
+				  		<input name=\"redirect_to\" value=\"$siteurl\" type=\"hidden\">
+				  		<input name=\"testcookie\" value=\"1\" type=\"hidden\">
+				  	</p>
+  				</form>
+				</div>
+			";
+
+		}
+
+
 		else {
 
-		global $wpdb,$siteurl;
+
 		$table_name2 = $wpdb->prefix . "awpcp_adfees";
 		$table_name3 = $wpdb->prefix . "awpcp_ads";
 
@@ -2461,8 +2695,6 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 		$displaydeleteadlink='';
 
 		$quers=setup_url_structure($awpcppagename);
-		$permastruc=get_option(permalink_structure);
-
 
 
 			if($action == 'placead'){
@@ -2762,7 +2994,7 @@ echo "<div style=\"clear:both\"></div>";
 								$ischecked="checked"; }
 								else { $ischecked=''; }
 
-						$amtcurrencycode=get_awpcp_option('paypalcurrencycode');
+								$amtcurrencycode=get_awpcp_option('paypalcurrencycode');
 
 								if(
 								($amtcurrencycode == 'CAD') ||
@@ -2841,9 +3073,7 @@ function load_ad_edit_form($action,$awpcppagename,$editemail='',$adaccesskey='',
 		else {
 
 
-			$quers=setup_url_structure($awpcppagename);
-			$permastruc=get_option(permalink_structure);
-
+		$quers=setup_url_structure($awpcppagename);
 
 			if($action == 'placead'){
 			$liplacead="<li class=\"postad\"><b>Placing Ad</b></li>";}
@@ -2934,8 +3164,6 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
 
 $quers=setup_url_structure($awpcppagename);
-$permastruc=get_option(permalink_structure);
-
 
 $numval1=rand(1,100);
 $numval2=rand(1,100);
@@ -3147,7 +3375,6 @@ $awpcppage=get_currentpagename();
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
 $quers=setup_url_structure($awpcppagename);
-$permastruc=get_option(permalink_structure);
 
 
 $checktheform="<script type=\"text/javascript\">
@@ -3610,8 +3837,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 						$location="";
 					}
 
-					else
-					{
+					else {
 						$location="Location:";
 
 						if(isset($adcontact_city)){
@@ -3653,7 +3879,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 					<div class=\"headeritem\">Image Upload</div>
 					<p id=\"ustatmsg\">
 
-					<form id=\"Form1\" name=\"Form1\" method=\"post\" ENCTYPE=\"Multipart/form-data\">
+					<form id=\"AWPCPForm1\" name=\"AWPCPForm1\" method=\"post\" ENCTYPE=\"Multipart/form-data\">
 						<p id=\"showhideuploadform\">
 					    <input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"$max_image_size\" />
 					    <input type=\"hidden\" name=\"ADID\" value=\"$ad_id\" />
@@ -3661,7 +3887,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 					    If adding images to your ad, select an image from your hard disk:<br/><br/>
 
 
-					        <input type=\"file\" name=\"fileToUpload\" id=\"fileToUpload\" size=\"18\" />
+					        <input type=\"file\" name=\"AWPCPfileToUpload\" id=\"AWPCPfileToUpload\" size=\"18\" />
 					        <input type=\"Submit\" value=\"Submit\" id=\"awpcp_buttonForm\" />
 
 					    </p>
@@ -3696,76 +3922,101 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 					// Step:5 Setup the payment buttons
 					////////////////////////////////////////////////////////////////////////////
 
-					if($amount <= 0)
-					{
-						$showpaybutton='';
-					}
+					if($amount <= 0){
+					$showpaybutton=''; }
 
 					else {
 
-						$showpaybutton="<div class=\"headeritem\">Payment</div><p>Please click the  button below to submit payment for your ad listing.</p>";
+					$showpaybutton="<div class=\"headeritem\">Payment</div><p>Please click the  button below to submit payment for your ad listing.</p>";
 
 						////////////////////////////////////////////////////////////////////////////
 						// Print the paypal button option if paypal is activated
 						////////////////////////////////////////////////////////////////////////////
 
 						if($adpaymethod == 'paypal'){
+						$base=get_option('siteurl');
+						$custom="$ad_id";
+						$custom.="_";
+						$custom.="$key";
 
-								$custom="$ad_id";
-								$custom.="_";
-								$custom.="$key";
+						$quers=setup_url_structure($awpcppagename);
 
-								$quers=setup_url_structure($awpcppagename);
-
-								if(get_awpcp_option('paylivetestmode') == 1){
-									$paypalurl="http://www.paypal.com/cgi-bin/webscr";
-								}else {
-									$paypalurl="https://www.sandbox.paypal.com/cgi-bin/webscr";
-								}
-
-
-								$showpaybutton.="
-								<form action=\"$paypalurl\" method=\"post\">
-								<input type=\"hidden\" name=\"cmd\" value=\"_xclick\" />";
-
-								if(get_awpcp_option('paylivetestmode') == 0){
-									$showpaybutton.="<input type=\"hidden\" name=\"test_ipn\" value=\"1\" />";
-								}
-
-								$showpaybutton.="
-								<input type=\"hidden\" name=\"business\" value=\"".get_awpcp_option('paypalemail')."\" />
-								<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />";
-
-								if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
-									$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou/$custom\" />";
-								}else {
-									$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou&i=$custom\" />";
-								}
-
-								$showpaybutton.="$codepaypalthank";
-
-								if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
-									$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal/$custom\" />";
-								}else {
-									$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal&i=$custom\" />";
-								}
-
-								$showpaybutton.="$codepaypalcancel";
-								$showpaybutton.="<input type=\"hidden\" name=\"notify_url\" value=\"".$quers."paypal\" />
-								<input type=\"hidden\" name=\"no_note\" value=\"1\" />
-								<input type=\"hidden\" name=\"quantity\" value=\"1\" />
-								<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />
-								<input type=\"hidden\" name=\"rm\" value=\"2\" />
-								<input type=\"hidden\" name=\"item_name\" value=\"$adterm_name\" />
-								<input type=\"hidden\" name=\"item_number\" value=\"$adterm_id\" />
-								<input type=\"hidden\" name=\"amount\" value=\"$amount\" />
-								<input type=\"hidden\" name=\"currency_code\" value=\"".get_awpcp_option('paypalcurrencycode')."\" />
-								<input type=\"hidden\" name=\"custom\" value=\"$custom\" />
-								<input type=\"hidden\" name=\"src\" value=\"1\" />
-								<input type=\"hidden\" name=\"sra\" value=\"1\" />
-								<input class=\"button\" type=\"submit\" value=\"Pay With PayPal\">
-								</form>";
+						if(get_awpcp_option('paylivetestmode') == 1){
+							$paypalurl="http://www.paypal.com/cgi-bin/webscr";
+						}else {
+							$paypalurl="https://www.sandbox.paypal.com/cgi-bin/webscr";
 						}
+
+
+					$showpaybutton.="
+					<form action=\"$paypalurl\" method=\"post\">
+					<input type=\"hidden\" name=\"cmd\" value=\"_xclick\" />";
+
+					if(get_awpcp_option('paylivetestmode') == 0){
+						$showpaybutton.="<input type=\"hidden\" name=\"test_ipn\" value=\"1\" />";
+					}
+
+					if(get_awpcp_option('paypalencryptbuttons'))
+					{
+
+						//encrypt the buttons
+						if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
+							$codepaypalthank=$quers."paypalthankyou/$custom";
+						}else {
+							$codepaypalthank=$quers."paypalthankyou&i=$custom";
+						}
+						if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
+						$codepaypalcancel=$quers."cancelpaypal/$custom";
+						}else {
+						$codepaypalcancel=$quers."cancelpaypal&i=$custom";
+						}
+
+					// Handle the encryption method
+
+
+						$showpaybutton.="<input type=\"hidden\" name=\"encrypted\" value=\"";
+						$showpaybutton.="$theencryptedbuttoncode";
+						$showpaybutton.="\">";
+					}
+					else
+					{
+						$showpaybutton.="
+						<input type=\"hidden\" name=\"business\" value=\"".get_awpcp_option('paypalemail')."\" />
+						<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />";
+
+						if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
+							$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou/$custom\" />";
+						}else {
+							$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou&i=$custom\" />";
+						}
+
+						$showpaybutton.="$codepaypalthank";
+
+						if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
+							$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal/$custom\" />";
+						}else {
+							$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal&i=$custom\" />";
+						}
+
+						$showpaybutton.="$codepaypalcancel";
+						$showpaybutton.="<input type=\"hidden\" name=\"notify_url\" value=\"".$quers."paypal\" />
+						<input type=\"hidden\" name=\"no_note\" value=\"1\" />
+						<input type=\"hidden\" name=\"quantity\" value=\"1\" />
+						<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />
+						<input type=\"hidden\" name=\"rm\" value=\"2\" />
+						<input type=\"hidden\" name=\"item_name\" value=\"$adterm_name\" />
+						<input type=\"hidden\" name=\"item_number\" value=\"$adterm_id\" />
+						<input type=\"hidden\" name=\"amount\" value=\"$amount\" />
+						<input type=\"hidden\" name=\"currency_code\" value=\"".get_awpcp_option('paypalcurrencycode')."\" />
+						<input type=\"hidden\" name=\"custom\" value=\"$custom\" />
+						<input type=\"hidden\" name=\"src\" value=\"1\" />
+						<input type=\"hidden\" name=\"sra\" value=\"1\" />";
+					}
+
+						$showpaybutton.="
+						<input class=\"button\" type=\"submit\" value=\"Pay With PayPal\">
+						</form>";
+			}
 
 						/////////////////////////////////////////////////////////////////////////////
 						// Print the  2Checkout button option if 2Checkout is activated
@@ -3848,7 +4099,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 										<div class=\"headeritem\">Image Upload</div>
 									<p id=\"ustatmsg\">
 
-										<form id=\"Form1\" name=\"Form1\" method=\"post\" ENCTYPE=\"Multipart/form-data\">
+										<form id=\"AWPCPForm1\" name=\"AWPCPForm1\" method=\"post\" ENCTYPE=\"Multipart/form-data\">
 											<p id=\"showhideuploadform\">
 										    <input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"$max_image_size\" />
 										    <input type=\"hidden\" name=\"ADID\" value=\"$ad_id\" />
@@ -3856,7 +4107,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 										    If adding images to your ad, select an image from your hard disk:<br/><br/>
 
 
-										        <input type=\"file\" name=\"fileToUpload\" id=\"fileToUpload\" size=\"18\" />
+										        <input type=\"file\" name=\"AWPCPfileToUpload\" id=\"AWPCPfileToUpload\" size=\"18\" />
 										        <input type=\"Submit\" value=\"Submit\" id=\"awpcp_buttonForm\" />
 
 										    </p>
@@ -4015,7 +4266,7 @@ function editimages($adtermid,$adid,$adkey,$editemail) {
 
 								<p id=\"ustatmsg\">
 
-								<form id=\"Form1\" name=\"Form1\" method=\"post\" ENCTYPE=\"Multipart/form-data\">
+								<form id=\"AWPCPForm1\" name=\"AWPCPForm1\" method=\"post\" ENCTYPE=\"Multipart/form-data\">
 									<p id=\"showhideuploadform\">
 									<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"$max_image_size\" />
 									<input type=\"hidden\" name=\"ADID\" value=\"$adid\" />
@@ -4023,7 +4274,7 @@ function editimages($adtermid,$adid,$adkey,$editemail) {
 									If adding images to your ad, select an image from your hard disk:<br/><br/>
 
 
-									<input type=\"file\" name=\"fileToUpload\" id=\"fileToUpload\" size=\"18\" />
+									<input type=\"file\" name=\"AWPCPfileToUpload\" id=\"AWPCPfileToUpload\" size=\"18\" />
 									<input type=\"Submit\" value=\"Submit\" id=\"awpcp_buttonForm\" />
 
 									</p>
@@ -4128,6 +4379,7 @@ echo "</div>";
 function deletead($adid,$adkey,$editemail) {
 
 		$isadmin=checkifisadmin();
+
 
 			if(get_awpcp_option('onlyadmincanplaceads') && ($isadmin != '1')){
 
@@ -4901,9 +5153,7 @@ $custom="$ad_id";
 $custom.="_";
 $custom.="$key";
 
-						$quers=setup_url_structure($awpcppagename);
-						$permastruc=get_option('permalink_structure');
-
+$quers=setup_url_structure($awpcppagename);
 
 						if(get_awpcp_option('paylivetestmode') == 1){
 							$paypalurl="http://www.paypal.com/cgi-bin/webscr";
@@ -4944,6 +5194,7 @@ $custom.="$key";
 									<input type=\"hidden\" name=\"item_name\" value=\"$adterm_name\" />
 									<input type=\"hidden\" name=\"item_number\" value=\"$adterm_id\" />
 									<input type=\"hidden\" name=\"amount\" value=\"$amount\" />
+									<input type=\"hidden\" name=\"currency_code\" value=\"".get_awpcp_option('paypalcurrencycode')."\" />
 									<input type=\"hidden\" name=\"custom\" value=\"$custom\" />
 									<input type=\"hidden\" name=\"src\" value=\"1\" />
 									<input type=\"hidden\" name=\"sra\" value=\"1\" />
@@ -5146,7 +5397,7 @@ $quers=setup_url_structure($awpcppagename);
 
 
 			$items=array();
-			$query="SELECT ad_id,ad_category_id,ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_details,ad_postdate FROM $from WHERE $where ORDER BY ad_postdate DESC LIMIT $offset,$results";
+			$query="SELECT ad_id,ad_category_id,ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_details,ad_postdate FROM $from WHERE $where ORDER BY ad_id DESC LIMIT $offset,$results";
 			if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 			while ($rsrow=mysql_fetch_row($res)) {
@@ -5224,10 +5475,8 @@ if(!isset($adid) || empty($adid)){
 
 $awpcppage=get_currentpagename();
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
-global $siteurl;
-						$quers=setup_url_structure($awpcppagename);
-						$permastruc=get_option(permalink_structure);
-
+$permastruc=get_option(permalink_structure);
+$quers=setup_url_structure($awpcppagename);
 
 
 if(isset($adid) && !empty($adid)){
@@ -5310,7 +5559,10 @@ else {$showadsense='';}
 					}
 
 
-					echo "<div id=\"showad\"><div class=\"adtitle\">$ad_title</div><div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a> Phone: $adcontact_phone $location</div>";
+
+					echo "<div id=\"showad\"><div class=\"adtitle\">$ad_title $adminapprovelink</div><div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a> Phone: $adcontact_phone $location</div>";
+
+
 					if(get_awpcp_option('adsenseposition') == '1' ){
 						echo "$showadsense";
 					}
@@ -5356,6 +5608,7 @@ else {$showadsense='';}
 					}
 					echo "</div>";
 
+
 echo "</div>";
 }
 else {
@@ -5388,6 +5641,19 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
    $table_name6 = $wpdb->prefix . "awpcp_pagename";
 
 
+	// Uncomment drop lines below and use in case of emergency
+
+	// $wpdb->query("DROP TABLE " . $table_name1);
+	// $wpdb->query("DROP TABLE " . $table_name2);
+	// $wpdb->query("DROP TABLE " . $table_name3);
+	// $wpdb->query("DROP TABLE " . $table_name4);
+	// $wpdb->query("DROP TABLE " . $table_name5);
+	// $wpdb->query("DROP TABLE " . $table_name6);
+
+	//  echo "Tables dropped";
+	//  die;
+
+
 
 $tmessage="<p>These are the tables which you need to drop from your database:</p>";
 $tmesage.="<p style=\"padding:25px 0px 0px 30px;\">";
@@ -5405,7 +5671,7 @@ $tmesage.="</p>";
 	$message <div style=\"padding:20px;\">Thank you for using AWPCP. You have arrived at this page by clicking the Uninstall link. For now this plugin does not provide a handy point and click method for uninstalling the database tables that are created when you activate the plugin. When you deactivate the plugin, the tables and their contents remain in the database, also the plugin classifieds page is still displayed to your users.
 	<p>To fix this problem, you need to manually delete the page <b>$awpcppagename</b> and manually drop the plugin tables from your database.</p>
 	<p>$tmessage</p>
-	<p>A point and click method for uninstalling the plugin is planned for a future release.</p>
+	<p>A point and click method of uninstalling the plugin is planned for a future release.</p>
 </div><div style=\"clear:both;\"></div>";
 
 
