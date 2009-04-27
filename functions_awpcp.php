@@ -1444,7 +1444,7 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 	 	$totalpageswithawpcpname=count($pageswithawpcpname);
 	}
 
-	if( $totalpageswithawpcpname > 1 )
+	if( $totalpageswithawpcpname >= 1 )
 	{
 
 		foreach ( $pageswithawpcpname as $pagewithawpcpname )
