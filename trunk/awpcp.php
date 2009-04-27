@@ -2360,8 +2360,6 @@ global $classicontent;
 $awpcppage=get_currentpagename();
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
-checkfortotalpageswithawpcpname($awpcppage);
-
 $awpcppageid=get_page_id($awpcppagename);
 
 if( !is_page($awpcppagename) || !is_page($awpcppageid) ) {
