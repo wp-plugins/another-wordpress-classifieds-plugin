@@ -27,7 +27,7 @@ $foto_upload = new Foto_upload;
 
 if(isset($_POST['MAX_FILE_SIZE']) && !empty($_POST['MAX_FILE_SIZE'])){
 $json['size'] = $_POST['MAX_FILE_SIZE'];}
-else { $json['size'] = get_awpcp_option('maxfilesize');}
+else { $json['size'] = get_awpcp_option('MAX_FILE_SIZE');}
 if(isset($_POST['ADID']) && !empty($_POST['ADID'])){
 $adid=$_POST['ADID'];}else { $adid='';}
 if(isset($_POST['ADTERMID']) && !empty($_POST['ADTERMID'])){
@@ -52,13 +52,11 @@ $foto_upload->y_max_thumb_size = 125;
 
 $twidth=$foto_upload->x_max_thumb_size;
 
-$hiderv=true;
 
-if(isset($_FILES['fileToUpload']) && !empty($_FILES['fileToUpload'])){
-$foto_upload->the_temp_file = $_FILES['fileToUpload']['tmp_name'];
-$foto_upload->the_file = $_FILES['fileToUpload']['name'];
-$foto_upload->http_error = $_FILES['fileToUpload']['error'];
-$hiderv=false;
+if(isset($_FILES['AWPCPfileToUpload']) && !empty($_FILES['AWPCPfileToUpload'])){
+$foto_upload->the_temp_file = $_FILES['AWPCPfileToUpload']['tmp_name'];
+$foto_upload->the_file = $_FILES['AWPCPfileToUpload']['name'];
+$foto_upload->http_error = $_FILES['AWPCPfileToUpload']['error'];
 }
 
 $foto_upload->rename_file = true;
@@ -119,9 +117,9 @@ $json['error'] = strip_tags($foto_upload->show_error_string());
 
 
 
-if(!($hiderv)){
+
 echo json_encode($json);
-}
+
 
 
 ?>
