@@ -5440,6 +5440,8 @@ $quers=setup_url_structure($awpcppagename);
 
  			$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
 			$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
+			$pager1=create_pager($from,$where,$offset,$results,$tpname);
+			$pager2=create_pager($from,$where,$offset,$results,$tpname);
 
 
 			$items=array();
@@ -5495,8 +5497,7 @@ $quers=setup_url_structure($awpcppagename);
 			}
 	}
 
-			$pager1=create_pager($from,$where,$offset,$results,$tpname);
-			$pager2=create_pager($from,$where,$offset,$results,$tpname);
+
 echo "
 $pager1
  $showcategories
