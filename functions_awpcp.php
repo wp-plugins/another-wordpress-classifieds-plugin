@@ -12,10 +12,16 @@ function get_awpcp_option($option) {
 	global $wpdb;
 	$table_name4 = $wpdb->prefix . "awpcp_adsettings";
 	$myreturn=0;
-	$query="SELECT config_value FROM  ".$table_name4." WHERE config_option='$option'";
-	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-	if (mysql_num_rows($res)) {
-		$myreturn=mysql_result($res,0,0);
+	$tableexists=checkfortable($table_name4);
+
+	if($tableexists)
+	{
+		$query="SELECT config_value FROM  ".$table_name4." WHERE config_option='$option'";
+		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+		if (mysql_num_rows($res))
+		{
+			$myreturn=mysql_result($res,0,0);
+		}
 	}
 	return $myreturn;
 }
