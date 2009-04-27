@@ -196,6 +196,27 @@ text-decoration:underline;
 
 }
 
-.awpcpwidget {
-clear:both;
-overflow:hidden;}
+.awpcpwidget { clear:both; overflow:hidden; }
+
+#alphabarwrapper ul#alphabar { margin:0; padding:0px 0px 25px 0px;list-style-type:none;float:left; }
+#alphabarwrapper #alphabar li { list-style:none; list-style-type:none; float:left;padding:5px;text-align:center;background:#f1f1f1;margin:0px 2px 2px 0px; } 
+#alphabarwrapper #alphabar li a { text-decoration:none;font-weight:normal;font-size:small; } 
+#alphabarwrapper { padding:5px;  }
+#alphabarwrapper h3 { margin:0; padding:0; border-bottom:#f3f3f3; font-size:small; text-transform:uppercase; }
+
+#loginform {
+display:block;
+margin:10px auto 10px auto;
+padding:10px;
+width:200px;
+}
+
+#loginform .textinput  {
+padding:5px;
+width:180px
+}
+
+#loginform .submitbutton  {
+padding:5px;
+float:right;
+}
