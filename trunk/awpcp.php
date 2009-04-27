@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.4.5
+Version: 1.0.4.6
 Author: A. Lewis
 Author URI: http://www.awpcp.com
 */
@@ -63,7 +63,7 @@ $thisadminemail=get_option('admin_email');
 require("$awpcp_plugin_path/dcfunctions.php");
 require("$awpcp_plugin_path/functions_awpcp.php");
 
-$awpcp_db_version = "1.0.4.5";
+$awpcp_db_version = "1.0.4.6";
 
 define( 'MAINUPLOADURL', $wpcontenturl . '/uploads');
 define('MAINUPLOADDIR', $wpcontentdir .'/uploads/');
@@ -84,10 +84,8 @@ function awpcpjs() {
 	wp_enqueue_script('jquery');
 	wp_enqueue_script('jquery-form');
 	wp_enqueue_script('thickbox');
-	wp_enqueue_script('jquery-ui', $awpcp_plugin_url.'js/ui.tabs.pack.js', array('jquery'));
-	wp_enqueue_script('jquery-lava', $awpcp_plugin_url.'js/jquery.lavalamp.min.js', array('jquery'));
-	wp_enqueue_script('jquery-ea', $awpcp_plugin_url.'js/jquery.easing.min.js', array('jquery'));
-	wp_enqueue_script('jquery-sc', $awpcp_plugin_url.'js/scripts.js', array('jquery'));
+	wp_enqueue_script('jquery-chuch', $awpcp_plugin_url.'js/checkuncheckboxes.js', array('jquery'));
+
 }
 
 function awpcp_insert_thickbox() {
@@ -111,109 +109,62 @@ function awpcp_insert_thickbox() {
 
 	add_action('init', 'awpcp_install');
 	add_action ('wp_print_scripts', 'awpcpjs',1);
-	add_action('admin_menu', 'awpcp_launch');
 	add_action('wp_head', 'awpcp_addcss');
 	add_action('wp_head', 'awpcp_insertjquery');
 	add_action('wp_head', 'awpcp_insert_thickbox', 10);
-	add_filter("the_content", "awpcpui_homescreen");
 	add_action( 'doadexpirations_hook', 'doadexpirations' );
-	add_action( 'init', 'prepawpcprwrules' );
+	add_action('admin_menu', 'awpcp_launch');
 	add_action("plugins_loaded", "init_awpcpsbarwidget");
+	add_filter("the_content", "awpcpui_homescreen");
 
 
 
-
-function prepawpcprwrules(){
-global $wpdb;
+function awpcp_rewrite($wp_rewrite) {
+global $wp_rewrite,$wpdb;
 $table_name6 = $wpdb->prefix . "awpcp_pagename";
 
-	$tableexists=checkfortable($table_name6);
+
+	//$tableexists=checkfortable($table_name6);
+	$awpcppage=get_currentpagename();
+	$pprefx = sanitize_title($awpcppage, $post_ID='');
 
 
-	if($tableexists){
+					$wp_rewrite->non_wp_rules =
+					array($pprefx.'/browsecat/(.+)/(.+)' => 'index.php?pagename='.$pprefx.'&a=browsecat&category_id=' . $wp_rewrite->preg_index(1),
+						$pprefx.'/showad/(.+)/(.+)' => 'index.php?pagename='.$pprefx.'&a=showad&id=' . $wp_rewrite->preg_index(1),
+						$pprefx.'/placead'  => 'index.php?pagename='.$pprefx.'&a=placead',
+						$pprefx.'/browseads'  => 'index.php?pagename='.$pprefx.'&a=browseads',
+						$pprefx.'/searchads'  => 'index.php?pagename='.$pprefx.'&a=searchads',
+						$pprefx.'/editad'  => 'index.php?pagename='.$pprefx.'&a=editad',
+						$pprefx.'/paypal'  => 'index.php?pagename='.$pprefx.'&a=paypal',
+						$pprefx.'/paypalthankyou/(.+)' => 'index.php?pagename='.$pprefx.'&a=paypalthankyou&i=' . $wp_rewrite->preg_index(1),
+						$pprefx.'/cancelpaypal/(.+)' => 'index.php?pagename='.$pprefx.'&a=cancelpaypal&i=' . $wp_rewrite->preg_index(1),
+						$pprefx.'/2checkout'  => 'index.php?pagename='.$pprefx.'&a=2checkout',
+						$pprefx.'/contact/(.+)/(.+)' => 'index.php?pagename='.$pprefx.'&a=contact&i=' . $wp_rewrite->preg_index(1)
+					);
 
-	//read the htacess file to make sure the plugin rules are not already appended
-	$permastruc=get_option('permalink_structure');
+					$wp_rewrite->rules = $wp_rewrite->non_wp_rules + $wp_rewrite->rules;
 
+}
 
-		if(isset($permastruc) && !empty($permastruc)){
-
-
-			if(get_awpcp_option('seofriendlyurls') == 1){
-
+		// Do rewrite
+			if(get_awpcp_option('seofriendlyurls') == 1)
+			{
 
 				$filecontent=file_get_contents(ABSPATH . '/.htaccess');
 
+					if(!(preg_match("/\b\/\?pagename=$pprefx&a=\b/i","$filecontent")))
+					{
 
-				$awpcppage=get_currentpagename();
-				$pprefx = sanitize_title($awpcppage, $post_ID='');
-				//$awpcpwppostpageid=get_page_id($pprefx);
+						$permastruc=get_option('permalink_structure');
 
-
-				$rrules=0;
-
-				if(preg_match("/\b\/\?pagename=$pprefx&a=\b/i","$filecontent")){
-					$rrules=1;
-				}
-
-				if($rrules == 0){
-					awpcp_rewrite();
-					//add_action('generate_rewrite_rules', 'awpcp_rewrite');
-				} else {	}
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							add_action('init','flush_rewrite_rules');
+							add_action('generate_rewrite_rules', 'awpcp_rewrite');
+						}
+					}
 			}
-		}
-	}
-}
-
-
-function awpcp_rewrite() {
-
-	global $wpdb,$wp_rewrite;
-
-	$table_name6 = $wpdb->prefix . "awpcp_pagename";
-
-	$tableexists=checkfortable($table_name6);
-
-		if($tableexists){
-
-			$awpcppage=get_currentpagename();
-			$pprefx = sanitize_title($awpcppage, $post_ID='');
-			//$awpcpwppostpageid=get_page_id($pprefx);
-			$wp_rewrite->rules=array();
-
-			add_action('init', 'flush_rewrite_rules');
-
-
-			$wp_rewrite->non_wp_rules = array(
-
-			$pprefx.'/browsecat/(.+)/(.+)' => '?pagename='.$pprefx.'&a=browsecat&category_id=$1',
-			$pprefx.'/showad/(.+)/(.+)' => '?pagename='.$pprefx.'&a=showad&id=$1',
-			$pprefx.'/placead'  => '?pagename='.$pprefx.'&a=placead',
-			$pprefx.'/browseads'  => '?pagename='.$pprefx.'&a=browseads',
-			$pprefx.'/searchads'  => '?pagename='.$pprefx.'&a=searchads',
-			$pprefx.'/editad'  => '?pagename='.$pprefx.'&a=editad',
-			$pprefx.'/paypal'  => '?pagename='.$pprefx.'&a=paypal',
-			$pprefx.'/paypalthankyou/(.+)' => '?pagename='.$pprefx.'&a=paypalthankyou&i=$1',
-			$pprefx.'/cancelpaypal/(.+)' => '?pagename='.$pprefx.'&a=cancelpaypal&i=$1',
-			$pprefx.'/2checkout'  => '?pagename='.$pprefx.'&a=2checkout',
-			$pprefx.'/contact/(.+)/(.+)' => '?pagename='.$pprefx.'&a=contact&i=$1',
-			);
-
-
-			$wp_rewrite->rules = array_merge($wp_rewrite->non_wp_rules,$wp_rewrite->rules);
-			$rwstring="# BEGIN WordPress\n";
-			$rwstring.=$wp_rewrite->mod_rewrite_rules();
-			$rwstring.="\n# END WordPress";
-
-			htarw($rwstring);
-	}
-}
-
-function htarw($string){
-	file_put_contents(ABSPATH .'.htaccess',"$string");
-}
-
-
 
 function flush_rewrite_rules()
 {
@@ -234,76 +185,75 @@ $wp_rewrite->flush_rules();
 		// The funtion to add the javascript codes to the header of the index page
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		function awpcp_insertjquery() {
-				echo "\n
-					<script type=\"text/javascript\">
-					var JQuery2 = jQuery.noConflict();
-					JQuery2(document).ready(function() {
-						JQuery2('#loading')
-						.ajaxStart(function(){
-							JQuery2(this).show();
-						})
-						.ajaxComplete(function(){
-							JQuery2(this).hide();
-						});
+	function awpcp_insertjquery() {
+		echo "\n
+			<script type=\"text/javascript\">
+			var AWPCPJQUERY = jQuery.noConflict();
+			AWPCPJQUERY(document).ready(function() {
+				AWPCPJQUERY('#loading')
+				.ajaxStart(function(){
+					AWPCPJQUERY(this).show();
+				})
+				.ajaxComplete(function(){
+					AWPCPJQUERY(this).hide();
+				});
 
-						var MAX_FILE_SIZE = JQuery2('input[name=MAX_FILE_SIZE]').val();
-						var ADID = JQuery2('input[name=ADID]').val();
-						var ADTERMID = JQuery2('input[name=ADTERMID]').val();
-
-
-						var dataString = 'MAX_FILE_SIZE='+ MAX_FILE_SIZE + '&ADID=' + ADID + '&ADTERMID=' + ADTERMID;
+				var MAX_FILE_SIZE = AWPCPJQUERY('input[name=MAX_FILE_SIZE]').val();
+				var ADID = AWPCPJQUERY('input[name=ADID]').val();
+				var ADTERMID = AWPCPJQUERY('input[name=ADTERMID]').val();
 
 
-						var options = {
-							beforeSubmit:  awpcpshowRequest,
-							success:       awpcpshowResponse,
-							url:       '".AWPCPURL."upload4jquery.php?+dataString',  // your upload script
-							dataType:  'json'
-						};
-						JQuery2('#Form1').submit(function() {
-							document.getElementById('message').innerHTML = '';
-							JQuery2(this).ajaxSubmit(options);
-							return false;
-						});
-					});
+				var dataString = 'MAX_FILE_SIZE='+ MAX_FILE_SIZE + '&ADID=' + ADID + '&ADTERMID=' + ADTERMID;
 
-					function awpcpshowRequest(formData, jqForm, options) {
-						var fileToUploadValue = JQuery2('input[@name=fileToUpload]').fieldValue();
-						if (!fileToUploadValue[0]) {
-							document.getElementById('message').innerHTML = 'Please select a file.';
-							return false;
-						}
 
-						return true;
+				var options = {
+					beforeSubmit:  awpcpshowRequest,
+					success:       awpcpshowResponse,
+					url:       '".AWPCPURL."upload4jquery.php?+dataString',  // your upload script
+					dataType:  'json'
+				};
+				AWPCPJQUERY('#AWPCPForm1').submit(function() {
+					document.getElementById('message').innerHTML = '';
+					AWPCPJQUERY(this).ajaxSubmit(options);
+					return false;
+				});
+			});
+
+			function awpcpshowRequest(formData, jqForm, options) {
+				var AWPCPfileToUploadValue = AWPCPJQUERY('input[name=AWPCPfileToUpload]').fieldValue();
+				if (!AWPCPfileToUploadValue[0]) {
+					document.getElementById('message').innerHTML = 'Please select a file.';
+					return false;
+				}
+
+				return true;
+			}
+
+			function awpcpshowResponse(data, statusText)  {
+				if (statusText == 'success') {
+
+					if (data.img != '') {
+						document.getElementById('result').innerHTML = '<img src=\"".AWPCPUPLOADURL."/thumbs/'+data.img+'\" />';
+						document.getElementById('ustatmsg').innerHTML = data.ustatmsg;
+						document.getElementById('message').innerHTML = data.error;
+					} else {
+						document.getElementById('message').innerHTML = data.error;
+						document.getElementById('ustatmsg').innerHTML = data.ustatmsg;
+
 					}
 
-					function awpcpshowResponse(data, statusText)  {
-						if (statusText == 'success') {
-
-							if (data.img != '') {
-								document.getElementById('result').innerHTML = '<img src=\"".AWPCPUPLOADURL."/thumbs/'+data.img+'\" />';
-								document.getElementById('ustatmsg').innerHTML = data.ustatmsg;
-								document.getElementById('message').innerHTML = data.error;
-							} else {
-								document.getElementById('message').innerHTML = data.error;
-								document.getElementById('ustatmsg').innerHTML = data.ustatmsg;
-
-							}
-
-							if(data.showhideuploadform == '1'){
-									document.getElementById(\"showhideuploadform\").style.display=\"none\";
-							}
-						} else {
-							document.getElementById('message').innerHTML = 'Unknown error!';
-							document.getElementById('ustatmsg').innerHTML = data.ustatmsg;
-						}
+					if(data.showhideuploadform == '1'){
+							document.getElementById(\"showhideuploadform\").style.display=\"none\";
 					}
-				</script>
+				} else {
+					document.getElementById('message').innerHTML = 'Unknown error!';
+					document.getElementById('ustatmsg').innerHTML = data.ustatmsg;
+				}
+			}
+		</script>
 
-		\n";
+\n";
 		}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PROGRAM FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -609,15 +559,17 @@ global $wpdb,$awpcp_db_version;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function checkifclassifiedpage($pagename){
+$awpcppagename = sanitize_title($pagename, $post_ID='');
+
 	global $wpdb, $isclassifiedpage, $table_prefix;
-	if ($isclassifiedpage == false){
-		$isclassifiedpage = $wpdb->get_row("SELECT * FROM {$table_prefix}posts
-			WHERE post_title = '$pagename'", ARRAY_A);
-		if ($isclassifiedpage["post_title"]!="$pagename"){
-			return false;
-		}
-	}
-	return $isclassifiedpage;
+
+		$query="SELECT * FROM {$table_prefix}posts WHERE post_title='$pagename' AND post_name='$awpcppagename'";
+		 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+			if (mysql_num_rows($res) && mysql_result($res,0,0))
+			{
+				$myreturn=true;
+			}
+			return $myreturn;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION
@@ -1361,6 +1313,8 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 
 	}
 
+
+
 	elseif($laction == 'viewimages'){
 		if(isset($_REQUEST['id']) && !empty($_REQUEST['id'])){
 			$picid=$_REQUEST['id'];
@@ -1655,6 +1609,7 @@ if(isset($_REQUEST['savesettings']) && !empty($_REQUEST['savesettings'])){
 global $wpdb;
 $table_name4 = $wpdb->prefix . "awpcp_adsettings";
 $currentuipagename=get_currentpagename();
+$error=false;
 
 	$query="SELECT config_option,option_type FROM ".$table_name4."";
 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
@@ -1678,23 +1633,67 @@ $currentuipagename=get_currentpagename();
 	}
 
 	while (list($k,$v)=each($myoptions)) {
+
+	$mycurrencycode=$myoptions['paypalcurrencycode'];
+	$currencycodeslist=array('AUD','CAD','EUR','GBP','JPY','USD','NZD','CHF','HKD','SGD','SEK','DKK','PLN','NOK','HUF','CZK','ILS','MXN');
+
+
+			if (!in_array($mycurrencycode,$currencycodeslist)) {
+
+				$error=true;
+				$message="<div style=\"background-color:#eeeeee;border:1px solid #ff0000;padding:5px;\" id=\"message\" class=\"updated fade\">";
+				$message.= "There is a problem with the currency code you have entered [$mycurrencycode]. It does not match any of the codes in the list of available currencies provided by PayPal. ";
+				$message.= "The available currency codes are:<br/>";
+
+					for ($i=0;isset($currencycodeslist[$i]);++$i) {
+					$message.="	$currencycodeslist[$i] | ";
+					}
+
+				$message.="</div>";
+
+			}
+
+
+		if(!$error){
+
 		$query="UPDATE ".$table_name4." SET config_value='$v' WHERE config_option='$k'";
 		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-	}
-
 
 
 		// Create the classified user page if it does not exist
-			if(empty($currentuipagename)){
-			maketheclassifiedpage($newuipagename);}
-			elseif(isset($currentuipagename) && !empty($currentuipagename)){
-				if(findpage($currentuipagename)){updatetheclassifiedpagename($currentuipagename,$newuipagename);}
-				elseif(!(findpage($currentuipagename))){deleteuserpageentry($currentuipagename);maketheclassifiedpage($newuipagename);};
+			if(empty($currentuipagename))
+			{
+				maketheclassifiedpage($newuipagename);
+			}
+			elseif(isset($currentuipagename) && !empty($currentuipagename))
+			{
+
+				if(findpage($currentuipagename))
+				{
+					if($currentuipagename != '$newuipagename')
+					{
+						deleteuserpageentry($currentuipagename);
+						updatetheclassifiedpagename($currentuipagename,$newuipagename);
+					}
+
+				}
+				elseif(!(findpage($currentuipagename)))
+				{
+					deleteuserpageentry($currentuipagename);
+					maketheclassifiedpage($newuipagename);
+				}
 
 			}
-	$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">The data has been updated!</div>";
+
+		$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">The data has been updated!</div>";
+
+		}
+
+	}
+
 	global $message;
 }
+
 
 
 		///////////////////////////////////////////////////////////////////////
@@ -1728,14 +1727,12 @@ $table_name6 = $wpdb->prefix . "awpcp_pagename";
 
 $post_name = sanitize_title($newuipagename, $post_ID='');
 
-
 		$query="UPDATE {$table_prefix}posts set post_title='$newuipagename', post_name='$post_name' WHERE post_title='$currentuipagename'";
 		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
-		$query="UPDATE ".$table_name6." SET userpagename='$newuipagename' WHERE userpagename='$currentuipagename'";
+		$query="INSERT INTO ".$table_name6." SET userpagename='$newuipagename'";
 		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 }
-
 
 
 
@@ -2119,6 +2116,8 @@ global $classicontent;
 $awpcppage=get_currentpagename();
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
+checkfortotalpageswithawpcpname($awpcppage);
+
 $awpcppageid=get_page_id($awpcppagename);
 
 if( !is_page($awpcppagename) || !is_page($awpcppageid) ) {
@@ -2137,6 +2136,7 @@ else
 }
 
 return $content;
+
 }
 
 
@@ -2145,9 +2145,6 @@ return $content;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function awpcpui_process($awpcppagename) {
-
-// Make sure you don't have multiple classifieds pages
-checkfortotalpageswithawpcpname($awpcppagename);
 
 	global $awpcp_plugin_url;
 
@@ -4712,6 +4709,7 @@ send_email($thisadminemail,$thisadminemail,$subjectadmin,$mailbodyadmin,true);
 
 
 function ad_success_email($ad_id,$transactionid,$key,$message,$gateway){
+
 global $nameofsite,$siteurl,$thisadminemail;
 
 $adposteremail=get_adposteremail($ad_id);
@@ -4744,14 +4742,33 @@ if (strcasecmp ($gateway, "paypal") == 0 || strcasecmp ($gateway, "2checkout") =
 }
 $mailbodyadmin.="The ID associated with this ad is: $ad_id<br><br>";
 $mailbodyadmin.="$siteurl<br><br>";
+$mailbodyuseralt="Dear $adpostername\n\n";
+$mailbodyuseralt.="Your listing \"$listingtitle\" has been successfully submitted at $nameofsite at $siteurl.\n\n";
+if (strcasecmp ($gateway, "paypal") == 0 ) {
+	$mailbodyuseralt.="Your payment has been processed. The status of your payment is shown below:\n\n";
+	$mailbodyuseralt.="$message\n\n";
+	$mailbodyuseralt.="If the status indicates your payment is pending it means funds have not yet been deducted from your payment account.\n\n";
+	$mailbodyuseralt.="If you have any questions about the transaction please contact $thisadminemail.\n\n";
+	$mailbodyuseralt.="When contacting in reference to this transaction please provide the following transaction ID: $txn_id\n\n";
+}
+$mailbodyuseralt.="Please note that in order to edit your listing you will need the below access key as well as your ad ID ($ad_id) and your email ($adposteremail):\n\n";
+$mailbodyuseralt.="Access Key: $key\n\n";
+$mailbodyuseralt.="Thank you for your business\n";
+$mailbodyuseralt.="$nameofsite Administrator\n";
+$mailbodyuseralt.="$siteurl\n\n";
+$mailbodyadminalt="Dear $nameofsite Administrator\n\n";
+$mailbodyadminalt.="A new listing has been submitted to the $nameofsite database at $siteurl.\n\n";
+$mailbodyadminalt.="The listing title: $listingtitle.\n\n";
 
-//email the buyer
-send_email($thisadminemail,$adposteremail,$subjectuser,$mailbodyuser,true);
+if (strcasecmp ($gateway, "paypal") == 0 || strcasecmp ($gateway, "2checkout") == 0) {
+	$mailbodyadminalt.="The $gateway payment transaction was processed and the status of the payment is displayed below:\n\n";
+	$mailbodyadminalt.="$message\n\n";
+	$mailbodyadminalt.="For your reference the transaction id is: $transactionid\n\n";
+}
+$mailbodyadminalt.="The ID associated with this ad is: $ad_id\n\n";
+$mailbodyadminalt.="$siteurl\n\n";
 
-//email the administrator if the admin has this option set
-	if(get_awpcp_option('notifyofadposted')){
-	$sentok2=send_email($thisadminemail,$thisadminemail,$subjectadmin,$mailbodyadmin,true);
-	}
+$from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
 
 $messagetouser="Your ad has been submitted and an email has been dispatched to your email account on file. This email contains important information you will need to manage your listing.";
 if(get_awpcp_option('adapprove') == 1){
@@ -4759,8 +4776,74 @@ $awaitingapprovalmsg=get_awpcp_option('notice_awaiting_approval_ad');
 $messagetouser.="<p>$awaitingapprovalmsg</p>";
 }
 
+//email the buyer
+if(send_email($thisadminemail,$adposteremail,$subjectuser,$mailbodyuser,true))
+{
+
+	//email the administrator if the admin has this option set
+	if(get_awpcp_option('notifyofadposted'))
+	{
+		$sentok2=send_email($thisadminemail,$thisadminemail,$subjectadmin,$mailbodyadmin,true);
+	}
+
+	$printmessagetouser="$messagetouser";
+}
+
+// If function send_mail did not work try function mail()
+elseif(mail($adposteremail, $subjectuser, $mailbodyuseralt, $from_header))
+{
+	//email the administrator if the admin has this option set using mail()
+	if(get_awpcp_option('notifyofadposted'))
+	{
+		$sentok2=mail($thisadminemail,$subjectadmin,$mailbodyadminalt,$from_header);
+	}
+
+	$printmessagetouser="$messagetouser";
+}
+
+else {
+
+	$printmessagetouser="Sorry but there has been a problem encountered transmitting your ad information to your email address. Please contact the site administrator to request this information.";
+}
+
+
 	if(!(strcasecmp ($gateway, "paypal") == 0 )) {
-	echo "<div id=\"classiwrapper\">$messagetouser</div>";
+	echo "<div id=\"classiwrapper\">";
+
+			$awpcppage=get_currentpagename();
+			$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+			$quers=setup_url_structure($awpcppagename);
+
+				echo "
+
+					<ul id=\"postsearchads\">";
+
+					$isadmin=checkifisadmin();
+
+					if(!(get_awpcp_option('onlyadmincanplaceads'))){
+
+						echo "
+								<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+								<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+							";
+					}
+
+					elseif(get_awpcp_option('onlyadmincanplaceads') && ($isadmin == '1')){
+						echo "
+								<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+								<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+							";
+					}
+
+					echo "
+							<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
+							<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+							</ul>
+
+
+						<div style=\"clear:both;\"></div>";
+
+	echo "$printmessagetouser</div>";
 	}
 
 
@@ -4983,13 +5066,11 @@ echo "</div><div style=\"clear:both;\"></div>";
 
 
 function display_ads($where) {
-global $siteurl;
+
 	$awpcppage=get_currentpagename();
 	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
-						$quers=setup_url_structure($awpcppagename);
-						$permastruc=get_option('permalink_structure');
-
+$quers=setup_url_structure($awpcppagename);
 
 
 	echo "
@@ -5043,9 +5124,25 @@ global $siteurl;
 
 	else {
 
+			$permastruc=get_option('permalink_structure');
+			$awpcpwppostpageid=get_page_id($awpcppagename);
+
+			if(get_awpcp_option('seofriendlyurls') == '1')
+			{
+				if(isset($permastruc) && !empty($permastruc))
+				{
+					$tpname="$awpcppagename";
+				}
+			}
+
+			else
+			{
+				$tpname="";
+			}
+
+
  			$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
 			$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
-
 
 
 			$items=array();
@@ -5056,6 +5153,7 @@ global $siteurl;
 				$ad_id=$rsrow[0];
 				$awpcppage=get_currentpagename();
 				$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+
 				$modtitle=cleanstring($rsrow[2]);
 				$modtitle=add_dashes($modtitle);
 				$tcname=get_adcatname($rsrow[1]);
@@ -5065,8 +5163,7 @@ global $siteurl;
 				$category_name=get_adcatname($category_id);
 
 
-					$pager1=create_pager($from,$where,$offset,$results,$awpcppagename);
-					$pager2=create_pager($from,$where,$offset,$results,$awpcppagename);
+
 					if(get_awpcp_option('seofriendlyurls') == '1'){
 						if(isset($permastruc) && !empty($permastruc)){
 						$ad_title="<a href=\"".$quers."showad/$ad_id/$modtitle\">".$rsrow[2]."</a>";
@@ -5101,7 +5198,8 @@ global $siteurl;
 			}
 	}
 
-
+			$pager1=create_pager($from,$where,$offset,$results,$tpname);
+			$pager2=create_pager($from,$where,$offset,$results,$tpname);
 echo "
 $pager1
  $showcategories
@@ -5202,11 +5300,15 @@ else {$showadsense='';}
 					$modtitle=cleanstring($ad_title);
 					$modtitle=add_dashes($modtitle);
 
-					if(get_awpcp_option('seofriendlyurls') == 1 && isset($permastruc)){
-						$codecontact="contact/$adid/$modtitle";}
+					if( get_awpcp_option('seofriendlyurls') == 1  &&
+						isset($permastruc) && !empty($permastruc) )
+					{
+						$codecontact="contact/$adid/$modtitle";
+					}
 					else {
 						$codecontact="contact&i=$adid";
 					}
+
 
 					echo "<div id=\"showad\"><div class=\"adtitle\">$ad_title</div><div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a> Phone: $adcontact_phone $location</div>";
 					if(get_awpcp_option('adsenseposition') == '1' ){
