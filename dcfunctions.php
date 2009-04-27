@@ -320,7 +320,7 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 	global $PHP_SELF;
 	global $accepted_results_per_page;
 
-	$accepted_results_per_page=array("5"=>5,"10"=>10,"20"=>20,"30"=>30);
+	$accepted_results_per_page=array("5"=>5,"10"=>10,"20"=>20,"30"=>30,"40"=>40,"50"=>50,"60"=>60,"70"=>70,"80"=>80,"90"=>90,"100"=>100);
 
 	if(!isset($tpname) || empty($tpname)){
 	$tpname="$PHP_SELF";}
@@ -335,6 +335,19 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 	{
 		$cid=$_REQUEST['category_id'];
 		$params['category_id']=$cid;
+	}
+
+	if( isset($_REQUEST['a']) && !empty($_REQUEST['a']) && ($_REQUEST['a'] == 'browseads') )
+	{
+
+		$awpcppage=get_currentpagename();
+		$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+		$awpcpwppostpageid=get_page_id($awpcppagename);
+
+			if( !get_awpcp_option('seofriendlyurls') )
+			{
+				$params['page_id']="$awpcpwppostpageid";
+			}
 	}
 
 	$myrand=mt_rand(1000,2000);
