@@ -926,7 +926,7 @@ global $imagesurl;
 
 
 $table_name1 = $wpdb->prefix . "awpcp_categories";
-$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=5);
+$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
 $results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
 
 
@@ -1514,7 +1514,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 
 				// start insert delete | edit | approve/disable admin links
 
-				$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=5);
+				$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
 				$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
 
 					$deletelink=  "<a href=\"?page=Manage1&action=deletead&id=$actonid&offset=$offset&results=$results\">Delete</a>";
@@ -1568,6 +1568,8 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 	}
 
 
+
+
 		$from="$table_name3";
 		if(!isset($where) || empty($where)){
 			$where="ad_title <> ''";
@@ -1583,7 +1585,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 
 			else {
 
-					$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=5);
+					$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
 					$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
 
 
@@ -1621,6 +1623,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 
 								$ad_title="<a href=\"?page=Manage1&action=viewad&id=$ad_id&offset=$offset&results=$results\">".$rsrow[2]."</a>";
 								$handlelink="<a href=\"?page=Manage1&action=deletead&id=$ad_id&offset=$offset&results=$results\">Delete</a> | <a href=\"?page=Manage1&action=editad&id=$ad_id&offset=$offset&results=$results\">Edit</a>";
+
 
 								$approvelink='';
 								if(get_awpcp_option('adapprove') == 1 || get_awpcp_option('freepay')  == 1){
@@ -1679,6 +1682,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 							$theitems=smart_table($items,intval($results/$results),$opentable,$closetable);
 							$showcategories="$theitems";
 					}
+
 					if(!isset($ad_id) || empty($ad_id) || $ad_id == '0'){
 							$showcategories="<p style=\"padding:20px;\">There were no ads found</p>";
 							$pager1='';
@@ -1741,7 +1745,7 @@ $from="$table_name5";
 
 			else {
 
-					$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=5);
+					$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
 					$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
 
 					$items=array();
