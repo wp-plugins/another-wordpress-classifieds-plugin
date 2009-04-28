@@ -427,7 +427,7 @@ global $wpdb,$awpcp_db_version;
 
     if( $installed_ver != $awpcp_db_version ) {
 
-    // 1.0.5 updates
+    // 1.0.4.7 updates
 
     		if(!field_exists($field='showlatestawpcpnews')){
 
