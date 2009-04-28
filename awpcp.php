@@ -135,17 +135,17 @@ $table_name6 = $wpdb->prefix . "awpcp_pagename";
 
 
 					$wp_rewrite->non_wp_rules =
-					array($pprefx.'/browsecat/(.+)/(.+)' => 'index.php?pagename='.$pprefx.'&a=browsecat&category_id=' . $wp_rewrite->preg_index(1),
-						$pprefx.'/showad/(.+)/(.+)' => 'index.php?pagename='.$pprefx.'&a=showad&id=' . $wp_rewrite->preg_index(1),
+					array($pprefx.'/browsecat/(.+)/(.+)' => 'index.php?pagename='.$pprefx.'&a=browsecat&category_id=$1',
+						$pprefx.'/showad/(.+)/(.+)' => 'index.php?pagename='.$pprefx.'&a=showad&id=$1',
 						$pprefx.'/placead'  => 'index.php?pagename='.$pprefx.'&a=placead',
 						$pprefx.'/browseads'  => 'index.php?pagename='.$pprefx.'&a=browseads',
 						$pprefx.'/searchads'  => 'index.php?pagename='.$pprefx.'&a=searchads',
 						$pprefx.'/editad'  => 'index.php?pagename='.$pprefx.'&a=editad',
 						$pprefx.'/paypal'  => 'index.php?pagename='.$pprefx.'&a=paypal',
-						$pprefx.'/paypalthankyou/(.+)' => 'index.php?pagename='.$pprefx.'&a=paypalthankyou&i=' . $wp_rewrite->preg_index(1),
-						$pprefx.'/cancelpaypal/(.+)' => 'index.php?pagename='.$pprefx.'&a=cancelpaypal&i=' . $wp_rewrite->preg_index(1),
+						$pprefx.'/paypalthankyou/(.+)' => 'index.php?pagename='.$pprefx.'&a=paypalthankyou&i=$1',
+						$pprefx.'/cancelpaypal/(.+)' => 'index.php?pagename='.$pprefx.'&a=cancelpaypal&i=$1',
 						$pprefx.'/2checkout'  => 'index.php?pagename='.$pprefx.'&a=2checkout',
-						$pprefx.'/contact/(.+)/(.+)' => 'index.php?pagename='.$pprefx.'&a=contact&i=' . $wp_rewrite->preg_index(1)
+						$pprefx.'/contact/(.+)/(.+)' => 'index.php?pagename='.$pprefx.'&a=contact&i=$1'
 					);
 
 					$wp_rewrite->rules = $wp_rewrite->non_wp_rules + $wp_rewrite->rules;
@@ -926,7 +926,7 @@ global $imagesurl;
 
 
 $table_name1 = $wpdb->prefix . "awpcp_categories";
-$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
+$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=5);
 $results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
 
 
@@ -1514,7 +1514,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 
 				// start insert delete | edit | approve/disable admin links
 
-				$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
+				$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=5);
 				$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
 
 					$deletelink=  "<a href=\"?page=Manage1&action=deletead&id=$actonid&offset=$offset&results=$results\">Delete</a>";
@@ -1583,7 +1583,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 
 			else {
 
-					$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
+					$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=5);
 					$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
 
 
@@ -1741,7 +1741,7 @@ $from="$table_name5";
 
 			else {
 
-					$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
+					$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=5);
 					$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
 
 					$items=array();
@@ -5438,7 +5438,7 @@ $quers=setup_url_structure($awpcppagename);
 			}
 
 
- 			$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=0);
+ 			$offset=(isset($_REQUEST['offset'])) ? (addslashes_mq($_REQUEST['offset'])) : ($offset=5);
 			$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
 			$pager1=create_pager($from,$where,$offset,$results,$tpname);
 			$pager2=create_pager($from,$where,$offset,$results,$tpname);
@@ -5607,7 +5607,7 @@ else {$showadsense='';}
 
 
 
-					echo "<div id=\"showad\"><div class=\"adtitle\">$ad_title $adminapprovelink</div><div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a> Phone: $adcontact_phone $location</div>";
+					echo "<div id=\"showad\"><div class=\"adtitle\">$ad_title </div><div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a> Phone: $adcontact_phone $location</div>";
 
 
 					if(get_awpcp_option('adsenseposition') == '1' ){
