@@ -335,6 +335,19 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 	{
 		$cid=$_REQUEST['category_id'];
 		$params['category_id']=$cid;
+
+		if( !get_awpcp_option('seofriendlyurls') )
+		{
+
+			$awpcppage=get_currentpagename();
+			$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+			$awpcpwppostpageid=get_page_id($awpcppagename);
+				if( !get_awpcp_option('seofriendlyurls') )
+				{
+					$params['page_id']="$awpcpwppostpageid";
+				}
+		}
+
 	}
 
 	if( isset($_REQUEST['a']) && !empty($_REQUEST['a']) && ($_REQUEST['a'] == 'browseads') )
