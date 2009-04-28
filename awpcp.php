@@ -3294,10 +3294,19 @@ echo "
 $theadtitle=get_adtitle($adid);
 $modtitle=cleanstring(theadtitle);
 $modtitle=add_dashes($modtitle);
-if(get_awpcp_option('seofriendlyurls') == 1 && isset($permastruc)){
-$thead="<a href=\"".$quers."showad/$adid/$modtitle\">$theadtitle</a>";}
-else {
-$thead="<a href=\"".$quers."showad&id=$adid\">$theadtitle</a>";}
+$permastruc=get_option('permalink_structure');
+			if(get_awpcp_option('seofriendlyurls') == '1')
+			{
+				if(isset($permastruc) && !empty($permastruc))
+				{
+					$thead="<a href=\"".$quers."showad/$adid/$modtitle\">$theadtitle</a>";
+				}
+			}
+
+			else
+			{
+				$thead="<a href=\"".$quers."showad&id=$adid\">$theadtitle</a>";
+			}
 
 
 echo "<p>You are responding to $thead.</p>$message
