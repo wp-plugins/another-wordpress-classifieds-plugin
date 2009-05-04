@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.4.7
+Version: 1.0.4.8
 Author: A. Lewis
 Author URI: http://www.awpcp.com
 */
@@ -65,7 +65,7 @@ $thisadminemail=get_option('admin_email');
 require("$awpcp_plugin_path/dcfunctions.php");
 require("$awpcp_plugin_path/functions_awpcp.php");
 
-$awpcp_db_version = "1.0.4.7";
+$awpcp_db_version = "1.0.4.8";
 
 define( 'MAINUPLOADURL', $wpcontenturl . '/uploads');
 define('MAINUPLOADDIR', $wpcontentdir .'/uploads/');
@@ -317,6 +317,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	  `ad_city` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
 	  `ad_state` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
 	  `ad_country` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+	  `ad_item_price` int(10) NOT NULL,
 	  `ad_postdate` date NOT NULL DEFAULT '0000-00-00',
 	  `ad_last_updated` date NOT NULL,
 	  `ad_startdate` datetime NOT NULL,
@@ -401,6 +402,8 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('displaystatefieldreqop', '0', 'If showing the state field check this if the user is required to enter a state. [SUGGESTION: It is probably better to leave unchecked so state is optional.]', 0),
 		('displaycountryfield', '1', 'Uncheck this if you prefer to hide the country input field. Check it to show the country input field.', 0),
 		('displaycountryfieldreqop', '0', 'If showing the country input field, check this if the user is required to enter a country. [SUGGESTION: It is probably better to leave unchecked so country is optional.]', 0),
+		('displaypricefield', '1', 'Uncheck this if you prefer to hide the item price input field. Check it to show the item price input field.', 0),
+		('displaypricefieldreqop', '0', 'If showing the item price input field, check this if the user is required to enter an item price.', 0),
 		('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side', 2),
 		('showlatestawpcpnews', '1', 'Uncheck this to remove the news feed that shows the latest news about Another Wordpress Classifieds Plugin. If you want to be made immediately aware of bug fixes and new features added to the plugin you should leave the value checked.', 0);";
 
@@ -426,10 +429,31 @@ global $wpdb,$awpcp_db_version;
 
 
     if( $installed_ver != $awpcp_db_version ) {
+    // 1.0.4.8 updates
 
+    // Add Price field on already installed sites that do not have the fields set
+
+        	if(!field_exists($field='displaypricefield')){
+
+					$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+					('displaypricefield', '1', 'Uncheck this if you prefer to hide the item price input field. Check it to show the item price input field.', 0);");
+			}
+
+         	if(!field_exists($field='displaypricefieldreqop')){
+
+ 					$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+					('displaypricefieldreqop', '0', 'If showing the item price input field, check this if the user is required to enter an item price.', 0);");
+			}
+
+	// Insert new field ad_item_price into awpcp_ads table
+
+	$wpdb->query("ALTER TABLE " . $table_name3 . "  ADD `ad_item_price` INT( 10 ) NOT NULL AFTER `ad_country`");
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 1.0.4.7 updates
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    		if(!field_exists($field='showlatestawpcpnews')){
+    	if(!field_exists($field='showlatestawpcpnews')){
 
 				$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
 				('showlatestawpcpnews', '1', 'Uncheck this to remove the news feed that shows the latest news about Another Wordpress Classifieds Plugin. If you want to be made immediately aware of bug fixes and new features added to the plugin you should leave the value checked.', 0);");
@@ -441,7 +465,9 @@ global $wpdb,$awpcp_db_version;
 				('requireuserregistration', '0', 'You can require users to be registered before they can post an ad. With the box checked you are running in registration required mode. With the box unchecked anyone can post an ad whether or not they are registered.', 0);");
 		}
 
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 1.0.4.4 installation updates
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
  		if(!field_exists($field='paypalcurrencycode')){
 
@@ -449,15 +475,15 @@ global $wpdb,$awpcp_db_version;
 				('paypalcurrencycode', 'USD', 'The currency in which you would like to receive your paypal payments', 1);");
 		}
 
-
-
-
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 1.0.4.2 installation updates - no database changes
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 1.0.4.1 installation updates - checking for fields notice_awaiting_approval_ad,displayphonefiled,displayphonefieldreqop,displaycityfield,displaycityfieldreqop
 	// displaystatefield, displaystatefieldreqop, displaycountryfield, displaycountryfieldreqop and uiwelcome - In 1.0.4 these fields were not inserted
     // due to misplaced semi-colon after field hyperlinkurlintext
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		if(!field_exists($field='notice_awaiting_approval_ad')){
 
@@ -521,11 +547,14 @@ global $wpdb,$awpcp_db_version;
 		}
 
 
-
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 1.0.4 installation updates - no database changes
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 1.0.3 installation updates
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		if(!field_exists($field='onlyadmincanplaceads')){
 
 			$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
@@ -539,8 +568,9 @@ global $wpdb,$awpcp_db_version;
 
 		}
 
-
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 1.0.2 installation updates
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Fix the UTF-8 Charset problem and add option contactformcheckhuman to awpcp_adsettings (March 25 2009)
 
@@ -920,9 +950,9 @@ if (mysql_num_rows($res)) {
 
 function awpcp_opsconfig_categories(){
 
-global $wpdb;
-global $message;
-global $imagesurl;
+global $wpdb, $message, $imagesurl, $clearform;
+
+
 
 
 $table_name1 = $wpdb->prefix . "awpcp_categories";
@@ -973,11 +1003,20 @@ $aeaction='';
 		$aeaction='edit';
 	}
 
+	if( $action == 'editcat' )
+	{
+			$aeaction='edit';
+	}
+
 	if( $action == 'delcat' )
 	{
 		$aeaction='delete';
 	}
 
+	if( isset($clearform) && ( $clearform == 1) )
+	{
+		unset($cat_ID,$action, $aeaction);
+	}
 
 		$category_name=get_adcatname($cat_ID);
 		$cat_parent_ID=get_cat_parent_ID($cat_ID);
@@ -1146,7 +1185,7 @@ $aeaction='';
 			while ($rsrow=mysql_fetch_row($res))
 			{
 				$thecategory_id=$rsrow[0];
-				$thecategory_name="<a href=\"?page=Manage1&fromid=".$rsrow[0]."&action=display\">".$rsrow[1]."</a>";
+				$thecategory_name="<a href=\"?page=Manage1&showadsfromcat_id=".$rsrow[0]."\">".$rsrow[1]."</a>";
 				$thecategory_parent_id=$rsrow[2];
 
 				$thecategory_parent_name=get_adparentcatname($thecategory_parent_id);
@@ -1154,7 +1193,7 @@ $aeaction='';
 
 				$items[]="<tr><td style=\"width:40%;padding:5px;border-bottom:1px dotted #dddddd;font-weight:normal;\"><input type=\"checkbox\" name=\"category_to_delete_or_move[]\" value=\"$thecategory_id\">$thecategory_name ($totaladsincat)</td>
 				<td style=\"width:40%;padding:5px;border-bottom:1px dotted #dddddd;font-weight:normal;\">$thecategory_parent_name</td>
-				<td style=\"padding:5px;border-bottom:1px dotted #dddddd;font-size:smaller;font-weight:normal;\"><input type=\"image\" name=\"editcat\" value=\"$thecategory_id\" src=\"$imagesurl/edit_ico.png\"> <input type=\"image\" name=\"delcat\" value=\"$thecategory_id\" src=\"$imagesurl/delete_ico.png\"> <!--<a href=\"?page=Configure3&cat_ID=$thecategory_id&action=edit&offset=$offset&results=$results\">Edit</a> | <a href=\"?page=Configure3&cat_ID=$thecategory_id&action=delcat&offset=$offset&results=$results\">Delete</a>--></td></tr>";
+				<td style=\"padding:5px;border-bottom:1px dotted #dddddd;font-size:smaller;font-weight:normal;\"> <a href=\"?page=Configure3&cat_ID=$thecategory_id&action=editcat&offset=$offset&results=$results\"><img src=\"$imagesurl/edit_ico.png\" alt=\"Edit Category\" border=\"0\"></a> <a href=\"?page=Configure3&cat_ID=$thecategory_id&action=delcat&offset=$offset&results=$results\"><img src=\"$imagesurl/delete_ico.png\" alt=\"Delete Category\" border=\"0\"></a></td></tr>";
 			}
 
 				$opentable="<table class=\"listcatsh\">
@@ -1304,7 +1343,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 	$offset=addslashes_mq($_REQUEST['offset']);
 	$results=addslashes_mq($_REQUEST['results']);
 
-	load_ad_post_form($actonid,$action='editad',$awpcppagename,$adtermid='',$editemail,$adaccesskey,$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$addetails='',$adpaymethod='',$offset,$results,$ermsg='');
+	load_ad_post_form($actonid,$action='editad',$awpcppagename,$adtermid='',$editemail,$adaccesskey,$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$ad_item_price='',$addetails='',$adpaymethod='',$offset,$results,$ermsg='');
 
 	}
 
@@ -1328,7 +1367,10 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 		$adcontact_state=strip_html_tags($adcontact_state);
 		$adcontact_country=addslashes_mq($_REQUEST['adcontact_country']);
 		$adcontact_country=strip_html_tags($adcontact_country);
+		$ad_item_price=addslashes_mq($_REQUEST['ad_item_price']);
 		$addetails=addslashes_mq($_REQUEST['addetails']);
+
+
 		if(get_awpcp_option('allowhtmlinadtext') == 0){
 		$addetails=strip_html_tags($addetails);
 		}
@@ -1339,7 +1381,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 		$offset=addslashes_mq($_REQUEST['offset']);
 		$results=addslashes_mq($_REQUEST['results']);
 
-		processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg);
+		processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_item_price,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg);
 
 	}
 
@@ -1396,12 +1438,12 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 				$showadsense='';
 			}
 
-			$query="SELECT ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_details from ".$table_name3." WHERE ad_id='$actonid'";
+			$query="SELECT ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_item_price,ad_details from ".$table_name3." WHERE ad_id='$actonid'";
 			if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 				while ($rsrow=mysql_fetch_row($res))
 				{
-					list($ad_title,$adcontact_name,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$addetails)=$rsrow;
+					list($ad_title,$adcontact_name,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$ad_item_price,$addetails)=$rsrow;
 				}
 
 			////////////////////////////////////////////////////////////////////////////////////
@@ -1453,9 +1495,22 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 				$codecontact="contact&i=$actonid";
 			}
 
+					$aditemprice='';
 
+					if( get_awpcp_option('displaypricefield') == '1' )
+					{
+						if( !empty($ad_item_price) )
+						{
+							$itempricereconverted=($ad_item_price/100);
+							if($itempricereconverted >=1 )
+							{
+								$awpcpthecurrencysymbol=awpcp_get_currency_code();
+								$aditemprice="<span style=\"padding-left:100px;\"><b>Price:</b> <b style=\"color:#ff0000;\">$awpcpthecurrencysymbol $itempricereconverted</b></span>";
+							}
+						}
+					}
 
-			echo "<div id=\"showad\"><div class=\"adtitle\">$ad_title </div><div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a> Phone: $adcontact_phone $location</div>";
+			echo "<div id=\"showad\"><div class=\"adtitle\">$ad_title $aditemprice</div><div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a> Phone: $adcontact_phone $location</div>";
 
 
 			if(get_awpcp_option('adsenseposition') == '1' ){
@@ -1568,6 +1623,11 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 	}
 
 
+		if(isset($_REQUEST['showadsfromcat_id']) && !empty($_REQUEST['showadsfromcat_id'])){
+			$thecat_id=$_REQUEST['showadsfromcat_id'];
+			$where="ad_title <> '' AND (ad_category_id='$thecat_id' OR ad_category_parent_id='$thecat_id')";
+		}
+
 
 
 		$from="$table_name3";
@@ -1623,7 +1683,6 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 
 								$ad_title="<a href=\"?page=Manage1&action=viewad&id=$ad_id&offset=$offset&results=$results\">".$rsrow[2]."</a>";
 								$handlelink="<a href=\"?page=Manage1&action=deletead&id=$ad_id&offset=$offset&results=$results\">Delete</a> | <a href=\"?page=Manage1&action=editad&id=$ad_id&offset=$offset&results=$results\">Edit</a>";
-
 
 								$approvelink='';
 								if(get_awpcp_option('adapprove') == 1 || get_awpcp_option('freepay')  == 1){
@@ -1682,7 +1741,6 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 							$theitems=smart_table($items,intval($results/$results),$opentable,$closetable);
 							$showcategories="$theitems";
 					}
-
 					if(!isset($ad_id) || empty($ad_id) || $ad_id == '0'){
 							$showcategories="<p style=\"padding:20px;\">There were no ads found</p>";
 							$pager1='';
@@ -2181,7 +2239,10 @@ if(isset($_REQUEST['createeditadcategory']) && !empty($_REQUEST['createeditadcat
 
 			}
 
+
 			$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">$themessagetoprint</div>";
+			$clearform=1;
+
 
 
 }
@@ -2406,7 +2467,7 @@ function awpcpui_process($awpcppagename) {
 		}
 
 		if($action == 'placead'){
-			load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail='',$adaccesskey='',$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$addetails,$adpaymethod,$offset='',$results='',$ermsg='');
+			load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail='',$adaccesskey='',$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_item_price,$addetails,$adpaymethod,$offset='',$results='',$ermsg='');
 		}
 
 
@@ -2488,6 +2549,7 @@ function awpcpui_process($awpcppagename) {
 			$adcontact_state=strip_html_tags($adcontact_state);
 			$adcontact_country=addslashes_mq($_REQUEST['adcontact_country']);
 			$adcontact_country=strip_html_tags($adcontact_country);
+			$ad_item_price=addslashes_mq($_REQUEST['ad_item_price']);
 			$addetails=addslashes_mq($_REQUEST['addetails']);
 			if(get_awpcp_option('allowhtmlinadtext') == 0){
 			$addetails=strip_html_tags($addetails);
@@ -2499,7 +2561,7 @@ function awpcpui_process($awpcppagename) {
 			$offset=addslashes_mq($_REQUEST['offset']);
 			$results=addslashes_mq($_REQUEST['results']);
 
-			processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg);
+			processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_item_price,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg);
 
 		}
 
@@ -2688,7 +2750,7 @@ function awpcpui_process($awpcppagename) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$adaccesskey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$addetails,$adpaymethod,$offset,$results,$ermsg){
+function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$adaccesskey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_item_price,$addetails,$adpaymethod,$offset,$results,$ermsg){
 
 global $wpdb,$siteurl;
 		$isadmin=checkifisadmin();
@@ -2765,12 +2827,14 @@ global $wpdb,$siteurl;
 
 					if((strcasecmp($editemail, $savedemail) == 0) || ($isadmin == 1 )) {
 
-					 $query="SELECT ad_title,ad_contact_name,ad_contact_email,ad_category_id,ad_contact_phone,ad_city,ad_state,ad_country,ad_details,ad_key from ".$table_name3." WHERE ad_id='$adid' AND ad_contact_email='$editemail' AND ad_key='$adaccesskey'";
+					 $query="SELECT ad_title,ad_contact_name,ad_contact_email,ad_category_id,ad_contact_phone,ad_city,ad_state,ad_country,ad_item_price,ad_details,ad_key from ".$table_name3." WHERE ad_id='$adid' AND ad_contact_email='$editemail' AND ad_key='$adaccesskey'";
 					 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 						while ($rsrow=mysql_fetch_row($res)) {
-							list($adtitle,$adcontact_name,$adcontact_email,$adcategory,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$addetails,$ad_key)=$rsrow;
+							list($adtitle,$adcontact_name,$adcontact_email,$adcategory,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$ad_item_price,$addetails,$ad_key)=$rsrow;
 						}
+
+						$ad_item_price=($ad_item_price/100);
 
 						$ikey="$adid";
 						$ikey.="_";
@@ -2886,6 +2950,14 @@ echo "<div style=\"clear:both\"></div>";
 							return false;
 						}";}else {$countrycheck='';}
 
+				if((get_awpcp_option(displaypricefield) == '1')
+				&&(get_awpcp_option(displaypricefieldreqop) == '1')){
+				$itempricecheck="if(the.ad_item_price.value==='') {
+							alert('You did not enter a value for the item price.');
+							the.ad_item_price.focus();
+							return false;
+						}";}else {$itempricecheck='';}
+
 				if(get_awpcp_option(freepay) == '1') {
 				$paymethodcheck="if(!checked(the.adpaymethod)) {
 							alert('You did not select your payment method. The information is required.');
@@ -2929,6 +3001,7 @@ echo "<div style=\"clear:both\"></div>";
 						$citycheck;
 						$statecheck;
 						$countrycheck;
+						$itempricecheck
 						$paymethodcheck;
 						$adtermcheck;
 
@@ -2996,7 +3069,9 @@ echo "<div style=\"clear:both\"></div>";
 				$theformbody.="<p>State<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_state\" value=\"$adcontact_state\"></p>";}
 				if(get_awpcp_option(displaycountryfield) == '1'){
 				$theformbody.="<p>Country<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_country\" value=\"$adcontact_country\"></p>";}
-				$theformbody.="<p>Ad Details<br/><input readonly type=\"text\" name=\"remLen\" size=\"4\" maxlength=\"5\" value=\"$addetailsmaxlength\"> characters left<br/><br/>$htmlstatus<br/><textarea name=\"addetails\" rows=\"10\" cols=\"50\" onKeyDown=\"textCounter(this.form.addetails,this.form.remLen,$addetailsmaxlength);\" onKeyUp=\"textCounter(this.form.addetails,this.form.remLen,$addetailsmaxlength);\">$addetails</textarea></p>";
+				if(get_awpcp_option(displaypricefield) == '1'){
+				$theformbody.="<p>Item Price<br/><input size=\"10\" type=\"text\" class=\"inputbox\" style=\"width:80px\" maxlength=\"10\" name=\"ad_item_price\" value=\"$ad_item_price\"></p>";}
+				$theformbody.="<p>Ad Details<br/><input readonly type=\"text\" name=\"remLen\" size=\"10\" maxlength=\"5\" class=\"inputbox\" style=\"width:80px\" value=\"$addetailsmaxlength\"> characters left<br/><br/>$htmlstatus<br/><textarea name=\"addetails\" rows=\"10\" cols=\"50\" style=\"width:100%\" onKeyDown=\"textCounter(this.form.addetails,this.form.remLen,$addetailsmaxlength);\" onKeyUp=\"textCounter(this.form.addetails,this.form.remLen,$addetailsmaxlength);\">$addetails</textarea></p>";
 
 
 	if(get_awpcp_option(freepay) == '0'){
@@ -3044,41 +3119,9 @@ echo "<div style=\"clear:both\"></div>";
 								$ischecked="checked"; }
 								else { $ischecked=''; }
 
-								$amtcurrencycode=get_awpcp_option('paypalcurrencycode');
+								$awpcpthecurrencysymbol=awpcp_get_currency_code();
 
-								if(
-								($amtcurrencycode == 'CAD') ||
-								($amtcurrencycode == 'AUD') ||
-								($amtcurrencycode == 'NZD') ||
-								($amtcurrencycode == 'SGD') ||
-								($amtcurrencycode == 'HKD') ||
-								($amtcurrencycode == 'USD') )
-								{
-								$thecurrencysymbol="$";
-								}
-
-								if( ($amtcurrencycode == 'JPY') )
-								{
-									$thecurrencysymbol="&yen;";
-								}
-
-								if( ($amtcurrencycode == 'EUR') )
-								{
-									$thecurrencysymbol="&euro;";
-								}
-
-								if( ($amtcurrencycode == 'GBP') )
-								{
-									$thecurrencysymbol="&pound;";
-								}
-
-
-								$putamtcurrencycode="";
-								if(empty($thecurrencysymbol)) {
-									$putamtcurrencycode="$amtcurrencycode";
-								}
-
-								$adtermscode.="<input type=\"radio\" name=\"adterm_id\" value=\"$savedadtermid\" $ischecked>$adterm_name ($thecurrencysymbol$amount $putamtcurrencycode for a $rec_period $termname listing)<br/>";
+								$adtermscode.="<input type=\"radio\" name=\"adterm_id\" value=\"$savedadtermid\" $ischecked>$adterm_name ($awpcpthecurrencysymbol$amount for a $rec_period $termname listing)<br/>";
 							}
 
 						}
@@ -3298,7 +3341,9 @@ echo "
 $theadtitle=get_adtitle($adid);
 $modtitle=cleanstring(theadtitle);
 $modtitle=add_dashes($modtitle);
+
 $permastruc=get_option('permalink_structure');
+
 			if(get_awpcp_option('seofriendlyurls') == '1')
 			{
 				if(isset($permastruc) && !empty($permastruc))
@@ -3428,7 +3473,7 @@ global $nameofsite,$siteurl;
 //	START FUNCTION: display the ad search form
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function load_ad_search_form($keywordphrase,$searchname,$searchcity,$searchstate,$searchcountry,$searchcategory,$message){
+function load_ad_search_form($keywordphrase,$searchname,$searchcity,$searchstate,$searchcountry,$searchcategory,$searchpricemin,$searchpricemax,$message){
 
 $awpcppage=get_currentpagename();
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
@@ -3440,7 +3485,7 @@ $checktheform="<script type=\"text/javascript\">
 	function checkform() {
 		var the=document.myform;
 		if (the.keywordphrase.value==='') {
-			if( (the.searchname.value==='') && (the.searchcity.value==='') && (the.searchstate.value==='') && (the.searchcountry.value==='') && (the.searchcategory.value==='')){
+			if( (the.searchname.value==='') && (the.searchcity.value==='') && (the.searchstate.value==='') && (the.searchcountry.value==='') && (the.searchcategory.value==='') && (the.searchpricemin.value==='') && (the.searchpricemax.value==='') ){
 				alert('You did not enter a keyword or phrase to search for. You must at the very least provide a keyword or phrase to search for.');
 				the.keywordphrase.focus();
 				return false;
@@ -3490,6 +3535,13 @@ $checktheform<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubm
 <p>Limit search to Category<br/><select name=\"searchcategory\"><option value=\"\">Select your ad category</option>$allcategories</a></select></p>
 <p>Search ads by persons named:<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"searchname\" value=\"$searchname\"></p>";
 
+if(get_awpcp_option(displaypricefield) == '1')
+{
+	echo "<p>Search for ads with a price that falls between:<br/>
+	<input size=\"10\" type=\"text\" class=\"inputbox\" style=\"width:80px;\" name=\"searchpricemin\" value=\"$searchpricemin\"> -
+	<input size=\"10\" type=\"text\" class=\"inputbox\" style=\"width:80px;\" name=\"searchpricemax\" value=\"$searchpricemax\"></p>";
+}
+
 if(get_awpcp_option(displaycityfield) == '1'){
 echo "<p>Search in these cities(separate cities by commas)<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"searchcity\" value=\"$searchcity\"></p>";}
 
@@ -3518,23 +3570,53 @@ function dosearch() {
 		$searchstate=addslashes_mq($_REQUEST['searchstate']);
 		$searchcountry=addslashes_mq($_REQUEST['searchcountry']);
 		$searchcategory=addslashes_mq($_REQUEST['searchcategory']);
+		$searchpricemin=addslashes_mq($_REQUEST['searchpricemin']);
+		$searchpricemax=addslashes_mq($_REQUEST['searchpricemax']);
 
 		$message='';
 
 		$error=false;
+		$theerrorslist="<h3>Cannot process your request due to the following error:</h3><ul>";
 		if(!isset($keywordphrase) && empty($keywordphrase) &&
 			!isset($searchname) && empty($searchname) &&
 				!isset($searchcity) && empty($searchcity) &&
-				 !isset($searchstate) && empty($searchstate) &&
-				  !isset($searchcountry) && empty($searchcountry) &&
-				  	!isset($searchcategory) && empty ($searchcategory)) {
+				 	!isset($searchstate) && empty($searchstate) &&
+				  		!isset($searchcountry) && empty($searchcountry) &&
+				  			!isset($searchpricemin) && empty($searchpricemin) &&
+				  	 			!isset($searchpricemax) && empty($searchpricemax) &&
+				  					!isset($searchcategory) && empty ($searchcategory)) {
 				  	$error=true;
-					$message="You did not enter a keyword or phrase to search for. You must at the very least provide a keyword or phrase to search for.";
+					$theerrorslist.="<li>You did not enter a keyword or phrase to search for. You must at the very least provide a keyword or phrase to search for.</li>";
 			}
 
+			if( !empty($searchpricemin) )
+			{
+				if( !is_numeric($searchpricemin) )
+		   		{
+						$error=true;
+						$theerrorslist.="<li>You have entered an invalid minimum price. Make sure your price contains numbers only. Please do not include currency symbols.</li>";
+				}
+			}
+
+		  	if( !empty($searchpricemax) )
+		  	{
+		  		if(	!is_numeric($searchpricemax) )
+		   		{
+						$error=true;
+						$theerrorslist.="<li>You have entered an invalid maximum price. Make sure your price contains numbers only. Please do not include currency symbols.</li>";
+				}
+			}
+
+			if( empty($searchpricemin) && !empty($searchpricemax) )
+			{
+				$searchpricemin=1;
+			}
+
+			$theerrorslist.="</ul>";
+			$message="<p>$theerrorslist</p>";
 
 		if($error){
-			load_ad_search_form($keywordphrase,$searchname,$searchcity,$searchstate,$searchcountry,$searchcategory,$message);
+			load_ad_search_form($keywordphrase,$searchname,$searchcity,$searchstate,$searchcountry,$searchcategory,$searchpricemin,$searchpricemax,$message);
 		}
 
 		else {
@@ -3588,6 +3670,16 @@ function dosearch() {
 			$where.=" AND ad_category_id = '$searchcategory' OR ad_category_parent_id = '$searchcategory'";
 		}
 
+		if(isset($searchpricemin) && !empty($searchpricemin)){
+			$searchpricemincents=($searchpricemin * 100);
+			$where.=" AND ad_item_price >= '$searchpricemincents'";
+		}
+
+		if(isset($searchpricemax) && !empty($searchpricemax)){
+			$searchpricemaxcents=($searchpricemax * 100);
+			$where.=" AND ad_item_price <= '$searchpricemaxcents'";
+		}
+
 		display_ads($where);
 
 		}
@@ -3612,7 +3704,7 @@ function editadstep1($adaccesskey,$editemail,$awpcppagename){
 		}
 
 		if(isset($adid) && !empty($adid)){
-			load_ad_post_form($adid,$action='editad',$awpcppagename,$adtermid,$editemail,$adaccesskey,$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$addetails='',$adpaymethod='',$offset,$results,$ermsg='');
+			load_ad_post_form($adid,$action='editad',$awpcppagename,$adtermid,$editemail,$adaccesskey,$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$ad_item_price='',$addetails='',$adpaymethod='',$offset,$results,$ermsg='');
 		}
 
 		else {
@@ -3630,7 +3722,8 @@ function editadstep1($adaccesskey,$editemail,$awpcppagename){
 //	Process ad submission
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg) {
+function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_item_price,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg) {
+
 
 		global $wpdb;
 		$table_name2 = $wpdb->prefix . "awpcp_adfees";
@@ -3651,6 +3744,8 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 			$adcategorymsg='';
 			$adpaymethodmsg='';
 			$adtermidmsg='';
+			$aditempricemsg1='';
+			$aditempricemsg2='';
 
 			$error=false;
 
@@ -3692,8 +3787,8 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 		}
 
 		// If phone field is checked and required make sure phone value was entered
-		if((get_awpcp_option(displayphonefield) == '1')
-		&&(get_awpcp_option(displayphonefieldreqop) == '1')){
+		if((get_awpcp_option('displayphonefield') == '1')
+		&&(get_awpcp_option('displayphonefieldreqop') == '1')){
 			if(!isset($adcontact_phone) || empty($adcontact_phone)) {
 				$error=true;
 				$adcphonemsg="<li>You did not enter your phone number. Your phone number is required.</li>";
@@ -3701,8 +3796,8 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 		}
 
 		// If city field is checked and required make sure city value was entered
-		if((get_awpcp_option(displaycityfield) == '1')
-		&&(get_awpcp_option(displaycityfieldreqop) == '1')){
+		if((get_awpcp_option('displaycityfield') == '1')
+		&&(get_awpcp_option('displaycityfieldreqop') == '1')){
 			if(!isset($adcontact_city) || empty($adcontact_city)){
 				$error=true;
 				$adcitymsg="<li>You did not enter your city. Your city is required.</li>";
@@ -3710,8 +3805,8 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 		}
 
 		// If state field is checked and required make sure state value was entered
-		if((get_awpcp_option(displaystatefield) == '1')
-		&&(get_awpcp_option(displaystatefieldreqop) == '1')){
+		if((get_awpcp_option('displaystatefield') == '1')
+		&&(get_awpcp_option('displaystatefieldreqop') == '1')){
 			if(!isset($adcontact_state) || empty($adcontact_state)){
 				$error=true;
 				$adstatemsg="<li>You did not enter your state. Your state is required.</li>";
@@ -3719,8 +3814,8 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 		}
 
 		// If country field is checked and required make sure country value was entered
-		if((get_awpcp_option(displaycountryfield) == '1')
-		&&(get_awpcp_option(displaycountryfieldreqop) == '1')){
+		if((get_awpcp_option('displaycountryfield') == '1')
+		&&(get_awpcp_option('displaycountryfieldreqop') == '1')){
 			if(!isset($adcontact_country) || empty($adcontact_country)){
 				$error=true;
 				$adcountrymsg="<li>You did not enter your country. Your country is required.</li>";
@@ -3728,10 +3823,34 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 		}
 
 		// If running in pay mode make sure a payment method has been checked
-		if(get_awpcp_option(freepay) == '1') {
-			if(!isset($adpaymethod) || empty($adpaymethod)){
+		if(get_awpcp_option(freepay) == '1')
+		{
+			if(!isset($adpaymethod) || empty($adpaymethod))
+			{
 				$error=true;
 				$adpaymethodmsg="<li>You did not select your payment method. The information is required.</li>";
+			}
+		}
+
+		// If price field is checked and required make sure a price has been entered
+		if((get_awpcp_option('displaypricefield') == '1')
+		&&(get_awpcp_option('displaypricefieldreqop') == '1'))
+		{
+			if(!isset($ad_item_price) || empty($ad_item_price))
+			{
+				$error=true;
+				$aditempricemsg1="<li>You did not enter the price of your item. The item price is required.</li>";
+			}
+		}
+
+		// Make sure the item price is a numerical value
+		if((get_awpcp_option('displaypricefield') == '1')
+		&&(get_awpcp_option('displaypricefieldreqop') == '1'))
+		{
+  			if( !is_numeric($ad_item_price) )
+   			{
+				$error=true;
+				$aditempricemsg2="<li>You have entered an invalid item price. Make sure your price contains numbers only. Please do not include currency symbols.</li>";
 			}
 		}
 
@@ -3749,9 +3868,9 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 		if($error){
 			$ermsg="<p>There has been an error found. Your message has not been sent. Please review the list of problems, correct them then try to send your message again.</p>";
 			$ermsg.="<b>The errors:</b><br/>";
-			$ermsg.="<ul>$adtitlemsg $adcategorymsg $adcnamemsg $adcemailmsg1 $adcemailmsg2 $adcphonemsg $adcitymsg $adstatemsg $adcountrymsg $addetailsmsg $adpaymethodmsg $adtermidmsg</ul>";
+			$ermsg.="<ul>$adtitlemsg $adcategorymsg $adcnamemsg $adcemailmsg1 $adcemailmsg2 $adcphonemsg $adcitymsg $adstatemsg $adcountrymsg $addetailsmsg $adpaymethodmsg $adtermidmsg $aditempricemsg1 $aditempricemsg2</ul>";
 
-			load_ad_post_form($adid,$action,$awpcppagename,$adterm_id,$editemail,$adkey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$addetails,$adpaymethod,$offset,$results,$ermsg);
+			load_ad_post_form($adid,$action,$awpcppagename,$adterm_id,$editemail,$adkey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_item_price,$addetails,$adpaymethod,$offset,$results,$ermsg);
 		}
 
 		else {
@@ -3779,9 +3898,10 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 				}
 
 				$adcategory_parent_id=get_cat_parent_ID($adcategory);
+				$itempriceincents=($ad_item_price * 100);
 
 				$query="UPDATE ".$table_name3." SET ad_category_id='$adcategory',ad_category_parent_id='$adcategory_parent_id',ad_title='$adtitle',
-				ad_details='$addetails',ad_contact_phone='$adcontact_phone',ad_contact_name='$adcontact_name',ad_contact_email='$adcontact_email',ad_city='$adcontact_city',ad_state='$adcontact_state',ad_country='$adcontact_country',
+				ad_details='$addetails',ad_contact_phone='$adcontact_phone',ad_contact_name='$adcontact_name',ad_contact_email='$adcontact_email',ad_city='$adcontact_city',ad_state='$adcontact_state',ad_country='$adcontact_country',ad_item_price='$itempriceincents',
 				$qdisabled ad_last_updated=now() WHERE ad_id='$adid' AND ad_key='$adkey'";
 				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
@@ -3830,11 +3950,13 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 
 			$adcategory_parent_id=get_cat_parent_ID($adcategory);
+			$itempriceincents=($ad_item_price * 100);
+
 
 
 
 				$query="INSERT INTO ".$table_name3." SET ad_category_id='$adcategory',ad_category_parent_id='$adcategory_parent_id',ad_title='$adtitle',
-				ad_details='$addetails',ad_contact_phone='$adcontact_phone',ad_contact_name='$adcontact_name',ad_contact_email='$adcontact_email',ad_city='$adcontact_city',ad_state='$adcontact_state',ad_country='$adcontact_country',
+				ad_details='$addetails',ad_contact_phone='$adcontact_phone',ad_contact_name='$adcontact_name',ad_contact_email='$adcontact_email',ad_city='$adcontact_city',ad_state='$adcontact_state',ad_country='$adcontact_country',ad_item_price='$itempriceincents',
 				ad_startdate=CURDATE(),ad_enddate=CURDATE()+INTERVAL $adexpireafter DAY,disabled='$disabled',ad_key='$key',ad_transaction_id='',ad_postdate=now()";
 				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 				$ad_id=mysql_insert_id();
@@ -5574,10 +5696,10 @@ $adsensecode=get_awpcp_option('adsense');
 $showadsense="<p class=\"cl-adsense\">$adsensecode</p>";}
 else {$showadsense='';}
 
-			 $query="SELECT ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_details from ".$table_name3." WHERE ad_id='$adid'";
+			 $query="SELECT ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_item_price,ad_details from ".$table_name3." WHERE ad_id='$adid'";
 			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
  				while ($rsrow=mysql_fetch_row($res)) {
- 					list($ad_title,$adcontact_name,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$addetails)=$rsrow;
+ 					list($ad_title,$adcontact_name,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$ad_item_price,$addetails)=$rsrow;
 				}
 
 					////////////////////////////////////////////////////////////////////////////////////
@@ -5618,9 +5740,23 @@ else {$showadsense='';}
 						$codecontact="contact&i=$adid";
 					}
 
+					$aditemprice='';
+
+					if( get_awpcp_option('displaypricefield') == '1' )
+					{
+						if( !empty($ad_item_price) )
+						{
+							$itempricereconverted=($ad_item_price/100);
+							if($itempricereconverted >=1 )
+							{
+								$awpcpthecurrencysymbol=awpcp_get_currency_code();
+								$aditemprice="<span class=\"itemprice\"><b>Price:</b> <b class=\"price\">$awpcpthecurrencysymbol $itempricereconverted</b></span>";
+							}
+						}
+					}
 
 
-					echo "<div id=\"showad\"><div class=\"adtitle\">$ad_title </div><div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a> Phone: $adcontact_phone $location</div>";
+					echo "<div id=\"showad\"><div class=\"adtitle\">$aditemprice $ad_title </div><div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a> Phone: $adcontact_phone $location</div>";
 
 
 					if(get_awpcp_option('adsenseposition') == '1' ){
