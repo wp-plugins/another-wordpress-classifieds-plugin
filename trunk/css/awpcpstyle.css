@@ -220,3 +220,14 @@ width:180px
 padding:5px;
 float:right;
 }
+
+.itemprice {
+float:right;
+margin:0 5px 0px 0px;
+padding:0px;
+}
+
+.itemprice .price {
+font-weight:bold;
+color:#ff0000;
+}
