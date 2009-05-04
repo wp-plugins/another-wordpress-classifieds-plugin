@@ -1432,7 +1432,7 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 	$pageswithawpcpname=array();
 	global $wpdb,$table_prefix;
 
-	$query="SELECT ID FROM $wpdb->posts WHERE post_title='$awpcppage' AND post_name = '$awpcppagename'";
+	$query="SELECT ID FROM $wpdb->posts WHERE post_name = '$awpcppagename'";
 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 	if (mysql_num_rows($res))
@@ -1495,16 +1495,53 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 // END FUNCTION: check a specific ad to see if it is disabled or enabled
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-if ( !function_exists( 'property_exists' ) ) {
-    function property_exists( $class, $property ) {
-        if ( is_object( $class ) ) {
-            $vars = get_object_vars( $class );
-        } else {
-            $vars = get_class_vars( $class );
-        }
-        return array_key_exists( $property, $vars );
-    }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: get the currency code for price fields
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function awpcp_get_currency_code()
+{
+
+	$amtcurrencycode=get_awpcp_option('paypalcurrencycode');
+
+		if(
+		($amtcurrencycode == 'CAD') ||
+		($amtcurrencycode == 'AUD') ||
+		($amtcurrencycode == 'NZD') ||
+		($amtcurrencycode == 'SGD') ||
+		($amtcurrencycode == 'HKD') ||
+		($amtcurrencycode == 'USD') )
+		{
+		$thecurrencysymbol="$";
+		}
+
+		if( ($amtcurrencycode == 'JPY') )
+		{
+			$thecurrencysymbol="&yen;";
+		}
+
+		if( ($amtcurrencycode == 'EUR') )
+		{
+			$thecurrencysymbol="&euro;";
+		}
+
+		if( ($amtcurrencycode == 'GBP') )
+		{
+			$thecurrencysymbol="&pound;";
+		}
+
+
+
+		if(empty($thecurrencysymbol)) {
+			$thecurrencysymbol="$amtcurrencycode";
+		}
+
+	return $thecurrencysymbol;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: get the currency code for price fields
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
