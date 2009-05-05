@@ -155,21 +155,24 @@ $table_name6 = $wpdb->prefix . "awpcp_pagename";
 		// Do rewrite
 			if(get_awpcp_option('seofriendlyurls') == 1)
 			{
+				if( file_exists(ABSPATH . '.htaccess') )
+				{
 
-				$filecontent=file_get_contents(ABSPATH . '/.htaccess');
+					$filecontent=file_get_contents(ABSPATH . '.htaccess');
 
-					if(!(preg_match("/\b\/\?pagename=$pprefx&a=\b/i","$filecontent")))
-					{
-
-						$permastruc=get_option('permalink_structure');
-
-						if(isset($permastruc) && !empty($permastruc))
+						if(!(preg_match("/\b\/\?pagename=$pprefx&a=\b/i","$filecontent")))
 						{
-							add_action('init','flush_rewrite_rules');
-							add_action('generate_rewrite_rules', 'awpcp_rewrite');
+
+							$permastruc=get_option('permalink_structure');
+
+							if(isset($permastruc) && !empty($permastruc))
+							{
+								add_action('init','flush_rewrite_rules');
+								add_action('generate_rewrite_rules', 'awpcp_rewrite');
+							}
 						}
 					}
-			}
+				}
 
 function flush_rewrite_rules()
 {
@@ -2516,7 +2519,7 @@ function awpcpui_process($awpcppagename) {
 		}
 
 		elseif($action == 'searchads'){
-			load_ad_search_form($keywordphrase='',$searchname='',$searchcity='',$searchstate='',$searchcountry='',$searchcategory='',$message='');
+			load_ad_search_form($keywordphrase='',$searchname='',$searchcity='',$searchstate='',$searchcountry='',$searchcategory='',$searchpricemin='',$searchpricemax='',$message='');
 		}
 
 		elseif($action == 'dosearch'){
