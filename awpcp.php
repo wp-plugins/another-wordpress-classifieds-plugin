@@ -3456,9 +3456,19 @@ global $nameofsite,$siteurl;
 		$subject="Re: $theadtitle";
 		$body="This is a message in response to your ad posted at $nameofsite at $siteurl<br/><br/>";
 		$body.="$contactmessage";
+		$bodyalt="This is a message in response to your ad posted at $nameofsite at $siteurl\n\n";
+		$bodyalt.="$contactmessage\n";
+		$from_header = "From: ". $sendersname . " <" . $sendersemail . ">\r\n";
 
-		if(send_email($sendersemail,$sendtoemail,$subject,$body,true)){
-			echo "<div id=\"classiwrapper\">Your message has been sent. Thank you for patronizing $nameofsite</div>";
+		if(send_email($sendersemail,$sendtoemail,$subject,$body,true))
+		{
+			echo "<div id=\"classiwrapper\">Your message has been sent. Thank you for using $nameofsite</div>";
+		}
+
+		// If function send_mail did not work try function mail()
+		elseif(mail($sendersemail, $subject, $bodyalt, $from_header))
+		{
+			echo "<div id=\"classiwrapper\">Your message has been sent. Thank you for using $nameofsite</div>";
 		}
 		else {
 			echo "There was a problem encountered during the attempt to transmit your message. We apologize. Please try again and if the problem persists, please contact the system administrator.";
@@ -5224,6 +5234,7 @@ if(send_email($thisadminemail,$adposteremail,$subjectuser,$mailbodyuser,true))
 
 	$printmessagetouser="$messagetouser";
 }
+
 
 // If function send_mail did not work try function mail()
 elseif(mail($adposteremail, $subjectuser, $mailbodyuseralt, $from_header))
