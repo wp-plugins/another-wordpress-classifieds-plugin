@@ -165,7 +165,7 @@ $table_name6 = $wpdb->prefix . "awpcp_pagename";
 
 							$permastruc=get_option('permalink_structure');
 
-							if(isset($permastruc) && !empty($permastruc))
+							if( isset($permastruc) && !empty($permastruc) )
 							{
 								add_action('init','flush_rewrite_rules');
 								add_action('generate_rewrite_rules', 'awpcp_rewrite');
@@ -1489,9 +1489,16 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 			$modtitle=cleanstring($ad_title);
 			$modtitle=add_dashes($modtitle);
 
-			if(get_awpcp_option('seofriendlyurls') == 1 && isset($permastruc))
+			if( get_awpcp_option('seofriendlyurls') )
 			{
-				$codecontact="contact/$actonid/$modtitle";
+				if( isset($permastruc) && !empty($permastruc) )
+				{
+					$codecontact="contact/$actonid/$modtitle";
+				}
+				else
+				{
+					$codecontact="contact&i=$actonid";
+				}
 			}
 			else
 			{
@@ -2693,10 +2700,20 @@ function awpcpui_process($awpcppagename) {
 
 						if (($i%$table_cols)==1) {$myreturn.="<tr>\n";}
 						$myreturn.="\t<td>\n";
-						if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
-						$myreturn.="<table class=\"awpcpuitableinner\"><tr><td><a href=\"".$quers."browsecat/$rsrow[0]/$modcatname1\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</td></tr></table>";
-						}else {
-						$myreturn.="<table class=\"awpcpuitableinner\"><tr><td><a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</td></tr></table>";
+						if( get_awpcp_option('seofriendlyurls') )
+						{
+							if(isset($permastruc) && !empty($permastruc))
+							{
+								$myreturn.="<table class=\"awpcpuitableinner\"><tr><td><a href=\"".$quers."browsecat/$rsrow[0]/$modcatname1\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</td></tr></table>";
+							}
+							else
+							{
+								$myreturn.="<table class=\"awpcpuitableinner\"><tr><td><a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</td></tr></table>";
+							}
+						}
+						else
+						{
+							$myreturn.="<table class=\"awpcpuitableinner\"><tr><td><a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</td></tr></table>";
 						}
 
 
@@ -2718,9 +2735,19 @@ function awpcpui_process($awpcppagename) {
 									$modcatname2=cleanstring($rsrow2[1]);
 									$modcatname2=add_dashes($modcatname2);
 
-									if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
-										$myreturn.="<li><a href=\"".$quers."browsecat/$rsrow2[0]/$modcatname2\">$rsrow2[1]</a>$adsincat2</li>";
-									}else {
+									if( get_awpcp_option('seofriendlyurls') )
+									{
+										if(isset($permastruc) && !empty($permastruc))
+										{
+											$myreturn.="<li><a href=\"".$quers."browsecat/$rsrow2[0]/$modcatname2\">$rsrow2[1]</a>$adsincat2</li>";
+										}
+										else
+										{
+											$myreturn.="<li><a href=\"".$quers."browsecat&category_id=$rsrow2[0]\">$rsrow2[1]</a>$adsincat2</li>";
+										}
+									}
+									else
+									{
 										$myreturn.="<li><a href=\"".$quers."browsecat&category_id=$rsrow2[0]\">$rsrow2[1]</a>$adsincat2</li>";
 									}
 								}
@@ -3347,11 +3374,15 @@ $modtitle=add_dashes($modtitle);
 
 $permastruc=get_option('permalink_structure');
 
-			if(get_awpcp_option('seofriendlyurls') == '1')
+			if( get_awpcp_option('seofriendlyurls') )
 			{
 				if(isset($permastruc) && !empty($permastruc))
 				{
 					$thead="<a href=\"".$quers."showad/$adid/$modtitle\">$theadtitle</a>";
+				}
+				else
+				{
+					$thead="<a href=\"".$quers."showad&id=$adid\">$theadtitle</a>";
 				}
 			}
 
@@ -3460,8 +3491,7 @@ global $nameofsite,$siteurl;
 		$bodyalt.="$contactmessage\n";
 		$from_header = "From: ". $sendersname . " <" . $sendersemail . ">\r\n";
 
-		if(send_email($sendersemail,$sendtoemail,$subject,$body,true))
-		{
+		if(send_email($sendersemail,$sendtoemail,$subject,$body,true)){
 			echo "<div id=\"classiwrapper\">Your message has been sent. Thank you for using $nameofsite</div>";
 		}
 
@@ -4154,15 +4184,35 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 					{
 
 						//encrypt the buttons
-						if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
-							$codepaypalthank=$quers."paypalthankyou/$custom";
-						}else {
+						if( get_awpcp_option('seofriendlyurls') )
+						{
+							if(isset($permastruc) && !empty($permastruc))
+							{
+								$codepaypalthank=$quers."paypalthankyou/$custom";
+							}
+							else
+							{
+								$codepaypalthank=$quers."paypalthankyou&i=$custom";
+							}
+						}
+						else
+						{
 							$codepaypalthank=$quers."paypalthankyou&i=$custom";
 						}
-						if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
-						$codepaypalcancel=$quers."cancelpaypal/$custom";
-						}else {
-						$codepaypalcancel=$quers."cancelpaypal&i=$custom";
+						if( get_awpcp_option('seofriendlyurls') )
+						{
+							if(isset($permastruc) && !empty($permastruc))
+							{
+						 		$codepaypalcancel=$quers."cancelpaypal/$custom";
+						 	}
+						 	else
+						 	{
+						 		$codepaypalcancel=$quers."cancelpaypal&i=$custom";
+						 	}
+						}
+						else
+						{
+							$codepaypalcancel=$quers."cancelpaypal&i=$custom";
 						}
 
 					// Handle the encryption method
@@ -4178,17 +4228,37 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 						<input type=\"hidden\" name=\"business\" value=\"".get_awpcp_option('paypalemail')."\" />
 						<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />";
 
-						if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
-							$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou/$custom\" />";
-						}else {
+						if( get_awpcp_option('seofriendlyurls') )
+						{
+							if(isset($permastruc) && !empty($permastruc))
+							{
+								$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou/$custom\" />";
+							}
+							else
+							{
+							$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou&i=$custom\" />";
+							}
+						}
+						else
+						{
 							$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou&i=$custom\" />";
 						}
 
 						$showpaybutton.="$codepaypalthank";
 
-						if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
-							$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal/$custom\" />";
-						}else {
+						if( get_awpcp_option('seofriendlyurls') )
+						{
+							if(isset($permastruc) && !empty($permastruc))
+							{
+								$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal/$custom\" />";
+							}
+							else
+							{
+								$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal&i=$custom\" />";
+							}
+						}
+						else
+						{
 							$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal&i=$custom\" />";
 						}
 
@@ -5369,15 +5439,35 @@ $quers=setup_url_structure($awpcppagename);
 									$showpaybutton.="
 									<input type=\"hidden\" name=\"business\" value=\"".get_awpcp_option('paypalemail')."\" />
 									<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />";
-									if(get_awpcp_option('seofriendlyurls') == 1 && isset($permastruc)){
-										$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou/$custom\" />";
-									}else {
+									if( get_awpcp_option('seofriendlyurls') )
+									{
+										if(isset($permastruc) && !empty($permastruc))
+										{
+											$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou/$custom\" />";
+										}
+										else
+										{
+											$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou&i=$custom\" />";
+										}
+									}
+									else
+									{
 										$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou&i=$custom\" />";
 									}
 									$showpaybutton.="$codepaypalthank";
-									if(get_awpcp_option('seofriendlyurls') == '1' && isset($permastruc)){
-									$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal/$custom\" />";
-									}else {
+									if( get_awpcp_option('seofriendlyurls') )
+									{
+										if(isset($permastruc) && !empty($permastruc))
+										{
+											$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal/$custom\" />";
+										}
+										else
+										{
+											$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal&i=$custom\" />";
+										}
+									}
+									else
+									{
 										$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal&i=$custom\" />";
 									}
 									$showpaybutton.="$codepaypalcancel";
@@ -5573,11 +5663,15 @@ $quers=setup_url_structure($awpcppagename);
 			$permastruc=get_option('permalink_structure');
 			$awpcpwppostpageid=get_page_id($awpcppagename);
 
-			if(get_awpcp_option('seofriendlyurls') == '1')
+			if( get_awpcp_option('seofriendlyurls') )
 			{
 				if(isset($permastruc) && !empty($permastruc))
 				{
 					$tpname="$awpcppagename";
+				}
+				else
+				{
+					$tpname="";
 				}
 			}
 
@@ -5612,17 +5706,21 @@ $quers=setup_url_structure($awpcppagename);
 
 
 
-					if(get_awpcp_option('seofriendlyurls') == '1'){
-						if(isset($permastruc) && !empty($permastruc)){
-						$ad_title="<a href=\"".$quers."showad/$ad_id/$modtitle\">".$rsrow[2]."</a>";
-						$categorylink="<a href=\"".$quers."browsecat/$category_id/$modcatname\">$category_name</a>";
+					if( get_awpcp_option('seofriendlyurls') )
+					{
+						if(isset($permastruc) && !empty($permastruc))
+						{
+						 	$ad_title="<a href=\"".$quers."showad/$ad_id/$modtitle\">".$rsrow[2]."</a>";
+						 	$categorylink="<a href=\"".$quers."browsecat/$category_id/$modcatname\">$category_name</a>";
 						}
-						else {
-						$ad_title="<a href=\"".$quers."showad&id=$ad_id\">".$rsrow[2]."</a>";
-						$categorylink="<a href=\"".$quers."browsecat&category_id=$category_id\">$category_name</a>";
+						else
+						{
+						 	$ad_title="<a href=\"".$quers."showad&id=$ad_id\">".$rsrow[2]."</a>";
+						 	$categorylink="<a href=\"".$quers."browsecat&category_id=$category_id\">$category_name</a>";
 						}
 					}
-					else {
+					else
+					{
 						$ad_title="<a href=\"".$quers."showad&id=$ad_id\">".$rsrow[2]."</a>";
 						$categorylink="<a href=\"".$quers."browsecat&category_id=$category_id\">$category_name</a>";
 					}
@@ -5745,12 +5843,19 @@ else {$showadsense='';}
 					$modtitle=cleanstring($ad_title);
 					$modtitle=add_dashes($modtitle);
 
-					if( get_awpcp_option('seofriendlyurls') == 1  &&
-						isset($permastruc) && !empty($permastruc) )
+					if( get_awpcp_option('seofriendlyurls') )
 					{
-						$codecontact="contact/$adid/$modtitle";
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							$codecontact="contact/$adid/$modtitle";
+						}
+						else
+						{
+							$codecontact="contact&i=$adid";
+						}
 					}
-					else {
+					else
+					{
 						$codecontact="contact&i=$adid";
 					}
 
