@@ -102,7 +102,10 @@ class Foto_upload extends file_upload {
 			exec(sprintf("convert %s -resize %dx%d -quality %d %s", $file_name_src, $w, $h, $quality, $file_name_dest));
 		} else {
 			$dest = imagecreatetruecolor($w, $h);
-			imageantialias($dest, TRUE);
+			if(function_exists('imageantialias'))
+			{
+				imageantialias($dest, TRUE);
+			}
 			$src = imagecreatefromjpeg($file_name_src);
 			imagecopyresampled($dest, $src, 0, 0, 0, 0, $w, $h, $size[0], $size[1]);
 			imagejpeg($dest, $file_name_dest, $quality);
