@@ -3496,7 +3496,7 @@ global $nameofsite,$siteurl;
 		}
 
 		// If function send_mail did not work try function mail()
-		elseif(mail($sendersemail, $subject, $bodyalt, $from_header))
+		elseif(mail($sendtoemail, $subject, $bodyalt, $from_header))
 		{
 			echo "<div id=\"classiwrapper\">Your message has been sent. Thank you for using $nameofsite</div>";
 		}
@@ -4116,7 +4116,9 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 					    </p>
 					</form>
-					<img id=\"loading\" src=\"".AWPCPURL."images/loading.gif\" style=\"display:none;\" />
+
+					<img id=\"loading\" src=\"".AWPCPURL."images/loading.gif\" width=\"51\" height=\"19\" style=\"display:none;\" />
+
 
 					<p id=\"message\">
 
@@ -4376,7 +4378,8 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 										    </p>
 										</form>
-										<img id=\"loading\" src=\"".AWPCPURL."images/loading.gif\" style=\"display:none;\" />
+										<img id=\"loading\" src=\"".AWPCPURL."images/loading.gif\" width=\"51\" height=\"19\" style=\"display:none;\" />
+
 
 										<p id=\"message\">
 
@@ -4543,7 +4546,8 @@ function editimages($adtermid,$adid,$adkey,$editemail) {
 
 									</p>
 								</form>
-								<img id=\"loading\" src=\"".AWPCPURL."images/loading.gif\" style=\"display:none;\" />
+								<img id=\"loading\" src=\"".AWPCPURL."images/loading.gif\" width=\"51\" height=\"19\" style=\"display:none;\" />
+
 
 
 
