@@ -22,7 +22,7 @@ class Foto_upload extends file_upload {
 	var $larger_dim_value;
 	var $larger_dim_thumb_value;
 
-	var $use_image_magick = false; // switch between true and false
+	var $use_image_magick = true; // switch between true and false
 	// I suggest to use ImageMagick on Linux/UNIX systems, it works on windows too, but it is hard to configurate
 	// check your existing configuration by your web hosting provider
 
