@@ -39,6 +39,8 @@ Features:
 * Ads can be searched by keyword, city, state, country, name of poster.
 * Classifieds can be setup so only admin can post ads
 * For sites where HTML will not be allowed in ad text admin has the option turn on or off hyperlinking of any URLs found in text
+* You can setup your site so only the administrator can post ads
+* You can setup your site so only registered users can place ad
 
 These are just some of the features of Another Wordpress Classifieds Plugin
 
