@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.4.8
+Version: 1.0.4.9
 Author: A. Lewis
 Author URI: http://www.awpcp.com
 */
@@ -51,11 +51,12 @@ $wpcontenturl=WP_CONTENT_URL;
 $wpcontentdir=WP_CONTENT_DIR;
 $wpinc=WPINC;
 
+
 $awpcp_plugin_path = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
 $awpcp_plugin_url = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
 
-$imagespath = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'/images';
-$imagesurl = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'/images';
+$imagespath = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'images';
+$imagesurl = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'images';
 
 
 $nameofsite=get_option('blogname');
@@ -65,14 +66,29 @@ $thisadminemail=get_option('admin_email');
 require("$awpcp_plugin_path/dcfunctions.php");
 require("$awpcp_plugin_path/functions_awpcp.php");
 
-$awpcp_db_version = "1.0.4.8";
+if( file_exists("$awpcp_plugin_path/awpcp_category_icons_module.php") )
+{
+	require("$awpcp_plugin_path/awpcp_category_icons_module.php");
+}
 
-define( 'MAINUPLOADURL', $wpcontenturl . '/uploads');
-define('MAINUPLOADDIR', $wpcontentdir .'/uploads/');
-define( 'AWPCPUPLOADURL', $wpcontenturl . '/uploads/awpcp');
-define('AWPCPUPLOADDIR', $wpcontentdir .'/uploads/awpcp/');
-define( 'AWPCPTHUMBSUPLOADURL', $wpcontenturl . '/uploads/awpcp/thumbs');
-define('AWPCPTHUMBSUPLOADDIR', $wpcontentdir .'/uploads/awpcp/thumbs/');
+$awpcp_db_version = "1.0.4.9";
+
+if(field_exists($field='uploadfoldername'))
+{
+	$uploadfoldername=get_awpcp_option('uploadfoldername');
+}
+else
+{
+	$uploadfoldername="uploads";
+}
+
+
+define( 'MAINUPLOADURL', $wpcontenturl .'/' .$uploadfoldername);
+define('MAINUPLOADDIR', $wpcontentdir .'/' .$uploadfoldername);
+define( 'AWPCPUPLOADURL', $wpcontenturl .'/' .$uploadfoldername .'/awpcp');
+define('AWPCPUPLOADDIR', $wpcontentdir .'/' .$uploadfoldername .'/awpcp/');
+define( 'AWPCPTHUMBSUPLOADURL', $wpcontenturl .'/' .$uploadfoldername .'/awpcp/thumbs');
+define('AWPCPTHUMBSUPLOADDIR', $wpcontentdir .'/' .$uploadfoldername .'/awpcp/thumbs/');
 define('AWPCPURL', $awpcp_plugin_url );
 define('MENUICO', $imagesurl .'/menuico.png');
 
@@ -194,6 +210,8 @@ $wp_rewrite->flush_rules();
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		function awpcp_insertjquery() {
+		global $awpcp_plugin_path;
+		$awpcp_plugin_path=str_replace("\\","\\\\",$awpcp_plugin_path);
 		echo "\n
 			<script type=\"text/javascript\">
 			var AWPCPJQUERY = jQuery.noConflict();
@@ -209,9 +227,10 @@ $wp_rewrite->flush_rules();
 				var MAX_FILE_SIZE = AWPCPJQUERY('input[name=MAX_FILE_SIZE]').val();
 				var ADID = AWPCPJQUERY('input[name=ADID]').val();
 				var ADTERMID = AWPCPJQUERY('input[name=ADTERMID]').val();
+				var THEPLUGINPATH = '$awpcp_plugin_path';
 
 
-				var dataString = 'MAX_FILE_SIZE='+ MAX_FILE_SIZE + '&ADID=' + ADID + '&ADTERMID=' + ADTERMID;
+				var dataString = 'MAX_FILE_SIZE='+ MAX_FILE_SIZE + '&ADID=' + ADID + '&ADTERMID=' + ADTERMID + '&THEPLUGINPATH=' + THEPLUGINPATH;
 
 
 				var options = {
@@ -321,6 +340,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	  `ad_state` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
 	  `ad_country` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
 	  `ad_item_price` int(10) NOT NULL,
+	  `ad_views` int(10) NOT NULL,
 	  `ad_postdate` date NOT NULL DEFAULT '0000-00-00',
 	  `ad_last_updated` date NOT NULL,
 	  `ad_startdate` datetime NOT NULL,
@@ -378,6 +398,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('addurationfreemode', '0', 'If you are running in free mode enter the value in days for the number of days ads can stay in the system before they expire. If you do not want the ads to expire leave the value set to zero [0] Note that [0] is treated like a period of 25 years. Also note that expired ads are automatically deleted from the system.', 1),
 		('imagesallowdisallow', '1', 'Uncheck to disallow images in ads. Check to allow. [Affects both free and paid]', 0),
 		('imagesallowedfree', '4', 'If allowing images and running in free mode, how many images are allowed per ad?', 1),
+		('uploadfoldername', 'uploads', 'Name of your main wp upload folder. This folder must exist and be located in your wp-content directory', 1),
 		('maximagesize', '150000', 'If allowing images set the maximum file size that can be uploaded per image.', 1),
 		('maxcharactersallowed', '750', 'What is the maximum number of characters the text of an ad can contain?', 1),
 		('paypalemail', 'xxx@xxxxxx.xxx', 'Email address for paypal payments [if running in paymode and if paypal is activated]', 1),
@@ -391,6 +412,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('adapprove', '0', 'Check this to enable ad approval so a new ad has to first be approved by the adminstrator before someone can view it on the site. Uncheck if you prefer all ads to be automatically displayed.', 0),
 		('disablependingads', '1', 'If running in Pay mode, uncheck this if you want ads to be visible even if payment status is Pending instead of Completed.', 0),
 		('showadcount', '1', 'Uncheck this to disable showing how many ads a category contains. Check it if you want to display how many ads a category contains [User side only]', 0),
+		('displayadviews', '1', 'Uncheck this to disable showing how many times an ad has been viewed. Check it if you want to display how many times an ad has been viewed', 0),
 		('onlyadmincanplaceads', '0', 'Check this box if you want to prevent anyone but the adminstrator from being able to post ads', '0'),
 		('contactformcheckhuman', '1', 'Uncheck this box if you want to disable the math problem used to check if the person filling out the form to contact about an ad is human. ', '0'),
 		('seofriendlyurls', '0', 'Search Engine Friendly URLs? Checking the box will make all URLs generated by the plugin more search engine friendly. Unchecking the box will revert to the default link structure. This will only work if your main wordpress installation is using something other than the default permalink structure.', 0),
@@ -417,8 +439,6 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
       add_option("awpcp_db_version", $awpcp_db_version);
 
       wp_schedule_event( time(), 'hourly', 'doadexpirations_hook' );
-
-
    }
 
   else {
@@ -432,6 +452,35 @@ global $wpdb,$awpcp_db_version;
 
 
     if( $installed_ver != $awpcp_db_version ) {
+
+    // 1.0.4.9 updates
+
+    // Add field uploadfoldername on already installed sites that do not have the field set
+
+   	if(!field_exists($field='uploadfoldername'))
+   	{
+		$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+		('uploadfoldername', 'uploads', 'Name of your main wp upload folder. This folder must exist and be located in your wp-content directory', 1);");
+	}
+
+	// Add field displayadviews for admin to decide whether or not to display number of times an ad has been viewed
+
+   	if(!field_exists($field='displayadviews'))
+   	{
+		$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+		('displayadviews', '1', 'Uncheck this to disable showing how many times an ad has been viewed. Check it if you want to display how many times an ad has been viewed', 0);");
+	}
+
+	// Add field ad_views to table awpcp_ads to track ad views
+	$ad_views_column="ad_views";
+
+	$ad_views_field=mysql_query("SELECT $ad_views_column FROM $table_name3;");
+
+		if (mysql_errno())
+		{
+			$wpdb->query("ALTER TABLE " . $table_name3 . "  ADD `ad_views` int(10) NOT NULL AFTER `ad_item_price`");
+		}
+
     // 1.0.4.8 updates
 
     // Add Price field on already installed sites that do not have the fields set
@@ -762,7 +811,7 @@ echo "
 <ul>
 <li style=\"background:url(".AWPCPURL."/images/menulist.gif) no-repeat;width:193px;height:40px;text-align:center;padding-top:10px;\"><a style=\"font-size:12px;text-decoration:none;\" href=\"?page=Configure1\">Manage General Options</a></li>
 <li style=\"background:url(".AWPCPURL."/images/menulist.gif) no-repeat;width:193px;height:40px;text-align:center;padding-top:10px;\"><a style=\"font-size:12px;text-decoration:none;\" href=\"?page=Configure2\">Manage Listing Fees</a></li>
-<li style=\"background:url(".AWPCPURL."/images/menulist.gif) no-repeat;width:193px;height:40px;text-align:center;padding-top:10px;\"><a style=\"font-size:12px;text-decoration:none;\" href=\"?page=Configure3\">Manage Categoties</a></li>
+<li style=\"background:url(".AWPCPURL."/images/menulist.gif) no-repeat;width:193px;height:40px;text-align:center;padding-top:10px;\"><a style=\"font-size:12px;text-decoration:none;\" href=\"?page=Configure3\">Manage Categories</a></li>
 <li style=\"background:url(".AWPCPURL."/images/menulist.gif) no-repeat;width:193px;height:40px;text-align:center;padding-top:10px;\"><a style=\"font-size:12px;text-decoration:none;\" href=\"?page=Manage1\">Manage Listings</a></li>
 <li style=\"background:url(".AWPCPURL."/images/menulist.gif) no-repeat;width:193px;height:40px;text-align:center;padding-top:10px;\"><a style=\"font-size:12px;text-decoration:none;\" href=\"?page=Manage2\">Manage Images</a></li>
 </ul></div>
@@ -953,6 +1002,7 @@ if (mysql_num_rows($res)) {
 
 function awpcp_opsconfig_categories(){
 
+
 global $wpdb, $message, $imagesurl, $clearform;
 
 
@@ -985,6 +1035,15 @@ $aeaction='';
 		$action = "delcat";
 	}
 
+	elseif( isset($_REQUEST['managecaticon']) && !empty($_REQUEST['managecaticon']) )
+	{
+
+		$cat_ID=$_REQUEST['managecaticon'];
+		$action = "managecaticon";
+
+	}
+
+
 	elseif(isset($_REQUEST['cat_ID']) && !empty($_REQUEST['cat_ID']))
 		{
 			$cat_ID=$_REQUEST['cat_ID'];
@@ -1014,6 +1073,69 @@ $aeaction='';
 	if( $action == 'delcat' )
 	{
 		$aeaction='delete';
+	}
+
+	if( $action == 'managecaticon' )
+	{
+
+		echo "<div class=\"wrap\">
+		<h2>AWPCP Classifieds Management System: Categories Management</h2>
+		";
+
+			global $awpcp_plugin_path;
+
+			if(file_exists("$awpcp_plugin_path/awpcp_category_icons_module.php") )
+			{
+				if( is_installed_category_icon_module() )
+				{
+					load_category_icon_management_page($defaultid=$cat_ID,$offset,$results);
+				}
+			}
+
+		echo "</div>";
+		die;
+	}
+
+	if( $action == 'setcategoryicon' )
+	{
+
+			global $awpcp_plugin_path;
+
+			if(file_exists("$awpcp_plugin_path/awpcp_category_icons_module.php") )
+			{
+				if( is_installed_category_icon_module() )
+				{
+
+
+					if( isset($_REQUEST['cat_ID']) && !empty($_REQUEST['cat_ID']) )
+					{
+						$thecategory_id=$_REQUEST['cat_ID'];
+					}
+
+					if( isset($_REQUEST['category_icon']) && !empty($_REQUEST['category_icon']) )
+					{
+						$theiconfile=$_REQUEST['category_icon'];
+					}
+
+					if( isset($_REQUEST['offset']) && !empty($_REQUEST['offset']) )
+					{
+						$offset=$_REQUEST['offset'];
+					}
+
+					if( isset($_REQUEST['results']) && !empty($_REQUEST['results']) )
+					{
+						$results=$_REQUEST['results'];
+					}
+
+					$message=set_category_icon($thecategory_id,$theiconfile,$offset,$results);
+					if( isset($message) && !empty($message) )
+					{
+						$clearform=1;
+					}
+
+
+				}
+			}
 	}
 
 	if( isset($clearform) && ( $clearform == 1) )
@@ -1139,6 +1261,20 @@ $aeaction='';
 		echo "<div class=\"wrap\">
 		<h2>AWPCP Classifieds Management System: Categories Management</h2>
 		 $message <div style=\"padding:10px;\"><p>Below you can add and edit your categories. For more information about managing your categories visit <a href=\"http://www.awpcp.com/about/categories/\">Useful Information for Classifieds Categories Management</a>  </p>
+		 <b>Icon Meanings:</b> <img src=\"$imagesurl/edit_ico.png\" alt=\"Edit Category\" border=\"0\"> Edit Category <img src=\"$imagesurl/delete_ico.png\" alt=\"Delete Category\" border=\"0\"> Delete Category
+		 ";
+		 global $awpcp_plugin_path;
+		 if(file_exists("$awpcp_plugin_path/awpcp_category_icons_module.php") )
+		 {
+			 if( is_installed_category_icon_module() )
+			 {
+				echo "<img src=\"$imagesurl/icon_manage_ico.png\" alt=\"Manage Category Icon\" border=\"0\"> Manage Category icon";
+			 }
+		}
+
+
+
+		 echo "
 		 </div>
 
 		 <div style=\"width:30%;float:left;padding:10px;border-bottom:1px solid #dddddd;border-top:1px dotted #dddddd;$backfont\">
@@ -1187,16 +1323,39 @@ $aeaction='';
 
 			while ($rsrow=mysql_fetch_row($res))
 			{
+				$thecategoryicon='';
+
+				if( function_exists('get_category_icon') )
+				{
+					$category_icon=get_category_icon($rsrow[0]);
+				}
+
+				if( isset($category_icon) && !empty($category_icon) )
+				{
+					$caticonsurl="$imagesurl/caticons/$category_icon";
+					$thecategoryicon="<img style=\"vertical-align:middle;margin-right:5px;\" src=\"$caticonsurl\" alt=\"$rsrow[1]\" border=\"0\">";
+				}
+
 				$thecategory_id=$rsrow[0];
-				$thecategory_name="<a href=\"?page=Manage1&showadsfromcat_id=".$rsrow[0]."\">".$rsrow[1]."</a>";
+				$thecategory_name="$thecategoryicon<a href=\"?page=Manage1&showadsfromcat_id=".$rsrow[0]."\">".$rsrow[1]."</a>";
 				$thecategory_parent_id=$rsrow[2];
 
 				$thecategory_parent_name=get_adparentcatname($thecategory_parent_id);
 				$totaladsincat=total_ads_in_cat($thecategory_id);
 
+				global $awpcp_plugin_path;
+
+				if(file_exists("$awpcp_plugin_path/awpcp_category_icons_module.php") )
+				{
+					if( is_installed_category_icon_module() )
+					{
+						$managecaticon="<a href=\"?page=Configure3&cat_ID=$thecategory_id&action=managecaticon&offset=$offset&results=$results\"><img src=\"$imagesurl/icon_manage_ico.png\" alt=\"Manage Category Icon\" border=\"0\"></a>";
+					}
+				}
+
 				$items[]="<tr><td style=\"width:40%;padding:5px;border-bottom:1px dotted #dddddd;font-weight:normal;\"><input type=\"checkbox\" name=\"category_to_delete_or_move[]\" value=\"$thecategory_id\">$thecategory_name ($totaladsincat)</td>
 				<td style=\"width:40%;padding:5px;border-bottom:1px dotted #dddddd;font-weight:normal;\">$thecategory_parent_name</td>
-				<td style=\"padding:5px;border-bottom:1px dotted #dddddd;font-size:smaller;font-weight:normal;\"> <a href=\"?page=Configure3&cat_ID=$thecategory_id&action=editcat&offset=$offset&results=$results\"><img src=\"$imagesurl/edit_ico.png\" alt=\"Edit Category\" border=\"0\"></a> <a href=\"?page=Configure3&cat_ID=$thecategory_id&action=delcat&offset=$offset&results=$results\"><img src=\"$imagesurl/delete_ico.png\" alt=\"Delete Category\" border=\"0\"></a></td></tr>";
+				<td style=\"padding:5px;border-bottom:1px dotted #dddddd;font-size:smaller;font-weight:normal;\"> <a href=\"?page=Configure3&cat_ID=$thecategory_id&action=editcat&offset=$offset&results=$results\"><img src=\"$imagesurl/edit_ico.png\" alt=\"Edit Category\" border=\"0\"></a> <a href=\"?page=Configure3&cat_ID=$thecategory_id&action=delcat&offset=$offset&results=$results\"><img src=\"$imagesurl/delete_ico.png\" alt=\"Delete Category\" border=\"0\"></a> $managecaticon</td></tr>";
 			}
 
 				$opentable="<table class=\"listcatsh\">
@@ -1224,6 +1383,13 @@ $aeaction='';
 		</style>
 		 $showcategories
 		</form>$pager2</div>";
+
+			 	if(!file_exists("$awpcp_plugin_path/awpcp_category_icons_module.php") )
+				 	{
+
+						echo "<div style=\"clear:both;\"><p style=\"padding-top:25px;\">There is a premium module available that allows you to add icons to your categories. If you are interested in adding icons to your categories <a href=\"http://www.awpcp.com/premium-modules/\">Click here to find out about purchasing the Category Icons Module</a></p></div>";
+
+			}
 
 }
 
@@ -2540,6 +2706,12 @@ function awpcpui_process($awpcppagename) {
 			editadstep1($adaccesskey,$editemail,$awpcppagename);
 		}
 
+		elseif($action == 'resendaccesskey'){
+			$editemail=addslashes_mq($_REQUEST['editemail']);
+			$awpcppagename=addslashes_mq($_REQUEST['awpcppagename']);
+			resendadaccesskeyform($editemail,$awpcppagename);
+		}
+
 		elseif($action == 'dopost1'){
 			$adid=addslashes_mq($_REQUEST['adid']);
 			$adterm_id=addslashes_mq($_REQUEST['adterm_id']);
@@ -2671,7 +2843,7 @@ function awpcpui_process($awpcppagename) {
 			//Display the categories
 
 
-			global $wpdb;
+			global $wpdb,$imagesurl;
 			$table_name1 = $wpdb->prefix . "awpcp_categories";
 			$permastruc=get_option('permalink_structure');
 
@@ -2695,6 +2867,11 @@ function awpcpui_process($awpcppagename) {
 							$adsincat1='';
 						}
 
+						if( function_exists('get_category_icon') )
+						{
+							$category_icon=get_category_icon($rsrow[0]);
+						}
+
 						$modcatname1=cleanstring($rsrow[1]);
 						$modcatname1=add_dashes($modcatname1);
 
@@ -2704,16 +2881,40 @@ function awpcpui_process($awpcppagename) {
 						{
 							if(isset($permastruc) && !empty($permastruc))
 							{
-								$myreturn.="<table class=\"awpcpuitableinner\"><tr><td><a href=\"".$quers."browsecat/$rsrow[0]/$modcatname1\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</td></tr></table>";
+								$myreturn.="<table class=\"awpcpuitableinner\"><tr><td>";
+								if( isset($category_icon) && !empty($category_icon) )
+								{
+									$caticonsurl="$imagesurl/caticons/$category_icon";
+									$myreturn.="<img style=\"vertical-align:middle;margin-right:5px;\" src=\"$caticonsurl\" alt=\"$rsrow[1]\" border=\"0\">";
+								}
+
+								$myreturn.="<a href=\"".$quers."browsecat/$rsrow[0]/$modcatname1\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</td></tr></table>";
 							}
 							else
 							{
-								$myreturn.="<table class=\"awpcpuitableinner\"><tr><td><a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</td></tr></table>";
+
+								$myreturn.="<table class=\"awpcpuitableinner\"><tr><td>";
+
+									if( isset($category_icon) && !empty($category_icon) )
+									{
+										$caticonsurl="$imagesurl/caticons/$category_icon";
+										$myreturn.="<img style=\"vertical-align:middle;margin-right:5px;\" src=\"$caticonsurl\" alt=\"$rsrow[1]\" border=\"0\">";
+									}
+
+								$myreturn.="<a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</td></tr></table>";
 							}
 						}
 						else
 						{
-							$myreturn.="<table class=\"awpcpuitableinner\"><tr><td><a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</td></tr></table>";
+							$myreturn.="<table class=\"awpcpuitableinner\"><tr><td>";
+
+									if( isset($category_icon) && !empty($category_icon) )
+									{
+										$caticonsurl="$imagesurl/caticons/$category_icon";
+										$myreturn.="<img style=\"vertical-align:middle;margin-right:5px;\" src=\"$caticonsurl\" alt=\"$rsrow[1]\" border=\"0\">";
+									}
+
+							$myreturn.="<a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</td></tr></table>";
 						}
 
 
@@ -2725,11 +2926,20 @@ function awpcpui_process($awpcppagename) {
 
 							while ($rsrow2=mysql_fetch_row($res2)) {
 
-								if(get_awpcp_option('showadcount') == '1'){
-								$adsincat2=total_ads_in_cat($rsrow2[0]);
-								$adsincat2="($adsincat2)";
+								if(get_awpcp_option('showadcount') == '1')
+								{
+									$adsincat2=total_ads_in_cat($rsrow2[0]);
+									$adsincat2="($adsincat2)";
 								}
-								else {$adsincat2='';}
+								else
+								{
+									$adsincat2='';
+								}
+
+									if( function_exists('get_category_icon') )
+									{
+										$sub_category_icon=get_category_icon($rsrow2[0]);
+									}
 
 								if(!empty($rsrow2[0])){
 									$modcatname2=cleanstring($rsrow2[1]);
@@ -2739,16 +2949,40 @@ function awpcpui_process($awpcppagename) {
 									{
 										if(isset($permastruc) && !empty($permastruc))
 										{
-											$myreturn.="<li><a href=\"".$quers."browsecat/$rsrow2[0]/$modcatname2\">$rsrow2[1]</a>$adsincat2</li>";
+											$myreturn.="<li>";
+
+											if( isset($sub_category_icon) && !empty($sub_category_icon) )
+											{
+												$subcaticonsurl="$imagesurl/caticons/$sub_category_icon";
+												$myreturn.="<img style=\"vertical-align:middle;margin-right:5px;\" src=\"$subcaticonsurl\" alt=\"$rsrow2[1]\" border=\"0\">";
+											}
+
+											$myreturn.="<a href=\"".$quers."browsecat/$rsrow2[0]/$modcatname2\">$rsrow2[1]</a>$adsincat2</li>";
 										}
 										else
 										{
-											$myreturn.="<li><a href=\"".$quers."browsecat&category_id=$rsrow2[0]\">$rsrow2[1]</a>$adsincat2</li>";
+											$myreturn.="<li>";
+
+											if( isset($sub_category_icon) && !empty($sub_category_icon) )
+											{
+												$subcaticonsurl="$imagesurl/caticons/$sub_category_icon";
+												$myreturn.="<img style=\"vertical-align:middle;margin-right:5px;\" src=\"$subcaticonsurl\" alt=\"$rsrow2[1]\" border=\"0\">";
+											}
+
+											$myreturn.="<a href=\"".$quers."browsecat&category_id=$rsrow2[0]\">$rsrow2[1]</a>$adsincat2</li>";
 										}
 									}
 									else
 									{
-										$myreturn.="<li><a href=\"".$quers."browsecat&category_id=$rsrow2[0]\">$rsrow2[1]</a>$adsincat2</li>";
+										$myreturn.="<li>";
+
+										if( isset($sub_category_icon) && !empty($sub_category_icon) )
+										{
+											$subcaticonsurl="$imagesurl/caticons/$sub_category_icon";
+											$myreturn.="<img style=\"vertical-align:middle;margin-right:5px;\" src=\"$subcaticonsurl\" alt=\"$rsrow2[1]\" border=\"0\">";
+										}
+
+										$myreturn.="<a href=\"".$quers."browsecat&category_id=$rsrow2[0]\">$rsrow2[1]</a>$adsincat2</li>";
 									}
 								}
 							}
@@ -3071,6 +3305,24 @@ echo "<div style=\"clear:both\"></div>";
 					$htmlstatus="No HTML allowed";
 				}
 
+				$readonlyacname='';
+				$readonlyacem='';
+
+				if( get_awpcp_option('requireuserregistration') && is_user_logged_in() )
+				{
+
+					global $current_user;
+				    get_currentuserinfo();
+
+				    $adcontact_name=$current_user->user_login;
+				    $adcontact_email=$current_user->user_email;
+				    $readonlyacname="readonly";
+				    $readonlyacem="readonly";
+
+
+				}
+
+
 				if(!is_admin()){
 				$theformbody.="$displaydeleteadlink<p>Fill out the form below to post your classified ad.</p>";
 				$faction="id=\"awpcpui_process\"";
@@ -3089,8 +3341,8 @@ echo "<div style=\"clear:both\"></div>";
 				<div class=\"headeritem\">Ad Details and Contact Information </div>
 				<p>Ad Title<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"adtitle\" value=\"$adtitle\"></p>
 				<p>Ad Category<br/><select name=\"adcategory\"><option value=\"\">Select your ad category</option>$allcategories</a></select></p>
-				<p>Name of person to contact<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_name\" value=\"$adcontact_name\"></p>
-				<p>Contact Person's Email (Please enter a valid email. The codes needed to edit your ad will be sent to your email address)<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_email\" value=\"$adcontact_email\"></p>";
+				<p>Name of person to contact<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_name\" value=\"$adcontact_name\" $readonlyacname></p>
+				<p>Contact Person's Email (Please enter a valid email. The codes needed to edit your ad will be sent to your email address)<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_email\" value=\"$adcontact_email\" $readonlyacem></p>";
 				if(get_awpcp_option(displayphonefield) == '1'){
 				$theformbody.="<p>Contact Person's Phone Number<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_phone\" value=\"$adcontact_phone\"></p>";}
 				if(get_awpcp_option(displaycityfield) == '1'){
@@ -3263,7 +3515,7 @@ function load_ad_edit_form($action,$awpcppagename,$editemail='',$adaccesskey='',
 		<input type=\"text\" name=\"editemail\" value=\"$editemail\" class=\"inputbox\"></p>
 		<p>Enter your ad access key<br/>
 		<input type=\"text\" name=\"adaccesskey\" value=\"$adaccesskey\" class=\"inputbox\"></p>
-		<input type=\"submit\" class=\"scbutton\" value=\"Continue\">
+		<input type=\"submit\" class=\"scbutton\" value=\"Continue\"> <a href=\"?a=resendaccesskey\">Resend Ad Access Key</a>
 		<br/>
 		</form>
 
@@ -3275,6 +3527,141 @@ function load_ad_edit_form($action,$awpcppagename,$editemail='',$adaccesskey='',
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //	END FUNCTION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//	START FUNCTION: display a form to the user for resend access key request
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function resendadaccesskeyform($editemail,$awpcppagename){
+
+global $nameofsite,$wpdb,$siteurl,$thisadminemail;
+$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+if(!isset($awpcppagename) || empty($awpcppagename) )
+{
+	$awpcppage=get_currentpagename();
+	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+}
+
+		$quers=setup_url_structure($awpcppagename);
+
+			if($action == 'placead'){
+			$liplacead="<li class=\"postad\"><b>Placing Ad</b></li>";}
+			else {$liplacead="<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>";}
+			if($action== 'editad'){
+			$lieditad="<li class=\"edit\"><b>Editing Ad: Step 1</b></li>";}
+			else {$lieditad="<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>";}
+
+			$checktheform="<script type=\"text/javascript\">
+				function checkform() {
+					var the=document.myform;
+
+					if ((the.editemail.value==='') || (the.editemail.value.indexOf('@')==-1) || (the.editemail.value.indexOf('.',the.editemail.value.indexOf('@')+2)==-1) || (the.editemail.value.lastIndexOf('.')==the.editemail.value.length-1)) {
+						alert('Either you did not enter your email address or the email address you entered is not valid.');
+						the.editemail.focus();
+						return false;
+					}
+
+
+					return true;
+				}
+
+			</script>";
+
+			if(!isset($message) || empty($message)){
+			$message="<p>Please enter the email address you used when you created your ad. Your access key will be sent to that email account. The email address you enter must match up with the email address we have on file.</p>";
+			}
+
+		echo "
+				<div id=\"classiwrapper\">
+				<ul id=\"postsearchads\">
+			";
+
+						if(!(get_awpcp_option('onlyadmincanplaceads'))){
+							echo "
+									$liplacead
+									$lieditad
+								";
+						}
+
+						elseif(get_awpcp_option('onlyadmincanplaceads') && ($isadmin == '1')){
+							echo "
+									$liplacead
+									$lieditad
+								";
+						}
+
+		echo "
+				<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
+				<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+				</ul><div style=\"clear:both\"></div>
+			";
+
+if( isset($editemail) && !empty($editemail) )
+{
+	// Get the ad titles and access keys in the database that are associated with the email address
+	$query="SELECT ad_title,ad_key,ad_contact_name FROM ".$table_name3." WHERE ad_contact_email='$editemail'";
+	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+	$adtitlekeys=array();
+
+		while ($rsrow=mysql_fetch_row($res)) {
+		 	list($adtitle,$adkey,$adpostername)=$rsrow;
+
+		 	$adtitlekeys[]="$adtitle: $adkey";
+
+		}
+
+		$totaladsfound=count($adtitlekeys);
+
+			$resendakeymessage="Dear $adpostername<br><br>You have asked to have your ad key resent. [$totaladsfound] ads were found sharing your email address.<ol>";
+			$resendakeymessagealt="Dear $adpostername\n\nYou have asked to have your ad key resent. [$totaladsfound] ads were found sharing your email address.\n\n";
+
+
+			foreach ($adtitlekeys as $theadtitleandkey)
+			{
+		 		$resendakeymessage.="<li>$theadtitleandkey</li>";
+		 		$resendakeymessagealt.="$theadtitleandkey\n";
+		 	}
+
+			$resendakeymessage.="</ol><br>Thank you for using the services provided by $nameofsite<br>$siteurl";
+			$resendakeymessagealt.="\n$nameofsite\n$siteurl";
+
+			$subject="The $nameofsite ad access key you requested";
+			$from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
+
+		if(send_email($thisadminemail,$editemail,$subject,$resendakeymessage,true)){
+			echo "Your access key has been emailed to [ $editemail ].";
+		}
+
+		// If function send_mail did not work try function mail()
+		elseif(mail($editemail, $subject, $resendakeymessagealt, $from_header))
+		{
+			echo "Your access key has been emailed to [ $editemail ]. ";
+		}
+		else {
+			echo "There was a problem encountered during the attempt to resend your access key. We apologize. Please try again and if the problem persists, please contact the system administrator.";
+		}
+}
+else
+{
+
+
+		echo "
+		$checktheform<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">
+		<input type=\"hidden\" name=\"awpcppagename\" value=\"$awpcppagename\">
+		<input type=\"hidden\" name=\"a\" value=\"resendaccesskey\">
+		<p>Enter your Email address<br/>
+		<input type=\"text\" name=\"editemail\" value=\"$editemail\" class=\"inputbox\"></p>
+		<input type=\"submit\" class=\"scbutton\" value=\"Continue\">
+		<br/>
+		</form>
+		";
+
+	}
+
+	echo "</div>";
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //	START FUNCTION: Display a form to be filled out in order to contact the ad poster
@@ -4116,9 +4503,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 					    </p>
 					</form>
-
 					<img id=\"loading\" src=\"".AWPCPURL."images/loading.gif\" width=\"51\" height=\"19\" style=\"display:none;\" />
-
 
 					<p id=\"message\">
 
@@ -5807,6 +6192,11 @@ global $wpdb;
 $table_name3 = $wpdb->prefix . "awpcp_ads";
 $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 
+	//update the ad views
+ 	$query="UPDATE ".$table_name3." SET ad_views=(ad_views + 1) WHERE ad_id='$adid'";
+	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+
 if(get_awpcp_option('useadsense') == '1'){
 $adsensecode=get_awpcp_option('adsense');
 $showadsense="<p class=\"cl-adsense\">$adsensecode</p>";}
@@ -5878,8 +6268,22 @@ else {$showadsense='';}
 						}
 					}
 
+					if( get_awpcp_option('displayadviews') )
+					{
 
-					echo "<div id=\"showad\"><div class=\"adtitle\">$aditemprice $ad_title </div><div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a> Phone: $adcontact_phone $location</div>";
+						$awpcpadviews_total=get_numtimesadviewd($adid);
+						$awpcpadviews="<span class=\"awpcpadviews\">Views:  $awpcpadviews_total</span>";
+
+					}
+
+
+					echo "<div id=\"showad\"><div class=\"adtitle\"> $ad_title </div><div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a> Phone: $adcontact_phone $location</div>
+					<div>$awpcpadviews $aditemprice</div>";
+					if( !empty($awpcpadviews) || !empty($aditemprice) )
+					{
+						echo "<div style=\"clear:both\"></div>";
+					}
+
 
 
 					if(get_awpcp_option('adsenseposition') == '1' ){
@@ -5949,51 +6353,96 @@ display_ads($where='');}
 function awpcp_uninstall(){
 global $message;
 
-$awpcppage=get_currentpagename();
-$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+	if( isset($_REQUEST['action']) && !empty($_REQUEST['action']) )
+	{
+		if($_REQUEST['action'] == 'douninstall')
+		{
+			douninstall();
+		}
+	}
 
-   $table_name1 = $wpdb->prefix . "awpcp_categories";
-   $table_name2 = $wpdb->prefix . "awpcp_adfees";
-   $table_name3 = $wpdb->prefix . "awpcp_ads";
-   $table_name4 = $wpdb->prefix . "awpcp_adsettings";
-   $table_name5 = $wpdb->prefix . "awpcp_adphotos";
-   $table_name6 = $wpdb->prefix . "awpcp_pagename";
+	if( !isset($_REQUEST['action']) || empty($_REQUEST['action']) )
+	{
+
+		$dirname=AWPCPUPLOADDIR;
+
+		echo "<div class=\"wrap\"><h2>AWPCP Classifieds Management System: Uninstall Plugin</h2>
+		$message <div style=\"padding:20px;\">Thank you for using AWPCP. You have arrived at this page by clicking the Uninstall link. If you are certain you wish to uninstall the plugin, please click the link below to proceed. Please note that all your data related to the plugin, your ads, images and everything else created by the plugin will be destroyed.
+		<p><b>Important Information</b></p>
+		<blockquote>
+		<p>1. If you plan to use the data created by the plugin please export the data from your mysql database before clicking the uninstall link. </p>
+		<p>2. If you want to keep your user uploaded images, please download $dirname to your local drive for later use or rename the folder to something else so the uninstaller can bypass it.</p>
+		</blockquote>
+		<a href=\"?page=Manage3&action=douninstall\">Proceed with Uninstalling Another Wordpress Classifieds Plugin</a>
+		</div><div style=\"clear:both;\"></div>";
+	}
+}
+
+function douninstall() {
+
+global $wpdb,$awpcp_plugin_path,$table_prefix;
+
+	//Remove the upload folders with uploaded images
+
+	$dirname=AWPCPUPLOADDIR;
+
+	if (file_exists($dirname))
+	{
+
+		require_once $awpcp_plugin_path.'/classes/fileop.class.php';
+
+		$fileop=new fileop();
+		$fileop->delete($dirname);
+
+	}
+
+	// Delete the classifieds page(s)
+
+	$awpcppage=get_currentpagename();
+	checkfortotalpageswithawpcpname($awpcppage);
 
 
-	// Uncomment drop lines below and use in case of emergency
 
-	// $wpdb->query("DROP TABLE " . $table_name1);
-	// $wpdb->query("DROP TABLE " . $table_name2);
-	// $wpdb->query("DROP TABLE " . $table_name3);
-	// $wpdb->query("DROP TABLE " . $table_name4);
-	// $wpdb->query("DROP TABLE " . $table_name5);
-	// $wpdb->query("DROP TABLE " . $table_name6);
-
-	//  echo "Tables dropped";
-	//  die;
+	// Drop the tables
+	   $table_name1 = $wpdb->prefix . "awpcp_categories";
+	   $table_name2 = $wpdb->prefix . "awpcp_adfees";
+	   $table_name3 = $wpdb->prefix . "awpcp_ads";
+	   $table_name4 = $wpdb->prefix . "awpcp_adsettings";
+	   $table_name5 = $wpdb->prefix . "awpcp_adphotos";
+	   $table_name6 = $wpdb->prefix . "awpcp_pagename";
 
 
-
-$tmessage="<p>These are the tables which you need to drop from your database:</p>";
-$tmesage.="<p style=\"padding:25px 0px 0px 30px;\">";
-$tmessage.="$table_name1<br/>";
-$tmessage.="$table_name2<br/>";
-$tmessage.="$table_name3<br/>";
-$tmessage.="$table_name4<br/>";
-$tmessage.="$table_name5<br/>";
-$tmessage.="$table_name6<br/>";
-$tmesage.="</p>";
+		$wpdb->query("DROP TABLE " . $table_name1);
+		$wpdb->query("DROP TABLE " . $table_name2);
+		$wpdb->query("DROP TABLE " . $table_name3);
+		$wpdb->query("DROP TABLE " . $table_name4);
+		$wpdb->query("DROP TABLE " . $table_name5);
+		$wpdb->query("DROP TABLE " . $table_name6);
 
 
 
-	echo "<div class=\"wrap\"><h2>AWPCP Classifieds Management System: Uninstall Plugin</h2>
-	$message <div style=\"padding:20px;\">Thank you for using AWPCP. You have arrived at this page by clicking the Uninstall link. For now this plugin does not provide a handy point and click method for uninstalling the database tables that are created when you activate the plugin. When you deactivate the plugin, the tables and their contents remain in the database, also the plugin classifieds page is still displayed to your users.
-	<p>To fix this problem, you need to manually delete the page <b>$awpcppagename</b> and manually drop the plugin tables from your database.</p>
-	<p>$tmessage</p>
-	<p>A point and click method of uninstalling the plugin is planned for a future release.</p>
-</div><div style=\"clear:both;\"></div>";
+	// Remove the version number from the options table
+	$query="DELETE FROM {$table_prefix}options WHERE option_name='awpcp_db_version'";
+	@mysql_query($query);
+
+	//Remove widget entries from options table
+	$query="DELETE FROM {$table_prefix}options WHERE option_name='widget_awpcplatestads'";
+	@mysql_query($query);
+
+	unregister_sidebar_widget('AWPCPClassifieds', 'widget_awpcplatestads');
+	unregister_widget_control('AWPCPClassifieds', 'widget_awpcplatestads_options', 350, 120);
 
 
+	// Clear the ad expiration schedule
+	wp_clear_scheduled_hook('doadexpirations_hook');
+
+		$thepluginfile="another-wordpress-classifieds-plugin/awpcp.php";
+		$current = get_settings('active_plugins');
+		array_splice($current, array_search( $thepluginfile, $current), 1 );
+		update_option('active_plugins', $current);
+		do_action('deactivate_' . $thepluginfile );
+		echo "<div style=\"padding:50px;font-weight:bold;\"><p>Almost done...</p><h1>One More Step</h1><a href=\"plugins.php?deactivate=true\">Please click here to complete the uninstallation process</a></h1></div>";
+		die;
 
 }
 
