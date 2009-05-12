@@ -22,10 +22,6 @@ class Foto_upload extends file_upload {
 	var $larger_dim_value;
 	var $larger_dim_thumb_value;
 
-	var $use_image_magick = true; // switch between true and false
-	// I suggest to use ImageMagick on Linux/UNIX systems, it works on windows too, but it is hard to configurate
-	// check your existing configuration by your web hosting provider
-
 	function process_image($landscape_only = false, $create_thumb = true, $delete_tmp_file = true, $compression = 85) {
 		$filename = $this->upload_dir.$this->file_copy;
 		$this->check_dir($this->thumb_folder); // run these checks to create not existing directories
@@ -53,6 +49,7 @@ class Foto_upload extends file_upload {
 		}
 		if ($delete_tmp_file) $this->del_temp_file($filename); // note if you delete the tmp file the check if a file exists will not work
 	}
+
 	function get_img_size($file) {
 		$img_size = getimagesize($file);
 		$this->x_size = $img_size[0];
@@ -77,19 +74,30 @@ class Foto_upload extends file_upload {
 	function img_rotate($wr_file, $comp) {
 		$new_x = $this->y_size;
 		$new_y = $this->x_size;
-		if ($this->use_image_magick) {
-			exec(sprintf("mogrify -rotate 90 -quality %d %s", $comp, $wr_file));
-		} else {
-			$src_img = imagecreatefromjpeg($wr_file);
-			$rot_img = imagerotate($src_img, 90, 0);
-			$new_img = imagecreatetruecolor($new_x, $new_y);
-			imageantialias($new_img, TRUE);
-			imagecopyresampled($new_img, $rot_img, 0, 0, 0, 0, $new_x, $new_y, $new_x, $new_y);
-			imagejpeg($new_img, $this->upload_dir.$this->file_copy, $comp);
+
+			// Check for image magick and set the value true or false for image_magic_true_false
+			exec("convert -version", $out, $rcode); //Try to get ImageMagick "convert" program version number.;
+
+			if($rcode == 0)
+			{
+				exec(sprintf("mogrify -rotate 90 -quality %d %s", $comp, $wr_file));
+			}
+			else
+			{
+				$src_img = imagecreatefromjpeg($wr_file);
+				$rot_img = imagerotate($src_img, 90, 0);
+				$new_img = imagecreatetruecolor($new_x, $new_y);
+				if(function_exists('imageantialias'))
+				{
+					imageantialias($new_img, TRUE);
+				}
+				imagecopyresampled($new_img, $rot_img, 0, 0, 0, 0, $new_x, $new_y, $new_x, $new_y);
+				imagejpeg($new_img, $this->upload_dir.$this->file_copy, $comp);
 		}
 	}
 	function thumbs($file_name_src, $file_name_dest, $target_size, $quality = 80) {
 		//print_r(func_get_args());
+
 		$size = getimagesize($file_name_src);
 		if ($this->larger_dim == "x") {
 			$w = number_format($target_size, 0, ",", "");
@@ -98,9 +106,16 @@ class Foto_upload extends file_upload {
 			$h = number_format($target_size, 0, ",", "");
 			$w = number_format(($size[0]/$size[1])*$target_size,0,",","");
 		}
-		if ($this->use_image_magick) {
+
+		// Check for image magick and set the value true or false for image_magic_true_false
+		exec("convert -version", $out, $rcode); //Try to get ImageMagick "convert" program version number.;
+
+		if($rcode == 0)
+		{
 			exec(sprintf("convert %s -resize %dx%d -quality %d %s", $file_name_src, $w, $h, $quality, $file_name_dest));
-		} else {
+		}
+		else
+		{
 			$dest = imagecreatetruecolor($w, $h);
 			if(function_exists('imageantialias'))
 			{
@@ -111,5 +126,6 @@ class Foto_upload extends file_upload {
 			imagejpeg($dest, $file_name_dest, $quality);
 		}
 	}
+
 }
 ?>
