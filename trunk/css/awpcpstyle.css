@@ -80,8 +80,19 @@ padding:5px;
 
 }
 
+#classiwrapper ul {
+margin:0;
+padding:0;
+list-style:none;
+}
+
+#classiwrapper ul li {
+list-style:none;
+}
+
 #classiwrapper ul#postsearchads {
 list-style:none;
+margin:0;
 }
 
 #classiwrapper #postsearchads li {
@@ -223,11 +234,21 @@ float:right;
 
 .itemprice {
 float:right;
-margin:0 5px 0px 0px;
-padding:0px;
+margin:0 50px 0px 0px;
+padding:5px;
 }
 
 .itemprice .price {
+font-weight:bold;
+color:#ff0000;
+}
+
+.awpcpadviews {
+float:left;
+padding:5px;
+}
+
+.awpcpadviews .views {
 font-weight:bold;
 color:#ff0000;
 }
