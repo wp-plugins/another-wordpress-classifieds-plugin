@@ -451,6 +451,32 @@ $adposteremail='';
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: Get the number of times an ad has been viewed
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function get_numtimesadviewd($adid)
+{
+
+global $wpdb;
+$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+$numtimesadviewed='';
+
+			 $query="SELECT ad_views from ".$table_name3." WHERE ad_id='$adid'";
+			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+ 				while ($rsrow=mysql_fetch_row($res)) {
+ 					list($numtimesadviewed)=$rsrow;
+				}
+	return $numtimesadviewed;
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: Get the number of times an ad has been viewed
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: Get the ad title based on having the ad ID
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1099,13 +1125,23 @@ function field_exists($field){
 global $wpdb;
 $table_name4 = $wpdb->prefix . "awpcp_adsettings";
 
+$tableexists=checkfortable($table_name4);
+
+		if($tableexists)
+		{
 			 $query="SELECT config_value FROM  ".$table_name4." WHERE config_option='$field'";
 			 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-			 	if (mysql_num_rows($res)) {
-				$myreturn=true;
-			} else { $myreturn=false; }
+			 	if (mysql_num_rows($res))
+			 	{
+					$myreturn=true;
+				}
+				else
+				{
+					$myreturn=false;
+				}
 
-	return $myreturn;
+			return $myreturn;
+		}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1152,7 +1188,7 @@ function doadexpirations(){
 
 	// Get the IDs of the ads to be deleted
 	$query="SELECT ad_id FROM ".$table_name3." WHERE ad_enddate < CURDATE()";
-	if (!($res=mysql_query($query))) {die(mysql_error());}
+	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 	$expiredid=array();
 
@@ -1432,7 +1468,7 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 	$pageswithawpcpname=array();
 	global $wpdb,$table_prefix;
 
-	$query="SELECT ID FROM $wpdb->posts WHERE post_name = '$awpcppagename'";
+	$query="SELECT ID FROM {$table_prefix}posts WHERE post_name = '$awpcppagename'";
 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 	if (mysql_num_rows($res))
