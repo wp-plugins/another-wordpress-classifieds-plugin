@@ -19,7 +19,52 @@ if ( !defined('WP_CONTENT_DIR') )
 
 
 $wpcontentdir=WP_CONTENT_DIR;
-$uploaddir=$wpcontentdir.'/uploads/';
+
+if(field_exists($field='uploadfoldername'))
+{
+	$uploadfoldername=get_awpcp_option('uploadfoldername');
+}
+else
+{
+	$uploadfoldername="uploads";
+}
+
+
+$uploaddir=$wpcontentdir.'/' .$uploadfoldername .'/';
+
+if(isset($_POST['THEPLUGINPATH']) && !empty($_POST['THEPLUGINPATH'])){
+$thepluginpath=$_POST['THEPLUGINPATH'];}else { $thepluginpath='';}
+
+
+		//Set permission on main upload directory
+
+		require_once $thepluginpath.'classes/fileop.class.php';
+
+		$fileop=new fileop();
+
+		$fileop->set_permission($uploaddir,0777);
+
+		$themainawpcpuploaddir=$uploaddir . 'awpcp/';
+		$themainawpcpuploadthumbsdir=$uploaddir . 'awpcp/thumbs/';
+
+
+		//Create the plugin upload directories if they do not exist
+
+		if ( !is_dir($themainawpcpuploaddir) )
+		{
+			umask(0);
+			mkdir($themainawpcpuploaddir, 0777);
+		}
+
+		if ( !is_dir($themainawpcpuploadthumbsdir) )
+		{
+			umask(0);
+			mkdir($themainawpcpuploadthumbsdir, 0777);
+		}
+
+		$fileop->set_permission($themainawpcpuploaddir,0777);
+		$fileop->set_permission($themainawpcpuploadthumbsdir,0777);
+
 
 
 $foto_upload = new Foto_upload;
@@ -41,8 +86,8 @@ $json['ustatmsg'] = '';
 $json['showhideuploadform'] = '';
 
 $foto_upload->upload_dir = $uploaddir;
-$foto_upload->foto_folder = $uploaddir . 'awpcp/';
-$foto_upload->thumb_folder = $uploaddir . 'awpcp/thumbs/';
+$foto_upload->foto_folder = $themainawpcpuploaddir;
+$foto_upload->thumb_folder = $themainawpcpuploadthumbsdir;
 $foto_upload->extensions = array(".jpg", ".gif", ".png");
 $foto_upload->language = "en";
 $foto_upload->x_max_size = 640;
