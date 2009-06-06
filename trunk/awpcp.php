@@ -4325,15 +4325,13 @@ echo "<div style=\"clear:both\"></div>";
 					echo "$adtermscode<p>$paymethod</p>";
 
 				}//end if adtermsset
-
-
+			}
 		}
+
 	}
 				echo "<input type=\"submit\" class=\"scbutton\" value=\"Continue\"></form>";
 				echo "</div>";
 				echo "</div>";
-	}
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
