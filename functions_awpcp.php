@@ -31,6 +31,34 @@ function get_awpcp_option($option) {
 // END FUNCTION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function filter_required_is_classifieds($awpcppageid,$awpcppage,$awpcppagename)
+{
+	global $wpdp,$table_prefix;
+
+	$classifiedspagecontent="[[AWPCPCLASSIFIEDSUI]]";
+
+
+	$query="SELECT post_content FROM {$table_prefix}posts WHERE ID='$awpcppageid' AND post_name='$awpcppagename' AND post_title='$awpcppage' AND post_type='page' AND post_status='publish'";
+	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+
+	while ($rsrow=mysql_fetch_row($res))
+	{
+	 	list($thepostcontentvalue)=$rsrow;
+	}
+
+	if( $thepostcontentvalue == $classifiedspagecontent )
+	{
+		$istheclassifiedspage=1;
+	}
+	else
+	{
+
+		$istheclassifiedspage=0;
+	}
+
+	return $istheclassifiedspage;
+
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: Check if the user is an admin
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -828,7 +856,7 @@ $table_name1 = $wpdb->prefix . "awpcp_categories";
 
 
 function total_ads_in_cat($catid) {
-global $wpdb;
+global $wpdb,$hasregionsmodule;
 $table_name3 = $wpdb->prefix . "awpcp_ads";
 	$totaladsincat='';
 
@@ -837,6 +865,16 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 				$filter=" AND payment_status != 'Pending'";
 			}
 
+						if($hasregionsmodule == 1)
+						{
+							if( isset($_SESSION['theactiveregionid']) )
+							{
+								$theactiveregionid=$_SESSION['theactiveregionid'];
+								$theactiveregionname=get_theawpcpregionname($theactiveregionid);
+
+								$filter.="AND (ad_city='$theactiveregionname' OR ad_state='$theactiveregionname' OR ad_country='$theactiveregionname' OR ad_county_village='$theactiveregionname')";
+							}
+						}
 
 	$query="SELECT count(*) FROM ".$table_name3." WHERE (ad_category_id='$catid' OR ad_category_parent_id='$catid') AND disabled = '0' $filter";
 	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
@@ -1334,7 +1372,7 @@ function massdeleteadsfromcategory($catid){
 				// Delete the ad images
 
 					$query="SELECT image_name FROM ".$table_name5." WHERE ad_id IN ('$adstodelete')";
-					@mysql_query($query);
+					if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 					for ($i=0;$i<mysql_num_rows($res);$i++) {
 					$photo=mysql_result($res,$i,0);
@@ -1460,6 +1498,28 @@ $limit=10;}
 // START FUNCTION: make sure there's not more than one page with the name of the classifieds page
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function checkforduplicate($cpagename)
+{
+
+	$awpcppagename = sanitize_title($cpagename, $post_ID='');
+
+	$pageswithawpcpname=array();
+	global $wpdb,$table_prefix;
+
+	$query="SELECT ID FROM {$table_prefix}posts WHERE post_name = '$awpcppagename'";
+	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+	if (mysql_num_rows($res))
+	{
+	 	while ($rsrow=mysql_fetch_row($res))
+	 	{
+	 		$pageswithawpcpname[]=$rsrow[0];
+	 	}
+	 	$totalpageswithawpcpname=count($pageswithawpcpname);
+	}
+
+	return $totalpageswithawpcpname;
+}
 
 function checkfortotalpageswithawpcpname($awpcppage) {
 
@@ -1490,6 +1550,12 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 			$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname'";
 			@mysql_query($query);
 
+			$query="DELETE FROM {$table_prefix}postmeta WHERE post_id = '$pagewithawpcpname'";
+			@mysql_query($query);
+
+			$query="DELETE FROM {$table_prefix}comments WHERE comment_post_ID = '$pagewithawpcpname'";
+			@mysql_query($query);
+
 		}
 
 			deleteuserpageentry($awpcppage);
@@ -1497,10 +1563,427 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 	}
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: make sure there's not more than one page with the name of the classifieds page
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: create a drop down list containing names of ad posters
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function create_ad_postedby_list()
+{
+
+	global $wpdb;
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+
+		$query="SELECT DISTINCT ad_contact_name FROM ".$table_name3."";
+		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+
+			while ($rsrow=mysql_fetch_row($res))
+			{
+		 		echo "<option value=\"$rsrow[0]\">$rsrow[0]</option>";
+			}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: create a drop down list containing names of ad posters
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: create a drop down list containing price option
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function create_price_dropdownlist_min($searchpricemin)
+{
+
+		$pricerangevalues=array('0','25','50','100','500','1000','2500','5000','7500','10000','25000','50000','100000','250000','500000','1000000');
+
+		if( isset($searchpricemin) && !empty($searchpricemin) )
+		{
+			$theawpcplowvalue=$searchpricemin;
+		}
+		else
+		{
+			$theawpcplowvalue='';
+		}
+			foreach ($pricerangevalues as $pricerangevalue)
+			{
+				echo "<option value=\"$pricerangevalue\"";
+
+				if($pricerangevalue == $theawpcphighvalue)
+				{
+					echo "selected ";
+				}
+					echo ">$pricerangevalue</option>";
+			}
+}
+
+function create_price_dropdownlist_max($searchpricemax)
+{
+
+		$pricerangevalues=array('0','25','50','100','500','1000','2500','5000','7500','10000','25000','50000','100000','250000','500000','1000000');
+
+		if( isset($searchpricemax) && !empty($searchpricemax) )
+		{
+			$theawpcphighvalue=$searchpricemax;
+		}
+		else
+		{
+			$theawpcphighvalue='';
+		}
+
+			foreach ($pricerangevalues as $pricerangevalue)
+			{
+
+				echo "<option value=\"$pricerangevalue\"";
+
+				if($pricerangevalue == $theawpcphighvalue)
+				{
+					echo "selected ";
+				}
+					echo ">$pricerangevalue</option>";
+		 	}
+}
+
+
+function awpcp_array_range($from, $to, $step){
+
+    $array = array();
+    for ($x=$from; $x <= $to; $x += $step){
+        $array[] = $x;
+    }
+
+    return $array;
+
+}
+
+
+function awpcp_get_max_ad_price()
+{
+
+		$query="SELECT MAX(ad_item_price) as endval FROM ".$table_name3."";
+		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+
+			while ($rsrow=mysql_fetch_row($res))
+			{
+
+
+				$maxadprice=$rsrow[0];
+
+			}
+
+			return $maxadprice;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: create a drop down list containing price option
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: create a drop down list containing cities options from saved cities in database
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function create_dropdown_from_current_cities()
+{
+
+	global $wpdb;
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+
+	$listofsavedcities=array();
+
+		$query="SELECT DISTINCT ad_city FROM ".$table_name3." WHERE ad_city <> ''  ORDER by ad_city ASC";
+		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+
+			while ($rsrow=mysql_fetch_row($res))
+			{
+				$listofsavedcities[]=$rsrow[0];
+
+				$savedcitieslist=array_unique($listofsavedcities);
+			}
+
+			foreach ($savedcitieslist as $savedcity)
+			{
+				echo "<option value=\"$savedcity\">$savedcity</option>";
+		 	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: create a drop down list containing cities options from saved cities in database
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: create a drop down list containing state options from saved states in database
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function create_dropdown_from_current_states()
+{
+
+	global $wpdb;
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+	$listofsavedstates=array();
+
+		$query="SELECT DISTINCT ad_state FROM ".$table_name3." WHERE ad_state <> ''  ORDER by ad_state ASC";
+		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+
+			while ($rsrow=mysql_fetch_row($res))
+			{
+				$listofsavedstates[]=$rsrow[0];
+				$savedstateslist=array_unique($listofsavedstates);
+			}
+
+					foreach ($savedstateslist as $savedstate)
+					{
+		 				echo "<option value=\"$savedstate\">$savedstate</option>";
+		 			}
+
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: create a drop down list containing states options from saved states in database
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: create a drop down list containing county/village options from saved states in database
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function create_dropdown_from_current_counties()
+{
+
+	global $wpdb;
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+	$listofsavedcounties=array();
+
+		$query="SELECT DISTINCT ad_county_village FROM ".$table_name3." WHERE ad_county_village <> ''  ORDER by ad_county_village ASC";
+		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+
+			while ($rsrow=mysql_fetch_row($res))
+			{
+				$listofsavedcounties[]=$rsrow[0];
+				$savedcountieslist=array_unique($listofsavedcounties);
+
+			}
+					foreach ($savedcountieslist as $savedcounty)
+					{
+		 				echo "<option value=\"$savedcounty\">$savedcounty</option>";
+		 			}
+
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: create a drop down list containing county/village options from saved states in database
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: create a drop down list containing country options from saved countries in database
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function create_dropdown_from_current_countries()
+{
+
+	global $wpdb;
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+	$listofsavedcountries=array();
+
+		$query="SELECT DISTINCT ad_country FROM ".$table_name3." WHERE ad_country <> '' ORDER by ad_country ASC";
+		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+
+			while ($rsrow=mysql_fetch_row($res))
+			{
+				$listofsavedcountries[]=$rsrow[0];
+				$savedcountrieslist=array_unique($listofsavedcountries);
+
+			}
+					foreach ($savedcountrieslist as $savedcountry)
+					{
+		 				echo "<option value=\"$savedcountry\">$savedcountry</option>";
+		 			}
+
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: create a drop down list containing country options from saved states in database
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: Check if ads table contains city data
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function adstablehascities()
+{
+
+	$myreturn=false;
+
+	global $wpdb;
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+		$query="SELECT ad_city FROM ".$table_name3." WHERE ad_city <> ''";
+		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+
+		if (mysql_num_rows($res))
+  		{
+  			$myreturn=true;
+  		}
+
+  		return $myreturn;
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: Check if ads table contains city data
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: Check if ads table contains state data
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function adstablehasstates()
+{
+
+	$myreturn=false;
+
+	global $wpdb;
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+		$query="SELECT ad_state FROM ".$table_name3." WHERE ad_state <> ''";
+		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+
+		if (mysql_num_rows($res))
+  		{
+  			$myreturn=true;
+  		}
+
+  		return $myreturn;
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: Check if ads table contains state data
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: Check if ads table contains country data
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function adstablehascountries()
+{
+
+	$myreturn=false;
+
+	global $wpdb;
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+		$query="SELECT ad_country FROM ".$table_name3." WHERE ad_country <> ''";
+		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+
+		if (mysql_num_rows($res))
+  		{
+  			$myreturn=true;
+  		}
+
+  		return $myreturn;
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: Check if ads table contains country data
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: Check if ads table contains county data
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function adstablehascounties()
+{
+
+	$myreturn=false;
+
+	global $wpdb;
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+		$query="SELECT ad_county_village FROM ".$table_name3." WHERE ad_county_village <> ''";
+		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+
+		if (mysql_num_rows($res))
+  		{
+  			$myreturn=true;
+  		}
+
+  		return $myreturn;
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: Check if ads table contains county data
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: check if there are any values entered into the price field for any ad
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function price_field_has_values()
+{
+	$myreturn=false;
+
+	global $wpdb;
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+		$query="SELECT ad_item_price FROM ".$table_name3." WHERE ad_item_price > '0'";
+		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+
+		if (mysql_num_rows($res))
+  		{
+  			$myreturn=true;
+  		}
+
+  		return $myreturn;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: check if there are any values entered into the price field for any ad
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: get an image name associated with a specified ad ID
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function get_a_random_image($ad_id)
+{
+
+global $wpdb;
+$table_name5 = $wpdb->prefix . "awpcp_adphotos";
+$awpcp_image_name='';
+
+	$query="SELECT image_name FROM ".$table_name5." WHERE ad_id='$ad_id' AND disabled='0' LIMIT 1";
+	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+  	if (mysql_num_rows($res))
+  	{
+		list($awpcp_image_name)=mysql_fetch_row($res);
+	}
+
+	return $awpcp_image_name;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: get an image name associated with a specified ad ID
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: check a specific ad to see if it is disabled or enabled
