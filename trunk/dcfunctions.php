@@ -37,7 +37,7 @@ function smart_table($array,$table_cols=1,$opentable,$closetable) {
 						$myreturn.="<tr>\n";
 						$row++;
 					}
-					$myreturn.="\t<td width=\"".intval(100/$table_cols)."%\" valign=\"top\">$v</td>\n";
+					$myreturn.="\t<td valign=\"top\">$v</td>\n";
 					if ($i%$table_cols==0) {$myreturn.="</tr>\n";}
 					$i++;
 				}
