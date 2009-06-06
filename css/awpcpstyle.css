@@ -6,6 +6,24 @@ color:#000000;
 width:400px;
 }
 
+.inputboxmini {
+padding:5px;
+border:1px solid #888888;
+background-color:#ffffff;
+color:#000000;
+width:50px;
+}
+
+.inputboxprice {
+padding:5px;
+border:1px solid #888888;
+background-color:#ffffff;
+color:#000000;
+width:100px;
+}
+
+.textareainput { width:100%; border:1px inset #444444; }
+
 .messagedisplay {padding:5px;background-color: rgb(255, 251, 204);}
 .tenpad  {padding:100px;}
 
@@ -20,29 +38,11 @@ vertical-align: middle; padding: 5px; font-weight: normal; }
 table.listcatsc tr.special td { border-bottom: 1px solid #ff0000;  }
 
 
-table.awpcpuitableouter {width:100%;padding: 5px;border:none;}
-table.awpcpuitableouter td { vertical-align: top; padding: 10px; }
+.toplevelitem { font-size:13px;color:#333333;font-weight:bold; text-decoration:none; }
+.toplevelitem a { font-weight:bold;font-size:13px; color:#333333;text-decoration:none; }
+.toplevelitem a:hover { font-weight:bold;font-size:13px; text-decoration:none; }
+.toplevelitem a:visited { text-decoration:none; color:#333333; }
 
-table.awpcpuitableinner {width:100%;padding: 5px;border:none;}
-table.awpcpuitableinner td { vertical-align: middle; background: #eeeeee;padding:5px 0 5px 30px; }
-
-.toplevelitem {font-size:13px;color:#333333;font-weight:bold;}
-.toplevelitem a {font-weight:bold;font-size:13px;text-decoration:none;}
-.toplevelitem a:hover {font-weight:bold;font-size:13px;}
-
-
-.childitems {
-margin-left:50px;
-padding:2px;
-}
-
-.childitems a {font-size:13px;}
-
-.childitems ul {
-list-style:none;
-margin:0;}
-
-.childitems li {list-style:none;}
 
 .postaclassified {
 float:left;
@@ -63,7 +63,7 @@ color:#444444;}
 .classisearch {float:right;}
 
 .uiwelcome {
-margin:20px;}
+margin:20px 0 20px 0;}
 
 #classiwrapper {
 padding:5px;
@@ -75,10 +75,7 @@ padding-top:10px;
 }
 
 
-#classiwrapper #postsearchads {
-padding:5px;
-
-}
+#classiwrapper #postsearchads { padding:0px 0 5px 0; }
 
 #classiwrapper ul {
 margin:0;
@@ -88,6 +85,9 @@ list-style:none;
 
 #classiwrapper ul li {
 list-style:none;
+background-image:none;
+margin:0;
+padding:0;
 }
 
 #classiwrapper ul#postsearchads {
@@ -95,30 +95,32 @@ list-style:none;
 margin:0;
 }
 
+#postsearchads ul { margin:0; padding:0; }
+
 #classiwrapper #postsearchads li {
 list-style:none;
 float:left;
-margin-right:5px;
+margin:0 15px 10px 0;
 }
 
 #postsearchads .search {
 background: transparent url("../images/search_ico.png") no-repeat left center;
-padding-left:17px;
+padding-left:20px;
 }
 
 #postsearchads .edit {
 background: transparent url("../images/edit_ico.png") no-repeat left center;
-padding-left:17px;
+padding-left:20px;
 }
 
 #postsearchads .postad {
 background: transparent url("../images/post_ico.png") no-repeat left center;
-padding-left:17px;
+padding-left:20px;
 }
 
 #postsearchads .browse {
 background: transparent url("../images/browse_ico.png") no-repeat left center;
-padding-left:17px;
+padding-left:20px;
 }
 
 .editclassified {
@@ -252,3 +254,41 @@ padding:5px;
 font-weight:bold;
 color:#ff0000;
 }
+
+.displayadshead {  }
+.displayadscellimg {  border:1px solid #eeeeee;  }
+.displayadscellheadline {  border-bottom:1px solid #eeeeee; border-top:1px solid #eeeeee; }
+.displayadscelllocation {  border-bottom:1px solid #eeeeee; border-top:1px solid #eeeeee; }
+.displayadscellviews { border-right:1px solid #eeeeee; border-top:1px solid #eeeeee;  border-bottom:1px solid #eeeeee;}
+.displayadscellposted {  border-bottom:1px solid #eeeeee; border-top:1px solid #eeeeee; font-size:x-small; }
+
+.changecategoryselect { padding:5px; float:right; height:25px; }
+.changecategoryselect .button { height:20px; }
+
+
+.pager { float:right; }
+.pager a { padding:2px; border:1px solid #cccccc; }
+
+#awpcpcatlayout { width:100%; }
+#awpcpcatlayout .awpcpcatlayoutleft { width:75%;  }
+#awpcpcatlayout .awpcpcatlayoutright { width:25%;  float:right; border-left:1px solid #dddddd;}
+
+#awpcpcatlayout .awpcpcatlayoutright ul { list-style:none; margin-left:10px;  }
+#awpcpcatlayout .awpcpcatlayoutright ul li { float:left; list-style:none; margin:0;  }
+#awpcpcatlayout .awpcpcatlayoutright ul li a {  }
+#awpcpcatlayout .awpcpcatlayoutright ul li ul li { margin:3px 0 3px 0; padding-right:5px; }
+#awpcpcatlayout .awpcpcatlayoutright span { font-weight:bold; }
+
+#showcategoriesmainlist { width:100%; }
+#showcategoriesmainlist ul {  float:left; list-style:none; }
+#showcategoriesmainlist ul li { width:160px; float:left; list-style:none; padding:0; margin:3px 10px 5px 0px; }
+#showcategoriesmainlist ul li a { text-decoration:none; }
+
+#showcategoriesmainlist ul li ul { margin:0px 0px 20px 0px; list-style:none;  background:none; }
+
+#showcategoriesmainlist .showcategoriessublist {   }
+#showcategoriesmainlist .showcategoriessublist ul {  float:left; list-style:none;  }
+#showcategoriesmainlist .showcategoriessublist ul li { float:left; list-style:none; padding:0px 0px 0px 10px;  background:none; }
+
+
+
