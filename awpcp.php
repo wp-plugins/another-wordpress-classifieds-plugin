@@ -11,7 +11,7 @@ Author URI: http://www.awpcp.com
 */
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your wordpress blog. This plugin has been developed by a hobbyist programmer who does not pretend to have the skill of an PHP expert a MYSQL expert or an expert wordpress developer.
+// Another Wordpress Classifieds Plugin provides the ability for you to run a classified ads service on your wordpress blog. This plugin has been developed by a hobbyist programmer who does not pretend to have the skill of an PHP expert a MYSQL expert or an expert wordpress developer.
 // Use this plugin knowing it comes with no guarantee that the methods of coding used are up to PHP, MYSQL or wordpress plugin development expert standards.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
