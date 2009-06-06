@@ -107,23 +107,37 @@ class Foto_upload extends file_upload {
 			$w = number_format(($size[0]/$size[1])*$target_size,0,",","");
 		}
 
-		// Check for image magick and set the value true or false for image_magic_true_false
-		exec("convert -version", $out, $rcode); //Try to get ImageMagick "convert" program version number.;
-
-		if($rcode == 0)
+		// Check for image magick
+		if(function_exists(exec))
 		{
-			exec(sprintf("convert %s -resize %dx%d -quality %d %s", $file_name_src, $w, $h, $quality, $file_name_dest));
+			exec("convert -version", $out, $rcode); //Try to get ImageMagick "convert" program version number.;
+
+			if($rcode == 0)
+			{
+				exec(sprintf("convert %s -resize %dx%d -quality %d %s", $file_name_src, $w, $h, $quality, $file_name_dest));
+			}
+			else
+			{
+				$dest = imagecreatetruecolor($w, $h);
+				if(function_exists('imageantialias'))
+				{
+					imageantialias($dest, TRUE);
+				}
+				$src = imagecreatefromjpeg($file_name_src);
+				imagecopyresampled($dest, $src, 0, 0, 0, 0, $w, $h, $size[0], $size[1]);
+				imagejpeg($dest, $file_name_dest, $quality);
+			}
 		}
 		else
 		{
-			$dest = imagecreatetruecolor($w, $h);
-			if(function_exists('imageantialias'))
-			{
-				imageantialias($dest, TRUE);
-			}
-			$src = imagecreatefromjpeg($file_name_src);
-			imagecopyresampled($dest, $src, 0, 0, 0, 0, $w, $h, $size[0], $size[1]);
-			imagejpeg($dest, $file_name_dest, $quality);
+				$dest = imagecreatetruecolor($w, $h);
+				if(function_exists('imageantialias'))
+				{
+					imageantialias($dest, TRUE);
+				}
+				$src = imagecreatefromjpeg($file_name_src);
+				imagecopyresampled($dest, $src, 0, 0, 0, 0, $w, $h, $size[0], $size[1]);
+				imagejpeg($dest, $file_name_dest, $quality);
 		}
 	}
 
