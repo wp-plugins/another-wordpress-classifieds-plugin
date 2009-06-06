@@ -3781,7 +3781,6 @@ if(!is_admin()){
 				if($adpaymethod == 'paypal'){ $ischeckedP="checked"; } else { $ischeckedP=''; }
 				if($adpaymethod == '2checkout'){ $ischecked2co="checked"; }else { $ischecked2co=''; }
 
-
 					$paymethod="<div id=\"showhidepaybutton\" style=\"display:none;\"><div class=\"headeritem\">Payment gateway</div><p>Choose your payment gateway</p>";
 					if(get_awpcp_option(activatepaypal) == '1')
 					{
