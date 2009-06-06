@@ -53,7 +53,7 @@ For more information and support please visit http://awpcp.com
 
 == Credits ==
 
-Copyright 2009 awpcp.com
+Copyright 2009 A. Lewis awpcp.com
 
 AWPCP Classifieds icons courtesy of http://www.famfamfam.com/lab/icons/silk/
 dcfunctions.php courtesy of Dan Caragea http://www.datemill.com
@@ -78,6 +78,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 == Installation ==
 
+Pre-installation note: If you have previously tried other classified plugins and you plan to give the classifieds page created by Another Wordpress Classifieds Plugin the same name as previously used with other classifieds plugins you've installed, please make sure your database has been cleared of any entries in the wp_posts table where the post_name value and the post_title value are the same as the name you plan to give your classifieds page.
+For example, if your classifieds page will be named "Classifieds", you might have an wp_posts database entry post_title value of "Classifieds" and post_name value of "classifieds" still left over from previous installations of other classifieds plugins. 
+You need to check your database to make sure data from your previous classifieds plugins does not still exist. Specifically, you need to delete all entries from your wp_posts table where the post_title and post_name values are the same as what you plan to name your classifieds page.
+
 1. 	Upload the folder another-wordpress-classifieds-plugin with its contents to wp-content/plugins/
 
 2.   	Activate the plugin
@@ -88,10 +92,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	It is best that the page created for your classifieds only have [[AWPCPCLASSIFIEDSUI]] as the content.
 
 4. 	After you have setup your options you should create some categories and sub categories for your classifieds
+
 5. 	After you have created your categories you should setup your payment fees if you are going to be running in pay mode.
 
 
 Your classifieds should now be ready and working. If you are having problems please visit http://www.awpcp.com for help
+
+Post-installation note: If you plan to use the search engine friendly urls feature you will need to make sure your can use an htaccess file. You will also need to be using a pretty permalink structure. Currently if your custom permalink structure begins with index.php search engine friendly urls will not work.
+Also, your htaccess file will need to be writable and any time you modify your General Options Settings in Another Wordpress Classifieds Plugin by switching between using and not using search engine friendly URLs, you will need to go to your wordpress permalinks settings page and update your permalink structure so the htaccess file will get updated.
 
 == Screenshots ==
 
