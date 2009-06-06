@@ -3531,16 +3531,16 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 
 					if(isset($permastruc) && !empty($permastruc))
 					{
-						$myreturn.="<a href=\"".$quers."browsecat/$rsrow[0]/$modcatname1\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1<br/>";
+						$myreturn.="<p style=\"background:#eeeeee;padding:5px;\"><a href=\"".$quers."browsecat/$rsrow[0]/$modcatname1\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</p>";
 					}
 					else
 					{
-						$myreturn.="<a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1<br/>";
+						$myreturn.="<p style=\"background:#eeeeee;padding:5px;\"><a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</p>";
 					}
 				}
 				else
 				{
-					$myreturn.="<a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1<br/>";
+					$myreturn.="<p style=\"background:#eeeeee;padding:5px;\"><a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</p>";
 				}
 
 				// Start configuration of sub categories
@@ -3783,11 +3783,15 @@ if(!is_admin()){
 
 
 					$paymethod="<div id=\"showhidepaybutton\" style=\"display:none;\"><div class=\"headeritem\">Payment gateway</div><p>Choose your payment gateway</p>";
-					if(get_awpcp_option(activatepaypal) == '1'){
-					$paymethod.="<input type=\"radio\" name=\"adpaymethod\" value=\"paypal\" $ischeckedP>PayPal<br/>";}
-					if(get_awpcp_option(activate2checkout) == '1'){
-					$paymethod.="<input type=\"radio\" name=\"adpaymethod\" value=\"2checkout\"  $ischecked2co>2Checkout</br/>";
-					$paymethod.="</div><div style=\"clear:both;\"></div>";}
+					if(get_awpcp_option(activatepaypal) == '1')
+					{
+						$paymethod.="<input type=\"radio\" name=\"adpaymethod\" value=\"paypal\" $ischeckedP>PayPal<br/>";
+					}
+					if(get_awpcp_option(activate2checkout) == '1')
+					{
+						$paymethod.="<input type=\"radio\" name=\"adpaymethod\" value=\"2checkout\"  $ischecked2co>2Checkout</br/>";
+					}
+					$paymethod.="</div><div style=\"clear:both;\"></div>";
 
 				}
 
