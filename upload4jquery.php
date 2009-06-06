@@ -22,15 +22,15 @@ $wpcontentdir=WP_CONTENT_DIR;
 
 if(field_exists($field='uploadfoldername'))
 {
-	$uploadfoldername=get_awpcp_option('uploadfoldername');
+	$theuploadfoldername=get_awpcp_option('uploadfoldername');
 }
 else
 {
-	$uploadfoldername="uploads";
+	$theuploadfoldername="uploads";
 }
 
 
-$uploaddir=$wpcontentdir.'/' .$uploadfoldername .'/';
+$uploaddir=$wpcontentdir.'/' .$theuploadfoldername .'/';
 
 if(isset($_POST['THEPLUGINPATH']) && !empty($_POST['THEPLUGINPATH'])){
 $thepluginpath=$_POST['THEPLUGINPATH'];}else { $thepluginpath='';}
