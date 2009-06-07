@@ -3809,62 +3809,62 @@ echo "<div style=\"clear:both\"></div>";
 
 						// Setup javascript checkpoints
 
-				if((get_awpcp_option(displayphonefield) == '1')
-				&&(get_awpcp_option(displayphonefieldreqop) == '1')){
+				if((get_awpcp_option('displayphonefield') == '1')
+				&&(get_awpcp_option('displayphonefieldreqop') == '1')){
 				$phonecheck="if(the.adcontact_phone.value==='') {
 							alert('You did not fill out a phone number for the ad contact person. The information is required.');
 							the.adcontact_phone.focus();
 							return false;
 						}";}else {$phonecheck='';}
 
-				if((get_awpcp_option(displaycityfield) == '1')
-				&&(get_awpcp_option(displaycityfieldreqop) == '1')){
+				if((get_awpcp_option('displaycityfield') == '1')
+				&&(get_awpcp_option('displaycityfieldreqop') == '1')){
 				$citycheck="if(the.adcontact_city.value==='') {
 							alert('You did not fill out your city. The information is required.');
 							the.adcontact_city.focus();
 							return false;
 						}";}else {$citycheck='';}
 
-				if((get_awpcp_option(displaystatefield) == '1')
-				&&(get_awpcp_option(displaystatefieldreqop) == '1')){
+				if((get_awpcp_option('displaystatefield') == '1')
+				&&(get_awpcp_option('displaystatefieldreqop') == '1')){
 				$statecheck="if(the.adcontact_state.value==='') {
 							alert('You did not fill out your state. The information is required.');
 							the.adcontact_state.focus();
 							return false;
 						}";}else {$statecheck='';}
 
-				if((get_awpcp_option(displaycountyvillagefield) == '1')
-				&&(get_awpcp_option(displaycountyvillagefieldreqop) == '1')){
+				if((get_awpcp_option('displaycountyvillagefield') == '1')
+				&&(get_awpcp_option('displaycountyvillagefieldreqop') == '1')){
 				$countyvillagecheck="if(the.adcontact_countyvillage.value==='') {
 							alert('You did not fill out your county/village/other. The information is required.');
 							the.adcontact_countyvillage.focus();
 							return false;
 						}";}else {$countyvillagecheck='';}
 
-				if((get_awpcp_option(displaycountryfield) == '1')
-				&&(get_awpcp_option(displaycountryfieldreqop) == '1')){
+				if((get_awpcp_option('displaycountryfield') == '1')
+				&&(get_awpcp_option('displaycountryfieldreqop') == '1')){
 				$countrycheck="if(the.adcontact_country.value==='') {
 							alert('You did not fill out your country. The information is required.');
 							the.adcontact_country.focus();
 							return false;
 						}";}else {$countrycheck='';}
 
-				if((get_awpcp_option(displaypricefield) == '1')
-				&&(get_awpcp_option(displaypricefieldreqop) == '1')){
+				if((get_awpcp_option('displaypricefield') == '1')
+				&&(get_awpcp_option('displaypricefieldreqop') == '1')){
 				$itempricecheck="if(the.ad_item_price.value==='') {
 							alert('You did not enter a value for the item price.');
 							the.ad_item_price.focus();
 							return false;
 						}";}else {$itempricecheck='';}
 
-				if(get_awpcp_option(freepay) == '1') {
+				if( (get_awpcp_option('freepay') == '1') && ($action == 'placead') ) {
 				$paymethodcheck="if(!checked(the.adpaymethod)) {
 							alert('You did not select your payment method. The information is required.');
 							the.adpaymethod.focus();
 							return false;
 						}";}else {$paymethodcheck='';}
 
-				if(get_awpcp_option(freepay) == '1') {
+				if( (get_awpcp_option('freepay') == '1') && ($action == 'placead') ) {
 				$adtermcheck="if(the.adterm_id.value==='') {
 							alert('You did not select your ad term choice. The information is required.');
 							the.adterm_id.focus();
@@ -5705,15 +5705,28 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 			}
 		}
 
-		// If running in pay mode make sure a payment method has been checked
-		if(get_awpcp_option(freepay) == '1')
+		if( $adaction == 'placead' )
 		{
-			if(get_adfee_amount($adterm_id) > 0)
+			// If running in pay mode make sure a payment method has been checked
+			if(get_awpcp_option(freepay) == '1')
 			{
-				if(!isset($adpaymethod) || empty($adpaymethod))
+				if(get_adfee_amount($adterm_id) > 0)
 				{
-					$error=true;
-					$adpaymethodmsg="<li>You did not select your payment method. The information is required.</li>";
+					if(!isset($adpaymethod) || empty($adpaymethod))
+					{
+						$error=true;
+						$adpaymethodmsg="<li>You did not select your payment method. The information is required.</li>";
+					}
+				}
+			}
+
+			// If running in pay mode make sure an ad term has been selected
+			if(get_awpcp_option(freepay) == '1') {
+				if(!($adaction == 'delete') || ($adaction == 'editad')) {
+					if(!isset($adterm_id) || empty ($adterm_id)) {
+						$error=true;
+						$adtermidmsg="<li>You did not select an ad term. The information is required.</li>";
+					}
 				}
 			}
 		}
@@ -5737,16 +5750,6 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
    			{
 				$error=true;
 				$aditempricemsg2="<li>You have entered an invalid item price. Make sure your price contains numbers only. Please do not include currency symbols.</li>";
-			}
-		}
-
-		// If running in pay mode make sure an ad term has been selected
-		if(get_awpcp_option(freepay) == '1') {
-			if(!($adaction == 'delete') || ($adaction == 'editad')) {
-				if(!isset($adterm_id) || empty ($adterm_id)) {
-					$error=true;
-					$adtermidmsg="<li>You did not select an ad term. The information is required.</li>";
-				}
 			}
 		}
 
