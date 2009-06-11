@@ -236,7 +236,7 @@ float:right;
 
 .itemprice {
 float:right;
-margin:0 50px 0px 0px;
+margin:0 150px 0px 0px;
 padding:5px;
 }
 
@@ -255,15 +255,15 @@ font-weight:bold;
 color:#ff0000;
 }
 
-.displayadshead {  }
-.displayadscellimg {  border:1px solid #eeeeee;  }
-.displayadscellheadline {  border-bottom:1px solid #eeeeee; border-top:1px solid #eeeeee; }
-.displayadscelllocation {  border-bottom:1px solid #eeeeee; border-top:1px solid #eeeeee; }
-.displayadscellviews { border-right:1px solid #eeeeee; border-top:1px solid #eeeeee;  border-bottom:1px solid #eeeeee;}
-.displayadscellposted {  border-bottom:1px solid #eeeeee; border-top:1px solid #eeeeee; font-size:x-small; }
+.displayadshead { padding:10px; }
+.displayadscellimg {  border:1px solid #eeeeee; padding:5px;  }
+.displayadscellheadline { padding:5px; border-bottom:1px solid #eeeeee; border-top:1px solid #eeeeee; }
+.displayadscelllocation { padding:5px;  border-bottom:1px solid #eeeeee; border-top:1px solid #eeeeee; }
+.displayadscellviews { padding:5px; border-right:1px solid #eeeeee; border-top:1px solid #eeeeee;  border-bottom:1px solid #eeeeee;}
+.displayadscellposted { padding:5px;  border-bottom:1px solid #eeeeee; border-top:1px solid #eeeeee; font-size:x-small; }
 
-.changecategoryselect { padding:5px; float:right; height:25px; }
-.changecategoryselect .button { height:20px; }
+.changecategoryselect { padding:5px; float:right; height:25px; margin-bottom:10px; }
+.changecategoryselect .button { }
 
 
 .pager { float:right; }
