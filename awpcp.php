@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.5
+Version: 1.0.5.1
 Author: A Lewis
 Author URI: http://www.awpcp.com
 */
@@ -85,7 +85,7 @@ if( file_exists("$awpcp_plugin_path/awpcp_remove_powered_by_module.php") )
 }
 
 
-$awpcp_db_version = "1.0.5";
+$awpcp_db_version = "1.0.5.1";
 
 if(field_exists($field='uploadfoldername'))
 {
@@ -139,7 +139,6 @@ function awpcp_insert_thickbox() {
 
     ';
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -196,6 +195,8 @@ $table_name6 = $wpdb->prefix . "awpcp_pagename";
 				{
 
 					$filecontent=file_get_contents(ABSPATH . '.htaccess');
+					$awpcppage=get_currentpagename();
+					$pprefx = sanitize_title($awpcppage, $post_ID='');
 
 						if(!(preg_match("/\b\/\?pagename=$pprefx&a=\b/i","$filecontent")))
 						{
@@ -360,7 +361,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	  `ad_state` varchar(255) NOT NULL DEFAULT '',
 	  `ad_country` varchar(255) NOT NULL DEFAULT '',
 	  `ad_county_village` varchar(255) NOT NULL DEFAULT '',
-	  `ad_item_price` int(10) NOT NULL,
+	  `ad_item_price` int(25) NOT NULL,
 	  `ad_views` int(10) NOT NULL,
 	  `ad_postdate` date NOT NULL DEFAULT '0000-00-00',
 	  `ad_last_updated` date NOT NULL,
@@ -483,6 +484,16 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
     if( $installed_ver != $awpcp_db_version ) {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// 1.0.5.1 updates
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// Increase the length value for the ad_item_price field
+
+	$wpdb->query("ALTER TABLE " . $table_name3 . " CHANGE `ad_item_price` `ad_item_price` INT( 25 ) NOT NULL");
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //1.0.5 updates
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -592,8 +603,15 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 			}
 
 	// Insert new field ad_item_price into awpcp_ads table
+	$ad_itemprice_column="ad_item_price";
 
-	$wpdb->query("ALTER TABLE " . $table_name3 . "  ADD `ad_item_price` INT( 10 ) NOT NULL AFTER `ad_country`");
+	$ad_itemprice_field=mysql_query("SELECT $ad_itemprice_column FROM $table_name3;");
+
+		if (mysql_errno())
+		{
+
+			$wpdb->query("ALTER TABLE " . $table_name3 . "  ADD `ad_item_price` INT( 10 ) NOT NULL AFTER `ad_country`");
+		}
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 1.0.4.7 updates
@@ -1756,6 +1774,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 		$ad_county_village=addslashes_mq($_REQUEST['adcontact_countyvillage']);
 		$ad_county_village=strip_html_tags($ad_county_village);
 		$ad_item_price=addslashes_mq($_REQUEST['ad_item_price']);
+		$ad_item_price=str_replace(",", '', $ad_item_price);
 		$addetails=addslashes_mq($_REQUEST['addetails']);
 
 
@@ -3123,6 +3142,7 @@ function awpcpui_process($awpcppagename) {
 			$ad_county_village=addslashes_mq($_REQUEST['adcontact_countyvillage']);
 			$ad_county_village=strip_html_tags($ad_county_village);
 			$ad_item_price=addslashes_mq($_REQUEST['ad_item_price']);
+			$ad_item_price=str_replace(",", '', $ad_item_price);
 			$addetails=addslashes_mq($_REQUEST['addetails']);
 			if(get_awpcp_option('allowhtmlinadtext') == 0){
 			$addetails=strip_html_tags($addetails);
@@ -3353,11 +3373,58 @@ function awpcpui_process($awpcppagename) {
 		}
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//	End function
+//	End function display the home screen
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//	END FUNCTION: show the categories
+//	START FUNCTION: configure the menu place ad edit exisiting ad browse ads search ads
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function awpcp_menu_items()
+{
+
+			$awpcppage=get_currentpagename();
+			$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+			$quers=setup_url_structure($awpcppagename);
+
+				echo "
+
+					<ul id=\"postsearchads\">";
+
+					$isadmin=checkifisadmin();
+
+					if(!(get_awpcp_option('onlyadmincanplaceads'))){
+
+						echo "
+								<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+								<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+							";
+					}
+
+					elseif(get_awpcp_option('onlyadmincanplaceads') && ($isadmin == '1')){
+						echo "
+								<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
+								<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
+							";
+					}
+
+					echo "
+							<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
+							<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+							</ul>
+
+
+						<div style=\"clear:both;\"></div>";
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//	END FUNCTION: configure the menu place ad edit exisiting ad browse ads search ads
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//	START FUNCTION: show the classifieds page body
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function awpcp_display_the_classifieds_page_body($awpcppagename)
 {
@@ -3377,33 +3444,8 @@ function awpcp_display_the_classifieds_page_body($awpcppagename)
 
 				//Display the categories
 
-				echo "<ul id=\"postsearchads\">";
-
-				$isadmin=checkifisadmin();
-
-				if(!(get_awpcp_option('onlyadmincanplaceads')))
-				{
-					echo "
-							<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
-							<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
-						";
-				}
-
-				elseif(get_awpcp_option('onlyadmincanplaceads') && ($isadmin == '1'))
-				{
-					echo "
-							<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
-							<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
-						";
-				}
-
-				echo "
-						<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-						<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
-						</ul>
-
-
-						<div style=\"clear:both;\"></div>";
+				// Place the menu items place ad edit exisiting ad browse ads search ads
+				awpcp_menu_items();
 
 						if($hasregionsmodule ==  1)
 						{
@@ -5800,9 +5842,35 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 				printmessage($message);
 				}
 
-				else {
+				else
+				{
 
-					editimages($adterm_id,$adid,$adkey,$editemail);
+					if(get_awpcp_option('imagesallowdisallow'))
+					{
+						if(get_awpcp_option('freepay') == 1)
+						{
+							$totalimagesallowed=get_images_allowed($adterm_id);
+						}
+						else
+						{
+							$totalimagesallowed=get_awpcp_option('imagesallowedfree');
+						}
+					}
+
+					if( $totalimagesallowed > 0 )
+					{
+						editimages($adterm_id,$adid,$adkey,$editemail);
+					}
+					else
+					{
+						$messagetouser="Your changes have been saved";
+
+
+
+			echo "<h3>$messagetouser</h3>";
+			showad($adid);
+
+					}
 				}
 
 		}
@@ -5813,17 +5881,31 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 			$key=time();
 
-			if(get_awpcp_option('adapprove') == '1'){
-			$disabled='1';}else {$disabled='0';}
+			$feeamt=get_adfee_amount($adterm_id);
 
-			if($disabled == 0){
+			if(get_awpcp_option('adapprove') == '1')
+			{
+				$disabled='1';
+			}
+			else
+			{
+				$disabled='0';
+			}
 
-				if(get_awpcp_option('freepay') == '1') {
+			if($disabled == 0)
+			{
 
-					$feeamt=get_adfee_amount($adterm_id);
+				if(get_awpcp_option('freepay') == '1')
+				{
 
-					if($feeamt <= '0') {$disabled='0';}
-					else {$disabled='1';}
+					if($feeamt <= '0')
+					{
+						$disabled='0';
+					}
+					else
+					{
+						$disabled='1';
+					}
 				}
 			}
 
@@ -5832,9 +5914,14 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 				$adstartdate=mktime();
 				$adexpireafter=get_awpcp_option('addurationfreemode');
 
-					if($adexpireafter == 0){
+					if($adexpireafter == 0)
+					{
 						$adexpireafter=9125;
-					}else {$adexpireafter=$adexpireafter;}
+					}
+					else
+					{
+						$adexpireafter=$adexpireafter;
+					}
 
 
 
@@ -5843,11 +5930,19 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 
 
+				$query="INSERT INTO ".$table_name3." SET ad_category_id='$adcategory',ad_category_parent_id='$adcategory_parent_id',ad_title='$adtitle',ad_details='$addetails',ad_contact_phone='$adcontact_phone',ad_contact_name='$adcontact_name',ad_contact_email='$adcontact_email',ad_city='$adcontact_city',ad_state='$adcontact_state',ad_country='$adcontact_country',ad_county_village='$ad_county_village',ad_item_price='$itempriceincents',";
 
-				$query="INSERT INTO ".$table_name3." SET ad_category_id='$adcategory',ad_category_parent_id='$adcategory_parent_id',ad_title='$adtitle',
-				ad_details='$addetails',ad_contact_phone='$adcontact_phone',ad_contact_name='$adcontact_name',ad_contact_email='$adcontact_email',ad_city='$adcontact_city',ad_state='$adcontact_state',ad_country='$adcontact_country',ad_county_village='$ad_county_village',ad_item_price='$itempriceincents',
-				ad_startdate=CURDATE(),ad_enddate=CURDATE()+INTERVAL $adexpireafter DAY,disabled='$disabled',ad_key='$key',ad_transaction_id='',ad_postdate=now()";
+				if(get_awpcp_option('freepay') == '1')
+				{
+					if($feeamt <= 0)
+					{
+						$query.="adterm_id='$adterm_id',";
+					}
+				}
+
+				$query.="ad_startdate=CURDATE(),ad_enddate=CURDATE()+INTERVAL $adexpireafter DAY,disabled='$disabled',ad_key='$key',ad_transaction_id='',ad_postdate=now()";
 				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
 				$ad_id=mysql_insert_id();
 
 
@@ -6221,6 +6316,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 								<input type=\"hidden\" name=\"a\" value=\"adpostfinish\">
 								<input type=\"hidden\" name=\"ad_id\" value=\"$ad_id\" />
 								<input type=\"hidden\" name=\"adkey\" value=\"$key\" />
+								<input type=\"hidden\" name=\"adterm_id\" value=\"$adterm_id\" />
 								<input type=\"Submit\" value=\"Finish\"/>
 								</form>";
 					$uploadandpay.="$finishbutton";
@@ -6397,6 +6493,9 @@ function editimages($adtermid,$adid,$adkey,$editemail) {
 
 					while ($rsrow=mysql_fetch_row($res)) {
 						list($ikey,$image_name,$disabled)=$rsrow;
+
+
+
 						$ikey.="_";
 						$ikey.="$adid";
 						$ikey.="_";
@@ -7882,11 +7981,11 @@ global $wpdb,$imagesurl,$hasregionsmodule;
 	}
 
 
-echo "<div class=\"clear:both;\"></div><div class=\"pager\">$pager1</div>";
+echo "<div style=\"clear:both;overflow:hidden;\"></div><div class=\"pager\">$pager1</div>";
 echo "<div class=\"changecategoryselect\"><form method=\"post\"><select name=\"category_id\"><option value=\"-1\">Select Category</a>";
 $allcategories=get_categorynameidall($adcategory='');
 echo "$allcategories";
-echo "</select><input type=\"hidden\" name=\"a\" value=\"browsecat\"><input class=\"button\" type=\"submit\" value=\"Change Category\"></form></div>";
+echo "</select><input type=\"hidden\" name=\"a\" value=\"browsecat\"><input class=\"button\" type=\"submit\" value=\"Change Category\"></form></div><div style=\"clear:both;overflow:hidden;\"></div>";
 echo "$showcategories";
 echo "<div class=\"pager\">$pager2</div>";
 if($byl)
@@ -8068,6 +8167,7 @@ else {$showadsense='';}
 						if( !empty($ad_item_price) )
 						{
 							$itempricereconverted=($ad_item_price/100);
+							$itempricereconverted=number_format($itempricereconverted, 2, '.', ',');
 							if($itempricereconverted >=1 )
 							{
 								$awpcpthecurrencysymbol=awpcp_get_currency_code();
