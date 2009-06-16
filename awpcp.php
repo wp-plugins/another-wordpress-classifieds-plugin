@@ -1240,7 +1240,7 @@ if (mysql_num_rows($res)) {
 function awpcp_opsconfig_categories(){
 
 
-global $wpdb, $message, $imagesurl, $clearform;
+global $wpdb, $message, $imagesurl, $clearform,$hascaticonsmodule;
 
 
 
@@ -1619,7 +1619,7 @@ $aeaction='';
 		 $showcategories
 		</form>$pager2</div>";
 
-			 	if($hascaticonsmodule == 1 )
+			 	if($hascaticonsmodule != 1 )
 				{
 					echo "<div style=\"clear:both;\"><p style=\"padding-top:25px;\">There is a premium module available that allows you to add icons to your categories. If you are interested in adding icons to your categories <a href=\"http://www.awpcp.com/premium-modules/\">Click here to find out about purchasing the Category Icons Module</a></p></div>";
 				}
@@ -2483,7 +2483,7 @@ function maketheclassifiedpage($newuipagename)
 
 		$post_name = sanitize_title($newuipagename, $post_ID='');
 
-		$query="INSERT INTO {$table_prefix}posts SET post_author='1', post_date='$pdate', post_date_gmt='$pdate', post_content='[[AWPCPCLASSIFIEDSUI]]', post_title='$newuipagename', post_category='0', post_excerpt='', post_status='publish', comment_status='closed', ping_status='', post_password='', post_name='$post_name', to_ping='', pinged='', post_modified='$pdate', post_modified_gmt='$pdate', post_content_filtered='[[AWPCPCLASSIFIEDSUI]]', post_parent='', guid='', post_type='page', menu_order=''";
+		$query="INSERT INTO {$table_prefix}posts SET post_author='1', post_date='$pdate', post_date_gmt='$pdate', post_content='[[AWPCPCLASSIFIEDSUI]]', post_title='$newuipagename', post_excerpt='', post_status='publish', comment_status='closed', ping_status='', post_password='', post_name='$post_name', to_ping='', pinged='', post_modified='$pdate', post_modified_gmt='$pdate', post_content_filtered='[[AWPCPCLASSIFIEDSUI]]', post_parent='', guid='', post_type='page', menu_order=''";
 		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 		$awpcpwppostpageid=mysql_insert_id();
 		$guid = get_option('home') . "/?page_id=$awpcpwppostpageid";
