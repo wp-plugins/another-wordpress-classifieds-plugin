@@ -75,6 +75,8 @@ class Foto_upload extends file_upload {
 		$new_x = $this->y_size;
 		$new_y = $this->x_size;
 
+		if(function_exists(exec))
+		{
 			// Check for image magick and set the value true or false for image_magic_true_false
 			exec("convert -version", $out, $rcode); //Try to get ImageMagick "convert" program version number.;
 
@@ -93,7 +95,21 @@ class Foto_upload extends file_upload {
 				}
 				imagecopyresampled($new_img, $rot_img, 0, 0, 0, 0, $new_x, $new_y, $new_x, $new_y);
 				imagejpeg($new_img, $this->upload_dir.$this->file_copy, $comp);
+			}
 		}
+		else
+		{
+				$src_img = imagecreatefromjpeg($wr_file);
+				$rot_img = imagerotate($src_img, 90, 0);
+				$new_img = imagecreatetruecolor($new_x, $new_y);
+				if(function_exists('imageantialias'))
+				{
+					imageantialias($new_img, TRUE);
+				}
+				imagecopyresampled($new_img, $rot_img, 0, 0, 0, 0, $new_x, $new_y, $new_x, $new_y);
+				imagejpeg($new_img, $this->upload_dir.$this->file_copy, $comp);
+		}
+
 	}
 	function thumbs($file_name_src, $file_name_dest, $target_size, $quality = 80) {
 		//print_r(func_get_args());
