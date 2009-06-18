@@ -136,10 +136,22 @@ if($ctiu < $nia){
 }
 
 $numimgsallowed='';
-if(get_awpcp_option('imagesallowdisallow') == '1'){
-	if(get_awpcp_option('freepay') == '1'){
-	$numimgsallowed=get_numimgsallowed($adtermid);}
-	else {$numimgsallowed=get_awpcp_option('imagesallowedfree');}
+
+if(get_awpcp_option('imagesallowdisallow') == '1')
+{
+
+	if((get_awpcp_option('freepay') == 1) && isset($adtermid) && $adtermid != '0')
+	{
+		$numimgsallowed=get_numimgsallowed($adtermid);
+	}
+	elseif((!get_awpcp_option('freepay')) && (ad_term_id_set($adid)))
+	{
+		$numimgsallowed=get_numimgsallowed($adtermid);
+	}
+	else
+	{
+		$numimgsallowed=get_awpcp_option('imagesallowedfree');
+	}
 }
 
 $totalimagesuploaded=get_total_imagesuploaded($adid);
