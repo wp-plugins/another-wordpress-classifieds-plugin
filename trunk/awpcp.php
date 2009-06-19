@@ -4184,9 +4184,12 @@ echo "<div style=\"clear:both\"></div>";
 				$theformbody.="$checktheform $ermsg<form method=\"post\" name=\"adpostform\" id=\"adpostform\" $faction onsubmit=\"return(checkform())\">
 				<input type=\"hidden\" name=\"adid\" value=\"$adid\">
 				<input type=\"hidden\" name=\"adaction\" value=\"$action\">
-				<input type=\"hidden\" name=\"a\" value=\"dopost1\">
-				<input type=\"hidden\" name=\"adtermid\" value=\"$adtermid\">
-				<input type=\"hidden\" name=\"adkey\" value=\"$ad_key\">
+				<input type=\"hidden\" name=\"a\" value=\"dopost1\">";
+				if($action == 'editad')
+				{
+					$theformbody.="<input type=\"hidden\" name=\"adtermid\" value=\"$adtermid\">";
+				}
+				$theformbody.="<input type=\"hidden\" name=\"adkey\" value=\"$ad_key\">
 				<input type=\"hidden\" name=\"editemail\" value=\"$editemail\">
 				<input type=\"hidden\" name=\"awpcppagename\" value=\"$awpcppagename\">
 				<input type=\"hidden\" name=\"results\" value=\"$results\">
@@ -4389,7 +4392,7 @@ echo "<div style=\"clear:both\"></div>";
 
 								$awpcpthecurrencysymbol=awpcp_get_currency_code();
 
-								$adtermscode.="<input type=\"radio\" name=\"adterm_id\"";
+								$adtermscode.="<input type=\"radio\" name=\"adtermid\"";
 
 								if($amount > 0)
 								{
@@ -6772,11 +6775,8 @@ function deletead($adid,$adkey,$editemail) {
 									$quers=setup_url_structure($awpcppagename);
 
 
+							awpcp_menu_items();
 
-
-						awpcp_menu_items();
-
-						echo "<div style=\"clear:both;\"></div>";
 							echo "<div id=\"classiwrapper\"> Your ad details and any photos you have uploaded have been deleted from the system. Thank you for using $nameofsite </div>";
 						}
 			}
@@ -6797,21 +6797,25 @@ function deletead($adid,$adkey,$editemail) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-function do_paypal() {
+function do_paypal()
+{
 
 
 // read the post from PayPal system and add 'cmd'
 $req = 'cmd=_notify-validate';
 
-foreach ($_POST as $key => $value) {
+foreach ($_POST as $key => $value)
+{
 	$value = urlencode(stripslashes_mq($value));
 	$req .= "&$key=$value";
 }
 
-if(get_awpcp_option('paylivetestmode') == 0){
+if(get_awpcp_option('paylivetestmode') == 0)
+{
 	$paypallink="www.sandbox.paypal.com";
 }
-else{
+else
+{
 	$paypallink="www.paypal.com";
 }
 // post back to PayPal system to validate
@@ -6857,38 +6861,49 @@ $pbizid=get_awpcp_option('paypalemail');
 
 
 $payment_verified=false;
-if ($fp) {
+if ($fp)
+{
 	fputs ($fp, $header . $req."\r\n\r\n");
 	$reply='';
 	$headerdone=false;
-	while(!feof($fp)) {
+	while(!feof($fp))
+	{
 		$line=fgets($fp);
-		if (strcmp($line,"\r\n")==0) {
+		if (strcmp($line,"\r\n")==0)
+		{
 			// read the header
 			$headerdone=true;
-		} elseif ($headerdone) {
+		}
+		elseif ($headerdone)
+		{
 			// header has been read. now read the contents
 			$reply.=$line;
 		}
 	}
 	fclose($fp);
 	$reply=trim($reply);
-	if (strcasecmp($reply,'VERIFIED')==0) {
+	if (strcasecmp($reply,'VERIFIED')==0)
+	{
 		$payment_verified = true;
-	} elseif (strcasecmp($reply,'INVALID')==0) {
+	}
+	elseif (strcasecmp($reply,'INVALID')==0)
+	{
 		$payment_verified = false;
 	}
-} else {
+}
+else
+{
 	// HTTP ERROR
 }
 
 
-	if ($payment_verified) {
+	if ($payment_verified)
+	{
 
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Configure the data that will be needed for use depending on conditions met
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Configure the data that will be needed for use depending on conditions met
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Split the data returned in $custom
@@ -6933,7 +6948,8 @@ if ($fp) {
 			$query="SELECT amount FROM ".$table_name2."";
 			if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
-				while ($rsrow=mysql_fetch_row($res)) {
+				while ($rsrow=mysql_fetch_row($res))
+				{
 					$myamounts[]=number_format($rsrow[0],2);
 				}
 
@@ -6943,7 +6959,8 @@ if ($fp) {
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-		if(!(in_array(number_format($mcgross,2),$myamounts) || in_array(number_format($payment_gross,2),$myamounts))) {
+		if(!(in_array(number_format($mcgross,2),$myamounts) || in_array(number_format($payment_gross,2),$myamounts)))
+		{
 			$message="The amount you have paid does not match any of our listing fee amounts. Please contact us to clarify the problem.";
 			abort_payment($message,$ad_id,$txn_id,$gateway);
 		}
@@ -6962,9 +6979,10 @@ if ($fp) {
 			// If the emails do not match
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-			if (!(strcasecmp($receiver_email, $pbizid) == 0)) {
+			if (!(strcasecmp($receiver_email, $pbizid) == 0))
+			{
 				$message="There was an error process your transaction. If funds have been deducted from your account they have not been processed to our account. You will need to contact PayPal about the matter.";
-				abort_payment($message,$ad_id,$txn_id,$gateway);
+				abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
 			}
 
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -6980,9 +6998,10 @@ if ($fp) {
 			// If the transaction ID is a duplicate of an ID already in the system
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-				if (isdupetransid($txn_id)) {
+				if (isdupetransid($txn_id))
+				{
 					$message="It appears this transaction has already been processed. If you do not see your ad in the system please contact the site adminstrator for assistance.";
-					abort_payment($message,$ad_id,$txn_id,$gateway);
+					abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
 				}
 
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -6994,19 +7013,27 @@ if ($fp) {
 	// Begin updating based on payment status
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-				if (strcasecmp($payment_status, "Completed") == 0) {
+				if(strcasecmp($payment_status, "Completed") == 0)
+				{
 
 				///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				//Set the ad start and end date and save the transaction ID (this will be changed reset upon manual admin approval if ad approval is in effect)
 				///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-					if(get_awpcp_option('adapprove') == 1){
-					$disabled='1';}else {$disabled='0';}
+					if(get_awpcp_option('adapprove') == 1)
+					{
+						$disabled='1';
+					}
+					else
+					{
+						$disabled='0';
+					}
 
 					$query="UPDATE  ".$table_name3." SET adterm_id='".addslashes_mq($item_number)."',ad_startdate=CURDATE(),ad_enddate=CURDATE()+INTERVAL $days DAY,ad_transaction_id='$txn_id',payment_status='$payment_status',payment_gateway='Paypal',disabled='$disabled' WHERE ad_id='$ad_id' AND ad_key='$key'";
 					if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
-					if (isset($item_number) && !empty($item_number)) {
+					if (isset($item_number) && !empty($item_number))
+					{
 
 						$query="UPDATE ".$table_name2." SET buys=buys+1 WHERE adterm_id='".addslashes_mq($item_number)."'";
 						if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
@@ -7017,38 +7044,51 @@ if ($fp) {
 					ad_success_email($ad_id,$txn_id,$key,$message,$gateway);
 
 
-				} else if (strcasecmp($payment_status, "Refunded") == 0 || strcasecmp($payment_status, "Reversed") == 0 || strcasecmp ($payment_status, "Partially-Refunded") == 0) {
+
+				}
+				elseif(strcasecmp($payment_status, "Refunded") == 0 || strcasecmp($payment_status, "Reversed") == 0 || strcasecmp ($payment_status, "Partially-Refunded") == 0)
+				{
 
 					///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 					// Disable the ad since the payment has been refunded
 					///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-						if(get_awpcp_option(freepay) == 1){
+						if(get_awpcp_option(freepay) == 1)
+						{
 
 							$query="UPDATE  ".$table_name3." SET disabled='1',payment_status='$payment_status', WHERE ad_id='$ad_id' AND ad_key='$key'";
 							if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
-							if (isset($item_number) && !empty($item_number)) {
-
+							if (isset($item_number) && !empty($item_number))
+							{
 								$query="UPDATE ".$table_name2." SET buys=buys-1 WHERE adterm_id='".addslashes_mq($item_number)."'";
 								if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 							}
 						}
 
-				} else if (strcasecmp ($payment_status, "Pending") == 0 ) {
+				}
+				elseif(strcasecmp ($payment_status, "Pending") == 0 )
+				{
 
 					///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 					//Set the ad start and end date and save the transaction ID (this will be changed reset upon manual admin approval if ad approval is in effect)
 					///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-						if(get_awpcp_option('disablependingads') == 1){
-						$disabled='1';}else {$disabled='0';}
+						if(get_awpcp_option('disablependingads') == 1)
+						{
+							$disabled='1';
+						}
+						else
+						{
+							$disabled='0';
+						}
 
 						$query="UPDATE  ".$table_name3." SET adterm_id='".addslashes_mq($item_number)."',ad_startdate=CURDATE(),ad_enddate=CURDATE()+INTERVAL $days DAY,ad_transaction_id='$txn_id',payment_status='$payment_status',payment_gateway='Paypal',disabled='$disabled' WHERE ad_id='$ad_id' AND ad_key='$key'";
 						if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
-						if (isset($item_number) && !empty($item_number)) {
+						if (isset($item_number) && !empty($item_number))
+						{
 
 							$query="UPDATE ".$table_name2." SET buys=buys+1 WHERE adterm_id='".addslashes_mq($item_number)."'";
 							if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
@@ -7058,24 +7098,27 @@ if ($fp) {
 						$message="Payment status is: Pending";
 						ad_success_email($ad_id,$txn_id,$key,$message,$gateway);
 
-				} else {
+
+				}
+				else
+				{
 					$message="There appears to be a problem. Please contact customer service if you are viewing this page after having made a payment. If you have not tried to make a payment and you are viewing this page, it means you have arrived at this page in error.";
 					abort_payment($message,$ad_id,$txn_id,$gateway);
-				}
 
+				}
 
 	} //Close if payment verified
 
-	else if (!$payment_verified) {
-		$message="There has been a problem encountered. The payment was made to PayPal but the system has failed to complete the post processing of your transaction. Please contact the site administrator with this message.";
-		abort_payment($message,$ad_id,$txn_id,$gateway);
-	}
+	else
+	{
 
-	if(!isset($message) || empty($message)){
-		$message="There appears to be a problem. Please contact customer service if you are viewing this page after having made a payment. If you have not tried to make a payment and you are viewing this page, it means you have arrived at this page in error.";
-	}
+		if(!isset($message) || empty($message))
+		{
+			$message="There appears to be a problem. Please contact customer service if you are viewing this page after having made a payment. If you have not tried to make a payment and you are viewing this page, it means you have arrived at this page in error.";
+		}
 
-echo "<div id=\"classiwrapper\">$message</div>";
+		echo "<div id=\"classiwrapper\">$message</div>";
+	}
 
 }
 
@@ -7108,9 +7151,14 @@ $x_response_reason_text = $_POST['x_response_reason_text'];
 $item_number = $_POST['item_number'];
 $custom = $_POST['custom'];
 
-if($x_response_code == 1){
-$payment_verified=true;}
-else {$payment_verified=false;}
+if($x_response_code == 1)
+{
+	$payment_verified=true;
+}
+else
+{
+	$payment_verified=false;
+}
 
 
 $pbizid=get_awpcp_option('2checkout');
@@ -7249,23 +7297,27 @@ $pbizid=get_awpcp_option('2checkout');
 					ad_success_email($ad_id,$x_trans_id,$key,$message,$gateway);
 
 
-
-
-
 	} //Close if payment verified
 
-	else if (!$payment_verified) {
-		$message="There has been a problem encountered. The payment was made to PayPal but the system has failed to complete the post processing of your transaction. Please contact the site administrator with this message.";
+	elseif( !($payment_verified) )
+	{
+		$message="There has been a problem encountered. The payment was made but the system has failed to complete the post processing of your transaction. Please contact the site administrator with this message.";
 		abort_payment($message,$ad_id,$x_trans_id,$gateway);
+
 	}
 
-	if(!isset($message) || empty($message)){
-		$message="There appears to be a problem. Please contact customer service if you are viewing this page after having made a payment. If you have not tried to make a payment and you are viewing this page, it means you have arrived at this page in error.";
-	}
+	else
+	{
+		if(!isset($message) || empty($message))
+		{
+			$message="There appears to be a problem. Please contact customer service if you are viewing this page after having made a payment. If you have not tried to make a payment and you are viewing this page, it means you have arrived at this page in error.";
+		}
 
-echo "<div id=\"classiwrapper\">$message</div>";
+		echo "<div id=\"classiwrapper\">$message</div>";
+	}
 
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //	START FUNCTION: email adminstrator and ad poster if there was a problem encountered when paypal payment procedure was attempted
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -7300,6 +7352,12 @@ send_email($thisadminemail,$adposteremail,$subjectuser,$mailbodyuser,true);
 send_email($thisadminemail,$thisadminemail,$subjectadmin,$mailbodyadmin,true);
 }
 
+function abort_payment_no_email()
+{
+
+	die;
+
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //	End process
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -7325,7 +7383,7 @@ if (strcasecmp ($gateway, "paypal") == 0 ) {
 	$mailbodyuser.="$message<br/><br/>";
 	$mailbodyuser.="If the status indicates your payment is pending it means funds have not yet been deducted from your payment account.<br/><br/>";
 	$mailbodyuser.="If you have any questions about the transaction please contact $thisadminemail.<br/><br/>";
-	$mailbodyuser.="When contacting in reference to this transaction please provide the following transaction ID: $txn_id<br/><br/>";
+	$mailbodyuser.="When contacting in reference to this transaction please provide the following transaction ID: $transactionid<br/><br/>";
 }
 $mailbodyuser.="Please note that in order to edit your listing you will need the below access key as well as your ad ID ($ad_id) and your email ($adposteremail):<br/><br/>";
 $mailbodyuser.="Access Key: $key<br/><br/>";
@@ -7435,44 +7493,17 @@ else {
 }
 
 
-	if(!(strcasecmp ($gateway, "paypal") == 0 )) {
+
 	echo "<div id=\"classiwrapper\">";
 
 			$awpcppage=get_currentpagename();
 			$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 			$quers=setup_url_structure($awpcppagename);
 
-				echo "
-
-					<ul id=\"postsearchads\">";
-
-					$isadmin=checkifisadmin();
-
-					if(!(get_awpcp_option('onlyadmincanplaceads'))){
-
-						echo "
-								<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
-								<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
-							";
-					}
-
-					elseif(get_awpcp_option('onlyadmincanplaceads') && ($isadmin == 1)){
-						echo "
-								<li class=\"postad\"><a href=\"".$quers."placead\">Place An Ad</a></li>
-								<li class=\"edit\"><a href=\"".$quers."editad\">Edit Existing Ad</a></li>
-							";
-					}
-
-					echo "
-							<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-							<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
-							</ul>
-
-
-						<div style=\"clear:both;\"></div>";
+			awpcp_menu_items();
 
 	echo "$printmessagetouser</div>";
-	}
+
 
 
 }
