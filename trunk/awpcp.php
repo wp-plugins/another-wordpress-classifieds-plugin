@@ -2484,7 +2484,7 @@ function maketheclassifiedpage($newuipagename)
 
 		$post_name = sanitize_title($newuipagename, $post_ID='');
 
-		$query="INSERT INTO {$table_prefix}posts SET post_author='1', post_date='$pdate', post_date_gmt='$pdate', post_content='[[AWPCPCLASSIFIEDSUI]]', post_title='$newuipagename', post_excerpt='', post_status='publish', comment_status='closed', ping_status='', post_password='', post_name='$post_name', to_ping='', pinged='', post_modified='$pdate', post_modified_gmt='$pdate', post_content_filtered='[[AWPCPCLASSIFIEDSUI]]', post_parent='', guid='', post_type='page', menu_order=''";
+		$query="INSERT INTO {$table_prefix}posts SET post_author='1', post_date='$pdate', post_date_gmt='$pdate', post_content='[[AWPCPCLASSIFIEDSUI]]', post_title='$newuipagename', post_excerpt='', post_status='publish', comment_status='closed', post_name='$post_name', post_modified='$pdate', post_modified_gmt='$pdate', post_content_filtered='[[AWPCPCLASSIFIEDSUI]]', guid='', post_type='page', menu_order=''";
 		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 		$awpcpwppostpageid=mysql_insert_id();
 		$guid = get_option('home') . "/?page_id=$awpcpwppostpageid";
@@ -2561,7 +2561,6 @@ $table_name2 = $wpdb->prefix . "awpcp_adfees";
 	$rec_period=addslashes_mq($_REQUEST['rec_period']);
 	$rec_increment=addslashes_mq($_REQUEST['rec_increment']);
 	$imagesallowed=addslashes_mq($_REQUEST['imagesallowed']);
-	$ad_word_length=addslashes_mq($_REQUEST['ad_word_length']);
 	$query="UPDATE ".$table_name2." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed' WHERE adterm_id='$adterm_id'";
 	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 	$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">The item has been updated!</div>";
@@ -3411,7 +3410,7 @@ function awpcp_menu_items()
 
 					echo "
 							<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-							<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+							<li class=\"searchcads\"><a href=\"".$quers."searchads\">Search Ads</a></li>
 							</ul>
 
 
@@ -3443,7 +3442,11 @@ function awpcp_display_the_classifieds_page_body($awpcppagename)
 
 		echo "<div id=\"classiwrapper\">";
 
-				//Display the categories
+
+				// Welcome text
+
+				$uiwelcome=get_awpcp_option('uiwelcome');
+				echo "<div class=\"uiwelcome\">$uiwelcome</div>";
 
 				// Place the menu items place ad edit exisiting ad browse ads search ads
 				awpcp_menu_items();
@@ -3461,12 +3464,12 @@ function awpcp_display_the_classifieds_page_body($awpcppagename)
 							}
 						}
 
-						$uiwelcome=get_awpcp_option('uiwelcome');
 
-						echo "<div class=\"uiwelcome\">$uiwelcome</div>
+					echo "
 						<div class=\"classifiedcats\">
 					";
 
+					//Display the categories
 					awpcp_display_the_classifieds_category($awpcppagename);
 
 					echo "</div>";
@@ -3838,7 +3841,7 @@ if(!is_admin()){
 				}
 	echo "
 			<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-			<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+			<li class=\"searchcads\"><a href=\"".$quers."searchads\">Search Ads</a></li>
 			</ul>
 		";
 }
@@ -4503,7 +4506,7 @@ function load_ad_edit_form($action,$awpcppagename,$editemail='',$adaccesskey='',
 
 		echo "
 				<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-				<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+				<li class=\"searchcads\"><a href=\"".$quers."searchads\">Search Ads</a></li>
 				</ul><div style=\"clear:both\"></div>
 			";
 
@@ -4593,7 +4596,7 @@ if(!isset($awpcppagename) || empty($awpcppagename) )
 
 		echo "
 				<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-				<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+				<li class=\"searchcads\"><a href=\"".$quers."searchads\">Search Ads</a></li>
 				</ul><div style=\"clear:both\"></div>
 			";
 
@@ -4614,6 +4617,9 @@ if( isset($editemail) && !empty($editemail) )
 
 		$totaladsfound=count($adtitlekeys);
 
+		if($totaladsfound > 0 )
+		{
+
 			$resendakeymessage="Dear $adpostername<br><br>You have asked to have your ad key resent. [$totaladsfound] ads were found sharing your email address.<ol>";
 			$resendakeymessagealt="Dear $adpostername\n\nYou have asked to have your ad key resent. [$totaladsfound] ads were found sharing your email address.\n\n";
 
@@ -4630,17 +4636,24 @@ if( isset($editemail) && !empty($editemail) )
 			$subject="The $nameofsite ad access key you requested";
 			$from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
 
-		if(send_email($thisadminemail,$editemail,$subject,$resendakeymessage,true)){
-			echo "Your access key has been emailed to [ $editemail ].";
-		}
+			if(send_email($thisadminemail,$editemail,$subject,$resendakeymessage,true)){
+				echo "Your access key has been emailed to [ $editemail ].";
+			}
 
-		// If function send_mail did not work try function mail()
-		elseif(mail($editemail, $subject, $resendakeymessagealt, $from_header))
-		{
-			echo "Your access key has been emailed to [ $editemail ]. ";
+			// If function send_mail did not work try function mail()
+			elseif(mail($editemail, $subject, $resendakeymessagealt, $from_header))
+			{
+				echo "Your access key has been emailed to [ $editemail ]. ";
+			}
+			else {
+				echo "There was a problem encountered during the attempt to resend your access key. We apologize. Please try again and if the problem persists, please contact the system administrator.";
+			}
 		}
-		else {
-			echo "There was a problem encountered during the attempt to resend your access key. We apologize. Please try again and if the problem persists, please contact the system administrator.";
+		else
+		{
+
+			echo "There were no ads found registered with the email address provided";
+
 		}
 }
 else
@@ -4754,7 +4767,7 @@ echo "
 
 echo "
 		<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-		<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+		<li class=\"searchcads\"><a href=\"".$quers."searchads\">Search Ads</a></li>
 		</ul><div style=\"clear:both\"></div>
 	";
 
@@ -5040,7 +5053,7 @@ echo "
 				}
 echo "
 		<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-		<li class=\"search\"><b>Searching Ads</b></li>
+		<li class=\"searchcads\"><b>Searching Ads</b></li>
 		</ul><div style=\"clear:both\"></div>
 	";
 
@@ -6670,6 +6683,7 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 function deletepic($picid,$adid,$adtermid,$adkey,$editemail){
 
 $isadmin=checkifisadmin();
+$savedemail=get_adposteremail($adid);
 
 	if((strcasecmp($editemail, $savedemail) == 0) || ($isadmin == 1 )) {
 
@@ -7802,9 +7816,18 @@ global $wpdb,$imagesurl,$hasregionsmodule;
 
 
 	echo "
-			<div id=\"classiwrapper\">
+			<div id=\"classiwrapper\">";
+
+			if($hidepager == 1)
+			{
+
+				$uiwelcome=get_awpcp_option('uiwelcome');
+				echo "<div class=\"uiwelcome\">$uiwelcome</div>";
+			}
+
+			echo "
 			<ul id=\"postsearchads\">
-		";
+			";
 
 					$isadmin=checkifisadmin();
 
@@ -7825,7 +7848,7 @@ global $wpdb,$imagesurl,$hasregionsmodule;
 					}
 		echo "
 			<li class=\"browse\"><a href=\"".$quers."categoriesview\">Browse Categories</a></li>
-			<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+			<li class=\"searchcads\"><a href=\"".$quers."searchads\">Search Ads</a></li>
 			</ul>
 			<div style=\"clear:both;\"></div>
 		";
@@ -7839,7 +7862,7 @@ global $wpdb,$imagesurl,$hasregionsmodule;
 								$theactiveregionname=get_theawpcpregionname($theactiveregionid);
 
 
-							echo "<h2>You are currently browsing in <b>$theactiveregionname</b></h2><SUP><a href=\"?a=unsetregion\">Clear $theactiveregionname session</a></SUP>";
+								echo "<h2>You are currently browsing in <b>$theactiveregionname</b></h2><SUP><a href=\"?a=unsetregion\">Clear $theactiveregionname session</a></SUP>";
 							}
 						}
 
@@ -7940,6 +7963,7 @@ global $wpdb,$imagesurl,$hasregionsmodule;
 				$modcatname=add_dashes($modcatname);
 				$category_id=$rsrow[1];
 				$category_name=get_adcatname($category_id);
+				$addetailssummary=awpcpLimitText($rsrow[8],10,50,"");
 
 
 
@@ -8038,7 +8062,9 @@ global $wpdb,$imagesurl,$hasregionsmodule;
 						$awpcp_display_adviews="<td class=\"displayadscellviews\" width=\"5%\" style=\"text-align:center;\">$rsrow[11]</td>";
 					}
 
-					$items[]="<tr>$awpcp_image_display<td class=\"displayadscellheadline\" width=\"50%\">$ad_title</td>$awpcp_city_display<td class=\"displayadscellposted\" width=\"15%\" style=\"text-align:center;\">$rsrow[9]</td>$awpcp_display_adviews</tr>";
+
+
+					$items[]="<tr>$awpcp_image_display<td class=\"displayadscellheadline\" width=\"50%\">$ad_title<br>$addetailssummary...</td>$awpcp_city_display<td class=\"displayadscellposted\" width=\"15%\" style=\"text-align:center;\">$rsrow[9]</td>$awpcp_display_adviews</tr>";
 
 
 					$opentable="<table><tr>$awpcp_image_display_head<td class=\"displayadshead\"  width=\"50%\">HEADLINE</td><td class=\"displayadshead\" width=\"25%\" style=\"text-align:center;\">LOCATION</td><td class=\"displayadshead\" width=\"15%\" style=\"text-align:center;\">POSTED</td>$awpcp_display_adviews_head</tr>";
@@ -8124,7 +8150,7 @@ echo "<ul id=\"postsearchads\">";
 				}
 echo "
 		<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
-		<li class=\"search\"><a href=\"".$quers."searchads\">Search Ads</a></li>
+		<li class=\"searchcads\"><a href=\"".$quers."searchads\">Search Ads</a></li>
 		</ul>
 		<div style=\"clear:both;\"></div>
 	";
