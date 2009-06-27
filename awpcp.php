@@ -3867,7 +3867,7 @@ if(!is_admin()){
 				if($adpaymethod == 'paypal'){ $ischeckedP="checked"; } else { $ischeckedP=''; }
 				if($adpaymethod == '2checkout'){ $ischecked2co="checked"; }else { $ischecked2co=''; }
 
-					$paymethod="<div id=\"showhidepaybutton\" style=\"display:none;\"><div class=\"headeritem\">Payment gateway</div><p>Choose your payment gateway</p>";
+					$paymethod="<div id=\"showhidepaybutton\" style=\"display:none;\"><h2>Payment gateway</h2><p>Choose your payment gateway</p>";
 					if(get_awpcp_option(activatepaypal) == 1)
 					{
 						$paymethod.="<input type=\"radio\" name=\"adpaymethod\" value=\"paypal\" $ischeckedP>PayPal<br/>";
@@ -4198,7 +4198,7 @@ echo "<div style=\"clear:both\"></div>";
 				<input type=\"hidden\" name=\"results\" value=\"$results\">
 				<input type=\"hidden\" name=\"offset\" value=\"$offset\">
 				<br/>
-				<div class=\"headeritem\">Ad Details and Contact Information </div>
+				<h2>Ad Details and Contact Information </h2>
 				<p>Ad Title<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"adtitle\" value=\"$adtitle\"></p>
 				<p>Ad Category<br/><select name=\"adcategory\"><option value=\"\">Select your ad category</option>$allcategories</a></select></p>
 				<p>Name of person to contact<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_name\" value=\"$adcontact_name\" $readonlyacname></p>
@@ -4359,7 +4359,7 @@ echo "<div style=\"clear:both\"></div>";
 				if(adtermsset())
 				{
 
-					$adtermscode="<div class=\"headeritem\">Select Ad Term</div>";
+					$adtermscode="<h2>Select Ad Term</h2>";
 
 						//////////////////////////////////////////////////
 						// Get and configure pay options
@@ -5950,7 +5950,14 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 			$key=time();
 
-			$feeamt=get_adfee_amount($adterm_id);
+			if(isset($adterm_id) && !empty($adterm_id))
+			{
+				$feeamt=get_adfee_amount($adterm_id);
+			}
+			else
+			{
+				$feeamt=0;
+			}
 
 			if(get_awpcp_option('adapprove') == 1)
 			{
@@ -6001,13 +6008,11 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 				$query="INSERT INTO ".$table_name3." SET ad_category_id='$adcategory',ad_category_parent_id='$adcategory_parent_id',ad_title='$adtitle',ad_details='$addetails',ad_contact_phone='$adcontact_phone',ad_contact_name='$adcontact_name',ad_contact_email='$adcontact_email',ad_city='$adcontact_city',ad_state='$adcontact_state',ad_country='$adcontact_country',ad_county_village='$ad_county_village',ad_item_price='$itempriceincents',";
 
-				if(get_awpcp_option('freepay') == 1)
+				if( (get_awpcp_option('freepay') == 1) && ($feeamt <= 0) )
 				{
-					if($feeamt <= 0)
-					{
-						$query.="adterm_id='$adterm_id',";
-					}
+					$query.="adterm_id='0',";
 				}
+
 
 				$query.="ad_startdate=CURDATE(),ad_enddate=CURDATE()+INTERVAL $adexpireafter DAY,disabled='$disabled',ad_key='$key',ad_transaction_id='',ad_postdate=now()";
 				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
@@ -6058,7 +6063,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 						$txtpayfee=" | Pay Fee";
 					}
 
-					$uploadandpay="<div class=\"headeritem\">Step 2: Review Ad $txtuploadimages1 $txtpayfee</div>";
+					$uploadandpay="<h2>Step 2: Review Ad $txtuploadimages1 $txtpayfee</h2>";
 
 					////////////////////////////////////////////////////////////////////////////////////
 					// Step:2 Show a sample of how the ad is going to look
@@ -6158,7 +6163,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 							$showimageuploadform.="<p>Image approval is in effect so any new images you upload will not be visible to viewers until an admin has approved it.</p>";
 						}
 					$showimageuploadform.="
-					<div class=\"headeritem\">Image Upload</div>
+					<h2>Image Upload</h2>
 					<p id=\"ustatmsg\">
 
 					<form id=\"AWPCPForm1\" name=\"AWPCPForm1\" method=\"post\" ENCTYPE=\"Multipart/form-data\">
@@ -6209,7 +6214,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 					else {
 
-					$showpaybutton="<div class=\"headeritem\">Payment</div><p>Please click the  button below to submit payment for your ad listing.</p>";
+					$showpaybutton="<h2>Payment</h2><p>Please click the  button below to submit payment for your ad listing.</p>";
 
 						////////////////////////////////////////////////////////////////////////////
 						// Print the paypal button option if paypal is activated
@@ -6419,7 +6424,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 										}
 
 										$showimageuploadform.="
-										<div class=\"headeritem\">Image Upload</div>
+										<h2>Image Upload</h2>
 									<p id=\"ustatmsg\">
 
 										<form id=\"AWPCPForm1\" name=\"AWPCPForm1\" method=\"post\" ENCTYPE=\"Multipart/form-data\">
@@ -6509,7 +6514,7 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 		if(strcasecmp($editemail, $savedemail) == 0)
 		{
 
-			$imagecode="<div class=\"headeritem\">Manage your ad images</div>";
+			$imagecode="<h2>Manage your ad images</h2>";
 
 			if(!isset($adid) || empty($adid))
 			{
@@ -6616,7 +6621,7 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 
 					$showimageuploadform="
 
-								<div class=\"headeritem\">Image Upload</div>
+								<h2>Image Upload</h2>
 
 								<p id=\"ustatmsg\">
 
