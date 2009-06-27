@@ -2484,7 +2484,7 @@ function maketheclassifiedpage($newuipagename)
 
 		$post_name = sanitize_title($newuipagename, $post_ID='');
 
-		$query="INSERT INTO {$table_prefix}posts SET post_author='1', post_date='$pdate', post_date_gmt='$pdate', post_content='[[AWPCPCLASSIFIEDSUI]]', post_title='$newuipagename', post_excerpt='', post_status='publish', comment_status='closed', post_name='$post_name', post_modified='$pdate', post_modified_gmt='$pdate', post_content_filtered='[[AWPCPCLASSIFIEDSUI]]', guid='', post_type='page', menu_order=''";
+		$query="INSERT INTO {$table_prefix}posts SET post_author='1', post_date='$pdate', post_date_gmt='$pdate', post_content='[[AWPCPCLASSIFIEDSUI]]', post_title='$newuipagename', post_excerpt='', post_status='publish', comment_status='closed', post_name='$post_name', to_ping='', pinged='', post_modified='$pdate', post_modified_gmt='$pdate', post_content_filtered='[[AWPCPCLASSIFIEDSUI]]', post_parent='0', guid='', post_type='page', menu_order='0'";
 		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 		$awpcpwppostpageid=mysql_insert_id();
 		$guid = get_option('home') . "/?page_id=$awpcpwppostpageid";
@@ -2538,7 +2538,6 @@ $table_name2 = $wpdb->prefix . "awpcp_adfees";
 	$rec_period=addslashes_mq($_REQUEST['rec_period']);
 	$rec_increment=addslashes_mq($_REQUEST['rec_increment']);
 	$imagesallowed=addslashes_mq($_REQUEST['imagesallowed']);
-	$ad_word_length=addslashes_mq($_REQUEST['ad_word_length']);
 	$query="INSERT INTO ".$table_name2." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed'";
 	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 	$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">The item has been added!</div>";
@@ -2561,6 +2560,7 @@ $table_name2 = $wpdb->prefix . "awpcp_adfees";
 	$rec_period=addslashes_mq($_REQUEST['rec_period']);
 	$rec_increment=addslashes_mq($_REQUEST['rec_increment']);
 	$imagesallowed=addslashes_mq($_REQUEST['imagesallowed']);
+	$ad_word_length=addslashes_mq($_REQUEST['ad_word_length']);
 	$query="UPDATE ".$table_name2." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed' WHERE adterm_id='$adterm_id'";
 	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 	$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">The item has been updated!</div>";
