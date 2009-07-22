@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.5.2
+Version: 1.0.5.3
 Author: A Lewis
 Author URI: http://www.awpcp.com
 */
@@ -85,7 +85,7 @@ if( file_exists("$awpcp_plugin_path/awpcp_remove_powered_by_module.php") )
 }
 
 
-$awpcp_db_version = "1.0.5.2";
+$awpcp_db_version = "1.0.5.3";
 
 if(field_exists($field='uploadfoldername'))
 {
@@ -350,7 +350,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 
 	CREATE TABLE " . $table_name3 . " (
 	  `ad_id` int(10) NOT NULL AUTO_INCREMENT,
-	  `adterm_id` int(10) NOT NULL,
+	  `adterm_id` int(10) NOT NULL DEFAULT '0',
 	  `ad_category_id` int(10) NOT NULL,
 	  `ad_category_parent_id` int(10) NOT NULL,
 	  `ad_title` varchar(255) NOT NULL DEFAULT '',
@@ -438,6 +438,9 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('disablependingads', '1', 'If running in Pay mode, uncheck this if you want ads to be visible even if payment status is Pending instead of Completed.', 0),
 		('showadcount', '1', 'Uncheck this to disable showing how many ads a category contains. Check it if you want to display how many ads a category contains [User side only]', 0),
 		('displayadviews', '1', 'Uncheck this to disable showing how many times an ad has been viewed. Check it if you want to display how many times an ad has been viewed', 0),
+		('smtphost', 'mail.example.com', 'If emails are not going out you can fill in your SMTP host here to try using the SMTP alternative', 1),
+		('smtpusername', 'smtp_username', 'If emails are not going out you can fill in your SMTP username here to try using the SMTP alternative', 1),
+		('smtppassword', '', 'If emails are not going out you can fill in your SMTP password here to try using the SMTP alternative', 1),
 		('onlyadmincanplaceads', '0', 'Check this box if you want to prevent anyone but the adminstrator from being able to post ads', '0'),
 		('contactformcheckhuman', '1', 'Uncheck this box if you want to disable the math problem used to check if the person filling out the form to contact about an ad is human. ', '0'),
 		('contactformcheckhumanhighnumval', '100', 'The value of the high number to use when selecting random values for addition problem used in the contact form to check if the form is being submitted by a person ', '1'),
@@ -459,7 +462,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('displaycountyvillagefieldreqop', '0', 'If showing the county/village/other input field, check this if the user is required to enter a value for county/village/other.', 0),
 		('displaypricefield', '1', 'Uncheck this if you prefer to hide the item price input field. Check it to show the item price input field.', 0),
 		('displaypricefieldreqop', '0', 'If showing the item price input field, check this if the user is required to enter an item price.', 0),
-		('buildsearchdropdownlists', '0', 'The search form can attempt to build drop down country, state, city and county lists if data is available in the system. Check here to use drop down lists for the regions fields where data is available. Note that with the regions module installed the value for this option is overriden.', 0),
+		('buildsearchdropdownlists', '0', 'The search form can attempt to build drop down country, state, city and county lists if data is available in the system. Check here to use drop down lists for the regions fields where data is available. Note that with the regions module installed the value for this option is overridden.', 0),
 		('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side', 2),
 		('showlatestawpcpnews', '1', 'Uncheck this to remove the news feed that shows the latest news about Another Wordpress Classifieds Plugin. If you want to be made immediately aware of bug fixes and new features added to the plugin you should leave the value checked.', 0);";
 
@@ -483,6 +486,30 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 
 
     if( $installed_ver != $awpcp_db_version ) {
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// 1.0.5.3 updates
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    if(!field_exists($field='smtphost'))
+	{
+		$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+   	 	('smtphost', 'mail.example.com', 'If emails are not going out you can fill in your SMTP host here to try using the SMTP alternative', 1);");
+	}
+
+    if(!field_exists($field='smtpusername'))
+	{
+		$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+		('smtpusername', 'smtp_username', 'If emails are not going out you can fill in your SMTP username here to try using the SMTP alternative', 1);");
+	}
+
+    if(!field_exists($field='smtppassword'))
+	{
+		$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+		('smtppassword', '', 'If emails are not going out you can fill in your SMTP password here to try using the SMTP alternative', 1);");
+	}
+
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 1.0.5.1 updates
@@ -1107,6 +1134,15 @@ $options=array();
 while($rsrow=mysql_fetch_row($res)) {
 	list($config_option,$config_value,$config_diz,$option_type)=$rsrow;
 
+if($config_option == 'smtppassword')
+{
+	if(get_awpcp_option('smtppassword') )
+	{
+		$config_diz.="<br><b>**Your password is saved but not shown below. Leave the field blank unless you are changing your SMTP password</b>";
+		$config_value='';
+	}
+}
+
 
 	if ($option_type==0) {	// checkbox
 		$field="<input type=\"checkbox\" name=\"$config_option\" value=\"1\" ";
@@ -1622,7 +1658,7 @@ $aeaction='';
 
 			 	if($hascaticonsmodule != 1 )
 				{
-					echo "<div style=\"clear:both;\"><p style=\"padding-top:25px;\">There is a premium module available that allows you to add icons to your categories. If you are interested in adding icons to your categories <a href=\"http://www.awpcp.com/premium-modules/\">Click here to find out about purchasing the Category Icons Module</a></p></div>";
+					echo "<div class=\"fixfloat\"><p style=\"padding-top:25px;\">There is a premium module available that allows you to add icons to your categories. If you are interested in adding icons to your categories <a href=\"http://www.awpcp.com/premium-modules/\">Click here to find out about purchasing the Category Icons Module</a></p></div>";
 				}
 
 }
@@ -1991,7 +2027,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 				echo "$showadsense";
 			}
 
-			echo "</div><div style=\"clear:both;\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul style=\"list-style:none;float:left;\">";
+			echo "</div><div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul style=\"list-style:none;float:left;\">";
 
 			$theimage='';
 
@@ -2018,7 +2054,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 
 			}
 
-			echo "</ul></div><div style=\"clear:both;\"></div>";
+			echo "</ul></div><div class=\"fixfloat\"></div>";
 
 			if(get_awpcp_option('adsenseposition') == 3)
 			{
@@ -2391,6 +2427,16 @@ $error=false;
 
 			$myoptions[$config_option]=addslashes_mq($_POST[$config_option],true);
 			$newuipagename=$myoptions['userpagename'];
+
+			if( !empty($myoptions['smtppassword']) )
+			{
+				$myoptions['smtppassword']=md5($myoptions['smtppassword']);
+			}
+			else
+			{
+				$myoptions['smtppassword']=get_awpcp_option('smtppassword');
+			}
+
 
 		} else {
 			if ($option_type==0) {
@@ -3414,7 +3460,7 @@ function awpcp_menu_items()
 							</ul>
 
 
-						<div style=\"clear:both;\"></div>";
+						<div class=\"fixfloat\"></div>";
 
 }
 
@@ -3507,11 +3553,11 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 	$permastruc=get_option('permalink_structure');
 
 	$table_cols=1;
-	$whereappend='';
 
 
 
-	$query="SELECT category_id,category_name FROM ".$table_name1." WHERE category_parent_id='0' $whereappend ORDER BY category_name ASC";
+
+	$query="SELECT category_id,category_name FROM ".$table_name1." WHERE category_parent_id='0' AND category_name <> '' ORDER BY category_name ASC";
 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 	if (mysql_num_rows($res))
@@ -3573,9 +3619,13 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 
 				if( isset($category_icon) && !empty($category_icon) )
 				{
-					$caticonsurl="$imagesurl/caticons/$category_icon";
-					$myreturn.="<img style=\"vertical-align:middle;margin-right:5px;\" src=\"$caticonsurl\" alt=\"$rsrow[1]\" border=\"0\">";
+					$caticonsurl="<img class=\"categoryicon\" src=\"$imagesurl/caticons/$category_icon\" alt=\"$rsrow[1]\" border=\"0\">";
 				}
+				else
+				{
+					$caticonsurl='';
+				}
+
 
 				$modcatname1=cleanstring($rsrow[1]);
 				$modcatname1=add_dashes($modcatname1);
@@ -3585,16 +3635,16 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 
 					if(isset($permastruc) && !empty($permastruc))
 					{
-						$myreturn.="<p style=\"background:#eeeeee;padding:5px;\"><a href=\"".$quers."browsecat/$rsrow[0]/$modcatname1\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</p>";
+						$myreturn.="<p class=\"maincategoryclass\">$caticonsurl<a href=\"".$quers."browsecat/$rsrow[0]/$modcatname1\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</p>";
 					}
 					else
 					{
-						$myreturn.="<p style=\"background:#eeeeee;padding:5px;\"><a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</p>";
+						$myreturn.="<p class=\"maincategoryclass\">$caticonsurl<a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</p>";
 					}
 				}
 				else
 				{
-					$myreturn.="<p style=\"background:#eeeeee;padding:5px;\"><a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</p>";
+					$myreturn.="<p class=\"maincategoryclass\">$caticonsurl<a href=\"".$quers."browsecat&category_id=$rsrow[0]\" class=\"toplevelitem\">$rsrow[1]</a> $adsincat1</p>";
 				}
 
 				// Start configuration of sub categories
@@ -3604,7 +3654,7 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 
 				$mcid=$rsrow[0];
 
-				$query="SELECT category_id,category_name FROM ".$table_name1." WHERE category_parent_id='$mcid' ORDER BY category_name ASC";
+				$query="SELECT category_id,category_name FROM ".$table_name1." WHERE category_parent_id='$mcid' AND category_name <> '' ORDER BY category_name ASC";
 				if (!($res2=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 				if (mysql_num_rows($res2))
@@ -3627,11 +3677,16 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 						{
 							$sub_category_icon=get_category_icon($rsrow2[0]);
 						}
+
 						if( isset($sub_category_icon) && !empty($sub_category_icon) )
 						{
-							$subcaticonsurl="$imagesurl/caticons/$sub_category_icon";
-							$myreturn.="<img style=\"vertical-align:middle;margin-right:5px;\" src=\"$subcaticonsurl\" alt=\"$rsrow2[1]\" border=\"0\">";
+							$subcaticonsurl="<img class=\"categoryicon\" src=\"$imagesurl/caticons/$sub_category_icon\" alt=\"$rsrow2[1]\" border=\"0\">";
 						}
+						else
+						{
+							$subcaticonsurl='';
+						}
+
 
 						$myreturn.="<li>";
 
@@ -3642,16 +3697,16 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 						{
 							if(isset($permastruc) && !empty($permastruc))
 							{
-								$myreturn.="<a href=\"".$quers."browsecat/$rsrow2[0]/$modcatname2\">$rsrow2[1]</a>$adsincat2";
+								$myreturn.="$subcaticonsurl<a href=\"".$quers."browsecat/$rsrow2[0]/$modcatname2\">$rsrow2[1]</a> $adsincat2";
 							}
 							else
 							{
-								$myreturn.="<a href=\"".$quers."browsecat&category_id=$rsrow2[0]\">$rsrow2[1]</a>$adsincat2";
+								$myreturn.="$subcaticonsurl<a href=\"".$quers."browsecat&category_id=$rsrow2[0]\">$rsrow2[1]</a> $adsincat2";
 							}
 						}
 						else
 						{
-							$myreturn.="<a href=\"".$quers."browsecat&category_id=$rsrow2[0]\">$rsrow2[1]</a>$adsincat2";
+							$myreturn.="$subcaticonsurl<a href=\"".$quers."browsecat&category_id=$rsrow2[0]\">$rsrow2[1]</a> $adsincat2";
 						}
 
 						$myreturn.="</li>";
@@ -3679,7 +3734,7 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 		$myreturn.='</div>';// Close the container division
 
 		echo "$myreturn";
-		echo "<div style=\"clear:both;\"></div>";
+		echo "<div class=\"fixfloat\"></div>";
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //	END FUNCTION: show the categories
@@ -3876,7 +3931,7 @@ if(!is_admin()){
 					{
 						$paymethod.="<input type=\"radio\" name=\"adpaymethod\" value=\"2checkout\"  $ischecked2co>2Checkout</br/>";
 					}
-					$paymethod.="</div><div style=\"clear:both;\"></div>";
+					$paymethod.="</div><div class=\"fixfloat\"></div>";
 
 				}
 
@@ -3884,7 +3939,7 @@ if(!is_admin()){
 			}
 		}
 
-echo "<div style=\"clear:both\"></div>";
+echo "<div class=\"fixfloat\"></div>";
 
 
 						/////////////////////////////////////////////////////////////////////
@@ -4507,7 +4562,7 @@ function load_ad_edit_form($action,$awpcppagename,$editemail='',$adaccesskey='',
 		echo "
 				<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
 				<li class=\"searchcads\"><a href=\"".$quers."searchads\">Search Ads</a></li>
-				</ul><div style=\"clear:both\"></div>
+				</ul><div class=\"fixfloat\"></div>
 			";
 
 		echo "$message
@@ -4597,7 +4652,7 @@ if(!isset($awpcppagename) || empty($awpcppagename) )
 		echo "
 				<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
 				<li class=\"searchcads\"><a href=\"".$quers."searchads\">Search Ads</a></li>
-				</ul><div style=\"clear:both\"></div>
+				</ul><div class=\"fixfloat\"></div>
 			";
 
 if( isset($editemail) && !empty($editemail) )
@@ -4645,8 +4700,33 @@ if( isset($editemail) && !empty($editemail) )
 			{
 				echo "Your access key has been emailed to [ $editemail ]. ";
 			}
-			else {
-				echo "There was a problem encountered during the attempt to resend your access key. We apologize. Please try again and if the problem persists, please contact the system administrator.";
+			else
+			{
+
+				$host = get_awpcp_option('smtphost');
+				$username = get_awpcp_option('smtpusername');
+				$password = get_awpcp_option('smtppassword');
+
+				$headers = array ('From' => $from_header,
+				  'To' => $editemail,
+				  'Subject' => $subject);
+				$smtp = Mail::factory('smtp',
+				  array ('host' => $host,
+					'auth' => true,
+					'username' => $username,
+					'password' => $password));
+
+				$mail = $smtp->send($editemail, $headers, $resendakeymessagealt);
+
+				if (PEAR::isError($mail))
+				{
+				  echo "<div class=\"classiwrapper\">There was a problem encountered during the attempt to resend your access key. We apologize. Please try again and if the problem persists, please contact the system administrator.</div>";
+				}
+				else
+				{
+				  echo "<div class=\"classiwrapper\">Your access key has been emailed to [ $editemail ]</div>";
+				}
+
 			}
 		}
 		else
@@ -4768,7 +4848,7 @@ echo "
 echo "
 		<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
 		<li class=\"searchcads\"><a href=\"".$quers."searchads\">Search Ads</a></li>
-		</ul><div style=\"clear:both\"></div>
+		</ul><div class=\"fixfloat\"></div>
 	";
 
 $theadtitle=get_adtitle($adid);
@@ -4927,8 +5007,33 @@ global $nameofsite,$siteurl;
 		{
 			echo "<div id=\"classiwrapper\">Your message has been sent. Thank you for using $nameofsite</div>";
 		}
-		else {
-			echo "There was a problem encountered during the attempt to transmit your message. We apologize. Please try again and if the problem persists, please contact the system administrator.";
+
+		else
+		{
+				$host = get_awpcp_option('smtphost');
+				$username = get_awpcp_option('smtpusername');
+				$password = get_awpcp_option('smtppassword');
+
+				$headers = array ('From' => $from_header,
+				  'To' => $sendtoemail,
+				  'Subject' => $subject);
+				$smtp = Mail::factory('smtp',
+				  array ('host' => $host,
+					'auth' => true,
+					'username' => $username,
+					'password' => $password));
+
+				$mail = $smtp->send($sendtoemail, $headers, $bodyalt);
+
+				if (PEAR::isError($mail))
+				{
+				  echo("<p>There was a problem encountered during the attempt to contact the ad poster. We apologize. Please try again and if the problem persists, please contact the system administrator.</p>");
+				}
+				else
+				{
+				  echo "<div id=\"classiwrapper\">Your message has been sent. Thank you for using $nameofsite</div>";
+				}
+
 		}
 	}
 
@@ -5054,7 +5159,7 @@ echo "
 echo "
 		<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
 		<li class=\"searchcads\"><b>Searching Ads</b></li>
-		</ul><div style=\"clear:both\"></div>
+		</ul><div class=\"fixfloat\"></div>
 	";
 
 echo "$message
@@ -5879,9 +5984,16 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 			$isadmin=checkifisadmin();
 
 				$qdisabled='';
-				if(!(is_admin())){
-					if(get_awpcp_option('adapprove') == 1){
-					$disabled='1';}else {$disabled='0';}
+				if(!(is_admin()))
+				{
+					if(get_awpcp_option('adapprove') == 1)
+					{
+						$disabled='1';
+					}
+					else
+					{
+						$disabled='0';
+					}
 					$qdisabled="disabled='$disabled',";
 				}
 
@@ -5894,9 +6006,10 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 
-				if($isadmin == 1 && is_admin()){
-				$message="The ad has been edited successfully. <a href=\"?page=Manage1&offset=$offset&results=$results\">Back to view listings</a>";
-				printmessage($message);
+				if($isadmin == 1 && is_admin())
+				{
+					$message="The ad has been edited successfully. <a href=\"?page=Manage1&offset=$offset&results=$results\">Back to view listings</a>";
+					printmessage($message);
 				}
 
 				else
@@ -6008,7 +6121,11 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 				$query="INSERT INTO ".$table_name3." SET ad_category_id='$adcategory',ad_category_parent_id='$adcategory_parent_id',ad_title='$adtitle',ad_details='$addetails',ad_contact_phone='$adcontact_phone',ad_contact_name='$adcontact_name',ad_contact_email='$adcontact_email',ad_city='$adcontact_city',ad_state='$adcontact_state',ad_country='$adcontact_country',ad_county_village='$ad_county_village',ad_item_price='$itempriceincents',";
 
-				if( (get_awpcp_option('freepay') == 1) && ($feeamt <= 0) )
+				if( isset($adterm_id) && !empty($adterm_id) )
+				{
+					$query.="adterm_id='$adterm_id',";
+				}
+				else
 				{
 					$query.="adterm_id='0',";
 				}
@@ -6026,26 +6143,34 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 
 
-				if(get_awpcp_option('freepay') == 1){
+				if(get_awpcp_option('freepay') == 1)
+				{
 
 
-				$uploadandpay='';
+					$uploadandpay='';
 
 
 					///////////////////////////////////////////////////////////////////////////////////////////////////
 					// Step:1 Find out how many images are allowed for the selected ad term if allow images is on
 					///////////////////////////////////////////////////////////////////////////////////////////////////
 
-					if(get_awpcp_option('imagesallowdisallow') == 1){
+					if(get_awpcp_option('imagesallowdisallow') == 1)
+					{
 
-						if(get_awpcp_option('freepay') == 1){
-						$numimgsallowed=get_numimgsallowed($adterm_id);}
-						else { $numimgsallowed=get_awpcp_option('imagesallowedfree'); }
+						if(get_awpcp_option('freepay') == 1)
+						{
+							$numimgsallowed=get_numimgsallowed($adterm_id);
+						}
+						else
+						{
+							$numimgsallowed=get_awpcp_option('imagesallowedfree');
+						}
+
 						$feeamt=get_adfee_amount($adterm_id);
 
 					}
 
-					if( $numimgsallowed > '0')
+					if( $numimgsallowed > 0)
 					{
 						$txtuploadimages1="| Upload Images";
 					}
@@ -6054,7 +6179,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 						$txtuploadimages1="";
 					}
 
-					if($feeamt <= '0')
+					if($feeamt <= 0)
 					{
 						$txtpayfee='';
 					}
@@ -6149,49 +6274,53 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 					// Step:3 Configure the upload form if images are allowed
 					////////////////////////////////////////////////////////////////////////////////////
 
-					if( (get_awpcp_option('imagesallowdisallow') == 1) && ( $numimgsallowed > '0' ) ) {
+					if( (get_awpcp_option('imagesallowdisallow') == 1) && ( $numimgsallowed > '0' ) )
+					{
 
-					$totalimagesuploaded=get_total_imagesuploaded($ad_id);
+						$totalimagesuploaded=get_total_imagesuploaded($ad_id);
 
-					if($totalimagesuploaded < $numimgsallowed){
+						if($totalimagesuploaded < $numimgsallowed)
+						{
 
-					$max_image_size=get_awpcp_option('maximagesize');
+							$max_image_size=get_awpcp_option('maximagesize');
 
-					$showimageuploadform="<p>You can display [<b>$numimgsallowed</b>] images with your ad if desired.</p>";
+							$showimageuploadform="<p>You can display [<b>$numimgsallowed</b>] images with your ad if desired.</p>";
 
-						if(get_awpcp_option('imagesapprove') == 1){
-							$showimageuploadform.="<p>Image approval is in effect so any new images you upload will not be visible to viewers until an admin has approved it.</p>";
+							if(get_awpcp_option('imagesapprove') == 1)
+							{
+								$showimageuploadform.="<p>Image approval is in effect so any new images you upload will not be visible to viewers until an admin has approved it.</p>";
+							}
+
+							$showimageuploadform.="
+							<h2>Image Upload</h2>
+							<p id=\"ustatmsg\">
+
+							<form id=\"AWPCPForm1\" name=\"AWPCPForm1\" method=\"post\" ENCTYPE=\"Multipart/form-data\">
+								<p id=\"showhideuploadform\">
+								<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"$max_image_size\" />
+								<input type=\"hidden\" name=\"ADID\" value=\"$ad_id\" />
+								<input type=\"hidden\" name=\"ADTERMID\" value=\"$adterm_id\" />
+								If adding images to your ad, select an image from your hard disk:<br/><br/>
+
+
+									<input type=\"file\" name=\"AWPCPfileToUpload\" id=\"AWPCPfileToUpload\" size=\"18\" />
+									<input type=\"Submit\" value=\"Submit\" id=\"awpcp_buttonForm\" />
+
+								</p>
+							</form>
+							<img id=\"loading\" src=\"".AWPCPURL."images/loading.gif\" width=\"51\" height=\"19\" style=\"display:none;\" />
+
+							<p id=\"message\">
+
+							<p id=\"result\"><div class=\"fixfloat\"></div>";
+
 						}
-					$showimageuploadform.="
-					<h2>Image Upload</h2>
-					<p id=\"ustatmsg\">
+						else
+						{
+							$showimageuploadform="";
+						}
 
-					<form id=\"AWPCPForm1\" name=\"AWPCPForm1\" method=\"post\" ENCTYPE=\"Multipart/form-data\">
-						<p id=\"showhideuploadform\">
-					    <input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"$max_image_size\" />
-					    <input type=\"hidden\" name=\"ADID\" value=\"$ad_id\" />
-					    <input type=\"hidden\" name=\"ADTERMID\" value=\"$adterm_id\" />
-					    If adding images to your ad, select an image from your hard disk:<br/><br/>
-
-
-					        <input type=\"file\" name=\"AWPCPfileToUpload\" id=\"AWPCPfileToUpload\" size=\"18\" />
-					        <input type=\"Submit\" value=\"Submit\" id=\"awpcp_buttonForm\" />
-
-					    </p>
-					</form>
-					<img id=\"loading\" src=\"".AWPCPURL."images/loading.gif\" width=\"51\" height=\"19\" style=\"display:none;\" />
-
-					<p id=\"message\">
-
-					<p id=\"result\"><div style=\"clear:both\"></div>";
-
-					}
-					else {
-						$showimageuploadform="";
-					}
-
-
-					$uploadandpay.="$showimageuploadform";
+						$uploadandpay.="$showimageuploadform";
 					}
 
 
@@ -6209,147 +6338,112 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 					// Step:5 Setup the payment buttons
 					////////////////////////////////////////////////////////////////////////////
 
-					if($amount <= 0){
-					$showpaybutton=''; }
+					if($amount <= 0)
+					{
+						$showpaybutton='';
+					}
 
-					else {
+					else
+					{
 
-					$showpaybutton="<h2>Payment</h2><p>Please click the  button below to submit payment for your ad listing.</p>";
+						$showpaybutton="<h2>Payment</h2><p>Please click the  button below to submit payment for your ad listing.</p>";
 
 						////////////////////////////////////////////////////////////////////////////
 						// Print the paypal button option if paypal is activated
 						////////////////////////////////////////////////////////////////////////////
 
-						if($adpaymethod == 'paypal'){
-						$base=get_option('siteurl');
-						$custom="$ad_id";
-						$custom.="_";
-						$custom.="$key";
-
-						$quers=setup_url_structure($awpcppagename);
-
-						if(get_awpcp_option('paylivetestmode') == 1){
-							$paypalurl="http://www.paypal.com/cgi-bin/webscr";
-						}else {
-							$paypalurl="https://www.sandbox.paypal.com/cgi-bin/webscr";
-						}
-
-
-					$showpaybutton.="
-					<form action=\"$paypalurl\" method=\"post\">
-					<input type=\"hidden\" name=\"cmd\" value=\"_xclick\" />";
-
-					if(get_awpcp_option('paylivetestmode') == 0){
-						$showpaybutton.="<input type=\"hidden\" name=\"test_ipn\" value=\"1\" />";
-					}
-
-					if(get_awpcp_option('paypalencryptbuttons'))
-					{
-
-						//encrypt the buttons
-						if( get_awpcp_option('seofriendlyurls') )
+						if($adpaymethod == 'paypal')
 						{
-							if(isset($permastruc) && !empty($permastruc))
+							$base=get_option('siteurl');
+							$custom="$ad_id";
+							$custom.="_";
+							$custom.="$key";
+
+							$quers=setup_url_structure($awpcppagename);
+
+							if(get_awpcp_option('paylivetestmode') == 1)
 							{
-								$codepaypalthank=$quers."paypalthankyou/$custom";
+								$paypalurl="http://www.paypal.com/cgi-bin/webscr";
 							}
 							else
 							{
-								$codepaypalthank=$quers."paypalthankyou&i=$custom";
+								$paypalurl="https://www.sandbox.paypal.com/cgi-bin/webscr";
 							}
-						}
-						else
-						{
-							$codepaypalthank=$quers."paypalthankyou&i=$custom";
-						}
-						if( get_awpcp_option('seofriendlyurls') )
-						{
-							if(isset($permastruc) && !empty($permastruc))
+
+
+							$showpaybutton.="
+							<form action=\"$paypalurl\" method=\"post\">
+							<input type=\"hidden\" name=\"cmd\" value=\"_xclick\" />";
+
+							if(get_awpcp_option('paylivetestmode') == 0)
 							{
-						 		$codepaypalcancel=$quers."cancelpaypal/$custom";
-						 	}
-						 	else
-						 	{
-						 		$codepaypalcancel=$quers."cancelpaypal&i=$custom";
-						 	}
-						}
-						else
-						{
-							$codepaypalcancel=$quers."cancelpaypal&i=$custom";
-						}
+								$showpaybutton.="<input type=\"hidden\" name=\"test_ipn\" value=\"1\" />";
+							}
 
-					// Handle the encryption method
+							$showpaybutton.="
+							<input type=\"hidden\" name=\"business\" value=\"".get_awpcp_option('paypalemail')."\" />
+							<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />";
 
-
-						$showpaybutton.="<input type=\"hidden\" name=\"encrypted\" value=\"";
-						$showpaybutton.="$theencryptedbuttoncode";
-						$showpaybutton.="\">";
-					}
-					else
-					{
-						$showpaybutton.="
-						<input type=\"hidden\" name=\"business\" value=\"".get_awpcp_option('paypalemail')."\" />
-						<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />";
-
-						if( get_awpcp_option('seofriendlyurls') )
-						{
-							if(isset($permastruc) && !empty($permastruc))
+							if( get_awpcp_option('seofriendlyurls') )
 							{
-								$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou/$custom\" />";
+								if(isset($permastruc) && !empty($permastruc))
+								{
+									$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou/$custom\" />";
+								}
+								else
+								{
+								$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou&i=$custom\" />";
+								}
 							}
 							else
 							{
-							$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou&i=$custom\" />";
+								$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou&i=$custom\" />";
 							}
-						}
-						else
-						{
-							$codepaypalthank="<input type=\"hidden\" name=\"return\" value=\"".$quers."paypalthankyou&i=$custom\" />";
-						}
 
-						$showpaybutton.="$codepaypalthank";
+							$showpaybutton.="$codepaypalthank";
 
-						if( get_awpcp_option('seofriendlyurls') )
-						{
-							if(isset($permastruc) && !empty($permastruc))
+							if( get_awpcp_option('seofriendlyurls') )
 							{
-								$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal/$custom\" />";
+								if(isset($permastruc) && !empty($permastruc))
+								{
+									$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal/$custom\" />";
+								}
+								else
+								{
+									$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal&i=$custom\" />";
+								}
 							}
 							else
 							{
 								$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal&i=$custom\" />";
 							}
-						}
-						else
-						{
-							$codepaypalcancel="<input type=\"hidden\" name=\"cancel_return\" value=\"".$quers."cancelpaypal&i=$custom\" />";
-						}
 
-						$showpaybutton.="$codepaypalcancel";
-						$showpaybutton.="<input type=\"hidden\" name=\"notify_url\" value=\"".$quers."paypal\" />
-						<input type=\"hidden\" name=\"no_note\" value=\"1\" />
-						<input type=\"hidden\" name=\"quantity\" value=\"1\" />
-						<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />
-						<input type=\"hidden\" name=\"rm\" value=\"2\" />
-						<input type=\"hidden\" name=\"item_name\" value=\"$adterm_name\" />
-						<input type=\"hidden\" name=\"item_number\" value=\"$adterm_id\" />
-						<input type=\"hidden\" name=\"amount\" value=\"$amount\" />
-						<input type=\"hidden\" name=\"currency_code\" value=\"".get_awpcp_option('paypalcurrencycode')."\" />
-						<input type=\"hidden\" name=\"custom\" value=\"$custom\" />
-						<input type=\"hidden\" name=\"src\" value=\"1\" />
-						<input type=\"hidden\" name=\"sra\" value=\"1\" />";
-					}
+							$showpaybutton.="$codepaypalcancel";
+							$showpaybutton.="<input type=\"hidden\" name=\"notify_url\" value=\"".$quers."paypal\" />
+							<input type=\"hidden\" name=\"no_note\" value=\"1\" />
+							<input type=\"hidden\" name=\"quantity\" value=\"1\" />
+							<input type=\"hidden\" name=\"no_shipping\" value=\"1\" />
+							<input type=\"hidden\" name=\"rm\" value=\"2\" />
+							<input type=\"hidden\" name=\"item_name\" value=\"$adterm_name\" />
+							<input type=\"hidden\" name=\"item_number\" value=\"$adterm_id\" />
+							<input type=\"hidden\" name=\"amount\" value=\"$amount\" />
+							<input type=\"hidden\" name=\"currency_code\" value=\"".get_awpcp_option('paypalcurrencycode')."\" />
+							<input type=\"hidden\" name=\"custom\" value=\"$custom\" />
+							<input type=\"hidden\" name=\"src\" value=\"1\" />
+							<input type=\"hidden\" name=\"sra\" value=\"1\" />";
 
-						$showpaybutton.="
-						<input class=\"button\" type=\"submit\" value=\"Pay With PayPal\">
-						</form>";
-			}
+
+							$showpaybutton.="
+							<input class=\"button\" type=\"submit\" value=\"Pay With PayPal\">
+							</form>";
+						}
 
 						/////////////////////////////////////////////////////////////////////////////
 						// Print the  2Checkout button option if 2Checkout is activated
 						/////////////////////////////////////////////////////////////////////////////
 
-						elseif($adpaymethod == '2checkout'){
+						elseif($adpaymethod == '2checkout')
+						{
 
 								$custom="$ad_id";
 								$custom.="_";
@@ -6372,37 +6466,38 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 									<input type=\"hidden\" name=\"c_tangible\" value=\"N\" />
 									<input type=\"hidden\" name=\"item_number\" value=\"$adterm_id\" />
 									<input type=\"hidden\" name=\"custom\" value=\"$custom\" />";
-									if(get_awpcp_option('paylivetestmode') == 0){
+
+									if(get_awpcp_option('paylivetestmode') == 0)
+									{
 										$showpaybutton.="\n<input type=\"hidden\" name=\"demo\" value=\"Y\" />\n";
 									}
-									$showpaybutton.="<input name=\"submit\" class=\"button\" type=\"submit\" value=\"Pay With 2Checkout\" /></form>";
+										$showpaybutton.="<input name=\"submit\" class=\"button\" type=\"submit\" value=\"Pay With 2Checkout\" /></form>";
 
 						}
-				}
+					}
 
-				$uploadandpay.="$showpaybutton";
+						$uploadandpay.="$showpaybutton";
 
-				if( $feeamt <= '0' )
-				{
+						if( $feeamt <= 0 )
+						{
 
-					$finishbutton="<p>Please click the finish button to complete the process of submitting your listing</p>
-								<form method=\"post\" id=\"awpcpui_process\">
-								<input type=\"hidden\" name=\"a\" value=\"adpostfinish\">
-								<input type=\"hidden\" name=\"ad_id\" value=\"$ad_id\" />
-								<input type=\"hidden\" name=\"adkey\" value=\"$key\" />
-								<input type=\"hidden\" name=\"adterm_id\" value=\"$adterm_id\" />
-								<input type=\"Submit\" value=\"Finish\"/>
-								</form>";
-					$uploadandpay.="$finishbutton";
-				}
+							$finishbutton="<p>Please click the finish button to complete the process of submitting your listing</p>
+										<form method=\"post\" id=\"awpcpui_process\">
+										<input type=\"hidden\" name=\"a\" value=\"adpostfinish\">
+										<input type=\"hidden\" name=\"ad_id\" value=\"$ad_id\" />
+										<input type=\"hidden\" name=\"adkey\" value=\"$key\" />
+										<input type=\"hidden\" name=\"adterm_id\" value=\"$adterm_id\" />
+										<input type=\"Submit\" value=\"Finish\"/>
+										</form>";
+							$uploadandpay.="$finishbutton";
+						}
 
-				////////////////////////////////////////////////////////////////////////////
-				// Display the content
-				////////////////////////////////////////////////////////////////////////////
+						////////////////////////////////////////////////////////////////////////////
+						// Display the content
+						////////////////////////////////////////////////////////////////////////////
 
-				$classicontent=$uploadandpay;
-				echo "$classicontent";
-
+						$classicontent=$uploadandpay;
+						echo "$classicontent";
 
 				}
 
@@ -6410,16 +6505,20 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 				// Configure the content in the event of the site running in free mode
 				////////////////////////////////////////////////////////////////////////////
 
-				elseif((get_awpcp_option('freepay') == '0') && (get_awpcp_option('imagesallowdisallow') == 1)){
+				elseif((get_awpcp_option('freepay') == '0') && (get_awpcp_option('imagesallowdisallow') == 1))
+				{
 
 					$imagesforfree=get_awpcp_option('imagesallowedfree');
 
-					if($totalimagesuploaded < $imagesforfree){
+					if($totalimagesuploaded < $imagesforfree)
+					{
 
-					$max_image_size=get_awpcp_option('maximagesize');
+						$max_image_size=get_awpcp_option('maximagesize');
 
 										$showimageuploadform="<p>You can display [<b>$imagesforfree</b>] images with your ad if desired.</p>";
-										if(get_awpcp_option('imagesapprove') == 1){
+
+										if(get_awpcp_option('imagesapprove') == 1)
+										{
 											$showimageuploadform.="<p>Image approval is in effect so any new images you upload will not be visible to viewers until an admin has approved it.</p>";
 										}
 
@@ -6445,10 +6544,12 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 										<p id=\"message\">
 
-										<p id=\"result\"><div style=\"clear:both\"></div>";
+										<p id=\"result\"><div class=\"fixfloat\"></div>";
 
 
-					} else {
+					}
+					else
+					{
 						$showimageuploadform="";
 					}
 
@@ -6463,11 +6564,12 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 					$showimageuploadform.="$finishbutton";
 
 					$classicontent="$showimageuploadform";
+
 					echo "$classicontent";
 					}
 
-					else
-					{
+				else
+				{
 						if(isset($_SESSION['regioncountryID']) )
 						{
 							unset($_SESSION['regioncountryID']);
@@ -6481,13 +6583,14 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 							unset($_SESSION['regioncityID']);
 						}
 
-						$classicontent="Your ad has been submitted. A key has been emailed to the email address provided. You may use that key to make changes to your ad.";
-						echo "$classicontent";
-					}
+						ad_success_email($ad_id,$txn_id='',$key,$message,$gateway='');
+
+
 				}
 			}
-
 		}
+
+	}
 
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -6605,7 +6708,7 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 
 					$imagecode.=$theimage;
 					$imagecode.="</ul></div></div>";
-					$imagecode.="<div style=\"clear:both;\"></div>";
+					$imagecode.="<div class=\"fixfloat\"></div>";
 				}
 
 				elseif($totalimagesuploaded < 1)
@@ -6645,7 +6748,7 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 
 								<p id=\"message\">
 
-								<p id=\"result\"><div style=\"clear:both;\"></div>";
+								<p id=\"result\"><div class=\"fixfloat\"></div>";
 
 				}
 				else
@@ -6669,7 +6772,7 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 
 						";
 
-			$imagecode.="$finishbutton<div style=\"clear:both;\"></div>";
+			$imagecode.="$finishbutton<div class=\"fixfloat\"></div>";
 
 			}
 
@@ -7358,18 +7461,88 @@ $mailbodyuser.="When contacting in reference to this matter, please provide the 
 $mailbodyuser.="Thank you for your business<br>";
 $mailbodyuser.="$nameofsite Administrator<br>";
 $mailbodyuser.="$siteurl";
+$mailbodyuseralt="Dear $adpostername\n\n";
+$mailbodyuseralt.="There was a problem encountered during your attempt to submit payment for the listing titled \"$listingtitle\" on $nameofsite at $siteurl. The transaction was aborted due to:\n\n";
+$mailbodyuseralt.="$message\n\n";
+$mailbodyuseralt.="If funds were removed from the account you tried to use to make a payment please contact $thisadminemail or $gateway for help with fixing the problem.\n\n";
+$mailbodyuseralt.="When contacting in reference to this matter, please provide the following transaction ID: $transactionid\n\n";
+$mailbodyuseralt.="Thank you for your business\n";
+$mailbodyuseralt.="$nameofsite Administrator\n";
+$mailbodyuseralt.="$siteurl";
 $mailbodyadmin="Dear $nameofsite Administrator\n\n";
 $mailbodyadmin.="There was a problem encountered during an attempt to submit payment for the listing titled \"$listingtitle\" on $nameofsite at $siteurl. The transaction was aborted due to:<br><br>";
 $mailbodyadmin.="$message\n\n";
 $mailbodyadmin.="For your reference the transaction id is: $transactionid and the ad ID is: $ad_id\n\n";
 $mailbodyadmin.="$siteurl";
 
-//email the buyer
-send_email($thisadminemail,$adposteremail,$subjectuser,$mailbodyuser,true);
 
-//email the administrator
-send_email($thisadminemail,$thisadminemail,$subjectadmin,$mailbodyadmin,true);
+
+
+			$from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
+
+			//email the buyer
+			if(send_email($thisadminemail,$adposteremail,$subjectuser,$mailbodyuser,true)){
+				// Do nothing
+			}
+
+			// If function send_mail did not work try function mail()
+			elseif(mail($adposteremail, $subjectuser, $mailbodyuseralt, $from_header))
+			{
+				// Do nothing
+			}
+			else
+			{
+
+				$host = get_awpcp_option('smtphost');
+				$username = get_awpcp_option('smtpusername');
+				$password = get_awpcp_option('smtppassword');
+
+				$headers = array ('From' => $from_header,
+				  'To' => $adposteremail,
+				  'Subject' => $subjectuser);
+				$smtp = Mail::factory('smtp',
+				  array ('host' => $host,
+					'auth' => true,
+					'username' => $username,
+					'password' => $password));
+
+				$mail = $smtp->send($adposteremail, $headers, $mailbodyuseralt);
+
+			}
+
+			//email the administrator
+
+				if(send_email($thisadminemail,$thisadminemail,$subjectadmin,$mailbodyadmin,true)){
+					// Do nothing
+				}
+
+				// If function send_mail did not work try function mail()
+				elseif(mail($thisadminemail, $subjectadmin, $mailbodyadmin, $from_header))
+				{
+					// Do nothing
+				}
+				else
+				{
+
+					$host = get_awpcp_option('smtphost');
+					$username = get_awpcp_option('smtpusername');
+					$password = get_awpcp_option('smtppassword');
+
+					$headers = array ('From' => $from_header,
+					  'To' => $thisadminemail,
+					  'Subject' => $subjectadmin);
+					$smtp = Mail::factory('smtp',
+					  array ('host' => $host,
+						'auth' => true,
+						'username' => $username,
+						'password' => $password));
+
+					$mail = $smtp->send($thisadminemail, $headers, $mailbodyadmin);
+
+			}
 }
+
+
 
 function abort_payment_no_email()
 {
@@ -7506,11 +7679,34 @@ elseif(mail($adposteremail, $subjectuser, $mailbodyuseralt, $from_header))
 	$printmessagetouser="$messagetouser";
 }
 
-else {
+else
+{
 
-	$printmessagetouser="Sorry but there has been a problem encountered transmitting your ad information to your email address. Please contact the site administrator to request this information.";
+				$host = get_awpcp_option('smtphost');
+				$username = get_awpcp_option('smtpusername');
+				$password = get_awpcp_option('smtppassword');
+
+				$headers = array ('From' => $from_header,
+				  'To' => $sendtoemail,
+				  'Subject' => $subject);
+				$smtp = Mail::factory('smtp',
+				  array ('host' => $host,
+					'auth' => true,
+					'username' => $username,
+					'password' => $password));
+
+				$mail = $smtp->send($sendtoemail, $headers, $bodyalt);
+
+				if (PEAR::isError($mail))
+				{
+				 $printmessagetouser="Sorry but there has been a problem encountered transmitting your ad information to your email address. Please contact the site administrator to request this information.";
+				}
+				else
+				{
+				 $printmessagetouser="$messagetouser";
+				}
+
 }
-
 
 
 	echo "<div id=\"classiwrapper\">";
@@ -7797,7 +7993,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 
 					echo "</ul></div></div>";
 
-echo "</div><div style=\"clear:both;\"></div>";
+echo "</div><div class=\"fixfloat\"></div>";
 
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -7855,7 +8051,7 @@ global $wpdb,$imagesurl,$hasregionsmodule;
 			<li class=\"browse\"><a href=\"".$quers."categoriesview\">Browse Categories</a></li>
 			<li class=\"searchcads\"><a href=\"".$quers."searchads\">Search Ads</a></li>
 			</ul>
-			<div style=\"clear:both;\"></div>
+			<div class=\"fixfloat\"></div>
 		";
 
 						if($hasregionsmodule ==  1)
@@ -7952,7 +8148,7 @@ global $wpdb,$imagesurl,$hasregionsmodule;
 			}
 
 			$items=array();
-			$query="SELECT ad_id,ad_category_id,ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_details,ad_postdate,ad_enddate,ad_views FROM $from WHERE $where ORDER BY ad_id DESC LIMIT $offset,$results";
+			$query="SELECT ad_id,ad_category_id,ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_details,ad_postdate,ad_enddate,ad_views FROM $from WHERE $where ORDER BY ad_postdate DESC, ad_title ASC LIMIT $offset,$results";
 			if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 			while ($rsrow=mysql_fetch_row($res))
@@ -8069,7 +8265,7 @@ global $wpdb,$imagesurl,$hasregionsmodule;
 
 
 
-					$items[]="<tr>$awpcp_image_display<td class=\"displayadscellheadline\" width=\"50%\">$ad_title<br>$addetailssummary...</td>$awpcp_city_display<td class=\"displayadscellposted\" width=\"15%\" style=\"text-align:center;\">$rsrow[9]</td>$awpcp_display_adviews</tr>";
+					$items[]="<tr>$awpcp_image_display<td class=\"displayadscellheadline\" width=\"50%\" valign=\"top\">$ad_title<br>$addetailssummary...</td>$awpcp_city_display<td class=\"displayadscellposted\" width=\"15%\" style=\"text-align:center;\">$rsrow[9]</td>$awpcp_display_adviews</tr>";
 
 
 					$opentable="<table><tr>$awpcp_image_display_head<td class=\"displayadshead\"  width=\"50%\">HEADLINE</td><td class=\"displayadshead\" width=\"25%\" style=\"text-align:center;\">LOCATION</td><td class=\"displayadshead\" width=\"15%\" style=\"text-align:center;\">POSTED</td>$awpcp_display_adviews_head</tr>";
@@ -8087,11 +8283,11 @@ global $wpdb,$imagesurl,$hasregionsmodule;
 	}
 
 
-echo "<div style=\"clear:both;overflow:hidden;\"></div><div class=\"pager\">$pager1</div>";
+echo "<div class=\"fixfloat\"></div><div class=\"pager\">$pager1</div>";
 echo "<div class=\"changecategoryselect\"><form method=\"post\"><select name=\"category_id\"><option value=\"-1\">Select Category</a>";
 $allcategories=get_categorynameidall($adcategory='');
 echo "$allcategories";
-echo "</select><input type=\"hidden\" name=\"a\" value=\"browsecat\"><input class=\"button\" type=\"submit\" value=\"Change Category\"></form></div><div style=\"clear:both;overflow:hidden;\"></div>";
+echo "</select><input type=\"hidden\" name=\"a\" value=\"browsecat\"><input class=\"button\" type=\"submit\" value=\"Change Category\"></form></div><div class=\"fixfloat\"></div>";
 echo "$showcategories";
 echo "<div class=\"pager\">$pager2</div>";
 if($byl)
@@ -8157,7 +8353,7 @@ echo "
 		<li class=\"browse\"><a href=\"".$quers."browseads\">Browse Ads</a></li>
 		<li class=\"searchcads\"><a href=\"".$quers."searchads\">Search Ads</a></li>
 		</ul>
-		<div style=\"clear:both;\"></div>
+		<div class=\"fixfloat\"></div>
 	";
 
 global $wpdb;
@@ -8303,7 +8499,7 @@ else {$showadsense='';}
 					<div>$awpcpadviews $aditemprice</div>";
 					if( !empty($awpcpadviews) || !empty($aditemprice) )
 					{
-						echo "<div style=\"clear:both\"></div>";
+						echo "<div class=\"fixfloat\"></div>";
 					}
 
 
@@ -8325,7 +8521,7 @@ else {$showadsense='';}
 					if(get_awpcp_option('adsenseposition') == 2){
 					echo "$showadsense";
 					}
-					echo "</div><div style=\"clear:both;\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>";
+					echo "</div><div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>";
 
 					$theimage='';
 
@@ -8348,7 +8544,7 @@ else {$showadsense='';}
 
 					}
 
-					echo "</ul></div><div style=\"clear:both;\"></div>";
+					echo "</ul></div><div class=\"fixfloat\"></div>";
 					if(get_awpcp_option('adsenseposition') == 3)
 					{
 						echo "$showadsense";
@@ -8398,7 +8594,7 @@ global $message;
 		<p>2. If you want to keep your user uploaded images, please download $dirname to your local drive for later use or rename the folder to something else so the uninstaller can bypass it.</p>
 		</blockquote>
 		<a href=\"?page=Manage3&action=douninstall\">Proceed with Uninstalling Another Wordpress Classifieds Plugin</a>
-		</div><div style=\"clear:both;\"></div>";
+		</div><div class=\"fixfloat\"></div>";
 	}
 }
 
