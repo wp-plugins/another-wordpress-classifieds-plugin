@@ -1427,9 +1427,23 @@ function init_awpcpsbarwidget() {
 	### Function: AWPCP Latest Classified Headlines Widget
 	function widget_awpcplatestads($args) {
 		extract($args);
-		$options = get_option('widget_awpcplatestads');
-		$title = htmlspecialchars(stripslashes($options['title']));
-		$limit = htmlspecialchars(stripslashes($options['hlimit']));
+		$limit=$args[0];
+		$title=$args[1];
+		$before_widget=$args[2];
+		$after_widget=$args[3];
+		$before_title=$args[4];
+		$after_title=$args[5];
+
+		if(!isset($limit) && !isset($title))
+		{
+			$options = get_option('widget_awpcplatestads');
+			$title = htmlspecialchars(stripslashes($options['title']));
+			$limit = htmlspecialchars(stripslashes($options['hlimit']));
+			$before_widget=$options['beforewidget'];
+			$after_widget=$options['afterwidget'];
+			$before_title=$options['beforetitle'];
+			$after_title=$options['aftertitle'];
+		}
 		if(ads_exist()){
 			echo $before_widget.$before_title.$title.$after_title;
 			if (function_exists('awpcp_sidebar_headlines')) {
@@ -1445,15 +1459,26 @@ function init_awpcpsbarwidget() {
 	function widget_awpcplatestads_options() {
 		$options = get_option('widget_awpcplatestads');
 		if (!is_array($options)) {
-			$options = array('hlimit' => '10', 'title' => __('Latest Classifieds', 'wp-awpcplatestads'));
+			$options = array('hlimit' => '10', 'title' => __('Latest Classifieds', 'wp-awpcplatestads'), 'beforewidget' => '', 'afterwidget' => '', 'beforetitle' => '&lt;h2&gt;', 'aftertitle' => '&lt;/h2&gt;');
 		}
 		if ($_POST['awpcplatestads-submit']) {
 			$options['hlimit'] = intval($_POST['awpcpwid-limit']);
 			$options['title'] = strip_tags($_POST['awpcpwid-title']);
+			$options['beforewidget'] = $_POST['awpcpwid-beforewidget'];
+			$options['afterwidget'] = $_POST['awpcpwid-afterwidget'];
+			$options['beforetitle'] = $_POST['awpcpwid-beforetitle'];
+			$options['aftertitle'] = $_POST['awpcpwid-aftertitle'];
 			update_option('widget_awpcplatestads', $options);
 		}
 		echo '<p><label for="awpcpwid-title">'.__('Widget Title', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-title" size="35" name="awpcpwid-title" value="'.htmlspecialchars(stripslashes($options['title'])).'" />';
 		echo '<p><label for="awpcpwid-limit">'.__('Number of headlines to Show', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" size="5" id="awpcpwid-limit" name="awpcpwid-limit" value="'.htmlspecialchars(stripslashes($options['hlimit'])).'" />';
+		echo '<p><label for="awpcpwid-beforewidget">'.__('Before Widget HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforewidget" size="35" name="awpcpwid-beforewidget" value="'.htmlspecialchars(stripslashes($options['beforewidget'])).'" />';
+		echo '<p><label for="awpcpwid-afterwidget">'.__('After Widget HTML<br>Exclude all quotes<br>(<del>class="XYZ"</del> => class=XYZ)', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-afterwidget" size="35" name="awpcpwid-afterwidget" value="'.htmlspecialchars(stripslashes($options['afterwidget'])).'" />';
+		echo '<p><label for="awpcpwid-beforetitle">'.__('Before title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforetitle" size="35" name="awpcpwid-beforetitle" value="'.htmlspecialchars(stripslashes($options['beforetitle'])).'" />';
+		echo '<p><label for="awpcpwid-aftertitle">'.__('After title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-aftertitle" size="35" name="awpcpwid-aftertitle" value="'.htmlspecialchars(stripslashes($options['aftertitle'])).'" />';
+
+
+
 		echo '<input type="hidden" id="awpcplatestads-submit" name="awpcplatestads-submit" value="1" />'."\n";
 	}
 
