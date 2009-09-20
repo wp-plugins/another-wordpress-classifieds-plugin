@@ -96,8 +96,6 @@ else
 	$uploadfoldername="uploads";
 }
 
-if( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) ) {     echo "Sorry. My blog is locked down. Updates will appear shortly"; }
-
 define( 'MAINUPLOADURL', $wpcontenturl .'/' .$uploadfoldername);
 define('MAINUPLOADDIR', $wpcontentdir .'/' .$uploadfoldername);
 define( 'AWPCPUPLOADURL', $wpcontenturl .'/' .$uploadfoldername .'/awpcp');
