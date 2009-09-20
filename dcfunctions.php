@@ -341,7 +341,7 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 
 			$awpcppage=get_currentpagename();
 			$awpcppagename = sanitize_title($awpcppage, $post_ID='');
-			$awpcpwppostpageid=get_page_id($awpcppagename);
+			$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
 				if( !get_awpcp_option('seofriendlyurls') )
 				{
 					$params['page_id']="$awpcpwppostpageid";
@@ -355,7 +355,7 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 
 		$awpcppage=get_currentpagename();
 		$awpcppagename = sanitize_title($awpcppage, $post_ID='');
-		$awpcpwppostpageid=get_page_id($awpcppagename);
+		$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
 
 			if( !get_awpcp_option('seofriendlyurls') )
 			{
