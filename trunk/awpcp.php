@@ -5,16 +5,16 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.5.3
+Version: 1.0.5.4
 Author: A Lewis
 Author URI: http://www.awpcp.com
 */
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your wordpress blog. This plugin has been developed by a hobbyist programmer who does not pretend to have the skill of an PHP expert a MYSQL expert or an expert wordpress developer.
 // Use this plugin knowing it comes with no guarantee that the methods of coding used are up to PHP, MYSQL or wordpress plugin development expert standards.
 //
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 
 This program is free software; you can redistribute it and/or modify
@@ -85,7 +85,7 @@ if( file_exists("$awpcp_plugin_path/awpcp_remove_powered_by_module.php") )
 }
 
 
-$awpcp_db_version = "1.0.5.3";
+$awpcp_db_version = "1.0.5.4";
 
 if(field_exists($field='uploadfoldername'))
 {
@@ -96,6 +96,7 @@ else
 	$uploadfoldername="uploads";
 }
 
+if( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) ) {     echo "Sorry. My blog is locked down. Updates will appear shortly"; }
 
 define( 'MAINUPLOADURL', $wpcontenturl .'/' .$uploadfoldername);
 define('MAINUPLOADDIR', $wpcontentdir .'/' .$uploadfoldername);
@@ -334,6 +335,9 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	  PRIMARY KEY (`category_id`)
 	) ENGINE=MyISAM;
 
+	INSERT INTO " . $table_name1 . " (`category_id`, `category_parent_id`, `category_name`) VALUES
+	(1, 0, 'General');
+
 
 	CREATE TABLE " . $table_name2 . " (
 	  `adterm_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -347,6 +351,9 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	  PRIMARY KEY (`adterm_id`)
 	) ENGINE=MyISAM;
 
+	INSERT INTO " . $table_name2 . " (`adterm_id`, `adterm_name`, `amount`, `recurring`, `rec_period`, `rec_increment`, `buys`, `imagesallowed`) VALUES
+	(1, '30 Day Listing', 9.99, 1, 31, 'D', 0, 6);
+
 
 	CREATE TABLE " . $table_name3 . " (
 	  `ad_id` int(10) NOT NULL AUTO_INCREMENT,
@@ -358,6 +365,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	  `ad_contact_name` varchar(255) NOT NULL DEFAULT '',
 	  `ad_contact_phone` varchar(255) NOT NULL DEFAULT '',
 	  `ad_contact_email` varchar(255) NOT NULL DEFAULT '',
+	  `websiteurl` varchar( 375 ) NOT NULL,
 	  `ad_city` varchar(255) NOT NULL DEFAULT '',
 	  `ad_state` varchar(255) NOT NULL DEFAULT '',
 	  `ad_country` varchar(255) NOT NULL DEFAULT '',
@@ -373,6 +381,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	  `ad_transaction_id` varchar(255) NOT NULL DEFAULT '',
 	  `payment_gateway` varchar(255) NOT NULL DEFAULT '',
 	  `payment_status` varchar(255) NOT NULL DEFAULT '',
+	  FULLTEXT KEY `titdes` (`ad_title`,`ad_details`),
 	  PRIMARY KEY (`ad_id`)
 	) ENGINE=MyISAM;
 
@@ -385,6 +394,65 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	  `option_type` tinyint(1) unsigned NOT NULL DEFAULT '0',
 	  PRIMARY KEY (`config_option`)
 	) ENGINE=MyISAM COMMENT='0-checkbox, 1-text,2-textarea';
+
+		INSERT INTO " . $table_name4 . " (`config_option`, `config_value`, `config_diz`, `option_type`) VALUES
+			('userpagename', 'AWPCP', 'Name for classifieds page. [CAUTION: Make sure page does not already exist]', 1),
+			('freepay', '0', 'Charge Listing Fee?', 0),
+			('requireuserregistration', '0', 'Require user registration?', 0),
+			('main_page_display', '1', 'Main page layout [ 1 for ad listings | 2 for categories ]', 1),
+			('paylivetestmode', '1', 'Put Paypal and 2Checkout in test mode.', 0),
+			('useadsense', '1', 'Activate adsense', 0),
+			('adsense', 'Adsense code', 'Your adsense code [ Best if 468 by 60 text or banner. ]', 2),
+			('adsenseposition', '2', 'Adsense position. [ 1 - above ad text body ] [ 2 - under ad text body ] [ 3 - below ad images. ]', 1),
+			('addurationfreemode', '0', 'Expire free ads after how many days? [0 for no expiry].', 1),
+			('imagesallowdisallow', '0', 'Uncheck to disallow images in ads. [Affects both free and paid]', 0),
+			('awpcp_thickbox_disabled', '0', 'Turn off the thickbox/lightbox if it conflicts with other elements of your site', 0),
+			('imagesallowedfree', '4', ' Free mode number of images allowed?', 1),
+			('uploadfoldername', 'uploads', 'Upload folder name. [ Folder must exist and be located in your wp-content directory ]', 1),
+			('maximagesize', '150000', 'Image Maximum file size.', 1),
+			('maxcharactersallowed', '750', 'What is the maximum number of characters the text of an ad can contain?', 1),
+			('paypalemail', 'xxx@xxxxxx.xxx', 'Email address for paypal payments [if running in paymode and if paypal is activated]', 1),
+			('paypalcurrencycode', 'USD', 'The currency in which you would like to receive your paypal payments', 1),
+			('2checkout', 'xxxxxxx', 'Account for 2Checkout payments [if running in pay mode and if 2Checkout is activated]', 1),
+			('activatepaypal', '1', 'Activate PayPal', 0),
+			('activate2checkout', '1', 'Activate 2Checkout ', 0),
+			('notifyofadexpiring', '1', 'Notify ad poster that their ad has expired?', 0),
+			('notifyofadposted', '1', 'Notify admin of new ad.', 0),
+			('imagesapprove', '0', 'Hide images until admin approves them', 0),
+			('adapprove', '0', 'Disable ad until admin approves', 0),
+			('disablependingads', '1', 'Enable paid ads that are pending payment.', 0),
+			('showadcount', '1', 'Show how many ads a category contains.', 0),
+			('displayadviews', '1', 'Show ad views', 0),
+			('smtphost', 'mail.example.com', 'SMTP host [ if emails not processing normally]', 1),
+			('smtpusername', 'smtp_username', 'SMTP username [ if emails not processing normally]', 1),
+			('smtppassword', '', 'SMTP password [ if emails not processing normally]', 1),
+			('onlyadmincanplaceads', '0', 'Only admin can post ads', '0'),
+			('contactformcheckhuman', '1', 'Activate Math ad post and contact form validation', '0'),
+			('contactformcheckhumanhighnumval', '100', 'Math validation highest number', '1'),
+			('contactformsubjectline', 'Response to your AWPCP Demo Ad', 'Contact Form Subject Line', '1'),
+			('contactformbodymessage', 'Someone has responded to your AWPCP Demo Ad', 'Contact form body message', '2'),
+			('seofriendlyurls', '0', 'Search Engine Friendly URLs? [ Does not work in some instances ]', 0),
+			('allowhtmlinadtext', '0', 'Allow HTML in ad text [ Not recommended ]', 0),
+			('hyperlinkurlsinadtext', '1', 'Make URLs in ad text clickable', '0'),
+			('notice_awaiting_approval_ad', 'All ads must first be approved by the administrator before they are activated in the system. As soon as an admin has approved your ad it will become visible in the system. Thank you for your business.','Text for message to notify user that ad is awaiting approval', 2),
+			('displayphonefield', '1', 'Show phone field', 0),
+			('displayphonefieldreqop', '0', 'Require phone', 0),
+			('displaycityfield', '1', 'Show city field.', 0),
+			('displaycityfieldreqop', '0', 'Require city', 0),
+			('displaystatefield', '1', 'Show state field.', 0),
+			('displaystatefieldreqop', '0', 'Require state', 0),
+			('displaycountryfield', '1', 'Show country field.', 0),
+			('displaycountryfieldreqop', '0', 'Require country', 0),
+			('displaycountyvillagefield', '0', 'Show County/village/other.', 0),
+			('displaycountyvillagefieldreqop', '0', 'Require county/village/other.', 0),
+			('displaypricefield', '1', 'Show price field.', 0),
+			('displaypricefieldreqop', '0', 'Require price.', 0),
+			('displaywebsitefield', '1', 'Show website field', 0),
+			('displaywebsitefieldreqop', '0', 'Require website', 0),
+			('buildsearchdropdownlists', '0', 'The search form can attempt to build drop down country, state, city and county lists if data is available in the system. Limits search to available locations. Note that with the regions module installed the value for this option is overridden.', 0),
+			('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side', 2),
+		('showlatestawpcpnews', '1', 'Allow AWPCP RSS.', 0);
+
 
 
 	CREATE TABLE " . $table_name5 . " (
@@ -403,68 +471,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	) ENGINE=MyISAM;
 
 
-	INSERT INTO " . $table_name1 . " (`category_id`, `category_parent_id`, `category_name`) VALUES
-	(1, 0, 'General');
-
-	INSERT INTO " . $table_name2 . " (`adterm_id`, `adterm_name`, `amount`, `recurring`, `rec_period`, `rec_increment`, `buys`, `imagesallowed`) VALUES
-	(1, '30 Day Listing', 9.99, 1, 31, 'D', 0, 6);
-
-
-	INSERT INTO " . $table_name4 . " (`config_option`, `config_value`, `config_diz`, `option_type`) VALUES
-		('userpagename', 'AWPCP', 'The name of the page for the user side access to the classifieds [CAUTION: Please make sure you do not already have a page using the same name because the current page will be overwritten]', 1),
-		('freepay', '0', 'You can run a free or paid classified listing service. With the box checked you are running in pay mode. With the box unchecked you are running in free mode', 0),
-		('requireuserregistration', '0', 'You can require users to be registered before they can post an ad. With the box checked you are running in registration required mode. With the box unchecked anyone can post an ad whether or not they are registered.', 0),
-		('main_page_display', '1', 'You can either display your ad categories on your main page or your ad listings. By default your categories are displayed. To display your listings instead change the value 1 to 2', 1),
-		('paylivetestmode', '1', 'By default both paypal and 2checkout are running in live mode. If you prefer to test to make sure payments are being processed to your accounts uncheck this box to switch to sandbox test mode.', 0),
-		('useadsense', '1', 'Should adsense ads be displayed in ads? Check to activate. Uncheck to deactivate.', 0),
-		('adsense', 'Replace this text with your adsense code', 'Your adsense code (Best if 468 by 60 text or banner.', 2),
-		('adsenseposition', '2', 'Where do you want to display your adsense code? 1= directly above the ad text body 2= directly under the ad text body 3=below the ad images if there are any.', 1),
-		('addurationfreemode', '0', 'If you are running in free mode enter the value in days for the number of days ads can stay in the system before they expire. If you do not want the ads to expire leave the value set to zero [0] Note that [0] is treated like a period of 25 years. Also note that expired ads are automatically deleted from the system.', 1),
-		('imagesallowdisallow', '0', 'Uncheck to disallow images in ads. Check to allow. [Affects both free and paid]', 0),
-		('awpcp_thickbox_disabled', '0', 'Check this box to turn off the thickbox/lightbox feature if it conflicts with other elements of your site', 0),
-		('imagesallowedfree', '4', 'If allowing images and running in free mode, how many images are allowed per ad?', 1),
-		('uploadfoldername', 'uploads', 'Name of your main wp upload folder. This folder must exist and be located in your wp-content directory', 1),
-		('maximagesize', '150000', 'If allowing images set the maximum file size that can be uploaded per image.', 1),
-		('maxcharactersallowed', '750', 'What is the maximum number of characters the text of an ad can contain?', 1),
-		('paypalemail', 'xxx@xxxxxx.xxx', 'Email address for paypal payments [if running in paymode and if paypal is activated]', 1),
-		('paypalcurrencycode', 'USD', 'The currency in which you would like to receive your paypal payments', 1),
-		('2checkout', 'xxxxxxx', 'Account for 2Checkout payments [if running in pay mode and if 2Checkout is activated]', 1),
-		('activatepaypal', '1', 'Check to activate paypal as a payment gateway. Uncheck to deactivate. [If running in pay mode]', 0),
-		('activate2checkout', '1', 'Check to activate 2Checkout as a payment gateway. Uncheck to deactivate. [If running in pay mode] ', 0),
-		('notifyofadexpiring', '1', 'Notify ad poster that their ad has expired?', 0),
-		('notifyofadposted', '1', 'Check this to notify you the admin when a new ad is posted. Leave unchecked if you do not want to be notified.', 0),
-		('imagesapprove', '0', 'If allowing images, check this to hide images in ads until admin has approved the images, or leave unchecked to display images immediately', 0),
-		('adapprove', '0', 'Check this to enable ad approval so a new ad has to first be approved by the adminstrator before someone can view it on the site. Uncheck if you prefer all ads to be automatically displayed.', 0),
-		('disablependingads', '1', 'If running in Pay mode, uncheck this if you want ads to be visible even if payment status is Pending instead of Completed.', 0),
-		('showadcount', '1', 'Uncheck this to disable showing how many ads a category contains. Check it if you want to display how many ads a category contains [User side only]', 0),
-		('displayadviews', '1', 'Uncheck this to disable showing how many times an ad has been viewed. Check it if you want to display how many times an ad has been viewed', 0),
-		('smtphost', 'mail.example.com', 'If emails are not going out you can fill in your SMTP host here to try using the SMTP alternative', 1),
-		('smtpusername', 'smtp_username', 'If emails are not going out you can fill in your SMTP username here to try using the SMTP alternative', 1),
-		('smtppassword', '', 'If emails are not going out you can fill in your SMTP password here to try using the SMTP alternative', 1),
-		('onlyadmincanplaceads', '0', 'Check this box if you want to prevent anyone but the adminstrator from being able to post ads', '0'),
-		('contactformcheckhuman', '1', 'Uncheck this box if you want to disable the math problem used to check if the person filling out the form to contact about an ad is human. ', '0'),
-		('contactformcheckhumanhighnumval', '100', 'The value of the high number to use when selecting random values for addition problem used in the contact form to check if the form is being submitted by a person ', '1'),
-		('contactformsubjectline', 'A response to your ad posted at AWPCP Demo Site', 'Text for subject line of email sent to ad poster when someone uses contact form to send message ', '1'),
-		('contactformbodymessage', 'This is a message in response to your ad posted at AWPCP Demo Site at http://www.awpcp.com', 'Text for the body of message used in the email sent to ad poster when someone uses contact form. Note that the actual message submitted via the contact form will be appended below this note', '2'),
-		('seofriendlyurls', '0', 'Search Engine Friendly URLs? Checking the box will make all URLs generated by the plugin more search engine friendly. Unchecking the box will revert to the default link structure. This will only work if your main wordpress installation is using something other than the default permalink structure.', 0),
-		('allowhtmlinadtext', '0', 'Check this if you want to allow people to be able to use HTML in their ad text. Leave unchecked to disallow HTML. <b>It is highly recommended that you DO NOT ENABLE HTML as it could invite spam and other more malicious abuses.<\/b>', 0),
-		('hyperlinkurlsinadtext', '1', 'Uncheck this box if you do not want to make any URLs users place in ad text to be clickable ', '0'),
-		('notice_awaiting_approval_ad', 'All ads must first be approved by the administrator before they are activated in the system. As soon as an admin has approved your ad it will become visible in the system. Thank you for your business.','The message to print after an ad has been posted if you are manually approving ads before they are displayed on the site', 2),
-		('displayphonefield', '1', 'Uncheck this if you prefer to hide the phone input field. Check it to show the phone input field.', 0),
-		('displayphonefieldreqop', '0', 'If showing the phone input field check this if the user is required to enter a phone number. [SUGGESTION: It is probably better to leave unchecked so phone number is optional.]', 0),
-		('displaycityfield', '1', 'Uncheck this if you prefer to hide the city input field. Check it to show the city input field.', 0),
-		('displaycityfieldreqop', '0', 'If showing the city input field check this if the user is required to enter a city. [SUGGESTION: It is probably better to leave unchecked so city is optional.]', 0),
-		('displaystatefield', '1', 'Uncheck this if you prefer to hide the state input field. Check it to show the state input field.', 0),
-		('displaystatefieldreqop', '0', 'If showing the state field check this if the user is required to enter a state. [SUGGESTION: It is probably better to leave unchecked so state is optional.]', 0),
-		('displaycountryfield', '1', 'Uncheck this if you prefer to hide the country input field. Check it to show the country input field.', 0),
-		('displaycountryfieldreqop', '0', 'If showing the country input field, check this if the user is required to enter a country. [SUGGESTION: It is probably better to leave unchecked so country is optional.]', 0),
-		('displaycountyvillagefield', '0', 'Check this if you want to display a field for county/village/other. Leave unchecked if field not needed.', 0),
-		('displaycountyvillagefieldreqop', '0', 'If showing the county/village/other input field, check this if the user is required to enter a value for county/village/other.', 0),
-		('displaypricefield', '1', 'Uncheck this if you prefer to hide the item price input field. Check it to show the item price input field.', 0),
-		('displaypricefieldreqop', '0', 'If showing the item price input field, check this if the user is required to enter an item price.', 0),
-		('buildsearchdropdownlists', '0', 'The search form can attempt to build drop down country, state, city and county lists if data is available in the system. Check here to use drop down lists for the regions fields where data is available. Note that with the regions module installed the value for this option is overridden.', 0),
-		('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side', 2),
-		('showlatestawpcpnews', '1', 'Uncheck this to remove the news feed that shows the latest news about Another Wordpress Classifieds Plugin. If you want to be made immediately aware of bug fixes and new features added to the plugin you should leave the value checked.', 0);";
+	";
 
       require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
       dbDelta($sql);
@@ -487,7 +494,42 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 
     if( $installed_ver != $awpcp_db_version ) {
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// 1.0.5.4 updates
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+   	$ad_websiteurl_column="websiteurl";
+
+   	$ad_websiteurl_field=mysql_query("SELECT $ad_websiteurl_column FROM $table_name3;");
+
+   		if (mysql_errno())
+   		{
+
+   			$wpdb->query("ALTER TABLE " . $table_name3 . "  ADD `websiteurl` VARCHAR( 500 ) NOT NULL AFTER `ad_contact_email`");
+		}
+
+    if(!field_exists($field='displaywebsitefield'))
+	{
+		$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+		('displaywebsitefield', '1', 'Show website field', 0);");
+	}
+
+    if(!field_exists($field='displaywebsitefieldreqop'))
+	{
+		$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+		('displaywebsitefieldreqop', '0', 'Require website', 0);");
+	}
+
+
+	 $query=("ALTER TABLE " . $table_name3 . "  DROP INDEX (`ad_title`,`ad_details`)");
+	 @mysql_query($query);
+	 $query=("ALTER TABLE " . $table_name3 . "  ADD FULLTEXT KEY `titdes` (`ad_title`,`ad_details`)");
+	 @mysql_query($query);
+
+
+   	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 1.0.5.3 updates
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -780,6 +822,9 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	   $wpdb->query("ALTER TABLE " . $table_name4 . "  DEFAULT CHARACTER SET utf8");
 	   $wpdb->query("ALTER TABLE " . $table_name5 . "  DEFAULT CHARACTER SET utf8");
 	   $wpdb->query("ALTER TABLE " . $table_name6 . "  DEFAULT CHARACTER SET utf8");
+
+
+
 
 		if(!field_exists($field='contactformcheckhuman')){
 
@@ -1784,7 +1829,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 		$offset=addslashes_mq($_REQUEST['offset']);
 		$results=addslashes_mq($_REQUEST['results']);
 
-		load_ad_post_form($actonid,$action='editad',$awpcppagename,$adtermid='',$editemail,$adaccesskey,$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$ad_county_village='',$ad_item_price='',$addetails='',$adpaymethod='',$offset,$results,$ermsg='');
+		load_ad_post_form($actonid,$action='editad',$awpcppagename,$adtermid='',$editemail,$adaccesskey,$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$ad_county_village='',$ad_item_price='',$addetails='',$adpaymethod='',$offset,$results,$ermsg='',$websiteurl='',$checkhuman='',$numval1='',$numval2='');
 	}
 
 	elseif($laction == 'dopost1')
@@ -1813,6 +1858,10 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 		$ad_item_price=addslashes_mq($_REQUEST['ad_item_price']);
 		$ad_item_price=str_replace(",", '', $ad_item_price);
 		$addetails=addslashes_mq($_REQUEST['addetails']);
+		$websiteurl=addslashes_mq($_REQUEST['websiteurl']);
+		$checkhuman=addslashes_mq($_REQUEST['checkhuman']);
+		$numval1=addslashes_mq($_REQUEST['numval1']);
+		$numval2=addslashes_mq($_REQUEST['numval2']);
 
 
 		if(get_awpcp_option('allowhtmlinadtext') == 0){
@@ -1825,7 +1874,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 		$offset=addslashes_mq($_REQUEST['offset']);
 		$results=addslashes_mq($_REQUEST['results']);
 
-		processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg);
+		processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg,$websiteurl,$checkhuman,$numval1,$numval2);
 
 	}
 
@@ -1853,7 +1902,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 				$changeto=$_REQUEST['changeto'];
 			}
 
-		$query="UPDATE  ".$table_name3." SET payment_status='$changeto' WHERE ad_id='$actonid'";
+		$query="UPDATE  ".$table_name3." SET payment_status='$changeto', disabled='0' WHERE ad_id='$actonid'";
 		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 		echo "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">The ad has been approved</div>";
@@ -2117,7 +2166,45 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 		viewimages($where);
 	}
 
+	elseif($laction == 'lookupadby')
+	{
 
+		if(isset($_REQUEST['lookupadbychoices']) && !empty($_REQUEST['lookupadbychoices']))
+		{
+			$lookupadbytype=$_REQUEST['lookupadbychoices'];
+		}
+		else
+		{
+			echo "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">You need to check whether you want to look up the ad by title or by id</div>";
+		}
+		if(isset($_REQUEST['lookupadidortitle']) && !empty($_REQUEST['lookupadidortitle']))
+		{
+			$lookupadbytypevalue=$_REQUEST['lookupadidortitle'];
+		}
+		else
+		{
+			echo "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">You need enter either an ad title or an ad id to look up</div>";
+		}
+		if($lookupadbytype == 'adid')
+		{
+			if(!is_numeric($lookupadbytypevalue))
+			{
+				echo "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">You indicated you wanted to look up the ad by ID but you entered an invalid ID. Please try again</div>";
+			}
+			else
+			{
+				$where="ad_id='$lookupadbytypevalue'";
+			}
+		}
+		elseif($lookupadbytype == 'adtitle')
+		{
+			$where="ad_title='$lookupadbytypevalue'";
+		}
+		elseif($lookupadbytype == 'titdet')
+		{
+			$where="MATCH (ad_title,ad_details) AGAINST (\"$lookupadbytypevalue\")";
+		}
+	}
 		if(isset($_REQUEST['showadsfromcat_id']) && !empty($_REQUEST['showadsfromcat_id'])){
 			$thecat_id=$_REQUEST['showadsfromcat_id'];
 			$where="ad_title <> '' AND (ad_category_id='$thecat_id' OR ad_category_parent_id='$thecat_id')";
@@ -2144,9 +2231,34 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 					$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? addslashes_mq($_REQUEST['results']) : ($results=10);
 
 
+if(isset($_REQUEST['sortby']))
+{
+	$sortby=$_REQUEST['sortby'];
+	if($sortby == 'titleza')
+	{
+		$orderby="ad_title DESC";
+	}
+	elseif($sortby == 'titleaz')
+	{
+		$orderby="ad_title ASC";
+	}
+	elseif($sortby == 'awaitingapproval')
+	{
+		$orderby="disabled DESC, ad_key DESC";
+	}
+	elseif($sortby == 'paidfirst')
+	{
+		$orderby="payment_status DESC, ad_key DESC";
+	}
+}
+
+if(!isset($sortby) || empty($sortby))
+{
+	$orderby="ad_key DESC";
+}
 
 					$items=array();
-					$query="SELECT ad_id,ad_category_id,ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_county_village,ad_details,ad_postdate,disabled,payment_status FROM $from WHERE $where ORDER BY ad_postdate DESC LIMIT $offset,$results";
+					$query="SELECT ad_id,ad_category_id,ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_county_village,ad_details,ad_postdate,disabled,payment_status FROM $from WHERE $where ORDER BY $orderby LIMIT $offset,$results";
 					if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 					while ($rsrow=mysql_fetch_row($res)) {
@@ -2174,7 +2286,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 							$base=get_option(siteurl);
 							$awpcppage=get_currentpagename();
 							$awpcppagename = sanitize_title($awpcppage, $post_ID='');
-							$awpcpwppostpageid=get_page_id($awpcppagename);
+							$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
 
 								$ad_title="<input type=\"checkbox\" name=\"awpcp_ad_to_delete[]\" value=\"$ad_id\"><a href=\"?page=Manage1&action=viewad&id=$ad_id&offset=$offset&results=$results\">".$rsrow[2]."</a>";
 								$handlelink="<a href=\"?page=Manage1&action=deletead&id=$ad_id&offset=$offset&results=$results\">Delete</a> | <a href=\"?page=Manage1&action=editad&id=$ad_id&offset=$offset&results=$results\">Edit</a>";
@@ -2198,7 +2310,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 							$changepaystatlink='';
 
 								if($paymentstatus == 'Pending'){
-									$changepaystatlink="<a href=\"?page=Manage1&action=cps&id=$ad_id&changeto=Completed\">Complete</a>";
+									$changepaystatlink="<a href=\"?page=Manage1&action=cps&id=$ad_id&changeto=Completed&sortby=$sortby\">Complete</a>";
 								}
 
 									$paymentstatus="<td> $paymentstatus <SUP>$changepaystatlink</SUP></td>";
@@ -2218,7 +2330,7 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 								$totalimagesuploaded=get_total_imagesuploaded($ad_id);
 
 									if($totalimagesuploaded >= 1){
-										$viewimages="[ $totalimagesuploaded ] <a href=\"?page=Manage1&action=viewimages&id=$ad_id\">View</a>";
+										$viewimages="[ $totalimagesuploaded ] <a href=\"?page=Manage1&action=viewimages&id=$ad_id&sortby=$sortby\">View</a>";
 									}
 									else {
 										$viewimages="No Images";
@@ -2260,8 +2372,77 @@ $table_name5 = $wpdb->prefix . "awpcp_adphotos";
 		table.listcatsc td { width:20%;border: none;
 		vertical-align: middle; padding: 5px; font-weight: normal; }
 		table.listcatsc tr.special td { border-bottom: 1px solid #ff0000;  }
+		.sortadsby { margin:5px 0px 5px 0px;}
+		.sortadsby a { 	text-decoration:none; }
+		.sortadsby a:hover { text-decoration:underline;	}
 		</style>
-		$pager1
+		$pager1";
+		echo "<div class=\"sortadsby\">Sort Ads By: ";
+
+		if(!isset($sortby) || empty ($sortby))
+		{
+			$sortby="mostrecent";
+		}
+
+		if($sortby == 'mostrecent')
+		{
+			echo "<b>Most Recent</b>";
+		}
+		else
+		{
+			echo "<a href=\"?page=Manage1&sortby=mostrecent\">Most Recent</a>";
+		}
+		if($sortby == 'titleza')
+		{
+			echo " | <b> Title Z-A </b>";
+		}
+		else
+		{
+			echo " | <a href=\"?page=Manage1&sortby=titleza\">Title Z-A</a>";
+		}
+		if($sortby == 'titleaz')
+		{
+			echo " | <b> Title A-Z </b>";
+		}
+		else
+		{
+			echo " | <a href=\"?page=Manage1&sortby=titleaz\">Title A-Z</a>";
+		}
+		if(get_awpcp_option('adapprove') == 1)
+		{
+			if($sortby == 'awaitingapproval')
+			{
+				echo " | <b>Awaiting Approval</b>";
+			}
+			else
+			{
+				echo " | <a href=\"?page=Manage1&sortby=awaitingapproval\">Awaiting Approval</a>";
+			}
+		}
+		if(get_awpcp_option('freepay') == 1)
+		{
+			if($sortby == 'paidfirst')
+			{
+				echo " | <b>Paid Ads First</b>";
+			}
+			else
+			{
+				echo " | <a href=\"?page=Manage1&sortby=paidfirst\">Paid Ads First</a>";
+			}
+
+		}
+		echo "</div>
+		<b>Look Up Ad By</b><br/>
+		<form method=\"post\"
+		<p>
+		<input type=\"radio\" name=\"lookupadbychoices\" value=\"adid\"/>Ad ID
+		<input type=\"radio\" name=\"lookupadbychoices\" value=\"adtitle\"/>Ad Title
+		<input type=\"radio\" name=\"lookupadbychoices\" value=\"titdet\"/>Key Word
+		</p>
+		<p><input type=\"text\" name=\"lookupadidortitle\" value=\"$lookupadidortitle\"/></p>
+		<input type=\"hidden\" name=\"action\" value=\"lookupadby\">
+		<input type=\"submit\" class=\"button\" value=\"Look Up Ad\">
+		</form>
 		<form name=\"manageads\" id=\"manageads\" method=\"post\">
 		 $showadstomanage
 		$showadstomanagedeletemultiplesubmitbutton
@@ -3011,7 +3192,7 @@ global $classicontent;
 $awpcppage=get_currentpagename();
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 
-$awpcppageid=get_page_id($awpcppagename);
+$awpcppageid=awpcp_get_page_id($awpcppagename);
 
 if( !is_page($awpcppagename) || !is_page($awpcppageid) ) {
 
@@ -3052,7 +3233,7 @@ function awpcpui_process($awpcppagename) {
 
 		if($action == 'placead')
 		{
-			load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail='',$adaccesskey='',$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset='',$results='',$ermsg='');
+			load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail='',$adaccesskey='',$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset='',$results='',$ermsg='',$websiteurl,$checkhuman,$numval1,$numval2);
 		}
 
 
@@ -3199,8 +3380,13 @@ function awpcpui_process($awpcppagename) {
 			$awpcppagename=addslashes_mq($_REQUEST['awpcppagename']);
 			$offset=addslashes_mq($_REQUEST['offset']);
 			$results=addslashes_mq($_REQUEST['results']);
+			$websiteurl=addslashes_mq($_REQUEST['websiteurl']);
+			$checkhuman=addslashes_mq($_REQUEST['checkhuman']);
+			$numval1=addslashes_mq($_REQUEST['numval1']);
+			$numval2=addslashes_mq($_REQUEST['numval2']);
 
-			processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg);
+
+			processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg,$websiteurl,$checkhuman,$numval1,$numval2);
 
 		}
 
@@ -3358,7 +3544,7 @@ function awpcpui_process($awpcppagename) {
 					}
 				}
 
-				load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail='',$adaccesskey='',$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset='',$results='',$ermsg='');
+				load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail='',$adaccesskey='',$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset='',$results='',$ermsg='',$websiteurl,$checkhuman,$numval1,$numval2);
 
 		}
 		elseif( $action == 'cregs' )
@@ -3387,7 +3573,7 @@ function awpcpui_process($awpcppagename) {
 
 			if($loadwhich == 'p')
 			{
-				load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail='',$adaccesskey='',$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset='',$results='',$ermsg='');
+				load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail='',$adaccesskey='',$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset='',$results='',$ermsg='',$websieurl='',$checkhuman='',$numval1='',$numval2='');
 			}
 			elseif($loadwhich == 's')
 			{
@@ -3409,7 +3595,7 @@ function awpcpui_process($awpcppagename) {
 			if(get_awpcp_option('main_page_display') == 2)
 			{
 				//Display latest ads on mainpage
-				display_ads($where='',$byl='1',$hidepager='1');
+				display_ads($where='',$byl='1',$hidepager='');
 			}
 
 			else
@@ -3745,7 +3931,8 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$adaccesskey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset,$results,$ermsg){
+function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$adaccesskey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset,$results,$ermsg,$websiteurl,$checkhuman,$numval1,$numval2)
+{
 
 	global $wpdb,$siteurl,$hasregionsmodule;
 
@@ -3990,6 +4177,14 @@ echo "<div class=\"fixfloat\"></div>";
 							return false;
 						}";}else {$countrycheck='';}
 
+				if((get_awpcp_option('displaywebsitefield') == 1)
+				&&(get_awpcp_option('displaywebsitefieldreqop') == 1)){
+				$websitecheck="if(the.websiteurl.value==='') {
+							alert('You did enter your website address. The information is required.');
+							the.websiteurl.focus();
+							return false;
+						}";}else {$websitecheck='';}
+
 				if((get_awpcp_option('displaypricefield') == 1)
 				&&(get_awpcp_option('displaypricefieldreqop') == 1)){
 				$itempricecheck="if(the.ad_item_price.value==='') {
@@ -4012,6 +4207,46 @@ echo "<div class=\"fixfloat\"></div>";
 							return false;
 						}";}else {$adtermcheck='';}
 
+				if(get_awpcp_option('contactformcheckhuman') == 1)
+				{
+
+					if(isset($numval1) && !empty($numval1))
+					{
+						$numval1=$numval1;
+					}
+					else
+					{
+						$numval1=rand(1,get_awpcp_option('contactformcheckhumanhighnumval'));
+					}
+					if(isset($numval2) && !empty($numval2))
+					{
+						$numval2=$numval2;
+					}
+					else
+					{
+						$numval2=rand(1,get_awpcp_option('contactformcheckhumanhighnumval'));
+					}
+
+					$thesum=($numval1 +  $numval2);
+
+					$checkhumancheck="
+
+					if (the.checkhuman.value==='')
+					{
+						alert('You did not enter the sum of $numval1 plus $numval2. Please enter the sum of $numval1 plus $numval2');
+						the.checkhuman.focus();
+						return false;
+					}
+					if (the.checkhuman.value != $thesum)
+					{
+						alert('The value you have entered  for the sum of $numval1 plus $numval2 is incorrect. Please enter the correct sum of $numval1 plus $numval2');
+						the.checkhuman.focus();
+						return false;
+					}
+
+					";
+
+				}
 
 				$checktheform="<script type=\"text/javascript\">
 					function checkform() {
@@ -4041,10 +4276,12 @@ echo "<div class=\"fixfloat\"></div>";
 						$citycheck;
 						$statecheck;
 						$countrycheck;
+						$websitecheck;
 						$countyvillagecheck;
 						$itempricecheck
 						$paymethodcheck;
 						$adtermcheck;
+						$checkhumancheck;
 
 
 						if (the.addetails.value==='') {
@@ -4252,11 +4489,19 @@ echo "<div class=\"fixfloat\"></div>";
 				<input type=\"hidden\" name=\"awpcppagename\" value=\"$awpcppagename\">
 				<input type=\"hidden\" name=\"results\" value=\"$results\">
 				<input type=\"hidden\" name=\"offset\" value=\"$offset\">
+				<input type=\"hidden\" name=\"numval1\" value=\"$numval1\">
+				<input type=\"hidden\" name=\"numval2\" value=\"$numval2\">
 				<br/>
 				<h2>Ad Details and Contact Information </h2>
 				<p>Ad Title<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"adtitle\" value=\"$adtitle\"></p>
-				<p>Ad Category<br/><select name=\"adcategory\"><option value=\"\">Select your ad category</option>$allcategories</a></select></p>
-				<p>Name of person to contact<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_name\" value=\"$adcontact_name\" $readonlyacname></p>
+				<p>Ad Category<br/><select name=\"adcategory\"><option value=\"\">Select your ad category</option>$allcategories</a></select></p>";
+
+				if(get_awpcp_option(displaywebsitefield) == 1)
+				{
+					$theformbody.="<p>Website URL<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"websiteurl\" value=\"$websiteurl\" /></select></p>";
+				}
+
+				$theformbody.="<p>Name of person to contact<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_name\" value=\"$adcontact_name\" $readonlyacname></p>
 				<p>Contact Person's Email (Please enter a valid email. The codes needed to edit your ad will be sent to your email address)<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_email\" value=\"$adcontact_email\" $readonlyacem></p>";
 
 				if(get_awpcp_option(displayphonefield) == 1)
@@ -4306,7 +4551,7 @@ echo "<div class=\"fixfloat\"></div>";
 						}
 						else
 						{
-							$opsitemregstatownlist=awpcp_region_create_statown_list($adcontact_state,$byvalue='');
+							$opsitemregstatownlist=awpcp_region_create_statown_list($adcontact_state,$byvalue='',$adcontact_country='');
 						}
 
 						if(!isset($opsitemregstatownlist) || empty($opsitemregstatownlist) )
@@ -4387,6 +4632,17 @@ echo "<div class=\"fixfloat\"></div>";
 				if(get_awpcp_option(displaypricefield) == 1){
 				$theformbody.="<p>Item Price<br/><input size=\"10\" type=\"text\" class=\"inputboxprice\" maxlength=\"10\" name=\"ad_item_price\" value=\"$ad_item_price\"></p>";}
 				$theformbody.="<p>Ad Details<br/><input readonly type=\"text\" name=\"remLen\" size=\"10\" maxlength=\"5\" class=\"inputboxmini\" value=\"$addetailsmaxlength\"> characters left<br/><br/>$htmlstatus<br/><textarea name=\"addetails\" rows=\"10\" cols=\"50\" class=\"textareainput\" onKeyDown=\"textCounter(this.form.addetails,this.form.remLen,$addetailsmaxlength);\" onKeyUp=\"textCounter(this.form.addetails,this.form.remLen,$addetailsmaxlength);\">$addetails</textarea></p>";
+
+				if(get_awpcp_option('contactformcheckhuman') == 1)
+				{
+
+					$theformbody.="<p>Enter the value of the following sum: <b>$numval1 + $numval2</b><br>
+					<input type=\"text\" name=\"checkhuman\" value=\"$checkhuman\" size=\"5\"></p>";
+
+
+
+
+				}
 
 
 	if(get_awpcp_option(freepay) == '0')
@@ -4852,7 +5108,7 @@ echo "
 	";
 
 $theadtitle=get_adtitle($adid);
-$modtitle=cleanstring(theadtitle);
+$modtitle=cleanstring($theadtitle);
 $modtitle=add_dashes($modtitle);
 
 $permastruc=get_option('permalink_structure');
@@ -5654,7 +5910,7 @@ function dosearch() {
 		else {
 		$where="disabled ='0'";
 		if(isset($keywordphrase) && !empty($keywordphrase)){
-			$where.=" AND (ad_title LIKE '%$keywordphrase%' OR ad_details LIKE '%$keywordphrase%')";
+			$where.=" AND MATCH (ad_title,ad_details) AGAINST (\"$keywordphrase\")";
 		}
 
 		if(isset($searchname) && !empty($searchname)){
@@ -5781,7 +6037,7 @@ function editadstep1($adaccesskey,$editemail,$awpcppagename){
 		}
 
 		if(isset($adid) && !empty($adid)){
-			load_ad_post_form($adid,$action='editad',$awpcppagename,$adtermid,$editemail,$adaccesskey,$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$ad_county_village='',$ad_item_price='',$addetails='',$adpaymethod='',$offset,$results,$ermsg='');
+			load_ad_post_form($adid,$action='editad',$awpcppagename,$adtermid,$editemail,$adaccesskey,$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$ad_county_village='',$ad_item_price='',$addetails='',$adpaymethod='',$offset,$results,$ermsg='',$websiteurl='',$checkhuman='',$numval1='',$numval2='');
 		}
 
 		else {
@@ -5799,13 +6055,16 @@ function editadstep1($adaccesskey,$editemail,$awpcppagename){
 //	Process ad submission
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg) {
+function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg,$websiteurl,$checkhuman,$numval1,$numval2)
+{
 
 
 		global $wpdb;
 		$table_name2 = $wpdb->prefix . "awpcp_adfees";
 		$table_name3 = $wpdb->prefix . "awpcp_ads";
 		$table_name5 = $wpdb->prefix . "awpcp_adphotos";
+
+		$permastruc=get_option(permalink_structure);
 
 		// Check the form to make sure no required information is missing
 
@@ -5824,6 +6083,10 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 			$aditempricemsg1='';
 			$aditempricemsg2='';
 			$adcountyvillagemsg='';
+			$websiteurlmsg1='';
+			$websiteurlmsg2='';
+			$checkhumanmsg='';
+			$sumwrongmsg='';
 
 			$error=false;
 
@@ -5957,13 +6220,49 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 			}
 		}
 
+		// If website field is checked and required make sure website value was entered
+		if((get_awpcp_option('displaywebsitefield') == 1)
+		&&(get_awpcp_option('displaywebsitefieldreqop') == 1)){
+			if(!isset($websiteurl) || empty($websiteurl)) {
+				$error=true;
+				$websiteurlmsg1="<li>You did not enter your website address. Your website address is required.</li>";
+			}
+		}
+
+		//If they have submitted a website address make sure it is correctly formatted
+
+		if(isset($websiteurl) && !empty($websiteurl) )
+		{
+			if( !isValidURL($websiteurl) )
+			{
+				$error=true;
+				$websiteurlmsg2="<li>Your website address is not properly formatted. Please make sure you have included the http:// part of your website address</li>";
+			}
+		}
+
+		$thesum=($numval1 +  $numval2);
+
+		if(get_awpcp_option('contactformcheckhuman') == 1)
+		{
+
+			if(!isset($checkhuman) || empty($checkhuman))
+			{
+				$error=true;
+				$checkhumanmsg="<li>You did not enter the value for the sum of <b>$numval1 plus $numval2</b>. Please enter the value for the sum of <b>$numval1 plus $numval2</b> </li>";
+			}
+			if($checkhuman != $thesum){
+				$error=true;
+				$sumwrongmsg="<li>The value you entered for the sum of <b>$numval1 plus $numval2</b> was incorrect</li>";
+			}
+		}
+
 
 		if($error){
 			$ermsg="<p>There has been an error found. Your message has not been sent. Please review the list of problems, correct them then try to send your message again.</p>";
 			$ermsg.="<b>The errors:</b><br/>";
-			$ermsg.="<ul>$adtitlemsg $adcategorymsg $adcnamemsg $adcemailmsg1 $adcemailmsg2 $adcphonemsg $adcitymsg $adstatemsg $adcountrymsg $addetailsmsg $adpaymethodmsg $adtermidmsg $aditempricemsg1 $aditempricemsg2</ul>";
+			$ermsg.="<ul>$adtitlemsg $adcategorymsg $adcnamemsg $adcemailmsg1 $adcemailmsg2 $adcphonemsg $adcitymsg $adstatemsg $adcountrymsg $addetailsmsg $adpaymethodmsg $adtermidmsg $aditempricemsg1 $aditempricemsg2 $websiteurlmsg1 $websiteurlmsg2 $checkhumanmsg $sumwrongmsg</ul>";
 
-			load_ad_post_form($adid,$action,$awpcppagename,$adterm_id,$editemail,$adkey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset,$results,$ermsg);
+			load_ad_post_form($adid,$action,$awpcppagename,$adterm_id,$editemail,$adkey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset,$results,$ermsg,$websiteurl,$checkhuman,$numval1,$numval2);
 		}
 
 		else {
@@ -6001,7 +6300,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 				$itempriceincents=($ad_item_price * 100);
 
 				$query="UPDATE ".$table_name3." SET ad_category_id='$adcategory',ad_category_parent_id='$adcategory_parent_id',ad_title='$adtitle',
-				ad_details='$addetails',ad_contact_phone='$adcontact_phone',ad_contact_name='$adcontact_name',ad_contact_email='$adcontact_email',ad_city='$adcontact_city',ad_state='$adcontact_state',ad_country='$adcontact_country',ad_county_village='$ad_county_village',ad_item_price='$itempriceincents',
+				ad_details='$addetails',websiteurl='$websiteurl',ad_contact_phone='$adcontact_phone',ad_contact_name='$adcontact_name',ad_contact_email='$adcontact_email',ad_city='$adcontact_city',ad_state='$adcontact_state',ad_country='$adcontact_country',ad_county_village='$ad_county_village',ad_item_price='$itempriceincents',
 				$qdisabled ad_last_updated=now() WHERE ad_id='$adid' AND ad_key='$adkey'";
 				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
@@ -6119,7 +6418,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 
 
-				$query="INSERT INTO ".$table_name3." SET ad_category_id='$adcategory',ad_category_parent_id='$adcategory_parent_id',ad_title='$adtitle',ad_details='$addetails',ad_contact_phone='$adcontact_phone',ad_contact_name='$adcontact_name',ad_contact_email='$adcontact_email',ad_city='$adcontact_city',ad_state='$adcontact_state',ad_country='$adcontact_country',ad_county_village='$ad_county_village',ad_item_price='$itempriceincents',";
+				$query="INSERT INTO ".$table_name3." SET ad_category_id='$adcategory',ad_category_parent_id='$adcategory_parent_id',ad_title='$adtitle',ad_details='$addetails',ad_contact_phone='$adcontact_phone',ad_contact_name='$adcontact_name',ad_contact_email='$adcontact_email',ad_city='$adcontact_city',ad_state='$adcontact_state',ad_country='$adcontact_country',ad_county_village='$ad_county_village',ad_item_price='$itempriceincents',websiteurl='$websiteurl',";
 
 				if( isset($adterm_id) && !empty($adterm_id) )
 				{
@@ -7682,28 +7981,40 @@ elseif(mail($adposteremail, $subjectuser, $mailbodyuseralt, $from_header))
 else
 {
 
-				$host = get_awpcp_option('smtphost');
-				$username = get_awpcp_option('smtpusername');
-				$password = get_awpcp_option('smtppassword');
 
-				$headers = array ('From' => $from_header,
-				  'To' => $sendtoemail,
-				  'Subject' => $subject);
-				$smtp = Mail::factory('smtp',
-				  array ('host' => $host,
-					'auth' => true,
-					'username' => $username,
-					'password' => $password));
+				$awpcp_smtp_host = get_awpcp_option('smtphost');
+				$awpcp_smtp_username = get_awpcp_option('smtpusername');
+				$awpcp_smtp_password = get_awpcp_option('smtppassword');
 
-				$mail = $smtp->send($sendtoemail, $headers, $bodyalt);
-
-				if (PEAR::isError($mail))
+				if(isset($awpcp_smtp_host) && !empty($awpcp_smtp_host) && isset($awpcp_smtp_username) && !empty($awpcp_smtp_username) && isset($awpcp_smtp_password) && !empty($awpcp_empty) )
 				{
-				 $printmessagetouser="Sorry but there has been a problem encountered transmitting your ad information to your email address. Please contact the site administrator to request this information.";
+
+					$headers = array ('From' => $from_header,
+					  'To' => $sendtoemail,
+					  'Subject' => $subject);
+					$smtp = Mail::factory('smtp',
+					  array ('host' => $awpcp_smtp_host,
+						'auth' => true,
+						'username' => $awpcp_smtp_username,
+						'password' => $awpcp_smtp_password));
+
+					$mail = $smtp->send($sendtoemail, $headers, $bodyalt);
+
+					if (PEAR::isError($mail))
+					{
+					 $printmessagetouser="Sorry but there has been a problem encountered transmitting your ad information to your email address. Please contact the site administrator to request this information.";
+					}
+					else
+					{
+					 $printmessagetouser="$messagetouser";
+					}
 				}
+
 				else
 				{
-				 $printmessagetouser="$messagetouser";
+
+					 $printmessagetouser="Sorry but there has been a problem encountered transmitting your ad information to your email address. Please contact the site administrator to request this information.";
+
 				}
 
 }
@@ -7775,6 +8086,7 @@ $custom="$ad_id";
 $custom.="_";
 $custom.="$key";
 
+$permastruc=get_option(permalink_structure);
 $quers=setup_url_structure($awpcppagename);
 
 						if(get_awpcp_option('paylivetestmode') == 1){
@@ -8113,7 +8425,7 @@ global $wpdb,$imagesurl,$hasregionsmodule;
 	{
 
 			$permastruc=get_option('permalink_structure');
-			$awpcpwppostpageid=get_page_id($awpcppagename);
+			$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
 			$awpcp_image_display_list=array();
 
 			if( get_awpcp_option('seofriendlyurls') )
@@ -8370,10 +8682,10 @@ $adsensecode=get_awpcp_option('adsense');
 $showadsense="<p class=\"cl-adsense\">$adsensecode</p>";}
 else {$showadsense='';}
 
-			 $query="SELECT ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_county_village,ad_item_price,ad_details from ".$table_name3." WHERE ad_id='$adid'";
+			 $query="SELECT ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_county_village,ad_item_price,ad_details,websiteurl from ".$table_name3." WHERE ad_id='$adid'";
 			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
  				while ($rsrow=mysql_fetch_row($res)) {
- 					list($ad_title,$adcontact_name,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails)=$rsrow;
+ 					list($ad_title,$adcontact_name,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$websiteurl)=$rsrow;
 				}
 
 					////////////////////////////////////////////////////////////////////////////////////
@@ -8387,7 +8699,7 @@ else {$showadsense='';}
 					}
 					else
 					{
-						$adcontactphone="Phone: $adcontact_phone";
+						$adcontactphone="<br/>Phone: $adcontact_phone";
 					}
 
 
@@ -8397,7 +8709,7 @@ else {$showadsense='';}
 					}
 					else
 					{
-						$location="Location: ";
+						$location="<br/>Location: ";
 
 						if( ( isset($adcontact_city) && !empty($adcontact_city) ) && ( isset($adcontact_state) && !empty($adcontact_state) ) && ( isset($adcontact_country) && !empty($adcontact_country) ) )
 						{
@@ -8481,7 +8793,7 @@ else {$showadsense='';}
 							if($itempricereconverted >=1 )
 							{
 								$awpcpthecurrencysymbol=awpcp_get_currency_code();
-								$aditemprice="<span class=\"itemprice\"><b>Price:</b> <b class=\"price\">$awpcpthecurrencysymbol $itempricereconverted</b></span>";
+								$aditemprice="<br/><span class=\"itemprice\"><b>Price:</b> <b class=\"price\">$awpcpthecurrencysymbol $itempricereconverted</b></span>";
 							}
 						}
 					}
@@ -8490,13 +8802,19 @@ else {$showadsense='';}
 					{
 
 						$awpcpadviews_total=get_numtimesadviewd($adid);
-						$awpcpadviews="<span class=\"awpcpadviews\">Views:  $awpcpadviews_total</span>";
+						$awpcpadviews="<br/>Views:  $awpcpadviews_total";
 
 					}
 
 
-					echo "<div id=\"showad\"><div class=\"adtitle\"> $ad_title </div><div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a> $adcontactphone $location</div>
-					<div>$awpcpadviews $aditemprice</div>";
+					echo "<div id=\"showad\"><div class=\"adtitle\"> $ad_title </div>
+					<div class=\"adbyline\"><a href=\"".$quers."$codecontact\">Contact $adcontact_name</a>
+					$adcontactphone $location";
+					if(isset($websiteurl) && !empty($websiteurl))
+					{
+						echo "<br/>Website: $websiteurl";
+					}
+					echo "$awpcpadviews $aditemprice</div>";
 					if( !empty($awpcpadviews) || !empty($aditemprice) )
 					{
 						echo "<div class=\"fixfloat\"></div>";
