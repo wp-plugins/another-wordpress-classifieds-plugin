@@ -158,7 +158,6 @@ function awpcp_insert_thickbox() {
 	add_filter("the_content", "awpcpui_homescreen");
 
 
-
 function awpcp_rewrite($wp_rewrite) {
 global $wp_rewrite,$wpdb;
 $table_name6 = $wpdb->prefix . "awpcp_pagename";
