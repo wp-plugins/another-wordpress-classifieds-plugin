@@ -692,6 +692,109 @@ function get_categorynameidall($cat_id = 0)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: Retrieve the country associated with a specific ad
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	function get_adcountryvalue($adid){
+
+			global $wpdb;
+			$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+			$theadcountry='';
+
+			if(isset($adid) && (!empty($adid))){
+			 $query="SELECT ad_country from ".$table_name3." WHERE ad_id='$adid'";
+			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+ 				while ($rsrow=mysql_fetch_row($res)) {
+ 					list($theadcountry)=$rsrow;
+				}
+			}
+			return $theadcountry;
+	}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: Retrieve the country associated with a specific ad
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: Retrieve the state associated with a specific ad
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	function get_adstatevalue($adid){
+
+			global $wpdb;
+			$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+			$theadstate='';
+
+			if(isset($adid) && (!empty($adid))){
+			 $query="SELECT ad_state from ".$table_name3." WHERE ad_id='$adid'";
+			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+ 				while ($rsrow=mysql_fetch_row($res)) {
+ 					list($theadstate)=$rsrow;
+				}
+			}
+			return $theadstate;
+	}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: Retrieve the state associated with a specific ad
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: Retrieve the city associated with a specific ad
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	function get_adcityvalue($adid){
+
+			global $wpdb;
+			$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+			$theadcity='';
+
+			if(isset($adid) && (!empty($adid))){
+			 $query="SELECT ad_city from ".$table_name3." WHERE ad_id='$adid'";
+			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+ 				while ($rsrow=mysql_fetch_row($res)) {
+ 					list($theadcity)=$rsrow;
+				}
+			}
+			return $theadcity;
+	}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: Retrieve the city associated with a specific ad
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: Retrieve the category associated with a specific ad
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	function get_adcategory($adid){
+
+			global $wpdb;
+			$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+			$theadcategoryid='';
+
+			if(isset($adid) && (!empty($adid))){
+			 $query="SELECT ad_category_id from ".$table_name3." WHERE ad_id='$adid'";
+			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+ 				while ($rsrow=mysql_fetch_row($res)) {
+ 					list($theadcategoryid)=$rsrow;
+				}
+			}
+			return $theadcategoryid;
+	}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: Retrieve the category associated with a specific ad
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: Retrieve the parent category name
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -962,7 +1065,7 @@ return $text;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Get the id of a page by its name
-function get_page_id($awpcppagename){
+function awpcp_get_page_id($awpcppagename){
 	global $wpdb;
 	$awpcpwppostpageid = $wpdb->get_var("SELECT ID FROM $wpdb->posts WHERE post_name = '$awpcppagename'");
 	return $awpcpwppostpageid;
@@ -991,7 +1094,7 @@ function setup_url_structure($awpcppagename) {
 			}
 
 			//Get the ID of the classifieds page
-			$awpcpwppostpageid=get_page_id($awpcppagename);
+			$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
 
 
 			// Get the parent ID of the classifieds page in order to check if the page is or is not a child
@@ -1225,6 +1328,12 @@ function awpcpLimitText($Text,$Min,$Max,$MinAddChar) {
 // END FUNCTION: limit text
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function isValidURL($url)
+{
+ return preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $url);
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: function to handle automatic ad expirations
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1273,12 +1382,6 @@ function doadexpirations(){
 					if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 
-					// Delete the ads
-
-
-					$query="DELETE FROM ".$table_name3." WHERE ad_id IN ('$adstodelete')";
-					@mysql_query($query);
-
 					// Send out an email notifying users that their ad has been deleted if notify is on
 
 					if(get_awpcp_option('notifyofadexpiring') == '1'){
@@ -1302,6 +1405,11 @@ function doadexpirations(){
 
 
 					}
+
+					// Delete the ads
+
+					$query="DELETE FROM ".$table_name3." WHERE ad_id IN ('$adstodelete')";
+					@mysql_query($query);
 
 }
 
@@ -1429,29 +1537,72 @@ function init_awpcpsbarwidget() {
 		extract($args);
 		$limit=$args[0];
 		$title=$args[1];
-		$before_widget=$args[2];
-		$after_widget=$args[3];
-		$before_title=$args[4];
-		$after_title=$args[5];
+		if(!isset($before_widget))
+		{
+			$before_widget=$args[2];
+		}
+		if(!isset($after_widget))
+		{
+			$after_widget=$args[3];
+		}
+		if(!isset($before_title))
+		{
+			$before_title=$args[4];
+		}
+		if(!isset($after_title))
+		{
+			$after_title=$args[5];
+		}
 
 		if(!isset($limit) && !isset($title))
 		{
 			$options = get_option('widget_awpcplatestads');
 			$title = htmlspecialchars(stripslashes($options['title']));
 			$limit = htmlspecialchars(stripslashes($options['hlimit']));
-			$before_widget=$options['beforewidget'];
-			$after_widget=$options['afterwidget'];
-			$before_title=$options['beforetitle'];
-			$after_title=$options['aftertitle'];
+			if(!isset($before_widget))
+			{
+				$before_widget=$options['beforewidget'];
+			}
+			if(!isset($after_widget))
+			{
+				$after_widget=$options['afterwidget'];
+			}
+			if(!isset($before_title))
+			{
+				$before_title=$options['beforetitle'];
+			}
+			if(!isset($after_title))
+			{
+				$after_title=$options['aftertitle'];
+			}
 		}
-		if(ads_exist()){
-			echo $before_widget.$before_title.$title.$after_title;
-			if (function_exists('awpcp_sidebar_headlines')) {
+		if(ads_exist())
+		{
+			if(isset($before_widget) && !empty($before_widget))
+			{
+				echo "$before_widget";
+			}
+			if(isset($before_title) && !empty($before_title))
+			{
+				echo "$before_title";
+			}
+			echo "$title";
+
+			if(isset($after_title) && !empty($after_title))
+			{
+				echo "$after_title";
+			}
+			if (function_exists('awpcp_sidebar_headlines'))
+			{
 				echo '<ul>'."\n";
 				awpcp_sidebar_headlines($limit);
 				echo '</ul>'."\n";
 			}
-			echo $after_widget;
+
+			if(isset($after_widget) && !empty($after_widget))
+			{
+				echo "$after_widget";
+			}
 		}
 	}
 
@@ -1459,7 +1610,7 @@ function init_awpcpsbarwidget() {
 	function widget_awpcplatestads_options() {
 		$options = get_option('widget_awpcplatestads');
 		if (!is_array($options)) {
-			$options = array('hlimit' => '10', 'title' => __('Latest Classifieds', 'wp-awpcplatestads'), 'beforewidget' => '', 'afterwidget' => '', 'beforetitle' => '&lt;h2&gt;', 'aftertitle' => '&lt;/h2&gt;');
+			$options = array('hlimit' => '10', 'title' => __('Latest Classifieds', 'wp-awpcplatestads'), 'beforewidget' => '', 'afterwidget' => '', 'beforetitle' => '', 'aftertitle' => '');
 		}
 		if ($_POST['awpcplatestads-submit']) {
 			$options['hlimit'] = intval($_POST['awpcpwid-limit']);
