@@ -27,6 +27,20 @@ color:#000000;
 width:100px;
 }
 
+.inputboxmed {
+padding:5px;
+border:1px solid #888888;
+background-color:#ffffff;
+color:#000000;
+width:112px;
+}
+
+#awpcpqsearch { background:#f2f2f2; padding:5px 0px 0px 5px; margin:10px auto 10px auto; }
+
+#awpcpqsearch select { width:112px; padding:4px; }
+
+#awpcpqsearch b { font-size:12px;}
+
 .textareainput { width:100%; border:1px inset #444444; }
 
 .messagedisplay {padding:5px;background-color: rgb(255, 251, 204);}
@@ -134,14 +148,58 @@ padding:10px;
 }
 
 #showad .adbyline {
-border-bottom:1px dotted #dddddd;
+margin-top:5px;
+padding:5px;
+
 }
 
-#showad p {
-margin-top:10px;
+#showad .adbyline .adbylinelocation {
+float:left;
+}
+
+#showad .adbyline .awpcpadviews {
+}
+
+#showad .adbyline .awpcpadviews .views {
+font-weight:bold;
+color:#ff0000;
+}
+
+#showad .addetails {
 background:#f5f5f5;
-border:1px dotted #f9f9f9;
-padding:15px;
+padding:10px;
+margin-top:20px;
+}
+
+#showad .addetails .addetails_top {
+margin:10px 0px 0px 0px;
+width:95%;
+}
+
+#showad .addetails .addetails_top .addetails_top_items {
+float:left;
+width:195px;
+margin:0;
+}
+
+#showad .addetails .addetails_top .addetails_top_image {
+float:right;
+}
+
+#showad .addetails .addetails_top .addetails_top_image ul {
+margin:0;
+padding:0;
+}
+
+#showad .addetails .addetails_top .addetails_top_image img {
+	margin: 0px 20px 0px 0px;
+	padding: 2px;
+	border: 1px solid #dddddd;
+
+}
+
+
+#showad p {
 }
 
 
@@ -223,29 +281,18 @@ padding:5px;
 float:right;
 }
 
-.itemprice {
-float:right;
-margin:0 150px 0px 0px;
-padding:5px;
-}
+.itemprice {}
 
 .itemprice .price {
 font-weight:bold;
 color:#ff0000;
 }
 
-.awpcpadviews {
-float:left;
-padding:5px;
-}
-
-.awpcpadviews .views {
-font-weight:bold;
-color:#ff0000;
-}
 
 .displayadshead { padding:10px; }
 .displayadscellimg {  border:1px solid #eeeeee; padding:5px;  }
+img.awpcpbrowseadsimg  { width:60px; }
+
 .displayadscellheadline { padding:5px; border-bottom:1px solid #eeeeee; border-top:1px solid #eeeeee; }
 .displayadscelllocation { padding:5px;  border-bottom:1px solid #eeeeee; border-top:1px solid #eeeeee; }
 .displayadscellviews { padding:5px; border-right:1px solid #eeeeee; border-top:1px solid #eeeeee;  border-bottom:1px solid #eeeeee;}
@@ -259,7 +306,7 @@ color:#ff0000;
 .pager a { padding:2px; border:1px solid #cccccc; }
 
 #awpcpcatlayout { width:100%; }
-#awpcpcatlayout .awpcpcatlayoutleft { width:75%;  }
+#awpcpcatlayout .awpcpcatlayoutleft { width:70%;  }
 #awpcpcatlayout .awpcpcatlayoutright { width:25%;  float:right; border-left:1px solid #dddddd;}
 
 #awpcpcatlayout .awpcpcatlayoutright ul { list-style:none; margin-left:10px;  }
@@ -268,9 +315,9 @@ color:#ff0000;
 #awpcpcatlayout .awpcpcatlayoutright ul li ul li { margin:3px 0 3px 0; padding-right:5px; }
 #awpcpcatlayout .awpcpcatlayoutright span { font-weight:bold; }
 
-#showcategoriesmainlist { width:100%; }
-#showcategoriesmainlist ul {  float:left; list-style:none; }
-#showcategoriesmainlist ul li { width:200px; float:left; list-style:none; padding:0; margin:3px 10px 5px 0px; }
+#showcategoriesmainlist {  }
+#showcategoriesmainlist ul {  list-style:none; }
+#showcategoriesmainlist ul li { width:210px; float:left; list-style:none; padding:0; margin:3px 10px 5px 0px; }
 #showcategoriesmainlist ul li a { text-decoration:none; }
 
 #showcategoriesmainlist ul li.maincat {  }
@@ -293,3 +340,5 @@ p.maincategoryclass
 margin:0px 2px 0px 2px;
 vertical-align:middle;
 }
+
+
