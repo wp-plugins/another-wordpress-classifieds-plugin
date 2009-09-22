@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.5.4
+Version: 1.0.5.5
 Author: A Lewis
 Author URI: http://www.awpcp.com
 */
@@ -85,7 +85,7 @@ if( file_exists("$awpcp_plugin_path/awpcp_remove_powered_by_module.php") )
 }
 
 
-$awpcp_db_version = "1.0.5.4";
+$awpcp_db_version = "1.0.5.5";
 
 if(field_exists($field='uploadfoldername'))
 {
@@ -154,6 +154,7 @@ function awpcp_insert_thickbox() {
 	add_action('admin_menu', 'awpcp_launch');
 	add_action("plugins_loaded", "init_awpcpsbarwidget");
 	add_filter("the_content", "awpcpui_homescreen");
+
 
 
 function awpcp_rewrite($wp_rewrite) {
@@ -396,6 +397,8 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 			('userpagename', 'AWPCP', 'Name for classifieds page. [CAUTION: Make sure page does not already exist]', 1),
 			('freepay', '0', 'Charge Listing Fee?', 0),
 			('requireuserregistration', '0', 'Require user registration?', 0),
+			('postloginformto', '', 'Post login form to [Value should be the full URL to the wordpress login script. Example http://www.awpcp.com/wp-login.php **Only needed if registration is required and your login url is mod-rewritten ] ', 1),
+			('registrationurl', '', 'Location of registraiton page [Value should be the full URL to the wordpress registration page. Example http://www.awpcp.com/wp-login.php?action=register **Only needed if registration is required and your login url is mod-rewritten ] ', 1),
 			('main_page_display', '1', 'Main page layout [ 1 for ad listings | 2 for categories ]', 1),
 			('paylivetestmode', '1', 'Put Paypal and 2Checkout in test mode.', 0),
 			('useadsense', '1', 'Activate adsense', 0),
@@ -493,6 +496,23 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 
 
    	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// 1.0.5.5 updates
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    if(!field_exists($field='postloginformto'))
+	{
+		$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+		('postloginformto', '', 'Post login form to [Value should be the full URL of the login script. Example http://www.awpcp.com/wp-login.php  **Only needed if registration is required and your login url is mod-rewritten ] ', 1);");
+	}
+
+    if(!field_exists($field='registrationurl'))
+	{
+		$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
+		('registrationurl', '', 'Location of registraiton page [Value should be the full URL to the wordpress registration page. Example http://www.awpcp.com/wp-login.php?action=register **Only needed if registration is required and your login url is mod-rewritten ] ', 1);");
+	}
+
+
+   	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 1.0.5.4 updates
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -518,7 +538,6 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `option_type`	) VALUES
 		('displaywebsitefieldreqop', '0', 'Require website', 0);");
 	}
-
 
 	 $query=("ALTER TABLE " . $table_name3 . "  DROP INDEX (`ad_title`,`ad_details`)");
 	 @mysql_query($query);
@@ -3953,14 +3972,23 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 
 
-			$putregisterlink="<a href=\"$siteurl/wp-login.php?action=register\" title=\"Register\"><b>Register</b></a>";
-
+			$postloginformto=get_awpcp_option('postloginformto');
+			if(!isset($postloginformto) || empty($postloginformto))
+			{
+				$postloginformto="$siteurl/wp-login.php";
+			}
+			$registrationurl=get_awpcp_option('registrationurl');
+			if(!isset($registrationurl) || empty($registrationurl))
+			{
+				$registrationurl="$siteurl/wp-login.php?action=register";
+			}
+			$putregisterlink="<a href=\"$registrationurl\" title=\"Register\"><b>Register</b></a>";
 
 			echo "
 				<div id=\"classiwrapper\">
 				<p>Only registered users can post ads. Please $putregisterlink in order to post an ad. If you are already registered, please login below in order to post your ad.</p>
 				<h2>Login</h2>
-				  <form name=\"loginform\" id=\"loginform\" action=\"$siteurl/wp-login.php\" method=\"post\">
+				  <form name=\"loginform\" id=\"loginform\" action=\"$postloginformto\" method=\"post\">
 				  	<p>
 				  		<label>Username<br>
 				  		<input name=\"log\" id=\"user_login\" value=\"\" class=\"textinput\" size=\"20\" tabindex=\"10\" type=\"text\"></label>
@@ -3972,7 +4000,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 				  	</p>
 				  	<p><label><input name=\"rememberme\" id=\"rememberme\" value=\"forever\" tabindex=\"90\" type=\"checkbox\"> Remember Me</label></p>
 				  	<p align=\"center\">
-				  		<input name=\"wp-submit\" id=\"wp-submit\" value=\"Log In\" class=\"submitbutton\" tabindex=\"100\" type=\"submit\">
+				  		<input name=\"login-submit\" id=\"wp-submit\" value=\"Log In\" class=\"submitbutton\" tabindex=\"100\" type=\"submit\">
 				  		<input name=\"redirect_to\" value=\"".$quers."placead\" type=\"hidden\">
 				  		<input name=\"testcookie\" value=\"1\" type=\"hidden\">
 				  	</p>
@@ -3983,14 +4011,15 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 		}
 
 
-		else {
+		else
+		{
 
 
-		$table_name2 = $wpdb->prefix . "awpcp_adfees";
-		$table_name3 = $wpdb->prefix . "awpcp_ads";
+			$table_name2 = $wpdb->prefix . "awpcp_adfees";
+			$table_name3 = $wpdb->prefix . "awpcp_ads";
 
-		$images='';
-		$displaydeleteadlink='';
+			$images='';
+			$displaydeleteadlink='';
 
 
 			if($action == 'placead'){
@@ -4727,11 +4756,11 @@ echo "<div class=\"fixfloat\"></div>";
 				}//end if adtermsset
 			}
 		}
-
-	}
 				echo "<input type=\"submit\" class=\"scbutton\" value=\"Continue\"></form>";
 				echo "</div>";
 				echo "</div>";
+	}
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
