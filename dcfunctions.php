@@ -220,37 +220,40 @@ function del_empty_vals($myarray) {
 	return $myreturn;
 }
 
-function stripslashes_mq($value) {
-if (is_array($value)) {
-$myreturn=array();
-while (list($k,$v)=each($value)) {
-$myreturn[stripslashes_mq($k)]=stripslashes_mq($v);
-}
-} else {
-if(get_magic_quotes_gpc()==0) {
-$myreturn=$value;
-} else {
-$myreturn=stripslashes($value);
-}
-}
-return $myreturn;
+if (!function_exists('stripslashes_mq')) {
+	function stripslashes_mq($value) {
+	if (is_array($value)) {
+	$myreturn=array();
+	while (list($k,$v)=each($value)) {
+	$myreturn[stripslashes_mq($k)]=stripslashes_mq($v);
+	}
+	} else {
+	if(get_magic_quotes_gpc()==0) {
+	$myreturn=$value;
+	} else {
+	$myreturn=stripslashes($value);
+	}
+	}
+	return $myreturn;
+	}
 }
 
-
-function addslashes_mq($value) {
-if (is_array($value)) {
-$myreturn=array();
-while (list($k,$v)=each($value)) {
-$myreturn[addslashes_mq($k)]=addslashes_mq($v);
-}
-} else {
-if(get_magic_quotes_gpc() == 0) {
-$myreturn=addslashes($value);
-} else {
-$myreturn=$value;
-}
-}
-return $myreturn;
+if (!function_exists('addslashes_mq')) {
+	function addslashes_mq($value) {
+	if (is_array($value)) {
+	$myreturn=array();
+	while (list($k,$v)=each($value)) {
+	$myreturn[addslashes_mq($k)]=addslashes_mq($v);
+	}
+	} else {
+	if(get_magic_quotes_gpc() == 0) {
+	$myreturn=addslashes($value);
+	} else {
+	$myreturn=$value;
+	}
+	}
+	return $myreturn;
+	}
 }
 
 if (!function_exists('file_put_contents')) {
@@ -314,7 +317,19 @@ function array2qs($myarray) {
 }
 
 
-function create_pager($from,$where,$offset,$results,$tpname) {
+function create_pager($from,$where,$offset,$results,$tpname)
+{
+
+	$permastruc=get_option('permalink_structure');
+	if(isset($permastruc) && !empty($permastruc))
+	{
+		$awpcpoffset_set="?offset=";
+	}
+	else
+	{
+		$awpcpoffset_set="&offset=";
+	}
+
 	mt_srand(create_awpcp_random_seed());
 	$radius=5;
 	global $PHP_SELF;
@@ -322,13 +337,15 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 
 	$accepted_results_per_page=array("5"=>5,"10"=>10,"20"=>20,"30"=>30,"40"=>40,"50"=>50,"60"=>60,"70"=>70,"80"=>80,"90"=>90,"100"=>100);
 
-	if(!isset($tpname) || empty($tpname)){
-	$tpname="$PHP_SELF";}
+	if(!isset($tpname) || empty($tpname))
+	{
+		$tpname="$PHP_SELF";
+	}
 
 
 	$params=array();
 	$params=array_merge($_GET,$_POST);
-	unset($params['offset'],$params['results'],$params['PHPSESSID'],$params['aeaction'],$params['category_id'],$params['cat_ID'],$params['action'],$params['aeaction'],$params['category_name'],$params['category_parent_id'],$params['createeditadcategory'],$params['deletemultiplecategories'],$params['movedeleteads'],$params['moveadstocategory'],$params['category_to_delete'],$params['tpname'],$params['category_icon']);
+	unset($params['offset'],$params['results'],$params['PHPSESSID'],$params['aeaction'],$params['category_id'],$params['cat_ID'],$params['action'],$params['aeaction'],$params['category_name'],$params['category_parent_id'],$params['createeditadcategory'],$params['deletemultiplecategories'],$params['movedeleteads'],$params['moveadstocategory'],$params['category_to_delete'],$params['tpname'],$params['category_icon'],$params['sortby']);
 
 	$cid='';
 	if( isset($_REQUEST['a']) && !empty($_REQUEST['a']) && ($_REQUEST['a'] == 'browsecat') )
@@ -372,7 +389,7 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 	if (!($res=@mysql_query($query))) {die(mysql_error().' on line: '.__LINE__);}
 	$totalrows=mysql_result($res,0,0);
 	$total_pages=ceil($totalrows/$results);
-	$myreturn.="\t\t<a  href=\"$tpname?offset=0&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
+	$myreturn.="\t\t<a  href=\"$tpname$awpcpoffset_set0&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
 	$dotsbefore=false;
 	$dotsafter=false;
 	for ($i=1;$i<=$total_pages;$i++) {
@@ -389,10 +406,10 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 				$dotsafter=true;
 			}
 		} else {
-			$myreturn.="<a href=\"$tpname?offset=".(($i-1)*$results)."&results=$results&".array2qs($params)."\">$i</a>&nbsp;";
+			$myreturn.="<a href=\"$tpname$awpcpoffset_set".(($i-1)*$results)."&results=$results&".array2qs($params)."\">$i</a>&nbsp;";
 		}
 	}
-	$myreturn.="<a href=\"$tpname?offset=".(($total_pages-1)*$results)."&results=$results&".array2qs($params)."\">&raquo;</a>&nbsp;\n";
+	$myreturn.="<a href=\"$tpname$awpcpoffset_set".(($total_pages-1)*$results)."&results=$results&".array2qs($params)."\">&raquo;</a>&nbsp;\n";
 	$myreturn.="\t</td>\n";
 	$myreturn.="\t<td>\n";
 	$myreturn.="\t\t<input type=\"hidden\" name=\"offset\" value=\"$offset\" />\n";
