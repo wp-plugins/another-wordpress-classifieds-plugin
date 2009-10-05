@@ -296,7 +296,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	CREATE TABLE " . $table_name3 . " (
 	  `ad_id` int(10) NOT NULL AUTO_INCREMENT,
 	  `adterm_id` int(10) NOT NULL DEFAULT '0',
-	  `ad_fee_paid` float(7,2) NOT NULL
+	  `ad_fee_paid` float(7,2) NOT NULL,
 	  `ad_category_id` int(10) NOT NULL,
 	  `ad_category_parent_id` int(10) NOT NULL,
 	  `ad_title` varchar(255) NOT NULL DEFAULT '',
