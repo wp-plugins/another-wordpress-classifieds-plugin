@@ -41,7 +41,7 @@ width:112px;
 
 #awpcpqsearch b { font-size:12px;}
 
-.textareainput { width:100%; border:1px inset #444444; }
+.textareainput { width:80%; border:1px inset #444444; }
 
 .messagedisplay {padding:5px;background-color: rgb(255, 251, 204);}
 .tenpad  {padding:100px;}
@@ -166,7 +166,6 @@ color:#ff0000;
 }
 
 #showad .addetails {
-background:#f5f5f5;
 padding:10px;
 margin-top:20px;
 }
@@ -342,3 +341,14 @@ vertical-align:middle;
 }
 
 
+div.uploadform {  float:left; padding:5px; }
+.theuploaddiv .button {  margin-top:20px; padding:6px; }
+div.theuploaddiv { display:block;padding:10px;   }
+.finishbutton {  background:#f2f2f2; height:auto !important; min-height:60px; width:90%; padding:10px; }
+.finishbutton .finishbuttonleft {  float:left; width:70%; margin-right:25px; }
+.finishbutton .finishbuttonright {  float:left;  }
+.finishbutton .button { text-align:center; padding:6px; margin:10px 0px; }
+p.uploaderror { padding:5px; background:#ffffcc; color:#000000; }
+div.unsetsavedlocationslink { clear:both;padding:5px;background:#f2f2f2; width:300px;text-align:center;}
+
+.erroralert { color:#ff0000;font-weight:bold;font-size:14px; }

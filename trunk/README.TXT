@@ -58,7 +58,6 @@ Copyright 2009 A. Lewis awpcp.com
 AWPCP Classifieds icons courtesy of http://www.famfamfam.com/lab/icons/silk/
 dcfunctions.php courtesy of Dan Caragea http://www.datemill.com
 fileop.class.php courtesy of Dan Caragea http://www.datemill.com
-Easy PHP Upload: http://www.finalwebsites.com/forums/topic/php-ajax-upload-example
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -98,8 +97,6 @@ You need to check your database to make sure data from your previous classifieds
 
 Your classifieds should now be ready and working. If you are having problems please visit http://www.awpcp.com for help
 
-Post-installation note: If you plan to use the search engine friendly urls feature you will need to make sure your can use an htaccess file. You will also need to be using a pretty permalink structure. Currently if your custom permalink structure begins with index.php search engine friendly urls will not work.
-Also, your htaccess file will need to be writable and any time you modify your General Options Settings in Another Wordpress Classifieds Plugin by switching between using and not using search engine friendly URLs, you will need to go to your wordpress permalinks settings page and update your permalink structure so the htaccess file will get updated.
 
 == Screenshots ==
 
@@ -111,7 +108,7 @@ Question: Is this product guaranteed to be free of bugs
 Answer: This product is not guaranteed to be free of bugs. This is an ongoing development project. If you encounter problems using the plugin please considering helping to improve the product by reporting the problems you encounter. 
 
 Question: Will this plugin work with versions of wordpress earlier than 2.7?
-Answer: The plugin has only been tested with version 2.7. If you wish to test it on earlier versions you are free to do so. If you find that it works on an earlier version please consider sharing this information for the benefit of others. At some point in the near future time will be set aside to test the plugin on earlier versions of wordpress.
+Answer: The plugin has only been tested with version 2.7 and above. If you wish to test it on earlier versions you are free to do so. If you find that it works on an earlier version please consider sharing this information for the benefit of others. At some point in the near future time will be set aside to test the plugin on earlier versions of wordpress.
 
 Question: Does your plugin have any particular requirements for PHP or MySQL versions?
 Answer: Yes, you need PHP 5+ and Mysql 5+

@@ -31,14 +31,16 @@ function get_awpcp_option($option) {
 // END FUNCTION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function filter_required_is_classifieds($awpcppageid,$awpcppage,$awpcppagename)
+function awpcp_is_classifieds()
 {
-	global $wpdp,$table_prefix;
+	global $post,$table_prefix;
+	$awpcppageid=$post->ID;
 
-	$classifiedspagecontent="[[AWPCPCLASSIFIEDSUI]]";
+
+	$classifiedspagecontent="[AWPCPCLASSIFIEDSUI]";
 
 
-	$query="SELECT post_content FROM {$table_prefix}posts WHERE ID='$awpcppageid' AND post_name='$awpcppagename' AND post_title='$awpcppage' AND post_type='page' AND post_status='publish'";
+	$query="SELECT post_content FROM {$table_prefix}posts WHERE ID='$awpcppageid' AND post_type='page' AND post_status='publish'";
 	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
 
 	while ($rsrow=mysql_fetch_row($res))
@@ -46,19 +48,19 @@ function filter_required_is_classifieds($awpcppageid,$awpcppage,$awpcppagename)
 	 	list($thepostcontentvalue)=$rsrow;
 	}
 
-	if( $thepostcontentvalue == $classifiedspagecontent )
+	if(strcasecmp($thepostcontentvalue, $classifiedspagecontent) == 0)
 	{
-		$istheclassifiedspage=1;
+		$istheclassifiedspage=true;
 	}
 	else
 	{
-
-		$istheclassifiedspage=0;
+		$istheclassifiedspage=false;
 	}
 
 	return $istheclassifiedspage;
 
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: Check if the user is an admin
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,6 +122,22 @@ $table_name2 = $wpdb->prefix . "awpcp_adfees";
 // END FUNCTION
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function get_2co_prodid($adterm_id) {
+
+global $wpdb;
+$table_name2 = $wpdb->prefix . "awpcp_adfees";
+
+$twoco_pid='';
+
+$query="SELECT twoco_pid from ".$table_name2." WHERE adterm_id='$adterm_id'";
+if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	while ($rsrow=mysql_fetch_row($res))
+	{
+ 		list($twoco_pid)=$rsrow;
+	}
+
+	return $twoco_pid;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: Check if the admin has setup some categories
@@ -379,6 +397,30 @@ $adterm_name='';
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: Get the ad recperiod based on having the ad term ID
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function get_fee_recperiod($adterm_id) {
+
+global $wpdb;
+$table_name2 = $wpdb->prefix . "awpcp_adfees";
+
+$recperiod='';
+
+			 $query="SELECT rec_period from ".$table_name2." WHERE adterm_id='$adterm_id'";
+			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+ 				while ($rsrow=mysql_fetch_row($res)) {
+ 					list($recperiod)=$rsrow;
+				}
+	return $recperiod;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: Get the ad posters name based on having the ad ID
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -616,7 +658,7 @@ function get_categorynameidall($cat_id = 0)
 
 			// Start with the main categories
 
-			$query="SELECT category_id,category_name FROM ".$table_name1." WHERE category_parent_id='0' ORDER BY category_name ASC";
+			$query="SELECT category_id,category_name FROM ".$table_name1." WHERE category_parent_id='0' and category_name <> '' ORDER BY category_name ASC";
 			if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 					while ($rsrow=mysql_fetch_row($res)) {
@@ -767,6 +809,32 @@ function get_categorynameidall($cat_id = 0)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: Retrieve the city associated with a specific ad
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: Retrieve the city associated with a specific ad
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	function get_adcountyvillagevalue($adid){
+
+			global $wpdb;
+			$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+			$theadcountyvillage='';
+
+			if(isset($adid) && (!empty($adid))){
+			 $query="SELECT ad_county_village from ".$table_name3." WHERE ad_id='$adid'";
+			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+ 				while ($rsrow=mysql_fetch_row($res)) {
+ 					list($theadcountyvillage)=$rsrow;
+				}
+			}
+			return $theadcountyvillage;
+	}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: Retrieve the city associated with a specific ad
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: Retrieve the category associated with a specific ad
@@ -1074,17 +1142,19 @@ function awpcp_get_page_id($awpcppagename){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: Get the ID from wordpress posts table where the post_name is known
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+function awpcp_get_guid($awpcpshowadspageid){
+	global $wpdb;
+	$awpcppageguid = $wpdb->get_var("SELECT guid FROM $wpdb->posts WHERE ID ='$awpcpshowadspageid'");
+	return $awpcppageguid;
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: setup the structure of the URLs based on if permalinks are on and SEO urls are turned on
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function setup_url_structure($awpcppagename) {
-
-
+function setup_url_structure($awpcpthepagename)
+{
 			$quers='';
 			$theblogurl=get_bloginfo('url');
-
 
 			$permastruc=get_option('permalink_structure');
 
@@ -1093,36 +1163,15 @@ function setup_url_structure($awpcppagename) {
 				$theblogurl.="/index.php";
 			}
 
-			//Get the ID of the classifieds page
-			$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
+		if(isset($permastruc) && !empty($permastruc))
+		{
+			$quers="$theblogurl/$awpcpthepagename";
+		}
+		else
+		{
+			$quers="$theblogurl";
+		}
 
-
-			// Get the parent ID of the classifieds page in order to check if the page is or is not a child
-			$awpcppageparentid=get_page_parent_id($awpcpwppostpageid);
-
-			if($awpcppageparentid == '0')
-			{
-				//The page is not a child so do nothing
-				$awpcpparentpagename='';
-			}
-			elseif($awpcppageparentid >= '1')
-			{
-				// The page has a parent so get the parent page name and append to siteurl
-				$awpcpparentpagename=get_awpcp_parent_page_name($awpcppageparentid);
-				$theblogurl.="/$awpcpparentpagename";
-			}
-
-			if(!isset($permastruc) || empty($permastruc))
-			{
-				$quers="$theblogurl?page_id=$awpcpwppostpageid&a=";
-			}
-			elseif(get_awpcp_option('seofriendlyurls') == '1'){
-				$quers="$theblogurl/$awpcppagename/";
-			}
-			else {
-
-				$quers="$theblogurl/$awpcppagename/?a=";
-			}
 
 			return $quers;
 		}
@@ -1131,6 +1180,191 @@ function setup_url_structure($awpcppagename) {
 // END FUNCTION: setup structure of URLs based on if permalinks are on and SEO urls are turned on
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function url_showad($ad_id)
+{
+	$url_showad='';
+	$awpcppage=get_currentpagename();
+	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+	$quers=setup_url_structure($awpcppagename);
+	$permastruc=get_option('permalink_structure');
+	$showadspagename=sanitize_title(get_awpcp_option('showadspagename'), $post_ID='');
+	$awpcp_showad_pageid=awpcp_get_page_id($showadspagename);
+	$awpcpadcity=get_adcityvalue($ad_id);
+	$awpcpadstate=get_adstatevalue($ad_id);
+	$awpcpadcountry=get_adcountryvalue($ad_id);
+	$awpcpadcountyvillage=get_adcountyvillagevalue($ad_id);
+
+	$awpcpadtitle=get_adtitle($ad_id);
+	$modtitle=cleanstring($awpcpadtitle);
+	$modtitle=add_dashes($modtitle);
+
+					if( get_awpcp_option('seofriendlyurls') )
+					{
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							$url_showad="$quers/$showadspagename/$ad_id/$modtitle";
+						}
+						else
+						{
+							$awpcp_showad_pageid=awpcp_get_page_id($showadspagename);
+							$url_showad="$quers/?page_id=$awpcp_showad_pageid&id=$ad_id";
+						}
+					}
+					elseif(!(get_awpcp_option('seofriendlyurls') ) )
+					{
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							$url_showad="$quers/$showadspagename/?id=$ad_id";
+						}
+						else
+						{
+							$awpcp_showad_pageid=awpcp_get_page_id($awpcp_showad_pagename=(sanitize_title(get_awpcp_option('showadspagename'), $post_ID='')));
+							$url_showad="$quers/?page_id=$awpcp_showad_pageid&id=$ad_id";
+						}
+					}
+
+					if( get_awpcp_option('seofriendlyurls') )
+					{
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							if( get_awpcp_option('showcityinpagetitle') && !empty($awpcpadcity) )
+							{
+								$url_showad.="/";
+								$url_showad.=cleanstring(add_dashes(get_adcityvalue($ad_id)));
+							}
+							if( get_awpcp_option('showstateinpagetitle') && !empty($awpcpadstate) )
+							{
+									$url_showad.="/";
+									$url_showad.=cleanstring(add_dashes(get_adstatevalue($ad_id)));
+							}
+							if( get_awpcp_option('showcountryinpagetitle') && !empty($awpcpadcountry) )
+							{
+								$url_showad.="/";
+								$url_showad.=cleanstring(add_dashes(get_adcountryvalue($ad_id)));
+							}
+							if( get_awpcp_option('showcountyvillageinpagetitle') && !empty($awpcpadcountyvillage) )
+							{
+								$url_showad.="/";
+								$url_showad.=cleanstring(add_dashes(get_adcountyvillagevalue($ad_id)));
+							}
+							if( get_awpcp_option('showcategoryinpagetitle') )
+							{
+								$awpcp_ad_category_id=get_adcategory($ad_id);
+								$awpcp_ad_category_name=cleanstring(add_dashes(get_adcatname($awpcp_ad_category_id)));
+
+								$url_showad.="/";
+								$url_showad.=$awpcp_ad_category_name;
+							}
+						}
+					}
+						return $url_showad;
+}
+
+function url_placead()
+{
+	$url_placead='';
+	$awpcppage=get_currentpagename();
+	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+	$quers=setup_url_structure($awpcppagename);
+	$permastruc=get_option('permalink_structure');
+	$placeadpagename=sanitize_title(get_awpcp_option('placeadpagename'), $post_ID='');
+	$awpcp_placead_pageid=awpcp_get_page_id($placeadpagename);
+					if( get_awpcp_option('seofriendlyurls') )
+					{
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							$url_placead="$quers/$placeadpagename";
+						}
+						else
+						{
+							$url_placead="$quers/?page_id=$awpcp_placead_pageid";
+						}
+					}
+					elseif(!(get_awpcp_option('seofriendlyurls') ) )
+					{
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							$url_placead="$quers/$placeadpagename";
+						}
+						else
+						{
+							$url_placead="$quers/?page_id=$awpcp_placead_pageid";
+						}
+					}
+
+		return $url_placead;
+}
+
+function url_searchads()
+{
+	$url_searchad='';
+	$awpcppage=get_currentpagename();
+	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+	$quers=setup_url_structure($awpcppagename);
+	$permastruc=get_option('permalink_structure');
+	$searchadspagename=sanitize_title(get_awpcp_option('searchadspagename'), $post_ID='');
+	$awpcp_searchads_pageid=awpcp_get_page_id($searchadspagename);
+
+					if( get_awpcp_option('seofriendlyurls') )
+					{
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							$url_searchads="$quers/$searchadspagename";
+						}
+						else
+						{
+							$url_searchads="$quers/?page_id=$awpcp_searchads_pageid";
+						}
+					}
+					elseif(!(get_awpcp_option('seofriendlyurls') ) )
+					{
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							$url_searchads="$quers/$searchadspagename";
+						}
+						else
+						{
+							$url_searchads="$quers/?page_id=$awpcp_searchads_pageid";
+						}
+					}
+
+		return $url_searchads;
+}
+
+function url_editad()
+{
+	$url_placead='';
+	$awpcppage=get_currentpagename();
+	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+	$quers=setup_url_structure($awpcppagename);
+	$permastruc=get_option('permalink_structure');
+	$editadpagename=sanitize_title(get_awpcp_option('editadpagename'), $post_ID='');
+	$awpcp_editad_pageid=awpcp_get_page_id($editadpagename);
+					if( get_awpcp_option('seofriendlyurls') )
+					{
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							$url_editad="$quers/$editadpagename";
+						}
+						else
+						{
+							$url_editad="$quers/?page_id=$awpcp_editad_pageid";
+						}
+					}
+					elseif(!(get_awpcp_option('seofriendlyurls') ) )
+					{
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							$url_editad="$quers/$editpagename";
+						}
+						else
+						{
+							$url_editad="$quers/?page_id=$awpcp_editad_pageid";
+						}
+					}
+
+		return $url_editad;
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: get the parent_id of the post
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1184,15 +1418,84 @@ function checkfortable($table) {
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: add field config_group_id to table adsettings v 1.0.5.6 update specific
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function add_config_group_id($cvalue,$coption)
+{
+	global $wpdb;
+	$table_name4 = $wpdb->prefix . "awpcp_adsettings";
+
+	$query="UPDATE ".$table_name4." SET config_group_id='$cvalue' WHERE config_option='$coption'";
+	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: add field config_group_id to table adsettings v 1.0.5.6 update specific
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: check if a specific ad id already exists
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function adidexists($adid) {
+global $wpdb;
+$table_name3 = $wpdb->prefix . "awpcp_ads";
+		$adidexists=false;
+		$query="SELECT count(*) FROM ".$table_name3." WHERE ad_id='$adid'";
+		if (($res=mysql_query($query))) {
+			$adidexists=true;
+		}
+
+		return $adidexists;
+}
+
+function categoryidexists($adcategoryid) {
+global $wpdb;
+$table_name1 = $wpdb->prefix . "awpcp_adcategories";
+		$categoryidexists=false;
+		$query="SELECT count(*) FROM ".$table_name1." WHERE categoryid='$adcategoryid'";
+		if (($res=mysql_query($query))) {
+			$categoryidexists=true;
+		}
+
+		return $categoryidexists;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: check if a specific ad id already exists
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: get the current name of the classfieds page
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function display_setup_text()
+{
+	$awpcpsetuptext="<h2>";
+	$awpcpsetuptext.=__("Setup Process","AWPCP");
+	$awpcpsetuptext.="</h2>";
+	$awpcpsetuptext.="<p>";
+	$awpcpsetuptext.=__("It looks like you have not yet told the system how you want your classifieds to operate.","AWPCP");
+	$awpcpsetuptext.="</p>";
+	$awpcpsetuptext.="<p>";
+	$awpcpsetuptext.=__("Please begin by setting up the options for your site. The system needs to know a number of things about how you want to run your classifieds.","AWPCP");
+	$awpcpsetuptext.="</p><a href=\"?page=Configure1&mspgs=1\">";
+	$awpcpsetuptext.=__("Click here to setup your site options","AWPCP");
+	$awpcpsetuptext.="</a></p>";
+
+	return $awpcpsetuptext;
+}
 
 function get_currentpagename() {
 global $wpdb;
 $table_name6 = $wpdb->prefix . "awpcp_pagename";
 
 $tableexists=checkfortable($table_name6);
+$currentpagename='';
 
 		if(!$tableexists){
 			$currentpagename='';
@@ -1202,7 +1505,8 @@ $tableexists=checkfortable($table_name6);
 
 			 $query="SELECT userpagename from ".$table_name6."";
 			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
+ 				while ($rsrow=mysql_fetch_row($res))
+ 				{
  					list($currentpagename)=$rsrow;
 				}
 		}
@@ -1220,7 +1524,7 @@ $tableexists=checkfortable($table_name6);
 // START FUNCTION: delete the classfied page name from database as needed
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function deleteuserpageentry($currentuipagename) {
+function deleteuserpageentry() {
 
 global $wpdb;
 $table_name6 = $wpdb->prefix . "awpcp_pagename";
@@ -1239,12 +1543,12 @@ $table_name6 = $wpdb->prefix . "awpcp_pagename";
 // START FUNCTION: check if the classifieds page exists in the wp posts table
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function findpage($pagename) {
+function findpage($pagename,$shortcode) {
 
 global $wpdb,$table_prefix;
 $myreturn=false;
 
-			 $query="SELECT post_title FROM {$table_prefix}posts WHERE post_title='$pagename'";
+			 $query="SELECT post_title FROM {$table_prefix}posts WHERE post_title='$pagename' AND post_content='$shortcode'";
 			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 				if (mysql_num_rows($res) && mysql_result($res,0,0)) {
 					$myreturn=true;
@@ -1661,17 +1965,10 @@ $limit=10;}
 				$modtitle=cleanstring($rsrow[1]);
 				$modtitle=add_dashes($modtitle);
 
-					if(get_awpcp_option('seofriendlyurls') == '1'){
-						if(isset($permastruc) && !empty($permastruc)){
-						$ad_title="<a href=\"".$quers."showad/$ad_id/$modtitle\">".$rsrow[1]."</a>";
-						}
-						else {
-						$ad_title="<a href=\"".$quers."showad&id=$ad_id\">".$rsrow[1]."</a>";
-						}
-					}
-					else {
-						$ad_title="<a href=\"".$quers."showad&id=$ad_id\">".$rsrow[1]."</a>";
-					}
+						$url_showad=url_showad($ad_id);
+
+						$ad_title="<a href=\"$url_showad\">".$rsrow[1]."</a>";
+
 
 			echo "<li>$ad_title</li>";
 
@@ -1687,10 +1984,10 @@ $limit=10;}
 // START FUNCTION: make sure there's not more than one page with the name of the classifieds page
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function checkforduplicate($cpagename)
+function checkforduplicate($cpagename_awpcp)
 {
 
-	$awpcppagename = sanitize_title($cpagename, $post_ID='');
+	$awpcppagename = sanitize_title($cpagename_awpcp, $post_ID='');
 
 	$pageswithawpcpname=array();
 	global $wpdb,$table_prefix;
@@ -1713,6 +2010,7 @@ function checkforduplicate($cpagename)
 function checkfortotalpageswithawpcpname($awpcppage) {
 
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
+$totalpageswithawpcpname='';
 
 	$pageswithawpcpname=array();
 	global $wpdb,$table_prefix;
@@ -1736,7 +2034,7 @@ $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 		{
 
 			//Delete the pages
-			$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname'";
+			$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname' OR post_parent='$pagewithawpcpname'";
 			@mysql_query($query);
 
 			$query="DELETE FROM {$table_prefix}postmeta WHERE post_id = '$pagewithawpcpname'";
@@ -2210,7 +2508,7 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 function awpcp_get_currency_code()
 {
 
-	$amtcurrencycode=get_awpcp_option('paypalcurrencycode');
+	$amtcurrencycode=get_awpcp_option('displaycurrencycode');
 
 		if(
 		($amtcurrencycode == 'CAD') ||
@@ -2292,5 +2590,6 @@ function strip_html_tags( $text )
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 ?>
