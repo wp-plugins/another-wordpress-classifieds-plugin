@@ -3107,7 +3107,7 @@ function maketheclassifiedsubpage($theawpcppagename,$awpcpwppostpageid,$awpcpsho
 	$pdate = date("Y-m-d");
 
 	// First delete any pages already existing with the title and post name of the new page to be created
-	checkfortotalpageswithawpcpname($theawpcppagename);
+	//checkfortotalpageswithawpcpname($theawpcppagename);
 
 		$post_name = sanitize_title($theawpcppagename, $post_ID='');
 
