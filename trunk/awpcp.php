@@ -1173,7 +1173,7 @@ function awpcp_opsconfig_settings()
 					{
 
 						//Delete the pages
-						$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname' AND parent_id='$pagewithawpcpname'";
+						$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname' OR (post_parent='$pagewithawpcpname' AND post_parent !='0')";
 						@mysql_query($query);
 
 						$query="DELETE FROM {$table_prefix}postmeta WHERE post_id = '$pagewithawpcpname'";
@@ -10231,10 +10231,9 @@ function douninstall()
 	// Delete the classifieds page(s)
 
 	$awpcppage=get_currentpagename();
-	checkfortotalpageswithawpcpname($awpcppage);
 	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 	$awpcppageid=awpcp_get_page_id($awpcppagename);
-	$query="DELETE FROM {$table_prefix}posts WHERE ID='$awpcppageid' OR post_parent='$awpcppageid'";
+	$query="DELETE FROM {$table_prefix}posts WHERE ID='$awpcppageid' OR post_parent='$awpcppageid' and post_content LIKE '%AWPCP%'";
 	@mysql_query($query);
 
 

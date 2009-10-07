@@ -2015,7 +2015,7 @@ $totalpageswithawpcpname='';
 	$pageswithawpcpname=array();
 	global $wpdb,$table_prefix;
 
-	$query="SELECT ID FROM {$table_prefix}posts WHERE post_name = '$awpcppagename'";
+	$query="SELECT ID FROM {$table_prefix}posts WHERE post_title='$awpcppage' AND post_name = '$awpcppagename' AND post_content LIKE '%AWPCP%'";
 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 	if (mysql_num_rows($res))
@@ -2034,7 +2034,7 @@ $totalpageswithawpcpname='';
 		{
 
 			//Delete the pages
-			$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname' OR post_parent='$pagewithawpcpname'";
+			$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname' OR (post_parent='$pagewithawpcpname' AND post_parent !='0')";
 			@mysql_query($query);
 
 			$query="DELETE FROM {$table_prefix}postmeta WHERE post_id = '$pagewithawpcpname'";
