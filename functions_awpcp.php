@@ -2034,14 +2034,14 @@ $totalpageswithawpcpname='';
 		{
 
 			//Delete the pages
-			$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname' OR (post_parent='$pagewithawpcpname' AND post_parent !='0')";
+			$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname' OR (post_parent='$pagewithawpcpname' AAND post_content LIKE '%AWPCP%')";
 			@mysql_query($query);
 
-			$query="DELETE FROM {$table_prefix}postmeta WHERE post_id = '$pagewithawpcpname'";
-			@mysql_query($query);
+			//$query="DELETE FROM {$table_prefix}postmeta WHERE post_id = '$pagewithawpcpname'";
+			//@mysql_query($query);
 
-			$query="DELETE FROM {$table_prefix}comments WHERE comment_post_ID = '$pagewithawpcpname'";
-			@mysql_query($query);
+			//$query="DELETE FROM {$table_prefix}comments WHERE comment_post_ID = '$pagewithawpcpname'";
+			//@mysql_query($query);
 
 		}
 
