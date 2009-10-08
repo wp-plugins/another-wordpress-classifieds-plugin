@@ -4,8 +4,8 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 /*
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
-Description: AWPCP - A wordpress classifieds plugin
-Version: 1.0.5.6
+Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog
+Version: 1.0.5.7
 Author: A Lewis
 Author URI: http://www.antisocialmediallc.com
 */
@@ -85,7 +85,7 @@ if( file_exists("$awpcp_plugin_path/awpcp_remove_powered_by_module.php") )
 }
 
 
-$awpcp_db_version = "1.0.5.6";
+$awpcp_db_version = "1.0.5.7";
 
 if(field_exists($field='uploadfoldername'))
 {
@@ -1157,7 +1157,7 @@ function awpcp_opsconfig_settings()
 
 				$pageswithawpcpname=array();
 
-				$query="SELECT ID FROM {$table_prefix}posts WHERE post_name = '$awpcppagename'";
+				$query="SELECT ID FROM {$table_prefix}posts WHERE post_title='$cpagename_awpcp' AND post_name = '$awpcppagename' AND post_content LIKE '%AWPCP%'";
 				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 				if (mysql_num_rows($res))
@@ -1173,14 +1173,14 @@ function awpcp_opsconfig_settings()
 					{
 
 						//Delete the pages
-						$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname' OR (post_parent='$pagewithawpcpname' AND post_parent !='0')";
+						$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname' OR (post_parent='$pagewithawpcpname' AND post_content LIKE '%AWPCP%')";
 						@mysql_query($query);
 
-						$query="DELETE FROM {$table_prefix}postmeta WHERE post_id = '$pagewithawpcpname'";
-						@mysql_query($query);
+						//$query="DELETE FROM {$table_prefix}postmeta WHERE post_id = '$pagewithawpcpname'";
+						//@mysql_query($query);
 
-						$query="DELETE FROM {$table_prefix}comments WHERE comment_post_ID = '$pagewithawpcpname'";
-						@mysql_query($query);
+						//$query="DELETE FROM {$table_prefix}comments WHERE comment_post_ID = '$pagewithawpcpname'";
+						//@mysql_query($query);
 					}
 
 						deleteuserpageentry();
@@ -2800,7 +2800,7 @@ if(isset($_REQUEST['savesettings']) && !empty($_REQUEST['savesettings']))
 	$currentsearchadspagename=get_awpcp_option('searchadspagename');
 	$error=false;
 
-	if(!isset($_REQUEST['cgid']) && empty($_REQUEST['cgid'])){$cgid=1;} else{ $cgid=$_REQUEST['cgid'];}
+	if(!isset($_REQUEST['cgid']) && empty($_REQUEST['cgid'])){$cgid=10;} else{ $cgid=$_REQUEST['cgid'];}
 	if(!isset($_REQUEST['makesubpages']) && empty($_REQUEST['makesubpages'])){$makesubpages='';} else{ $makesubpages=$_REQUEST['makesubpages'];}
 
 
@@ -2927,7 +2927,8 @@ if(isset($_REQUEST['savesettings']) && !empty($_REQUEST['savesettings']))
 
 			$query="UPDATE ".$table_name4." SET config_value='$v' WHERE config_option='$k'";
 			if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-
+		}
+	}
 			if (($cgid == 10))
 			{
 				// Create the classified user page if it does not exist
@@ -2956,90 +2957,13 @@ if(isset($_REQUEST['savesettings']) && !empty($_REQUEST['savesettings']))
 
 				}
 
-				if(!$makesubpages)
-				{
-					if(!findpage($currentshowadspagename,$shortcode='[AWPCPSHOWAD]'))
-					{
-						maketheclassifiedsubpage($showadspagename,$awpcpwppostpageid,$shortcode='[AWPCPSHOWAD]');
-					}
-					elseif(findpage($currentshowadspagename,$shortcode='[AWPCPSHOWAD]'))
-					{
-						updatetheclassifiedsubpage($currentshowadspagename,$showadspagename,$shortcode='[AWPCPSHOWAD]');
-					}
-					if(!findpage($currentplaceadpagename,$shortcode='[AWPCPPLACEAD]'))
-					{
-						maketheclassifiedsubpage($placeadpagename,$awpcpwppostpageid,$shortcode='[AWPCPPLACEAD]');
-					}
-					elseif(findpage($currentplaceadpagename,$shortcode='[AWPCPPLACEAD]'))
-					{
-						updatetheclassifiedsubpage($currentplaceadpagename,$placeadpagename,$shortcode='[AWPCPPLACEAD]');
-					}
-					if(!findpage($currentbrowseadspagename,$shortcode='[AWPCPBROWSEADS]'))
-					{
-						maketheclassifiedsubpage($browseadspagename,$awpcpwppostpageid,$shortcode='[AWPCPBROWSEADS]');
-					}
-					elseif(findpage($currentbrowseadspagename,$shortcode='[AWPCPBROWSEADS]'))
-					{
-						updatetheclassifiedsubpage($currentbrowseadspagename,$browseadspagename,$shortcode='[AWPCPBROWSEADS]');
-					}
-					if(!findpage($currentsearchadspagename,$shortcode='[AWPCPSEARCHADS]'))
-					{
-						maketheclassifiedsubpage($searchadspagename,$awpcpwppostpageid,$shortcode='[AWPCPSEARCHADS]');
-					}
-					elseif(findpage($currentsearchadspagename,$shortcode='[AWPCPSEARCHADS]'))
-					{
-						updatetheclassifiedsubpage($currentsearchadspagename,$searchadspagename,$shortcode='[AWPCPSEARCHADS]');
-					}
-					if(!findpage($currentpaymentthankyoupagename,$shortcode='[AWPCPPAYMENTTHANKYOU]'))
-					{
-						maketheclassifiedsubpage($paymentthankyoupagename,$awpcpwppostpageid,$shortcode='[AWPCPPAYMENTTHANKYOU]');
-					}
-					elseif(findpage($currentpaymentthankyoupagename,$shortcode='[AWPCPPAYMENTTHANKYOU]'))
-					{
-						updatetheclassifiedsubpage($currentpaymentthankyoupagename,$paymentthankyoupagename,$shortcode='[AWPCPPAYMENTTHANKYOU]');
-					}
-					if(!findpage($currentpaymentcancelpagename,$shortcode='[AWPCPCANCELPAYMENT]'))
-					{
-						maketheclassifiedsubpage($paymentcancelpagename,$awpcpwppostpageid,$shortcode='[AWPCPCANCELPAYMENT]');
-					}
-					elseif(findpage($currentpaymentcancelpagename,$shortcode='[AWPCPCANCELPAYMENT]'))
-					{
-						updatetheclassifiedsubpage($currentpaymentcancelpagename,$paymentcancelpagename,$shortcode='[AWPCPCANCELPAYMENT]');
-					}
-					if(!findpage($currenteditadpagename,$shortcode='[AWPCPEDITAD]'))
-					{
-						maketheclassifiedsubpage($editadpagename,$awpcpwppostpageid,$shortcode='[AWPCPEDITAD]');
-					}
-					elseif(findpage($currenteditadpagename,$shortcode='[AWPCPEDITAD]'))
-					{
-						updatetheclassifiedsubpage($currenteditadpagename,$editadpagename,$shortcode='[AWPCPEDITAD]');
-					}
-					if(!findpage($currentreplytoadpagename,$shortcode='[AWPCPREPLYTOAD]'))
-					{
-						maketheclassifiedsubpage($replytoadpagename,$awpcpwppostpageid,$shortcode='[AWPCPREPLYTOAD]');
-					}
-					elseif(findpage($currentreplytoadpagename,$shortcode='[AWPCPREPLYTOAD]'))
-					{
-						updatetheclassifiedsubpage($currentreplytoadpagename,$replytoadpagename,$shortcode='[AWPCPREPLYTOAD]');
-					}
-					if(!findpage($currentbrowsecatspagename,$shortcode='[AWPCPBROWSECATS]'))
-					{
-						maketheclassifiedsubpage($browsecatspagename,$awpcpwppostpageid,$shortcode='[AWPCPBROWSECATS]');
-					}
-					elseif(findpage($currentbrowsecatspagename,$shortcode='[AWPCPBROWSECATS]'))
-					{
-						updatetheclassifiedsubpage($currentbrowsecatspagename,$browsecatspagename,$shortcode='[AWPCPBROWSECATS]');
-					}
-				}
+
 
 			}
 
 			$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
 			$message.=__("The data has been updated","AWPCP");
 			$message.="!</div>";
-		}
-
-	}
 
 	global $message;
 }
@@ -3262,11 +3186,11 @@ if(isset($_REQUEST['createeditadcategory']) && !empty($_REQUEST['createeditadcat
 
 			elseif($aeaction == 'delete')
 			{
-					if(isset($_REQUEST['$category_name']) && !empty($_REQUEST['$category_name']))
+					if(isset($_REQUEST['category_name']) && !empty($_REQUEST['category_name']))
 					{
 						$category_name=addslashes_mq($_REQUEST['category_name']);
 					}
-					if(isset($_REQUEST['$category_parent_id']) && !empty($_REQUEST['$category_parent_id']))
+					if(isset($_REQUEST['category_parent_id']) && !empty($_REQUEST['category_parent_id']))
 					{
 						$category_parent_id=addslashes_mq($_REQUEST['category_parent_id']);
 					}
@@ -3344,6 +3268,16 @@ if(isset($_REQUEST['createeditadcategory']) && !empty($_REQUEST['createeditadcat
 			}
 			elseif($aeaction == 'edit')
 			{
+
+					if(isset($_REQUEST['category_name']) && !empty($_REQUEST['category_name']))
+					{
+						$category_name=addslashes_mq($_REQUEST['category_name']);
+					}
+					if(isset($_REQUEST['category_parent_id']) && !empty($_REQUEST['category_parent_id']))
+					{
+						$category_parent_id=addslashes_mq($_REQUEST['category_parent_id']);
+					}
+
 					$query="UPDATE ".$table_name1." SET category_name='$category_name',category_parent_id='$category_parent_id' WHERE category_id='$category_id'";
 					@mysql_query($query);
 
@@ -3353,9 +3287,14 @@ if(isset($_REQUEST['createeditadcategory']) && !empty($_REQUEST['createeditadcat
 					$themessagetoprint=__("The category edit has been sucessfully completed","AWPCP");
 
 			}
+			else
+			{
+				$themessagetoprint=__("No instructions provided therefore no action taken","AWPCP");
+			}
 
 			$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">$themessagetoprint</div>";
 			$clearform=1;
+
 }
 
 // Move multiple categories
