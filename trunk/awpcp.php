@@ -517,6 +517,9 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		foreach($myconfig_group_ops_10 as $myconfig_group_op_10){add_config_group_id($cvalue='10',$myconfig_group_op_10);}
 		foreach($myconfig_group_ops_11 as $myconfig_group_op_11){add_config_group_id($cvalue='11',$myconfig_group_op_11);}
 
+		$wpdb->query("UPDATE " . $table_name4 . " SET `config_value` = '0', `option_type` = '0', `config_diz` = 'Main page layout [ check for ad listings ] [ Uncheck for categories ]' WHERE `config_option` = 'main_page_display'");
+		$wpdb->query("UPDATE " . $table_name4 . " SET `config_value` = '0', `option_type` = '0', `config_diz` = 'Put Paypal and 2Checkout in test mode' WHERE `config_option` = 'paylivetestmode'");
+
 	 }
 
  	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -620,10 +623,6 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	if(!field_exists($field='uiwelcome')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side','1','2');");}
 	if(!field_exists($field='showlatestawpcpnews')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('showlatestawpcpnews', '1', 'Allow AWPCP RSS.','1','0');");}
 
-	$wpdb->query("UPDATE " . $table_name4 . " SET `config_value` = '0', `option_type` = '0', `config_diz` = 'Main page layout [ check for ad listings ] [ Uncheck for categories ]' WHERE `config_option` = 'main_page_display'");
-	$wpdb->query("UPDATE " . $table_name4 . " SET `config_value` = '0', `option_type` = '0', `config_diz` = 'Put Paypal and 2Checkout in test mode' WHERE `config_option` = 'paylivetestmode'");
-
-
 
  	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Create additional classifieds pages if they do not exist
@@ -703,7 +702,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
    			 @mysql_query($query);
 		}
 
-	 $query=("ALTER TABLE " . $table_name3 . "  DROP INDEX (`ad_title`,`ad_details`)");
+	 $query=("ALTER TABLE " . $table_name3 . "  DROP INDEX `titdes`");
 	 @mysql_query($query);
 	 $query=("ALTER TABLE " . $table_name3 . "  ADD FULLTEXT KEY `titdes` (`ad_title`,`ad_details`)");
 	 @mysql_query($query);
