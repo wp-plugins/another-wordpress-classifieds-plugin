@@ -26,6 +26,59 @@ function get_awpcp_option($option) {
 	return $myreturn;
 }
 
+function get_awpcp_option_group_id($option) {
+	global $wpdb;
+	$table_name4 = $wpdb->prefix . "awpcp_adsettings";
+	$myreturn=0;
+	$tableexists=checkfortable($table_name4);
+
+	if($tableexists)
+	{
+		$query="SELECT config_group_id FROM  ".$table_name4." WHERE config_option='$option'";
+		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+		if (mysql_num_rows($res))
+		{
+			$myreturn=mysql_result($res,0,0);
+		}
+	}
+	return $myreturn;
+}
+
+function get_awpcp_option_type($option) {
+	global $wpdb;
+	$table_name4 = $wpdb->prefix . "awpcp_adsettings";
+	$myreturn=0;
+	$tableexists=checkfortable($table_name4);
+
+	if($tableexists)
+	{
+		$query="SELECT option_type FROM  ".$table_name4." WHERE config_option='$option'";
+		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+		if (mysql_num_rows($res))
+		{
+			$myreturn=mysql_result($res,0,0);
+		}
+	}
+	return $myreturn;
+}
+
+function get_awpcp_option_config_diz($option) {
+	global $wpdb;
+	$table_name4 = $wpdb->prefix . "awpcp_adsettings";
+	$myreturn=0;
+	$tableexists=checkfortable($table_name4);
+
+	if($tableexists)
+	{
+		$query="SELECT config_diz FROM  ".$table_name4." WHERE config_option='$option'";
+		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+		if (mysql_num_rows($res))
+		{
+			$myreturn=mysql_result($res,0,0);
+		}
+	}
+	return $myreturn;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION
@@ -160,6 +213,22 @@ $table_name1 = $wpdb->prefix . "awpcp_categories";
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function adtermidinuse($adterm_id)
+{
+
+global $wpdb;
+$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+	$myreturn=false;
+	$query="SELECT count(*) FROM ".$table_name3." WHERE adterm_id='$adterm_id'";
+	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	if (mysql_num_rows($res) && mysql_result($res,0,0)) {
+		$myreturn=true;
+	}
+	return $myreturn;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: Count the total number of ads in the  system
@@ -1142,11 +1211,72 @@ function awpcp_get_page_id($awpcppagename){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: Get the ID from wordpress posts table where the post_name is known
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: Get the page guid
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function awpcp_get_guid($awpcpshowadspageid){
 	global $wpdb;
 	$awpcppageguid = $wpdb->get_var("SELECT guid FROM $wpdb->posts WHERE ID ='$awpcpshowadspageid'");
 	return $awpcppageguid;
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: Get the page guid
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START FUNCTION: Get the order by setting for ad listings
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function get_group_orderby()
+{
+
+		$getgrouporderby=get_awpcp_option('groupbrowseadsby');
+
+		if(!isset($getgrouporderby) || empty($getgrouporderby))
+		{
+			$grouporderby='';
+		}
+		else
+		{
+			if(isset($getgrouporderby) && !empty($getgrouporderby))
+			{
+				if($getgrouporderby == 1)
+				{
+					$grouporderby="ORDER BY ad_key DESC";
+				}
+				elseif($getgrouporderby == 2)
+				{
+					$grouporderby="ORDER BY ad_title DESC";
+				}
+				elseif($getgrouporderby == 3)
+				{
+					$grouporderby="ORDER BY ad_is_paid DESC, ad_postdate DESC, ad_title ASC";
+				}
+				elseif($getgrouporderby == 4)
+				{
+					$grouporderby="ORDER BY ad_is_paid DESC, ad_title ASC";
+				}
+				elseif($getgrouporderby == 5)
+				{
+					$grouporderby="ORDER BY ad_views DESC, ad_title ASC";
+				}
+				elseif($getgrouporderby == 6)
+				{
+					$grouporderby="ORDER BY ad_views DESC, ad_key DESSC";
+				}
+			}
+		}
+
+	return $grouporderby;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END FUNCTION: Get the orderby setting for ad listings
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: setup the structure of the URLs based on if permalinks are on and SEO urls are turned on
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
