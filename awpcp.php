@@ -4,8 +4,8 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 /*
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
-Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog
-Version: 1.0.5.7
+Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
+Version: 1.0.5.8
 Author: A Lewis
 Author URI: http://www.antisocialmediallc.com
 */
@@ -38,7 +38,10 @@ AWPCP Classifieds icon courtesy of http://www.famfamfam.com/lab/icons/silk/
 */
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-session_start();
+function init()
+{
+    if(session_id() == "") @session_start();
+}
 
 if ( !defined('WP_CONTENT_DIR') )
 	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); // no trailing slash, full paths only - WP_CONTENT_URL is defined further down
@@ -54,6 +57,15 @@ $wpinc=WPINC;
 $awpcp_plugin_path = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
 $awpcp_plugin_url = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
 
+require("$awpcp_plugin_path"."dcfunctions.php");
+require("$awpcp_plugin_path"."functions_awpcp.php");
+require("$awpcp_plugin_path"."upload_awpcp.php");
+
+$plugin_dir = basename(dirname(__FILE__));
+if(get_awpcp_option('activatelanguages')){
+load_plugin_textdomain( 'AWPCP', 'wp-content/plugins/' . $plugin_dir, $plugin_dir );
+}
+
 $imagespath = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'images';
 $imagesurl = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'images';
 
@@ -62,9 +74,7 @@ $nameofsite=get_option('blogname');
 $siteurl=get_option('siteurl');
 $thisadminemail=get_option('admin_email');
 
-require("$awpcp_plugin_path"."dcfunctions.php");
-require("$awpcp_plugin_path"."functions_awpcp.php");
-require("$awpcp_plugin_path"."upload_awpcp.php");
+
 
 if( file_exists("$awpcp_plugin_path/awpcp_category_icons_module.php") )
 {
@@ -85,7 +95,7 @@ if( file_exists("$awpcp_plugin_path/awpcp_remove_powered_by_module.php") )
 }
 
 
-$awpcp_db_version = "1.0.5.7";
+$awpcp_db_version = "1.0.5.8";
 
 if(field_exists($field='uploadfoldername'))
 {
@@ -162,7 +172,11 @@ function awpcp_insert_thickbox() {
 	add_shortcode('AWPCPREPLYTOAD','awpcpui_contactformscreen');
 	add_shortcode('AWPCPSEARCHADS','awpcpui_searchformscreen');
 	add_shortcode('AWPCPBROWSECATS','awpcpui_browsecatsscreen');
-	add_filter('wp_list_pages_excludes', 'exclude_awpcp_child_pages');
+
+	if(get_awpcp_option('awpcppagefilterswitch') == 1)
+	{
+		add_filter('wp_list_pages_excludes', 'exclude_awpcp_child_pages');
+	}
 
 	function exclude_awpcp_child_pages($output = '')
 	{
@@ -352,12 +366,14 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('postloginformto', '', 'Post login form to [Value should be the full URL to the wordpress login script. Example http://www.awpcp.com/wp-login.php **Only needed if registration is required and your login url is mod-rewritten ] ','7','1'),
 		('registrationurl', '', 'Location of registraiton page [Value should be the full URL to the wordpress registration page. Example http://www.awpcp.com/wp-login.php?action=register **Only needed if registration is required and your login url is mod-rewritten ] ','7','1'),
 		('main_page_display', '0', 'Main page layout [ check for ad listings ] [ Uncheck for categories ]','1','0'),
+		('activatelanguages', '0', 'Activate Language Capability','1','0'),
 		('activatemylayoutdisplayads', '0', 'Activate display ad mod file [applies only if you created your own layout for the display_ads function in the file awpcp_display_ad_my_layout.php]','1','0'),
 		('activatemylayoutshowad', '0', 'Activate show ad mod file [applies only if you created your own layout for the showad function in the file awpcp_showad_my_layout.php]','1','0'),
 		('awpcptitleseparator', '-', 'The character to use to separate ad details used in browser page title [Example: | / - ]','1','1'),
 		('showcityinpagetitle', '1', 'Show city in browser page title when viewing individual ad','1','0'),
 		('showstateinpagetitle', '1', 'Show state in browser page title when viewing individual ad','1','0'),
 		('showcountryinpagetitle', '1', 'Show country in browser page title when viewing individual ad','1','0'),
+		('awpcppagefilterswitch', '1', 'Uncheck this if you need to turn off the awpcp page filter that prevents awpcp classifieds children pages from showing up in your wp pages menu [you might need to do this if for example the awpcp page filter is messing up your page menu. It means you will have to manually exclude the awpcp children pages from showing in your page list. Some of the pages really should not be visible to your users by default]','1','0'),
 		('showcountyvillageinpagetitle', '1', 'Show county/village/other setting in browser page title when viewing individual ad','1','0'),
 		('showcategoryinpagetitle', '1', 'Show category in browser page title when viewing individual ad','1','0'),
 		('paylivetestmode', '0', 'Put Paypal and 2Checkout in test mode.','3','0'),
@@ -387,7 +403,10 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('notifyofadposted', '1', 'Notify admin of new ad.','2','0'),
 		('imagesapprove', '0', 'Hide images until admin approves them','4','0'),
 		('adapprove', '0', 'Disable ad until admin approves','2','0'),
+		('displayadthumbwidth', '80', 'Width for thumbnails in ad listings view [Only numerical value]','2','1'),
 		('disablependingads', '1', 'Enable paid ads that are pending payment.','2','0'),
+		('groupbrowseadsby', '1', 'Group ad listings by','2','3'),
+		('groupsearchresultsby', '1', 'Group ad listings in search results by','2','3'),
 		('showadcount', '1', 'Show how many ads a category contains.','2','0'),
 		('noadsinparentcat', '0', 'Prevent ads from being posted to top level categories?.','2','0'),
 		('displayadviews', '1', 'Show ad views','2','0'),
@@ -492,8 +511,8 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		$query=("ALTER TABLE " . $table_name4 . "  ADD `config_group_id` tinyint(1) unsigned NOT NULL DEFAULT '1' AFTER config_diz");
 	 	@mysql_query($query);
 
-		$myconfig_group_ops_1=array('showlatestawpcpnews','uiwelcome','main_page_display','contactformcheckhuman', 'contactformcheckhumanhighnumval','awpcptitleseparator','showcityinpagetitle','showstateinpagetitle','showcountryinpagetitle','showcategoryinpagetitle','showcountyvillageinpagetitle','activatemylayoutshowad','activatemylayoutdisplayads');
-		$myconfig_group_ops_2=array('addurationfreemode','maxcharactersallowed','notifyofadexpiring', 'notifyofadposted', 'adapprove', 'disablependingads', 'showadcount', 'displayadviews','onlyadmincanplaceads','allowhtmlinadtext', 'hyperlinkurlsinadtext', 'notice_awaiting_approval_ad', 'buildsearchdropdownlists','visitwebsitelinknofollow');
+		$myconfig_group_ops_1=array('showlatestawpcpnews','uiwelcome','main_page_display','contactformcheckhuman', 'contactformcheckhumanhighnumval','awpcptitleseparator','showcityinpagetitle','showstateinpagetitle','showcountryinpagetitle','showcategoryinpagetitle','showcountyvillageinpagetitle','activatemylayoutshowad','activatemylayoutdisplayads','awpcppagefilterswitch','activatelanguages');
+		$myconfig_group_ops_2=array('addurationfreemode','maxcharactersallowed','notifyofadexpiring', 'notifyofadposted', 'adapprove', 'disablependingads', 'showadcount', 'displayadviews','onlyadmincanplaceads','allowhtmlinadtext', 'hyperlinkurlsinadtext', 'notice_awaiting_approval_ad', 'buildsearchdropdownlists','visitwebsitelinknofollow','groupbrowseadsby','groupsearchresultsby','displayadthumbwidth');
 		$myconfig_group_ops_3=array('freepay','paylivetestmode','paypalemail', 'paypalcurrencycode', 'displaycurrencycode', '2checkout', 'activatepaypal', 'activate2checkout','twocheckoutpaymentsrecurring','paypalpaymentsrecurring');
 		$myconfig_group_ops_4=array('imagesallowdisallow', 'awpcp_thickbox_disabled','imagesapprove', 'imagesallowedfree', 'uploadfoldername', 'maximagesize','minimagesize', 'imgthumbwidth');
 		$myconfig_group_ops_5=array('useadsense', 'adsense', 'adsenseposition');
@@ -517,10 +536,12 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		foreach($myconfig_group_ops_10 as $myconfig_group_op_10){add_config_group_id($cvalue='10',$myconfig_group_op_10);}
 		foreach($myconfig_group_ops_11 as $myconfig_group_op_11){add_config_group_id($cvalue='11',$myconfig_group_op_11);}
 
-		$wpdb->query("UPDATE " . $table_name4 . " SET `config_value` = '0', `option_type` = '0', `config_diz` = 'Main page layout [ check for ad listings ] [ Uncheck for categories ]' WHERE `config_option` = 'main_page_display'");
-		$wpdb->query("UPDATE " . $table_name4 . " SET `config_value` = '0', `option_type` = '0', `config_diz` = 'Put Paypal and 2Checkout in test mode' WHERE `config_option` = 'paylivetestmode'");
+	}
 
-	 }
+	 	if(get_awpcp_option_group_id('seofriendlyurls') == 1){	$wpdb->query("UPDATE " . $table_name4 . " SET `config_group_id` = '11' WHERE `config_option` = 'seofriendlyurls'"); }
+		if(get_awpcp_option_type('main_page_display') == 1){ $wpdb->query("UPDATE " . $table_name4 . " SET `config_value` = '0', `option_type` = '0', `config_diz` = 'Main page layout [ check for ad listings ] [ Uncheck for categories ]',config_group_id='1' WHERE `config_option` = 'main_page_display'"); }
+		if(get_awpcp_option_config_diz('paylivetestmode') != "Put Paypal and 2Checkout in test mode"){ $wpdb->query("UPDATE " . $table_name4 . " SET `config_value` = '0', `option_type` = '0', `config_diz` = 'Put Paypal and 2Checkout in test mode' WHERE `config_option` = 'paylivetestmode'");}
+
 
  	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Match up the ad settings fields of current versions and upgrading versions
@@ -542,6 +563,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	if(!field_exists($field='postloginformto')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('postloginformto', '', 'Post login form to [Value should be the full URL to the wordpress login script. Example http://www.awpcp.com/wp-login.php **Only needed if registration is required and your login url is mod-rewritten ] ','7','1');");}
 	if(!field_exists($field='registrationurl')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('registrationurl', '', 'Location of registraiton page [Value should be the full URL to the wordpress registration page. Example http://www.awpcp.com/wp-login.php?action=register **Only needed if registration is required and your login url is mod-rewritten ] ','7','1');");}
 	if(!field_exists($field='main_page_display')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('main_page_display', '0', 'Main page layout [ check for ad listings | Uncheck for categories ]','1','0');");}
+	if(!field_exists($field='activatelanguages')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('activatelanguages', '0', 'Activate Language Capability','1','0');");}
 	if(!field_exists($field='activatemylayoutdisplayads')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES		('activatemylayoutdisplayads', '0', 'Activate display ad mod file [applies only if you created your own layout for the display_ads function in the file awpcp_display_ad_my_layout.php]','1','0');");}
 	if(!field_exists($field='activatemylayoutshowad')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('activatemylayoutshowad', '0', 'Activate show ad mod file [applies only if you created your own layout for the showad function in the file awpcp_showad_my_layout.php]','1','0');");}
 	if(!field_exists($field='awpcptitleseparator')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('awpcptitleseparator', '-', 'The character to use to separate ad details used in browser page title [Example: | / - ]','1','1');");}
@@ -550,6 +572,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	if(!field_exists($field='showcountryinpagetitle')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('showcountryinpagetitle', '1', 'Show country in browser page title when viewing individual ad','1','0');");}
 	if(!field_exists($field='showcountyvillageinpagetitle')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES		('showcountyvillageinpagetitle', '1', 'Show county/village/other setting in browser page title when viewing individual ad','1','0');");}
 	if(!field_exists($field='showcategoryinpagetitle')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('showcategoryinpagetitle', '1', 'Show category in browser page title when viewing individual ad','1','0');");}
+	if(!field_exists($field='awpcppagefilterswitch')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('awpcppagefilterswitch', '1', 'Uncheck this if you need to turn off the awpcp page filter that prevents awpcp classifieds children pages from showing up in your wp pages menu [you might need to do this if for example the awpcp page filter is messing up your page menu. It means you will have to manually exclude the awpcp children pages from showing in your page list. Some of the pages really should not be visible to your users by default]','1','0');");}
 	if(!field_exists($field='paylivetestmode')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('paylivetestmode', '0', 'Put Paypal and 2Checkout in test mode.','3','0');");}
 	if(!field_exists($field='useadsense')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('useadsense', '1', 'Activate adsense','5','0');");}
 	if(!field_exists($field='adsense')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('adsense', 'Adsense code', 'Your adsense code [ Best if 468 by 60 text or banner. ]','5','2');");}
@@ -577,7 +600,10 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	if(!field_exists($field='listingaddedbody')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('listingaddedbody', 'Thank you for submitting your classified ad. The details of your ad are shown below.', 'Message body text for email sent out when someone posts an ad','8','2');");}
 	if(!field_exists($field='imagesapprove')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('imagesapprove', '0', 'Hide images until admin approves them','4','0');");}
 	if(!field_exists($field='adapprove')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('adapprove', '0', 'Disable ad until admin approves','2','0');");}
+	if(!field_exists($field='displayadthumbwidth')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('displayadthumbwidth', '80', 'Width for thumbnails in ad listings view [Only numerical value]','2','1');");}
 	if(!field_exists($field='disablependingads')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('disablependingads', '1', 'Enable paid ads that are pending payment.','2','0');");}
+	if(!field_exists($field='groupbrowseadsby')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('groupbrowseadsby', '1', 'Group ad listings by','2','3');");}
+	if(!field_exists($field='groupsearchresultsby')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('groupsearchresultsby', '1', 'Group ad listings in search results by','2','3');");}
 	if(!field_exists($field='showadcount')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('showadcount', '1', 'Show how many ads a category contains.','2','0');");}
 	if(!field_exists($field='noadsinparentcat')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('noadsinparentcat', '0', 'Prevent ads from being posted to top level categories?.','2','0');");}
 	if(!field_exists($field='displayadviews')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('displayadviews', '1', 'Show ad views','2','0');");}
@@ -771,19 +797,19 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	// Fix the UTF-8 Charset problem and add option contactformcheckhuman to awpcp_adsettings (March 25 2009)
  	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	   $table_name1 = $wpdb->prefix . "awpcp_categories";
-	   $table_name2 = $wpdb->prefix . "awpcp_adfees";
-	   $table_name3 = $wpdb->prefix . "awpcp_ads";
-	   $table_name4 = $wpdb->prefix . "awpcp_adsettings";
-	   $table_name5 = $wpdb->prefix . "awpcp_adphotos";
-	   $table_name6 = $wpdb->prefix . "awpcp_pagename";
+	  // $table_name1 = $wpdb->prefix . "awpcp_categories";
+	  // $table_name2 = $wpdb->prefix . "awpcp_adfees";
+	  // $table_name3 = $wpdb->prefix . "awpcp_ads";
+	  // $table_name4 = $wpdb->prefix . "awpcp_adsettings";
+	  // $table_name5 = $wpdb->prefix . "awpcp_adphotos";
+	  // $table_name6 = $wpdb->prefix . "awpcp_pagename";
 
-	   $wpdb->query("ALTER TABLE " . $table_name1 . "  DEFAULT CHARACTER SET utf8");
-	   $wpdb->query("ALTER TABLE " . $table_name2 . "  DEFAULT CHARACTER SET utf8");
-	   $wpdb->query("ALTER TABLE " . $table_name3 . "  DEFAULT CHARACTER SET utf8");
-	   $wpdb->query("ALTER TABLE " . $table_name4 . "  DEFAULT CHARACTER SET utf8");
-	   $wpdb->query("ALTER TABLE " . $table_name5 . "  DEFAULT CHARACTER SET utf8");
-	   $wpdb->query("ALTER TABLE " . $table_name6 . "  DEFAULT CHARACTER SET utf8");
+	  // $wpdb->query("ALTER TABLE " . $table_name1 . "  DEFAULT CHARACTER SET utf8");
+	  // $wpdb->query("ALTER TABLE " . $table_name2 . "  DEFAULT CHARACTER SET utf8");
+	  // $wpdb->query("ALTER TABLE " . $table_name3 . "  DEFAULT CHARACTER SET utf8");
+	  // $wpdb->query("ALTER TABLE " . $table_name4 . "  DEFAULT CHARACTER SET utf8");
+	  // $wpdb->query("ALTER TABLE " . $table_name5 . "  DEFAULT CHARACTER SET utf8");
+	  // $wpdb->query("ALTER TABLE " . $table_name6 . "  DEFAULT CHARACTER SET utf8");
 
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -1289,6 +1315,41 @@ function awpcp_opsconfig_settings()
 			$field="<input  size=\"30\" type=\"text\" style=\"border:1px solid#dddddd;width:75%;\" name=\"$config_option\" value=\"$config_value\" />";
 		}elseif ($option_type==2) {	// textarea input
 			$field="<textarea name=\"$config_option\" rows=\"5\" cols=\"75\" style=\"border:1px solid#dddddd;width:75%;\">$config_value</textarea>";
+		}elseif ($option_type==3) {	// radio input
+		$field="";
+			if($config_option == 'groupbrowseadsby')
+			{
+				$orderbyops=array('1','2','3','4','5','6');
+				foreach($orderbyops as $orderbyop)
+				{
+					if($orderbyop == 1){ $orderbyoptext=__("Most Recent","AWPCP");}
+					if($orderbyop == 2){ $orderbyoptext=__("Title","AWPCP");}
+					if($orderbyop == 3){ $orderbyoptext=__("Paid first then most recent","AWPCP");}
+					if($orderbyop == 4){ $orderbyoptext=__("Paid first then title","AWPCP");}
+					if($orderbyop == 5){ $orderbyoptext=__("Most viewed then title","AWPCP");}
+					if($orderbyop == 6){ $orderbyoptext=__("Most viewed then most recent","AWPCP");}
+
+					if($config_value == $orderbyop){$checked="checked";}else{ $checked="";}
+					$field.="<br/><input name=\"$config_option\" type=\"radio\" value=\"$orderbyop\" $checked>$orderbyoptext";
+				}
+			}
+			if($config_option == 'groupsearchresultsby')
+			{
+				$orderbyops=array('1','2','3','4','5','6');
+				foreach($orderbyops as $orderbyop)
+				{
+					if($orderbyop == 1){ $orderbyoptext=__("Most Recent","AWPCP");}
+					if($orderbyop == 2){ $orderbyoptext=__("Title","AWPCP");}
+					if($orderbyop == 3){ $orderbyoptext=__("Paid first then most recent","AWPCP");}
+					if($orderbyop == 4){ $orderbyoptext=__("Paid first then title","AWPCP");}
+					if($orderbyop == 5){ $orderbyoptext=__("Most viewed then title","AWPCP");}
+					if($orderbyop == 6){ $orderbyoptext=__("Most viewed then most recent","AWPCP");}
+
+					if($config_value == $orderbyop){$checked="checked";}else{ $checked="";}
+
+					$field.="<br/><input name=\"$config_option\" type=\"radio\" value=\"$orderbyop\" $checked>$orderbyoptext";
+				}
+			}
 		}
 
 			/////////////////////////////////////////
@@ -1439,8 +1500,12 @@ function awpcp_opsconfig_fees()
 				$awpcpfeeform.=__("Term Increment","AWPCP");
 				$awpcpfeeform.="<br/>";
 				$awpcpfeeform.="<select name=\"rec_increment\" size=\"1\">$rec_increment_op</select></p>";
-				$awpcpfeeform.="<input class=\"button\" type=\"submit\" name=\"addnewfeesetting\" value=\"";
+				$awpcpfeeform.="<input class=\"button\" type=\"submit\" name=\"savefeesetting\" value=\"";
 				$awpcpfeeform.=__("Update Plan","AWPCP");
+				$awpcpfeeform.="\" />";
+				$awpcpfeeform.="<input type=\"hidden\" name=\"adterm_id\" value=\"$adterm_id\">";
+				$awpcpfeeform.="<input class=\"button\" type=\"submit\" name=\"deletefeesetting\" value=\"";
+				$awpcpfeeform.=__("Delete Plan","AWPCP");
 				$awpcpfeeform.="\" />";
 				$awpcpfeeform.="</form>";
 
@@ -2888,6 +2953,8 @@ if(isset($_REQUEST['savesettings']) && !empty($_REQUEST['savesettings']))
 				$myoptions[$config_option]='';
 			}elseif ($option_type==2) {
 				$myoptions[$config_option]='';
+			}elseif ($option_type==3) {
+				$myoptions[$config_option]='';
 			}
 		}
 	}
@@ -3115,7 +3182,6 @@ if(isset($_REQUEST['savefeesetting']) && !empty($_REQUEST['savefeesetting']))
 	$rec_period=addslashes_mq($_REQUEST['rec_period']);
 	$rec_increment=addslashes_mq($_REQUEST['rec_increment']);
 	$imagesallowed=addslashes_mq($_REQUEST['imagesallowed']);
-	$ad_word_length=addslashes_mq($_REQUEST['ad_word_length']);
 	$query="UPDATE ".$table_name2." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed' WHERE adterm_id='$adterm_id'";
 	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 	$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
@@ -3133,15 +3199,105 @@ if(isset($_REQUEST['deletefeesetting']) && !empty($_REQUEST['deletefeesetting'])
 
 	global $wpdb;
 	$table_name2 = $wpdb->prefix . "awpcp_adfees";
+	$awpcpfeeplanoptionitem='';
+	$adterm_id='';
 
-		$adterm_id=addslashes_mq($_REQUEST['adterm_id']);
-		$query="DELETE FROM  ".$table_name2." WHERE adterm_id='$adterm_id'";
-		if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+		if(isset($_REQUEST['adterm_id']) && !empty($_REQUEST['adterm_id']))
+		{
+			$adterm_id=addslashes_mq($_REQUEST['adterm_id']);
+		}
 
-	$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
-	$message.=__("The data has been deleted","AWPCP");
-	$message.="!</div>";
-	global $message;
+		if(empty($adterm_id))
+		{
+
+			$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
+			$message.=__("No plan ID was provided therefore no action has been taken","AWPCP");
+			$message.="!</div>";
+		}
+
+		// First make check if there are ads that are saved under this term
+		elseif(adtermidinuse($adterm_id))
+		{
+
+			$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
+			$message.=__("The plan could not be deleted because there are active ads in the system that are associated with the plan ID. You need to switch the ads to a new plan ID before you can delete the plan.","AWPCP");
+			$message.="</div>";
+
+				$awpcpfeechangeadstonewidform="<div style=\"border:5px solid#ff0000;padding:5px;\"><form method=\"post\" id=\"awpcp_launch\">";
+				$awpcpfeechangeadstonewidform.="<p>";
+				$awpcpfeechangeadstonewidform.=__("Change ads associated with plan ID $adterm_id to this plan ID","AWPCP");
+				$awpcpfeechangeadstonewidform.="<br/>";
+				$awpcpfeechangeadstonewidform.="<select name=\"awpcpnewplanid\"/>";
+
+
+				$awpcpfeeplans=$wpdb->get_results("select adterm_id as theadterm_ID, adterm_name as theadterm_name from ".$table_name2." WHERE adterm_id != '$adterm_id'");
+
+				foreach($awpcpfeeplans as $awpcpfeeplan)
+				{
+
+					$awpcpfeeplanoptionitem .= "<option value='$awpcpfeeplan->theadterm_ID'>$awpcpfeeplan->theadterm_name</option>";
+				}
+
+				$awpcpfeechangeadstonewidform.="$awpcpfeeplanoptionitem";
+
+				$awpcpfeechangeadstonewidform.="</select>";
+				$awpcpfeechangeadstonewidform.="<input name=\"adterm_id\" type=\"hidden\" value=\"$adterm_id\" /></p>";
+				$awpcpfeechangeadstonewidform.="<input class=\"button\" type=\"submit\" name=\"changeadstonewfeesetting\" value=\"";
+				$awpcpfeechangeadstonewidform.=__("Submit","AWPCP");
+				$awpcpfeechangeadstonewidform.="\" />";
+				$awpcpfeechangeadstonewidform.="</form></div>";
+
+				$message.="<p>$awpcpfeechangeadstonewidform</p>";
+		}
+
+		else
+		{
+
+			$query="DELETE FROM  ".$table_name2." WHERE adterm_id='$adterm_id'";
+			if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+			$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
+			$message.=__("The data has been deleted","AWPCP");
+			$message.="!</div>";
+
+		}
+}
+
+
+if(isset($_REQUEST['changeadstonewfeesetting']) && !empty($_REQUEST['changeadstonewfeesetting']))
+{
+
+	global $wpdb;
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$adterm_id='';
+	$awpcpnewplanid='';
+
+		if(isset($_REQUEST['adterm_id']) && !empty($_REQUEST['adterm_id']))
+		{
+			$adterm_id=addslashes_mq($_REQUEST['adterm_id']);
+		}
+		if(isset($_REQUEST['awpcpnewplanid']) && !empty($_REQUEST['awpcpnewplanid']))
+		{
+			$awpcpnewplanid=addslashes_mq($_REQUEST['awpcpnewplanid']);
+		}
+
+
+		if(empty($adterm_id))
+		{
+
+			$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
+			$message.=__("No plan ID was provided therefore no action has been taken","AWPCP");
+			$message.="!</div>";
+		}
+		else
+		{
+			$query="UPDATE ".$table_name3." SET adterm_id='$awpcpnewplanid' WHERE adterm_id='$adterm_id'";
+			if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+			$message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
+			$message.=__("All ads with ID $adterm_id have been associated with plan id $awpcpnewplanid. You can now delete plan ID $adterm_id","AWPCP");
+			$message.="!</div>";
+		}
 }
 
 
@@ -3839,18 +3995,9 @@ function awpcpui_process_browseads()
 
 	$where="disabled ='0'";
 
-	if($hasregionsmodule ==  1)
-	{
-		if(isset($_SESSION['theactiveregionid']) )
-		{
-			$theactiveregionid=$_SESSION['theactiveregionid'];
-			$theactiveregionname=get_theawpcpregionname($theactiveregionid);
+	$grouporderby=get_group_orderby();
 
-			$where.=" AND ad_city='$theactiveregionname' OR ad_state='$theactiveregionname' OR ad_country='$theactiveregionname' OR ad_county_village='$theactiveregionname'";
-		}
-	}
-
-	display_ads($where,$byl='',$hidepager='');
+	display_ads($where,$byl='',$hidepager='',$grouporderby);
 
 }
 
@@ -3858,6 +4005,7 @@ function awpcpui_process_browsecats()
 {
 
 	$pathvaluebrowsecats=get_awpcp_option('pathvaluebrowsecats');
+	global $hasregionsmodule;
 
 	if(isset($_REQUEST['category_id']) && !empty($_REQUEST['category_id']))
 	{
@@ -3890,19 +4038,6 @@ function awpcpui_process_browsecats()
 			{
 				$where="(ad_category_id='".$adcategory."' OR ad_category_parent_id='".$adcategory."') AND disabled ='0'";
 			}
-
-			if($hasregionsmodule ==  1)
-			{
-				if(isset($_SESSION['theactiveregionid']) )
-				{
-					$theactiveregionid=$_SESSION['theactiveregionid'];
-					$theactiveregionname=get_theawpcpregionname($theactiveregionid);
-
-					$where.=" AND (ad_city='$theactiveregionname' OR ad_state='$theactiveregionname' OR ad_country='$theactiveregionname' OR ad_county_village='$theactiveregionname')";
-				}
-			}
-
-
 	}
 	elseif(!isset($action) && isset($adcategory) )
 	{
@@ -3913,17 +4048,6 @@ function awpcpui_process_browsecats()
 			else
 			{
 				$where="(ad_category_id='".$adcategory."' OR ad_category_parent_id='".$adcategory."') AND disabled ='0'";
-			}
-
-			if($hasregionsmodule ==  1)
-			{
-				if(isset($_SESSION['theactiveregionid']) )
-				{
-					$theactiveregionid=$_SESSION['theactiveregionid'];
-					$theactiveregionname=get_theawpcpregionname($theactiveregionid);
-
-					$where.=" AND (ad_city='$theactiveregionname' OR ad_state='$theactiveregionname' OR ad_country='$theactiveregionname' OR ad_county_village='$theactiveregionname')";
-				}
 			}
 	}
 	else
@@ -3938,7 +4062,10 @@ function awpcpui_process_browsecats()
 		echo "</b></p>";
 	}
 
-	display_ads($where,$byl='',$hidepager='');
+
+		$grouporderby=get_group_orderby();
+
+		display_ads($where,$byl='',$hidepager='',$grouporderby);
 
 }
 
@@ -4199,6 +4326,7 @@ function awpcpui_process($awpcppagename)
 
 		$browsestat=$awpcpsplitbrowseadPath[$pathvalueviewcategories];
 
+
 		//print_r($awpcpsplitbrowseadPath);
 
 		//echo $browsestat;
@@ -4243,7 +4371,8 @@ function awpcp_load_classifieds($awpcppagename)
 	if(get_awpcp_option('main_page_display') == 1)
 	{
 		//Display latest ads on mainpage
-		display_ads($where='',$byl='1',$hidepager='');
+		$grouporderby=get_group_orderby();
+		display_ads($where='',$byl='1',$hidepager='',$grouporderby);
 	}
 	else
 	{
@@ -4327,15 +4456,43 @@ function awpcp_menu_items()
 			}
 
 			wp_reset_query();
-			if(is_page($browseadspagename))
+			$pathvalueviewcategories=get_awpcp_option('pathvalueviewcategories');
+
+			$awpcpviewcategories_requested_url  = ( !empty($_SERVER['HTTPS'] ) && strtolower($_SERVER['HTTPS']) == 'on' ) ? 'https://' : 'http://';
+			$awpcpviewcategories_requested_url .= $_SERVER['HTTP_HOST'];
+			$awpcpviewcategories_requested_url .= $_SERVER['REQUEST_URI'];
+
+			$awpcpparsedviewcategoriesURL = parse_url ($awpcpviewcategories_requested_url);
+			$awpcpsplitviewcategoriesPath = preg_split ('/\//', $awpcpparsedviewcategoriesURL['path'], 0, PREG_SPLIT_NO_EMPTY);
+
+
+			$catviewpagecheck=$awpcpsplitviewcategoriesPath[$pathvalueviewcategories];
+
+			if(is_page($browseadspagename) )
 			{
 				$browseads_browsecats="<li class=\"browse\"><a href=\"$url_browsecats\">$categoriesviewpagenameunsani";
 				$browseads_browsecats.="</a></li>";
 			}
-			elseif(is_page($browsecatspagename))
+			elseif(is_page($browsecatspagename) || ($catviewpagecheck == $categoriesviewpagename))
 			{
 				$browseads_browsecats="<li class=\"browse\"><a href=\"$url_browseads\">$browseadspagenameunsani";
 				$browseads_browsecats.="</a></li>";
+			}
+			elseif(( get_awpcp_option('main_page_display') == 1) && ($catviewpagecheck != $categoriesviewpagename))
+			{
+				if(is_page($awpcppagename))
+				{
+					$browseads_browsecats="<li class=\"browse\"><a href=\"$url_browsecats\">$categoriesviewpagenameunsani";
+					$browseads_browsecats.="</a></li>";
+				}
+				else
+				{
+
+					$browseads_browsecats="<li class=\"browse\"><a href=\"$url_browseads\">$browseadspagenameunsani";
+					$browseads_browsecats.="</a></li>";
+					$browseads_browsecats.="<li class=\"browse\"><a href=\"$url_browsecats\">$categoriesviewpagenameunsani";
+					$browseads_browsecats.="</a></li>";
+				}
 			}
 			else
 			{
@@ -4426,7 +4583,7 @@ function awpcp_display_the_classifieds_page_body($awpcppagename)
 					if( field_exists($field='removepoweredbysign') && !(get_awpcp_option('removepoweredbysign')) )
 					{
 						echo "<p><font style=\"font-size:smaller\">";
-						_e("Powered by","AWPCP");
+						_e("Powered by ","AWPCP");
 						echo "<a href=\"http://www.awpcp.com\">Another Wordpress Classifieds Plugin</a> </font></p>";
 					}
 					elseif( field_exists($field='removepoweredbysign') && (get_awpcp_option('removepoweredbysign')) )
@@ -4436,7 +4593,7 @@ function awpcp_display_the_classifieds_page_body($awpcppagename)
 					else
 					{
 						echo "<p><font style=\"font-size:smaller\">";
-						_e("Powered by","AWPCP");
+						_e("Powered by ","AWPCP");
 						echo "<a href=\"http://www.awpcp.com\">Another Wordpress Classifieds Plugin</a> </font></p>";
 					}
 						echo "</div>";
@@ -6272,7 +6429,7 @@ if(!isset($adcontact_city) || empty($adcontact_city) )
 	awpcp_menu_items();
 	if(isset($message) && !empty($message))
 	{
-		echo $message;
+		echo "$message";
 	}
 	echo $checktheform;
 	echo "<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">";
@@ -6951,7 +7108,9 @@ function dosearch() {
 			$where.=" AND ad_item_price <= '$searchpricemaxcents'";
 		}
 
-		display_ads($where,$byl='',$hidepager='');
+		$grouporderby=get_group_orderby();
+
+		display_ads($where,$byl='',$hidepager='',$grouporderby);
 
 		}
 }
@@ -7164,7 +7323,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 	}
 
-	if( $adaction == 'placead' )
+	if(($adaction != 'delete') && ($adaction != 'editad'))
 	{
 		// If running in pay mode make sure a payment method has been checked
 		if((get_awpcp_option('freepay') == 1) && !is_admin())
@@ -7184,7 +7343,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 		// If running in pay mode make sure an ad term has been selected
 		if((get_awpcp_option('freepay') == 1) && !is_admin())
 		{
-			if(!($adaction == 'delete') || ($adaction == 'editad'))
+			if(($adaction != 'delete') && ($adaction != 'editad'))
 			{
 				if(!isset($adterm_id) || empty ($adterm_id))
 				{
@@ -9347,7 +9506,7 @@ function paymentthankyou ()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //	START FUNCTION: display listing of ad titles when browse ads is clicked
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function display_ads($where,$byl,$hidepager)
+function display_ads($where,$byl,$hidepager,$grouporderby)
 {
 	global $wpdb,$imagesurl,$hasregionsmodule,$awpcp_plugin_path;
 	$awpcppage=get_currentpagename();
@@ -9360,6 +9519,7 @@ function display_ads($where,$byl,$hidepager)
 	$permastruc=get_option('permalink_structure');
 	$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
 	$browseadspageid=awpcp_get_page_id($browseadspagename);
+	$displayadthumbwidth=get_awpcp_option('displayadthumbwidth');
 
 				if( get_awpcp_option('seofriendlyurls') )
 				{
@@ -9392,31 +9552,30 @@ function display_ads($where,$byl,$hidepager)
 	{
 		echo "<div id=\"classiwrapper\">";
 
-				if($hidepager == 1)
-				{
-					$uiwelcome=get_awpcp_option('uiwelcome');
-					echo "<div class=\"uiwelcome\">$uiwelcome</div>";
-				}
+		if($hidepager == 1)
+		{
+			$uiwelcome=get_awpcp_option('uiwelcome');
+			echo "<div class=\"uiwelcome\">$uiwelcome</div>";
+		}
 
-				$isadmin=checkifisadmin();
-				awpcp_menu_items();
+		$isadmin=checkifisadmin();
+		awpcp_menu_items();
 
-							if($hasregionsmodule ==  1)
-							{
-								if( isset($_SESSION['theactiveregionid']) )
-								{
-									$theactiveregionid=$_SESSION['theactiveregionid'];
+		if($hasregionsmodule ==  1)
+		{
+			if( isset($_SESSION['theactiveregionid']) )
+			{
+				$theactiveregionid=$_SESSION['theactiveregionid'];
 
-									$theactiveregionname=get_theawpcpregionname($theactiveregionid);
+				$theactiveregionname=get_theawpcpregionname($theactiveregionid);
 
-									echo "<h2>";
-									_e("You are currently browsing in","AWPCP");
-									echo ": $theactiveregionname</h2><SUP><a href=\"?a=unsetregion\">";
-									_e("Clear session for ","AWPCP");
-									echo "$theactiveregionname</a></SUP>";
-								}
-							}
-
+				echo "<h2>";
+				_e("You are currently browsing in","AWPCP");
+				echo ": $theactiveregionname</h2><SUP><a href=\"?a=unsetregion\">";
+				_e("Clear session for ","AWPCP");
+				echo "$theactiveregionname</a></SUP>";
+			}
+		}
 
 		$table_name3 = $wpdb->prefix . "awpcp_ads";
 		$table_name5 = $wpdb->prefix . "awpcp_adphotos";
@@ -9425,22 +9584,19 @@ function display_ads($where,$byl,$hidepager)
 
 		if(!isset($where) || empty($where))
 		{
-			if($hasregionsmodule == 1)
-			{
-				if(isset($theactiveregionname) && !empty($theactiveregionname) )
-				{
-					$where="disabled ='0' AND (ad_city ='$theactiveregionname' OR ad_state='$theactiveregionname' OR ad_country='$theactiveregionname' OR ad_county_village='$theactiveregionname')";
-				}
-				else
-				{
-					$where="disabled ='0'";
-				}
-			}
-			else
-			{
-				$where="disabled ='0'";
-			}
+			$where="disabled ='0'";
+		}
+		else
+		{
+			$where="$where";
+		}
 
+		if($hasregionsmodule == 1)
+		{
+			if(isset($theactiveregionname) && !empty($theactiveregionname) )
+			{
+				$where.=" AND (ad_city ='$theactiveregionname' OR ad_state='$theactiveregionname' OR ad_country='$theactiveregionname' OR ad_county_village='$theactiveregionname')";
+			}
 		}
 
 		if(get_awpcp_option('disablependingads') == 0)
@@ -9487,8 +9643,17 @@ function display_ads($where,$byl,$hidepager)
 					$pager2='';
 				}
 
+				if(isset($grouporderby) && !empty($grouporderby))
+				{
+					$grouporder=$grouporderby;
+				}
+				else
+				{
+					$grouporder="ORDER BY ad_postdate DESC, ad_title ASC";
+				}
+
 				$items=array();
-				$query="SELECT ad_id,ad_category_id,ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_details,ad_postdate,ad_enddate,ad_views,ad_fee_paid, IF(ad_fee_paid>0,1,0) as ad_is_paid FROM $from WHERE $where ORDER BY ad_postdate DESC, ad_title ASC LIMIT $offset,$results";
+				$query="SELECT ad_id,ad_category_id,ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_details,ad_postdate,ad_enddate,ad_views,ad_fee_paid, IF(ad_fee_paid>0,1,0) as ad_is_paid FROM $from WHERE $where $grouporder LIMIT $offset,$results";
 				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 				while ($rsrow=mysql_fetch_row($res))
@@ -9504,7 +9669,7 @@ function display_ads($where,$byl,$hidepager)
 					$modcatname=add_dashes($modcatname);
 					$category_id=$rsrow[1];
 					$category_name=get_adcatname($category_id);
-					$addetailssummary=awpcpLimitText($rsrow[8],10,50,"");
+					$addetailssummary=awpcpLimitText($rsrow[8],10,100,"");
 					$awpcpadcity=get_adcityvalue($ad_id);
 					$awpcpadstate=get_adstatevalue($ad_id);
 					$awpcpadcountry=get_adcountryvalue($ad_id);
@@ -9582,11 +9747,11 @@ function display_ads($where,$byl,$hidepager)
 							if($totalimagesuploaded >=1)
 							{
 								$awpcp_image_name=get_a_random_image($ad_id);
-								$awpcp_image_name_srccode="<img src=\"".AWPCPTHUMBSUPLOADURL."/$awpcp_image_name\" border=\"0\" width=\"60\" alt=\"$modtitle\">";
+								$awpcp_image_name_srccode="<img src=\"".AWPCPTHUMBSUPLOADURL."/$awpcp_image_name\" border=\"0\" width=\"$displayadthumbwidth\" alt=\"$modtitle\">";
 							}
 							else
 							{
-								$awpcp_image_name_srccode="<img src=\"$imagesurl/adhasnoimage.gif\" border=\"0\" alt=\"$modtitle\">";
+								$awpcp_image_name_srccode="<img src=\"$imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\">";
 							}
 
 							$awpcp_image_display.="$awpcp_image_name_srccode</a></td>";
@@ -9641,7 +9806,7 @@ function display_ads($where,$byl,$hidepager)
 			if( field_exists($field='removepoweredbysign') && !(get_awpcp_option('removepoweredbysign')) )
 			{
 				echo "<p><font style=\"font-size:smaller\">";
-				_e("Powered by","AWPCP");
+				_e("Powered by ","AWPCP");
 				echo "<a href=\"http://www.awpcp.com\">Another Wordpress Classifieds Plugin</a> </font></p>";
 			}
 			elseif( field_exists($field='removepoweredbysign') && (get_awpcp_option('removepoweredbysign')) )
@@ -9651,7 +9816,7 @@ function display_ads($where,$byl,$hidepager)
 			else
 			{
 				echo "<p><font style=\"font-size:smaller\">";
-				_e("Powered by","AWPCP");
+				_e("Powered by ","AWPCP");
 				echo "<a href=\"http://www.awpcp.com\">Another Wordpress Classifieds Plugin</a> </font></p>";
 			}
 		}
@@ -9972,7 +10137,8 @@ function showad($adid,$omitmenu)
 	}
 	else
 	{
-		display_ads($where='',$byl='',$hidepager='');
+		$grouporderby=get_group_orderby();
+		display_ads($where='',$byl='',$hidepager='',grouporderby);
 	}
 
 }
