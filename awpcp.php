@@ -38,10 +38,12 @@ AWPCP Classifieds icon courtesy of http://www.famfamfam.com/lab/icons/silk/
 */
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function init()
+function awpcp_session_started()
 {
-    if(session_id() == "") @session_start();
+    if(isset($_SESSION)){ return true; }else{ return false; }
 }
+if(!awpcp_session_started()){ session_start(); }
+
 
 if ( !defined('WP_CONTENT_DIR') )
 	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); // no trailing slash, full paths only - WP_CONTENT_URL is defined further down
@@ -62,8 +64,9 @@ require("$awpcp_plugin_path"."functions_awpcp.php");
 require("$awpcp_plugin_path"."upload_awpcp.php");
 
 $plugin_dir = basename(dirname(__FILE__));
-if(get_awpcp_option('activatelanguages')){
-load_plugin_textdomain( 'AWPCP', 'wp-content/plugins/' . $plugin_dir, $plugin_dir );
+if(get_awpcp_option('activatelanguages'))
+{
+	load_plugin_textdomain( 'AWPCP', 'wp-content/plugins/' . $plugin_dir, $plugin_dir );
 }
 
 $imagespath = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'images';
