@@ -1264,7 +1264,7 @@ function get_group_orderby()
 				}
 				elseif($getgrouporderby == 6)
 				{
-					$grouporderby="ORDER BY ad_views DESC, ad_key DESSC";
+					$grouporderby="ORDER BY ad_views DESC, ad_key DESC";
 				}
 			}
 		}
@@ -2122,7 +2122,7 @@ function checkforduplicate($cpagename_awpcp)
 	$pageswithawpcpname=array();
 	global $wpdb,$table_prefix;
 
-	$query="SELECT ID FROM {$table_prefix}posts WHERE post_name = '$awpcppagename'";
+	$query="SELECT ID FROM {$table_prefix}posts WHERE post_name = '$awpcppagename' AND post_type='post'";
 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 	if (mysql_num_rows($res))
@@ -2145,7 +2145,7 @@ $totalpageswithawpcpname='';
 	$pageswithawpcpname=array();
 	global $wpdb,$table_prefix;
 
-	$query="SELECT ID FROM {$table_prefix}posts WHERE post_title='$awpcppage' AND post_name = '$awpcppagename' AND post_content LIKE '%AWPCP%'";
+	$query="SELECT ID FROM {$table_prefix}posts WHERE post_title='$awpcppage' AND post_name = '$awpcppagename' AND post_content LIKE '%AWPCP%' AND post_type='post'";
 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 	if (mysql_num_rows($res))
@@ -2164,7 +2164,7 @@ $totalpageswithawpcpname='';
 		{
 
 			//Delete the pages
-			$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname' OR (post_parent='$pagewithawpcpname' AAND post_content LIKE '%AWPCP%')";
+			$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname' AND post_type='post' OR (post_parent='$pagewithawpcpname' AND post_content LIKE '%AWPCP%')";
 			@mysql_query($query);
 
 			//$query="DELETE FROM {$table_prefix}postmeta WHERE post_id = '$pagewithawpcpname'";
