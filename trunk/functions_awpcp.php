@@ -691,7 +691,7 @@ $adterm_amount='';
 			$excludequery="AND category_id !='$exclude'";
 		}
 
-	 	$catnid=$wpdb->get_results("select category_id as cat_ID, category_parent_id as cat_parent_ID, category_name as cat_name from ".$table_name1." WHERE category_parent_id='0' $excludequery");
+	 	$catnid=$wpdb->get_results("select category_id as cat_ID, category_parent_id as cat_parent_ID, category_name as cat_name from ".$table_name1." WHERE category_parent_id='0' AND category_name <> '' $excludequery");
 
 	 	foreach($catnid as $categories)
 	 	{

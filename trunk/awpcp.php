@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
-Version: 1.0.5.8
+Version: 1.0.5.9
 Author: A Lewis
 Author URI: http://www.antisocialmediallc.com
 */
@@ -98,7 +98,7 @@ if( file_exists("$awpcp_plugin_path/awpcp_remove_powered_by_module.php") )
 }
 
 
-$awpcp_db_version = "1.0.5.8";
+$awpcp_db_version = "1.0.5.9";
 
 if(field_exists($field='uploadfoldername'))
 {
@@ -220,6 +220,7 @@ function awpcp_rules_rewrite($wp_rewrite)
 	$awpcppage=get_currentpagename();
 	$pprefx = sanitize_title($awpcppage, $post_ID='');
 
+		$pprefxpageguid=awpcp_get_guid($awpcppageid=awpcp_get_page_id($pprefx));
 		$showadspagename=sanitize_title(get_awpcp_option('showadspagename'),$post_ID='');
 		$replytoadpagename=sanitize_title(get_awpcp_option('replytoadpagename'),$post_ID='');
 		$showadspageguid=awpcp_get_guid($awpcpshowadspageid=awpcp_get_page_id($showadspagename));
@@ -240,7 +241,7 @@ function awpcp_rules_rewrite($wp_rewrite)
 	$pprefx.'/'.$browsecatspagename.'/(.+?)/(.+?)' => $browsecatspageguid.'&category_id='.$wp_rewrite->preg_index(1),
 	$pprefx.'/'.$paymentthankyoupagename.'/(.+?)' => $paymentthankyoupageguid.'&i='.$wp_rewrite->preg_index(1),
 	$pprefx.'/'.$paymentcancelpagename.'/(.+?)' => $paymentcancelpageguid.'&i='.$wp_rewrite->preg_index(1),
-
+	$pprefx.'/setregion/(.+?)/(.+?)' => $pprefxpageguid.'&a=setregion&regionid='.$wp_rewrite->preg_index(1),
 	$pprefx.'/'.$categoriesviewpagename => $awpcppageguid.'&layout=2'
 	);
 
@@ -421,8 +422,8 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('contactformcheckhumanhighnumval', '10', 'Math validation highest number', '1','1'),
 		('contactformsubjectline', 'Response to your AWPCP Demo Ad', 'Subject line for email sent out when someone replies to ad','8', '1'),
 		('contactformbodymessage', 'Someone has responded to your AWPCP Demo Ad', 'Message body text for email sent out when someone replies to ad', '8','2'),
-		('resendakeyformsubjectline', 'The classified ad activation key you requested', 'Subject line for email sent out when someone requests their activation key resent','8', '1'),
-		('resendakeyformbodymessage', 'You asked to have your classified ad activation key resent. Below are all the activation keys in the system that are tied to the email address you provided', 'Message body text for email sent out when someone requests their activation key resent', '8','2'),
+		('resendakeyformsubjectline', 'The classified ad ad access key you requested', 'Subject line for email sent out when someone requests their ad access key resent','8', '1'),
+		('resendakeyformbodymessage', 'You asked to have your classified ad ad access key resent. Below are all the ad access keys in the system that are tied to the email address you provided', 'Message body text for email sent out when someone requests their ad access key resent', '8','2'),
 		('paymentabortedsubjectline', 'There was a problem processing your classified ads listing payment', 'Subject line for email sent out when the payment processing does not complete','8', '1'),
 		('paymentabortedbodymessage', 'There was a problem encountered during your attempt to submit payment for your classified ad listing. If funds were removed from the account you tried to use to make a payment please contact the website admin or the payment website customer service for assistance.','Message body text for email sent out when the payment processing does not complete', '8','2'),
 		('seofriendlyurls', '0', 'Search Engine Friendly URLs? [ Does not work in some instances ]', '11','0'),
@@ -434,7 +435,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('pathvaluepaymentthankyou', '2', 'If the payment thank you page is not working in seo mode it means the path the plugin is using is not correct. Change the until the correct path is found. Start at 1', '11','1'),
 		('allowhtmlinadtext', '0', 'Allow HTML in ad text [ Not recommended ]', '2','0'),
 		('htmlstatustext', 'No HTML Allowed', 'Display this text above ad detail text input box on ad post page', '2','2'),
-		('hyperlinkurlsinadtext', '1', 'Make URLs in ad text clickable', '2','0'),
+		('hyperlinkurlsinadtext', '0', 'Make URLs in ad text clickable', '2','0'),
 		('visitwebsitelinknofollow', '1', 'Add no follow to links in ads', '2','0'),
 		('notice_awaiting_approval_ad', 'All ads must first be approved by the administrator before they are activated in the system. As soon as an admin has approved your ad it will become visible in the system. Thank you for your business.','Text for message to notify user that ad is awaiting approval','2','2'),
 		('displayphonefield', '1', 'Show phone field','6','0'),
@@ -618,8 +619,8 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	if(!field_exists($field='contactformcheckhumanhighnumval')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('contactformcheckhumanhighnumval', '10', 'Math validation highest number', '1','1');");}
 	if(!field_exists($field='contactformsubjectline')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('contactformsubjectline', 'Response to your AWPCP Demo Ad', 'Subject line for email sent out when someone replies to ad','8', '1');");}
 	if(!field_exists($field='contactformbodymessage')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('contactformbodymessage', 'Someone has responded to your AWPCP Demo Ad', 'Message body text for email sent out when someone replies to ad', '8','2');");}
-	if(!field_exists($field='resendakeyformsubjectline')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('resendakeyformsubjectline', 'The classified ad activation key you requested', 'Subject line for email sent out when someone requests their activation key resent','8', '1');");}
-	if(!field_exists($field='resendakeyformbodymessage')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('resendakeyformbodymessage', 'You asked to have your classified ad activation key resent. Below are all the activation keys in the system that are tied to the email address you provided', 'Message body text for email sent out when someone requests their activation key resent', '8','2');");}
+	if(!field_exists($field='resendakeyformsubjectline')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('resendakeyformsubjectline', 'The classified ad access key you requested', 'Subject line for email sent out when someone requests their ad access key resent','8', '1');");}
+	if(!field_exists($field='resendakeyformbodymessage')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('resendakeyformbodymessage', 'You asked to have your classified ad ad access key resent. Below are all the ad access keys in the system that are tied to the email address you provided', 'Message body text for email sent out when someone requests their ad access key resent', '8','2');");}
 	if(!field_exists($field='paymentabortedsubjectline')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('paymentabortedsubjectline', 'There was a problem processing your classified ads listing payment', 'Subject line for email sent out when the payment processing does not complete','8', '1');");}
 	if(!field_exists($field='paymentabortedbodymessage')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('paymentabortedbodymessage', 'There was a problem encountered during your attempt to submit payment for your classified ad listing. If funds were removed from the account you tried to use to make a payment please contact the website admin or the payment website customer service for assistance.', 'Message body text for email sent out when the payment processing does not complete','8','2');");}
 	if(!field_exists($field='seofriendlyurls')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('seofriendlyurls', '0', 'Search Engine Friendly URLs? [ Does not work in some instances ]', '11','0');");}
@@ -631,7 +632,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	if(!field_exists($field='pathvaluepaymentthankyou')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('pathvaluepaymentthankyou', '2', 'If the payment thank you page is not working in seo mode it means the path the plugin is using is not correct. Change the until the correct path is found. Start at 1', '11','1');");}
 	if(!field_exists($field='allowhtmlinadtext')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('allowhtmlinadtext', '0', 'Allow HTML in ad text [ Not recommended ]', '2','0');");}
 	if(!field_exists($field='htmlstatustext')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('htmlstatustext', 'No HTML Allowed', 'Display this text above ad detail text input box on ad post page', '2','2');");}
-	if(!field_exists($field='hyperlinkurlsinadtext')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('hyperlinkurlsinadtext', '1', 'Make URLs in ad text clickable', '2','0');");}
+	if(!field_exists($field='hyperlinkurlsinadtext')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('hyperlinkurlsinadtext', '0', 'Make URLs in ad text clickable', '2','0');");}
 	if(!field_exists($field='visitwebsitelinknofollow')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('visitwebsitelinknofollow', '1', 'Add no follow to links in ads', '2','0');");}
 	if(!field_exists($field='notice_awaiting_approval_ad')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('notice_awaiting_approval_ad', 'All ads must first be approved by the administrator before they are activated in the system. As soon as an admin has approved your ad it will become visible in the system. Thank you for your business.','Text for message to notify user that ad is awaiting approval','2','2');");}
 	if(!field_exists($field='displayphonefield')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('displayphonefield', '1', 'Show phone field','6','0');");}
@@ -1027,11 +1028,11 @@ if(get_awpcp_option('showlatestawpcpnews'))
 	_e("Latest News About Another Wordpress Classifieds Plugin","AWPCP");
 	echo "</strong></div>";
 
-		$widgets = get_option( 'dashboard_widget_options' );
-		@extract( @$widgets['dashboard_secondary'], EXTR_SKIP );
+		$awpcpwidgets = get_option( 'dashboard_widget_options' );
+		@extract( @$awpcpwidgets['dashboard_secondary'], EXTR_SKIP );
 		$awpcpfeedurl="http://feeds2.feedburner.com/Awpcp";
 		$awpcpgetrss = @fetch_feed( $awpcpfeedurl );
-			$widgets['dashboard_primary'] = array(
+			$awpcpwidgets['dashboard_primary'] = array(
 			'items' => 5,
 			'show_summary' => 1,
 			'show_author' => 0,
@@ -1048,7 +1049,7 @@ if(get_awpcp_option('showlatestawpcpnews'))
 			return false;
 		} else {
 			echo '<div style="padding:10px;">';
-			wp_widget_rss_output( $awpcpgetrss, $widgets['dashboard_primary'] );
+			wp_widget_rss_output( $awpcpgetrss, $awpcpwidgets['dashboard_primary'] );
 			echo '</div>';
 	}
 
@@ -1729,7 +1730,7 @@ function awpcp_opsconfig_categories()
 							}
 
 							$promptmovetocat="<p>";
-							$promptmovetocat.=__("If you do not select a category to move them to the category contains ads. The ads will be moved to:","AWPCP");
+							$promptmovetocat.=__("The category contains ads. If you do not select a category to move them to the ads will be moved to:","AWPCP");
 							$promptmovetocat.="<b>$movetoname</b></p>";
 
 							$defaultcatname=get_adcatname($catid=1);
@@ -4076,6 +4077,18 @@ function awpcpui_process_browsecats()
 function awpcpui_process_placead()
 {
 
+		$pathsetregionid=get_awpcp_option('pathsetregionid');
+		$pathsetregionbefore=($pathsetregionid - 1);
+
+		$awpcpsetregionid_requested_url  = ( !empty($_SERVER['HTTPS'] ) && strtolower($_SERVER['HTTPS']) == 'on' ) ? 'https://' : 'http://';
+		$awpcpsetregionid_requested_url .= $_SERVER['HTTP_HOST'];
+		$awpcpsetregionid_requested_url .= $_SERVER['REQUEST_URI'];
+
+		$awpcpparsedsetregionidURL = parse_url ($awpcpsetregionid_requested_url);
+		$awpcpsplitsetregionidPath = preg_split ('/\//', $awpcpparsedsetregionidURL['path'], 0, PREG_SPLIT_NO_EMPTY);
+
+		$pathsetregionbeforevalue=$awpcpsplitsetregionidPath[$pathsetregionbefore];
+
 		if(isset($_REQUEST['a']) && !empty($_REQUEST['a']))
 		{
 			$action=$_REQUEST['a'];
@@ -4194,14 +4207,21 @@ function awpcpui_process_placead()
 			deletead($adid,$adkey,$editemail);
 
 		}
-		elseif($action == 'setregion')
+		elseif(($action == 'setregion') || ($pathsetregionbeforevalue == 'setregion'))
 		{
 			if($hasregionsmodule ==  1)
 			{
 				if(isset($_REQUEST['regionid']) && !empty($_REQUEST['regionid']))
 				{
 					$theregionidtoset=$_REQUEST['regionid'];
+
 				}
+				else
+				{
+					$theregionidtoset=$awpcpsplitsetregionidPath[$pathsetregionid];
+				}
+
+
 				if( isset($_SESSION['theactiveregionid']) )
 				{
 					unset($_SESSION['theactiveregionid']);
@@ -4237,10 +4257,9 @@ function awpcpui_process_placead()
 				{
 					unset($_SESSION['theactiveregionid']);
 				}
+				awpcp_display_the_classifieds_page_body($awpcppagename);
 
-			awpcp_display_the_classifieds_page_body($awpcppagename);
 		}
-
 		elseif( $action == 'setsessionregionid' )
 		{
 			global $hasregionsmodule;
@@ -4313,7 +4332,84 @@ function awpcpui_process($awpcppagename)
 	print_r($therwrules);*/
 
 	$awpcppage=get_currentpagename();
+	if(!isset($awpcppagename) || empty($awpcppagename) )
+	{
+		$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+	}
+
 	$pathvalueviewcategories=get_awpcp_option('pathvalueviewcategories');
+	$pathsetregionid=get_awpcp_option('pathsetregionid');
+	$pathsetregionbefore=($pathsetregionid - 1);
+
+	$awpcpsetregionid_requested_url  = ( !empty($_SERVER['HTTPS'] ) && strtolower($_SERVER['HTTPS']) == 'on' ) ? 'https://' : 'http://';
+	$awpcpsetregionid_requested_url .= $_SERVER['HTTP_HOST'];
+	$awpcpsetregionid_requested_url .= $_SERVER['REQUEST_URI'];
+
+	$awpcpparsedsetregionidURL = parse_url ($awpcpsetregionid_requested_url);
+	$awpcpsplitsetregionidPath = preg_split ('/\//', $awpcpparsedsetregionidURL['path'], 0, PREG_SPLIT_NO_EMPTY);
+
+	$pathsetregionbeforevalue=$awpcpsplitsetregionidPath[$pathsetregionbefore];
+
+		if(isset($_REQUEST['a']) && !empty($_REQUEST['a']))
+		{
+			$action=$_REQUEST['a'];
+		}
+
+
+		global $hasregionsmodule;
+		if(($action == 'setregion') || ($pathsetregionbeforevalue == 'setregion'))
+		{
+			if($hasregionsmodule ==  1)
+			{
+				if(isset($_REQUEST['regionid']) && !empty($_REQUEST['regionid']))
+				{
+					$theregionidtoset=$_REQUEST['regionid'];
+
+				}
+				else
+				{
+					$theregionidtoset=$awpcpsplitsetregionidPath[$pathsetregionid];
+				}
+
+
+				if( isset($_SESSION['theactiveregionid']) )
+				{
+					unset($_SESSION['theactiveregionid']);
+				}
+
+				$_SESSION['theactiveregionid']=$theregionidtoset;
+
+				if(region_is_a_country($theregionidtoset))
+				{
+					$_SESSION['regioncountryID']=$theregionidtoset;
+				}
+
+				if(region_is_a_state($theregionidtoset))
+				{
+					$thestateparentid=get_theawpcpregionparentid($theregionidtoset);
+					$_SESSION['regioncountryID']=$thestateparentid;
+					$_SESSION['regionstatownID']=$theregionidtoset;
+				}
+
+				if(region_is_a_city($theregionidtoset))
+				{
+					$thecityparentid=get_theawpcpregionparentid($theregionidtoset);
+					$thestateparentid=get_theawpcpregionparentid($thecityparentid);
+					$_SESSION['regioncountryID']=$thestateparentid;
+					$_SESSION['regionstatownID']=$thecityparentid;
+					$_SESSION['regioncityID']=$theregionidtoset;
+				}
+			}
+		}
+		elseif($action == 'unsetregion')
+		{
+				if( isset($_SESSION['theactiveregionid']) )
+				{
+					unset($_SESSION['theactiveregionid']);
+				}
+
+		}
+
 
 	$categoriesviewpagename=sanitize_title(get_awpcp_option('categoriesviewpagename'), $post_ID='');
 
@@ -4335,10 +4431,7 @@ function awpcpui_process($awpcppagename)
 		//echo $browsestat;
 
 
-	if(!isset($awpcppagename) || empty($awpcppagename) )
-	{
-		$awpcppagename = sanitize_title($awpcppage, $post_ID='');
-	}
+
 
 	$awpcp_nothinghereyet=__("Nothing here yet","AWPCP");
 
@@ -4416,7 +4509,10 @@ function awpcp_menu_items()
 	$categoriesviewpagename=sanitize_title(get_awpcp_option('categoriesviewpagename'),$post_ID='');
 	$categoriesviewpagenameunsani=get_awpcp_option('categoriesviewpagename');
 
-
+		if(isset($_REQUEST['a']) && !empty($_REQUEST['a']))
+		{
+			$action=$_REQUEST['a'];
+		}
 
 		if(isset($permastruc) && !empty($permastruc))
 		{
@@ -4483,7 +4579,7 @@ function awpcp_menu_items()
 			}
 			elseif(( get_awpcp_option('main_page_display') == 1) && ($catviewpagecheck != $categoriesviewpagename))
 			{
-				if(is_page($awpcppagename))
+				if(is_page($awpcppagename) && ($action != 'unsetregion'))
 				{
 					$browseads_browsecats="<li class=\"browse\"><a href=\"$url_browsecats\">$categoriesviewpagenameunsani";
 					$browseads_browsecats.="</a></li>";
@@ -4568,8 +4664,8 @@ function awpcp_display_the_classifieds_page_body($awpcppagename)
 				$theactiveregionid=$_SESSION['theactiveregionid'];
 				$theactiveregionname=get_theawpcpregionname($theactiveregionid);
 				echo "<h2>";
-				_e("You are currently browsing in","AWPCP");
-				echo "<b>$theactiveregionname</b></h2><SUP><a href=\"?a=unsetregion\">";
+				_e("You are currently browsing in ","AWPCP");
+				echo "<b>$theactiveregionname</b></h2><SUP><a href=\"$quers/?a=unsetregion\">";
 				_e("Clear session for ","AWPCP");
 				echo "$theactiveregionname</a></SUP>";
 			}
@@ -5878,39 +5974,49 @@ function resendadaccesskeyform($editemail,$awpcppagename)
 			}
 
 			$totaladsfound=count($adtitlekeys);
+			$awpcpbreak1="<br/>";
+			$awpcpbreak2="<br/><br/>";
 
 			if($totaladsfound > 0 )
 			{
 
 				$resendakeymessage="$awpcp_resendakeybody";
-				$resendakeymessage.="<br/><br/>";
+				$resendakeymessage.="$awpcpbreak2";
 				$resendakeymessage.=__("Total ads found sharing your email address","AWPCP");
 				$resendakeymessage.=": [$totaladsfound]";
-				$resendakeymessage.="<br/><br/>";
+				$resendakeymessage.="$awpcpbreak2";
 
 
 				foreach ($adtitlekeys as $theadtitleandkey)
 				{
-					$resendakeymessage.="$theadtitleandkey <br/>";
+					$resendakeymessage.="$theadtitleandkey $awpcpbreak1";
 				}
 
-				$resendakeymessage.="\n$nameofsite\n$siteurl";
+				$resendakeymessage.="$awpcpbreak1$nameofsite$awpcpbreak1$siteurl";
 
 				$subject="$awpcp_resendakeysubject";
 				$from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
 
-				if(send_email($thisadminemail,$editemail,$subject,$resendakeymessage,false))
+				if(send_email($thisadminemail,$editemail,$subject,$resendakeymessage,true))
 				{
-					$resendakeymessage=str_replace("<br/>", "\n", $resendakeymessage);
-					$resendakeymessage=str_replace("<br/><br/>", "\n\n", $resendakeymessage);
+					$awpcpactivationmailsent=1;
+				}
+				else
+				{
+					$resendakeymessage=str_replace("$awpcpbreak1", "\n", $resendakeymessage);
+					$resendakeymessage=str_replace("$awpcpbreak2", "\n\n", $resendakeymessage);
 
-					if(!(mail($editemail, $subject, $resendakeymessagealt, $from_header)))
+					if(mail($editemail, $subject, $resendakeymessage, $from_header))
+					{
+						$awpcpactivationmailsent=1;
+					}
+					else
 					{
 						$awpcp_smtp_host = get_awpcp_option('smtphost');
 						$awpcp_smtp_username = get_awpcp_option('smtpusername');
 						$awpcp_smtp_password = get_awpcp_option('smtppassword');
-						$resendakeymessage=str_replace("<br/>", "\n", $resendakeymessage);
-						$resendakeymessage=str_replace("<br/><br/>", "\n\n", $resendakeymessage);
+						$resendakeymessage=str_replace("$awpcpbreak1", "\n", $resendakeymessage);
+						$resendakeymessage=str_replace("$awpcpbreak2", "\n\n", $resendakeymessage);
 
 						$headers = array ('From' => $from_header,
 						  'To' => $editemail,
@@ -5932,14 +6038,7 @@ function resendadaccesskeyform($editemail,$awpcppagename)
 							$awpcpactivationmailsent=1;
 						}
 					}
-					else
-					{
-						$awpcpactivationmailsent=1;
-					}
-				}
-				else
-				{
-					$awpcpactivationmailsent=1;
+
 				}
 
 				if($awpcpactivationmailsent)
@@ -6218,35 +6317,44 @@ function processadcontact($adid,$sendersname,$checkhuman,$numval1,$numval2,$send
 			$subject=__("Regarding","AWPCP");
 			$subject.=": $theadtitle";
 		}
-
+		$awpcpbreak1="<br/>";
+		$awpcpbreak2="<br/><br/>";
 		$contactformbodymessage=get_awpcp_option('contactformbodymessage');
-		$contactformbodymessage.="<br/><br/>";
+		$contactformbodymessage.="$awpcpbreak2";
 		$contactformbodymessage.=__("Message","AWPCP");
-		$contactformbodymessage.="<br/><br/>";
+		$contactformbodymessage.="$awpcpbreak2";
 		$contactformbodymessage.=$contactmessage;
-		$contactformbodymessage.="<br/><br/>";
+		$contactformbodymessage.="$awpcpbreak2";
 		$contactformbodymessage.="$nameofsite";
-		$contactformbodymessage.="<br/>";
+		$contactformbodymessage.="$awpcpbreak1";
 		$contactformbodymessage.=$siteurl;
 
 
 		$from_header = "From: ". $sendersname . " <" . $sendersemail . ">\r\n";
 
 
-				if(send_email($sendersemail,$sendtoemail,$subject,$contactformbodymessage,false))
+				if(send_email($sendersemail,$sendtoemail,$subject,$contactformbodymessage,true))
+				{
+					$contactemailmailsent=1;
+				}
+				else
 				{
 
-					$contactformbodymessage=str_replace("<br/>", "\n", $contactformbodymessage);
-					$contactformbodymessage=str_replace("<br/><br/>", "\n\n", $contactformbodymessage);
+					$contactformbodymessage=str_replace("$awpcpbreak1", "\n", $contactformbodymessage);
+					$contactformbodymessage=str_replace("$awpcpbreak2", "\n\n", $contactformbodymessage);
 
-					if(!(mail($sendtoemail, $subject, $contactformbodymessage, $from_header)))
+					if((mail($sendtoemail, $subject, $contactformbodymessage, $from_header)))
+					{
+						$contactemailmailsent=1;
+					}
+					else
 					{
 						$awpcp_smtp_host = get_awpcp_option('smtphost');
 						$awpcp_smtp_username = get_awpcp_option('smtpusername');
 						$awpcp_smtp_password = get_awpcp_option('smtppassword');
 
-						$contactformbodymessage=str_replace("<br/>", "\\n", $contactformbodymessage);
-						$contactformbodymessage=str_replace("<br/><br/>", "\n\n", $contactformbodymessage);
+						$contactformbodymessage=str_replace("$awpcpbreak1", "\n", $contactformbodymessage);
+						$contactformbodymessage=str_replace("$awpcpbreak2", "\n\n", $contactformbodymessage);
 
 						$headers = array ('From' => $from_header,
 						  'To' => $sendtoemail,
@@ -6268,14 +6376,6 @@ function processadcontact($adid,$sendersname,$checkhuman,$numval1,$numval2,$send
 							$contactemailmailsent=1;
 						}
 					}
-					else
-					{
-						$contactemailmailsent=1;
-					}
-				}
-				else
-				{
-					$contactemailmailsent=1;
 				}
 
 				if($contactemailmailsent)
@@ -7005,7 +7105,7 @@ function dosearch() {
 
 			if(isset($keywordphrase) && !empty($keywordphrase))
 			{
-				$where.=" AND MATCH (ad_title,ad_details) AGAINST (\"$keywordphrase\")";
+				 $where.=" AND MATCH (ad_title,ad_details) AGAINST (\"$keywordphrase\" IN BOOLEAN MODE)";
 			}
 
 			if(isset($searchname) && !empty($searchname))
@@ -7096,7 +7196,7 @@ function dosearch() {
 
 		if(isset($searchcategory) && !empty($searchcategory))
 		{
-			$where.=" AND ad_category_id = '$searchcategory' OR ad_category_parent_id = '$searchcategory'";
+			$where.=" AND (ad_category_id = '$searchcategory' OR ad_category_parent_id = '$searchcategory')";
 		}
 
 		if(isset($searchpricemin) && !empty($searchpricemin))
@@ -8254,7 +8354,28 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 							$imgstat.="</font>";
 						}
 
-						$dellink="<a href=\"?a=dp&k=$ikey\">";
+						if(!isset($awpcppagename) || empty($awpcppagename) )
+						{
+							$awpcppage=get_currentpagename();
+							$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+						}
+
+						$quers=setup_url_structure($awpcppagename);
+						$editadpagename=sanitize_title(get_awpcp_option('editadpagename'), $post_ID='');
+						$editadpageid=awpcp_get_page_id($editadpagename);
+
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							$url_editpage="$quers/$editadpagename";
+							$awpcpquerymark="?";
+						}
+						else
+						{
+							$url_editpage="$quers/?page_id=$editadpageid";
+							$awpcpquerymark="&";
+						}
+
+						$dellink="<a href=\"$url_editpage".$awpcpquerymark."a=dp&k=$ikey\">";
 						$dellink.=__("Delete","AWPCP");
 						$dellink.="</a>";
 						$theimage.="<li><a class=\"thickbox\" href=\"".AWPCPUPLOADURL."/$image_name\"><img $transval src=\"".AWPCPTHUMBSUPLOADURL."/$image_name\"></a><br/>$dellink $imgstat</li>";
@@ -9573,10 +9694,12 @@ function display_ads($where,$byl,$hidepager,$grouporderby)
 				$theactiveregionname=get_theawpcpregionname($theactiveregionid);
 
 				echo "<h2>";
-				_e("You are currently browsing in","AWPCP");
-				echo ": $theactiveregionname</h2><SUP><a href=\"?a=unsetregion\">";
+				_e("You are currently browsing in ","AWPCP");
+				echo ": $theactiveregionname</h2><SUP><a href=\"";
+				echo $quers;
+				echo "/?a=unsetregion\">";
 				_e("Clear session for ","AWPCP");
-				echo "$theactiveregionname</a></SUP>";
+				echo "$theactiveregionname</a></SUP><br/>";
 			}
 		}
 
@@ -10141,7 +10264,7 @@ function showad($adid,$omitmenu)
 	else
 	{
 		$grouporderby=get_group_orderby();
-		display_ads($where='',$byl='',$hidepager='',grouporderby);
+		display_ads($where='',$byl='',$hidepager='',$grouporderby);
 	}
 
 }
