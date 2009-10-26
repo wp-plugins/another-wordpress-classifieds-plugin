@@ -3,7 +3,7 @@ Contributors: awpcp.com
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4459898
 Tags: classifieds,ads, classified ads,classified,adsense,picture,paypal
 Requires at least: 2.7
-Tested up to: 2.8.4.
+Tested up to: 2.8.5.
 Stable tag: trunk
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your wordpress blog. 
@@ -87,9 +87,6 @@ You need to check your database to make sure data from your previous classifieds
 2.   	Activate the plugin
 
 3.	Click on the "Click here to setup your site options" link and fill out all your various options to configure how you want your classifieds to run. 
-	A Classifieds page will automatically be created with the name you provide in the options form. The page will contain an important tag. If this tag is not found in the page the classifieds content will not display.
-	The code that will be written to the file: [[AWPCPCLASSIFIEDSUI]]
-	It is best that the page created for your classifieds only have [[AWPCPCLASSIFIEDSUI]] as the content.
 
 4. 	After you have setup your options you should create some categories and sub categories for your classifieds
 
@@ -101,7 +98,7 @@ Your classifieds should now be ready and working. If you are having problems ple
 
 == Screenshots ==
 
-For screen shots of the application please visit http://www.awpcp.com/about
+For screen shots of the application please visit http://www.awpcp.com/features
 
 == Frequently Asked Questions ==
 
@@ -116,6 +113,7 @@ Answer: Yes, you need PHP 5+ and Mysql 5+
 
 
 For more Frequently asked questions about this plugin visit http://www.awpcp.com/category/questions-answers/
+For usage docs: http://www.awpcp.com/about/
 
 
 
