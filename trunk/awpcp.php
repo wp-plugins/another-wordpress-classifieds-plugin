@@ -66,8 +66,11 @@ require("$awpcp_plugin_path"."upload_awpcp.php");
 $plugin_dir = basename(dirname(__FILE__));
 if(get_awpcp_option('activatelanguages'))
 {
-	load_plugin_textdomain( 'AWPCP', 'wp-content/plugins/' . $plugin_dir, $plugin_dir );
+	//load_plugin_textdomain( 'AWPCP', 'wp-content/plugins/' . $plugin_dir, $plugin_dir );
+	load_plugin_textdomain('AWPCP', PLUGINDIR.'/'.dirname(plugin_basename(__FILE__)), dirname(plugin_basename(__FILE__)));
 }
+
+
 
 $imagespath = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'images';
 $imagesurl = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'images';
@@ -6219,7 +6222,7 @@ function load_ad_contact_form($adid,$sendersname,$checkhuman,$numval1,$numval2,$
 function processadcontact($adid,$sendersname,$checkhuman,$numval1,$numval2,$sendersemail,$contactmessage,$ermsg)
 {
 
-	global $nameofsite,$siteurl;
+	global $nameofsite,$siteurl,$thisadminemail;
 	$error=false;
 	$adidmsg='';
 	$sendersnamemsg='';
@@ -6325,15 +6328,18 @@ function processadcontact($adid,$sendersname,$checkhuman,$numval1,$numval2,$send
 		$contactformbodymessage.="$awpcpbreak2";
 		$contactformbodymessage.=$contactmessage;
 		$contactformbodymessage.="$awpcpbreak2";
+		$contactformbodymessage.=__("Reply To","AWPCP");
+		$contactformbodymessage.=$sendersemail;
+		$contactformbodymessage.="$awpcpbreak2";
 		$contactformbodymessage.="$nameofsite";
 		$contactformbodymessage.="$awpcpbreak1";
 		$contactformbodymessage.=$siteurl;
 
 
-		$from_header = "From: ". $sendersname . " <" . $sendersemail . ">\r\n";
+		$from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
 
 
-				if(send_email($sendersemail,$sendtoemail,$subject,$contactformbodymessage,true))
+				if(send_email($thisadminemail,$sendtoemail,$subject,$contactformbodymessage,true))
 				{
 					$contactemailmailsent=1;
 				}
@@ -6464,6 +6470,9 @@ $checktheform="<script type=\"text/javascript\">
 
 </script>";
 
+		global $awpcp_plugin_path;
+		if( file_exists("$awpcp_plugin_path/awpcp_region_control_module.php") )
+		{
 				if( isset($_SESSION['regioncountryID']) || isset($_SESSION['regionstatownID']) || isset($_SESSION['regioncityID']) )
 				{
 					$searchinginregion='';
@@ -6493,6 +6502,7 @@ $checktheform="<script type=\"text/javascript\">
 				{
 					$clearthesessionlink='';
 				}
+			}
 
 if(!isset($message) || empty($message))
 {
@@ -7911,7 +7921,7 @@ function processadstep3($adid,$adterm_id,$key,$adpaymethod)
 		$finishbutton.="</p>
 		<form method=\"post\" id=\"awpcpui_process\">
 		<input type=\"hidden\" name=\"a\" value=\"adpostfinish\">
-		<input type=\"hidden\" name=\"ad_id\" value=\"$ad_id\" />
+		<input type=\"hidden\" name=\"ad_id\" value=\"$adid\" />
 		<input type=\"hidden\" name=\"adkey\" value=\"$key\" />
 		<input type=\"hidden\" name=\"adterm_id\" value=\"$adterm_id\" />
 		<input type=\"Submit\" value=\"";
