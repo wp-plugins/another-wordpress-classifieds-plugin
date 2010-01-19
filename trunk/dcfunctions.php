@@ -57,36 +57,6 @@ function create_awpcp_random_seed() {
     return (int)$sec+(int)($usec*100000);
 }
 
-function general_error($errlevel,$message,$file='unset',$line='unset') {
-	$error=array();
-	$error['text']=$message."\n<br />";
-	if (!empty($GLOBALS['query'])) {
-		$error['text'].='Last query run: '.$GLOBALS['query']."\n<br />";
-	}
-	ob_start();
-	echo '<pre>';
-	print_r(debug_backtrace());
-	echo '</pre>';
-	$error['text'].=ob_get_contents();
-	ob_end_clean();
-
-	require_once _BASEPATH_.'/includes/classes/log_error.class.php';
-	new log_error($error);
-	if (defined('_DEBUG_') && _DEBUG_!=0) {
-		if (_DEBUG_==1) {
-			$error['text']=$message."\n<br /> Line: $line\n<br />File: $file\n<br />";
-		} elseif (_DEBUG_==2) {
-			// same full error
-			// $error['text']=$error['text'];
-		}
-	} else {
-		$error['text']='Sorry, a critical error has occured. If you are the site administrator please check out the error log to see the actual error.';
-	}
-	new log_error($error,array('log_mode'=>_ERRORLOG_STDOUT_));
-	if ($errlevel==E_USER_ERROR || (defined('_DEBUG_') && _DEBUG_!=0)) {
-		exit;
-	}
-}
 
 
 function vector2table($vector) {
@@ -327,7 +297,14 @@ function create_pager($from,$where,$offset,$results,$tpname)
 	}
 	else
 	{
-		$awpcpoffset_set="&offset=";
+		if(is_admin())
+		{
+			$awpcpoffset_set="?offset=";
+		}
+		else
+		{
+			$awpcpoffset_set="&offset=";
+		}
 	}
 
 	mt_srand(create_awpcp_random_seed());
@@ -345,7 +322,7 @@ function create_pager($from,$where,$offset,$results,$tpname)
 
 	$params=array();
 	$params=array_merge($_GET,$_POST);
-	unset($params['offset'],$params['results'],$params['PHPSESSID'],$params['aeaction'],$params['category_id'],$params['cat_ID'],$params['action'],$params['aeaction'],$params['category_name'],$params['category_parent_id'],$params['createeditadcategory'],$params['deletemultiplecategories'],$params['movedeleteads'],$params['moveadstocategory'],$params['category_to_delete'],$params['tpname'],$params['category_icon'],$params['sortby']);
+	unset($params['offset'],$params['results'],$params['PHPSESSID'],$params['aeaction'],$params['category_id'],$params['cat_ID'],$params['action'],$params['aeaction'],$params['category_name'],$params['category_parent_id'],$params['createeditadcategory'],$params['deletemultiplecategories'],$params['movedeleteads'],$params['moveadstocategory'],$params['category_to_delete'],$params['tpname'],$params['category_icon'],$params['sortby'],$params['adid'],$params['picid'],$params['adkey'],$params['editemail'],$params['adtermid']);
 
 	$cid='';
 	if( isset($_REQUEST['a']) && !empty($_REQUEST['a']) && ($_REQUEST['a'] == 'browsecat') )
@@ -389,7 +366,7 @@ function create_pager($from,$where,$offset,$results,$tpname)
 	if (!($res=@mysql_query($query))) {die(mysql_error().' on line: '.__LINE__);}
 	$totalrows=mysql_result($res,0,0);
 	$total_pages=ceil($totalrows/$results);
-	$myreturn.="\t\t<a  href=\"$tpname$awpcpoffset_set0&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
+	$myreturn.="\t\t<a  href=\"$tpname".$awpcpoffset_set."0&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
 	$dotsbefore=false;
 	$dotsafter=false;
 	for ($i=1;$i<=$total_pages;$i++) {

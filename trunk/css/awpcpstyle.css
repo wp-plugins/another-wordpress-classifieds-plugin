@@ -133,6 +133,16 @@ float:right;
 
 .headeritem {width:98%;padding:5px;font-weight:bold;color:#333333;}
 
+.buywith {
+background:#eeeeee;
+border-top:1px dotted #dddddd;
+border-bottom:1px dotted #dddddd;
+color:#333333;
+font-weight:bold;
+font-size:medium;
+padding:10px;
+margin-bottom:20px;
+}
 
 #showad {
 margin-top:10px;}
