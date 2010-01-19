@@ -1778,7 +1778,7 @@ function doadexpirations(){
 	global $wpdb,$nameofsite,$siteurl,$thisadminemail;
 	$table_name3 = $wpdb->prefix . "awpcp_ads";
 	$table_name5 = $wpdb->prefix . "awpcp_adphotos";
-	$headers="From: $thisadminemail";
+	$awpcp_from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
 
 	// Get the IDs of the ads to be deleted
 	$query="SELECT ad_id FROM ".$table_name3." WHERE ad_enddate < CURDATE()";
@@ -1786,64 +1786,152 @@ function doadexpirations(){
 
 	$expiredid=array();
 
-	if (mysql_num_rows($res)) {
+	if (mysql_num_rows($res))
+	{
 
-	 	while ($rsrow=mysql_fetch_row($res)) {
+	 	while ($rsrow=mysql_fetch_row($res))
+	 	{
  			$expiredid[]=$rsrow[0];
 
 		}
+
 		$totalusers=count($expiredid);
 	}
 
-				$adstodelete=join("','",$expiredid);
-				// Delete the ad images
+	$adstodelete=join("','",$expiredid);
+	$awpcpbreak1="<br/>";
+	$awpcpbreak2="<br/><br/>";
 
-					$query="SELECT image_name FROM ".$table_name5." WHERE ad_id IN ('$adstodelete')";
-					if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
-					for ($i=0;$i<mysql_num_rows($res);$i++) {
+	if(!renewsubscription($adid))
+	{
+
+		foreach ($expiredid as $adid)
+		{
+			$adcontact=get_adpostername($adid);
+			$awpcpnotifyexpireemail=get_adposteremail($adid);
+			$adtitle=get_adtitle($adid);
+
+			$awpcpadexpiredsubject=get_awpcp_option('adexpiredsubjectline');
+			$awpcpadexpiredbody=get_awpcp_option('adexpiredbodymessage');
+			$awpcpadexpiredbody.="$awpcpbreak2";
+			$awpcpadexpiredbody.=__("Listing Details");
+			$awpcpadexpiredbody.="$awpcpbreak2";
+			$awpcpadexpiredbody.="$listingtitle";
+			$awpcpadexpiredbody.="$awpcpbreak2";
+			$awpcpadexpiredbody.="$siteurl";
+
+			if(get_awpcp_option('notifyofadexpiring') == '1')
+			{
+
+				if(send_email($thisadminemail,$awpcpnotifyexpireemail,$awpcpadexpiredsubject,$awpcpadexpiredbody,true))
+				{
+					$awpcpadexpiredemailsent=1;
+				}
+				else
+				{
+					$awpcpadexpiredbody=str_replace("$awpcpbreak1", "\n", $awpcpadexpiredbody);
+					$awpcpadexpiredbody=str_replace("$awpcpbreak2", "\n\n", $awpcpadexpiredbody);
+
+					if((mail($awpcpnotifyexpireemail, $awpcpadexpiredsubject, $awpcpadexpiredbody, $awpcp_from_header)))
+					{
+						$awpcpadexpiredemailsent=1;
+					}
+					else
+					{
+						$awpcp_smtp_host = get_awpcp_option('smtphost');
+						$awpcp_smtp_username = get_awpcp_option('smtpusername');
+						$awpcp_smtp_password = get_awpcp_option('smtppassword');
+
+						$awpcpadexpiredbody=str_replace("$awpcpbreak1", "\n", $awpcpadexpiredbody);
+						$awpcpadexpiredbody=str_replace("$awpcpbreak2", "\n\n", $awpcpadexpiredbody);
+
+						$headers = array ('From' => $awpcp_from_header,
+						  'To' => $awpcpnotifyexpireemail,
+						  'Subject' => $awpcpadexpiredsubject);
+						$smtp = Mail::factory('smtp',
+						  array ('host' => $awpcp_smtp_host,
+							'auth' => true,
+							'username' => $awpcp_smtp_username,
+							'password' => $awpcp_smtp_password));
+
+						$mail = $smtp->send($awpcpnotifyexpireemail, $headers, $awpcpadexpiredbody);
+
+						if (PEAR::isError($mail))
+						{
+						  $awpcpadexpiredemailsent=0;
+						}
+						else
+						{
+							$awpcpadexpiredemailsent=1;
+						}
+					}
+				}
+			}
+		}
+
+			// Delete or disable the ad images
+			if(get_awpcp_option('autoexpiredisabledelete') == 1)
+			{
+
+				//Disable the images
+				$query="UPDATE ".$table_name5." set disabled='1' WHERE ad_id IN ('$adstodelete')";
+				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+				// Disable the ads
+				$query="UPDATE ".$table_name3." set disabled='1' WHERE ad_id IN ('$adstodelete')";
+				@mysql_query($query);
+
+			}
+			else
+			{
+				$query="SELECT image_name FROM ".$table_name5." WHERE ad_id IN ('$adstodelete')";
+				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+				for ($i=0;$i<mysql_num_rows($res);$i++)
+				{
 					$photo=mysql_result($res,$i,0);
 
-						if (file_exists(AWPCPUPLOADDIR.'/'.$photo)) {
-							@unlink(AWPCPUPLOADDIR.'/'.$photo);
-						}
-						if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo)) {
-							@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
-						}
+					if (file_exists(AWPCPUPLOADDIR.'/'.$photo))
+					{
+						@unlink(AWPCPUPLOADDIR.'/'.$photo);
 					}
-
-					$query="DELETE FROM ".$table_name5." WHERE ad_id IN ('$adstodelete')";
-					if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-
-
-					// Send out an email notifying users that their ad has been deleted if notify is on
-
-					if(get_awpcp_option('notifyofadexpiring') == '1'){
-
-							foreach ($expiredid as $adid) {
-
-								$adcontact=get_adpostername($adid);
-								$email=get_adposteremail($adid);
-								$adtitle=get_adtitle($adid);
-
-								$subject="Your classifieds listing at $nameofsite has expired";
-								$body="Dear $adcontact<br><br>";
-								$body.="This is an automated notification that your ad titled <b>$adtitle</b> posted at $nameofsite has expired.";
-								$body.="$siteurl";
-
-							//mail($email,$subject,$body,$headers);
-							send_email($thisadminemail,$email,$subject,$body,true);
-
-							}
-
-
-
+					if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo))
+					{
+						@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
 					}
+				}
 
-					// Delete the ads
+				$query="DELETE FROM ".$table_name5." WHERE ad_id IN ('$adstodelete')";
+				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
-					$query="DELETE FROM ".$table_name3." WHERE ad_id IN ('$adstodelete')";
-					@mysql_query($query);
+				// Delete the ads
+				$query="DELETE FROM ".$table_name3." WHERE ad_id IN ('$adstodelete')";
+				@mysql_query($query);
+			}
+	}
+
+}
+
+function renewsubscription($adid)
+{
+
+	global $wpdb;
+	$table_name3 = $wpdb->prefix . "awpcp_ads";
+
+	$myreturn=false;
+		$query="SELECT payment_status FROM ".$table_name3." WHERE ad_id='$adid'";
+		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+		while ($rsrow=mysql_fetch_row($res))
+		{
+	 		list($paymentstatus)=$rsrow;
+		}
+			if($paymentstatus != 'Cancelled')
+			{
+				$myreturn=true;
+         		}
+
+	return $myreturn;
 
 }
 
@@ -1971,61 +2059,27 @@ function init_awpcpsbarwidget() {
 		extract($args);
 		$limit=$args[0];
 		$title=$args[1];
-		if(!isset($before_widget))
-		{
-			$before_widget=$args[2];
-		}
-		if(!isset($after_widget))
-		{
-			$after_widget=$args[3];
-		}
-		if(!isset($before_title))
-		{
-			$before_title=$args[4];
-		}
-		if(!isset($after_title))
-		{
-			$after_title=$args[5];
-		}
+
 
 		if(!isset($limit) && !isset($title))
 		{
 			$options = get_option('widget_awpcplatestads');
 			$title = htmlspecialchars(stripslashes($options['title']));
 			$limit = htmlspecialchars(stripslashes($options['hlimit']));
-			if(!isset($before_widget))
-			{
-				$before_widget=$options['beforewidget'];
-			}
-			if(!isset($after_widget))
-			{
-				$after_widget=$options['afterwidget'];
-			}
-			if(!isset($before_title))
-			{
-				$before_title=$options['beforetitle'];
-			}
-			if(!isset($after_title))
-			{
-				$after_title=$options['aftertitle'];
-			}
+
 		}
 		if(ads_exist())
 		{
-			if(isset($before_widget) && !empty($before_widget))
-			{
-				echo "$before_widget";
-			}
-			if(isset($before_title) && !empty($before_title))
-			{
-				echo "$before_title";
-			}
+
+				echo "<div class=\"widget\">";
+
+				echo "<h2>";
+
 			echo "$title";
 
-			if(isset($after_title) && !empty($after_title))
-			{
-				echo "$after_title";
-			}
+
+				echo "</h2>";
+
 			if (function_exists('awpcp_sidebar_headlines'))
 			{
 				echo '<ul>'."\n";
@@ -2033,10 +2087,9 @@ function init_awpcpsbarwidget() {
 				echo '</ul>'."\n";
 			}
 
-			if(isset($after_widget) && !empty($after_widget))
-			{
-				echo "$after_widget";
-			}
+
+				echo "</div>";
+
 		}
 	}
 
@@ -2044,23 +2097,23 @@ function init_awpcpsbarwidget() {
 	function widget_awpcplatestads_options() {
 		$options = get_option('widget_awpcplatestads');
 		if (!is_array($options)) {
-			$options = array('hlimit' => '10', 'title' => __('Latest Classifieds', 'wp-awpcplatestads'), 'beforewidget' => '', 'afterwidget' => '', 'beforetitle' => '', 'aftertitle' => '');
+			$options = array('hlimit' => '10', 'title' => __('Latest Classifieds', 'wp-awpcplatestads'));
 		}
 		if ($_POST['awpcplatestads-submit']) {
 			$options['hlimit'] = intval($_POST['awpcpwid-limit']);
 			$options['title'] = strip_tags($_POST['awpcpwid-title']);
-			$options['beforewidget'] = $_POST['awpcpwid-beforewidget'];
-			$options['afterwidget'] = $_POST['awpcpwid-afterwidget'];
-			$options['beforetitle'] = $_POST['awpcpwid-beforetitle'];
-			$options['aftertitle'] = $_POST['awpcpwid-aftertitle'];
+			//$options['beforewidget'] = $_POST['awpcpwid-beforewidget'];
+			//$options['afterwidget'] = $_POST['awpcpwid-afterwidget'];
+			//$options['beforetitle'] = $_POST['awpcpwid-beforetitle'];
+			//$options['aftertitle'] = $_POST['awpcpwid-aftertitle'];
 			update_option('widget_awpcplatestads', $options);
 		}
 		echo '<p><label for="awpcpwid-title">'.__('Widget Title', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-title" size="35" name="awpcpwid-title" value="'.htmlspecialchars(stripslashes($options['title'])).'" />';
 		echo '<p><label for="awpcpwid-limit">'.__('Number of headlines to Show', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" size="5" id="awpcpwid-limit" name="awpcpwid-limit" value="'.htmlspecialchars(stripslashes($options['hlimit'])).'" />';
-		echo '<p><label for="awpcpwid-beforewidget">'.__('Before Widget HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforewidget" size="35" name="awpcpwid-beforewidget" value="'.htmlspecialchars(stripslashes($options['beforewidget'])).'" />';
-		echo '<p><label for="awpcpwid-afterwidget">'.__('After Widget HTML<br>Exclude all quotes<br>(<del>class="XYZ"</del> => class=XYZ)', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-afterwidget" size="35" name="awpcpwid-afterwidget" value="'.htmlspecialchars(stripslashes($options['afterwidget'])).'" />';
-		echo '<p><label for="awpcpwid-beforetitle">'.__('Before title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforetitle" size="35" name="awpcpwid-beforetitle" value="'.htmlspecialchars(stripslashes($options['beforetitle'])).'" />';
-		echo '<p><label for="awpcpwid-aftertitle">'.__('After title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-aftertitle" size="35" name="awpcpwid-aftertitle" value="'.htmlspecialchars(stripslashes($options['aftertitle'])).'" />';
+		//echo '<p><label for="awpcpwid-beforewidget">'.__('Before Widget HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforewidget" size="35" name="awpcpwid-beforewidget" value="'.htmlspecialchars(stripslashes($options['beforewidget'])).'" />';
+		//echo '<p><label for="awpcpwid-afterwidget">'.__('After Widget HTML<br>Exclude all quotes<br>(<del>class="XYZ"</del> => class=XYZ)', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-afterwidget" size="35" name="awpcpwid-afterwidget" value="'.htmlspecialchars(stripslashes($options['afterwidget'])).'" />';
+		//echo '<p><label for="awpcpwid-beforetitle">'.__('Before title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforetitle" size="35" name="awpcpwid-beforetitle" value="'.htmlspecialchars(stripslashes($options['beforetitle'])).'" />';
+		//echo '<p><label for="awpcpwid-aftertitle">'.__('After title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-aftertitle" size="35" name="awpcpwid-aftertitle" value="'.htmlspecialchars(stripslashes($options['aftertitle'])).'" />';
 
 
 
@@ -2683,7 +2736,31 @@ function awpcp_get_currency_code()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: Clear HTML tags
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function myErrorHandler($errno, $errstr, $errfile, $errline){
+    switch ($errno) {
+    case E_USER_ERROR:
+        if ($errstr == "(SQL)"){
+            // handling an sql error
+            echo "<b>SQL Error</b> [$errno] " . SQLMESSAGE . "<br />\n";
+            echo "Query : " . SQLQUERY . "<br />\n";
+            echo "On line " . SQLERRORLINE . " in file " . SQLERRORFILE . " ";
+            echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+            echo "Aborting...<br />\n";
+        } else {
+            echo "<b>My ERROR</b> [$errno] $errstr<br />\n";
+            echo "  Fatal error on line $errline in file $errfile";
+            echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+            echo "Aborting...<br />\n";
+        }
+        exit(1);
+        break;
 
+    case E_USER_WARNING:
+    case E_USER_NOTICE:
+    }
+    /* Don't execute PHP internal error handler */
+    return true;
+}
 
 function strip_html_tags( $text )
 {

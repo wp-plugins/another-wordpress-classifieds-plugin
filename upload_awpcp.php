@@ -223,9 +223,10 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 
 						if (!move_uploaded_file($_FILES[$actual_field_name.$i]['tmp_name'],$destdir.'/'.$filename))
 						{
+							$orfilename=$filename;
 							$filename='';
 							$awpcpuploaderror=true;
-							$awpcpuerror[].="<p class=\"uploaderror\">[$filename]";
+							$awpcpuerror[].="<p class=\"uploaderror\">[$orfilename]";
 							$awpcpuerror[].=__("could not be moved to the destination directory","AWPCP");
 							$awpcpuerror[].="</p>";
 						}
