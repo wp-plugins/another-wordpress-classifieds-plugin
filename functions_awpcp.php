@@ -1768,6 +1768,40 @@ function isValidURL($url)
 }
 
 
+function isValidEmailAddress($email) {
+  if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $email)) {
+    return false;
+  }
+
+  $email_array = explode("@", $email);
+  $local_array = explode(".", $email_array[0]);
+  for ($i = 0; $i < sizeof($local_array); $i++) {
+    if
+(!ereg("^(([A-Za-z0-9!#$%&'*+/=?^_`{|}~-][A-Za-z0-9!#$%&
+?'*+/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$",
+$local_array[$i])) {
+      return false;
+    }
+  }
+
+  if (!ereg("^\[?[0-9\.]+\]?$", $email_array[1])) {
+    $domain_array = explode(".", $email_array[1]);
+    if (sizeof($domain_array) < 2) {
+        return false; // Not enough parts to domain
+    }
+    for ($i = 0; $i < sizeof($domain_array); $i++) {
+      if
+(!ereg("^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|
+?([A-Za-z0-9]+))$",
+$domain_array[$i])) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: function to handle automatic ad expirations
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2070,15 +2104,45 @@ function init_awpcpsbarwidget() {
 		}
 		if(ads_exist())
 		{
+			$awpcp_sb_widget_beforecontent=get_awpcp_option('sidebarwidgetbeforecontent');
+			$awpcp_sb_widget_aftercontent=get_awpcp_option('sidebarwidgetaftercontent');
+			$awpcp_sb_widget_beforetitle=get_awpcp_option('sidebarwidgetbeforetitle');
+			$awpcp_sb_widget_aftertitle=get_awpcp_option('sidebarwidgetaftertitle');
 
-				echo "<div class=\"widget\">";
-
-				echo "<h2>";
-
+			
+			
+			if(isset($awpcp_sb_widget_beforecontent) && !empty($awpcp_sb_widget_beforecontent))
+			{$awpcp_sb_widget_beforecontent="$awpcp_sb_widget_beforecontent";}
+			else{$awpcp_sb_widget_beforecontent="";}
+			
+			if(isset($awpcp_sb_widget_aftercontent) && !empty($awpcp_sb_widget_aftercontent))
+			{$awpcp_sb_widget_aftercontent="$awpcp_sb_widget_aftercontent";}
+			else{$awpcp_sb_widget_aftercontent="";}
+			
+			if(isset($awpcp_sb_widget_beforetitle) && !empty($awpcp_sb_widget_beforetitle))
+			{$awpcp_sb_widget_beforetitle="$awpcp_sb_widget_beforetitle";}
+			else{$awpcp_sb_widget_beforetitle="";}
+			
+			if(isset($awpcp_sb_widget_aftertitle) && !empty($awpcp_sb_widget_aftertitle))
+			{$awpcp_sb_widget_aftertitle="$awpcp_sb_widget_aftertitle";}
+			else{$awpcp_sb_widget_aftertitle="";}
+			
+			if(isset($awpcp_sb_widget_beforecontent) && !empty($awpcp_sb_widget_beforecontent))
+			{
+				echo "$awpcp_sb_widget_beforecontent";
+			}
+			if(isset($awpcp_sb_widget_beforetitle) && !empty($awpcp_sb_widget_beforetitle))
+			{
+				echo "$awpcp_sb_widget_beforetitle";
+			}			
+			
 			echo "$title";
 
 
-				echo "</h2>";
+			if(isset($awpcp_sb_widget_aftertitle) && !empty($awpcp_sb_widget_aftertitle))
+			{
+				echo "$awpcp_sb_widget_aftertitle";
+			}
 
 			if (function_exists('awpcp_sidebar_headlines'))
 			{
@@ -2087,8 +2151,11 @@ function init_awpcpsbarwidget() {
 				echo '</ul>'."\n";
 			}
 
+			if(isset($awpcp_sb_widget_aftercontent) && !empty($awpcp_sb_widget_aftercontent))
+			{
+				echo "$awpcp_sb_widget_aftercontent";
+			}
 
-				echo "</div>";
 
 		}
 	}
