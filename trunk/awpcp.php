@@ -4,8 +4,8 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 /*
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
-Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
-Version: 1.0.6
+Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
+Version: 1.0.6.1
 Author: A Lewis
 Author URI: http://www.antisocialmediallc.com
 */
@@ -63,6 +63,11 @@ require("$awpcp_plugin_path"."dcfunctions.php");
 require("$awpcp_plugin_path"."functions_awpcp.php");
 require("$awpcp_plugin_path"."upload_awpcp.php");
 
+$plugin_dir = basename(dirname(__FILE__));
+if(get_awpcp_option('activatelanguages'))
+{
+	load_plugin_textdomain( 'AWPCP', 'wp-content/plugins/' . $plugin_dir, $plugin_dir );
+}
 
 $imagespath = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'images';
 $imagesurl = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'images';
@@ -104,7 +109,7 @@ if( file_exists("$awpcp_plugin_path/awpcp_extra_fields_module.php") )
 	$hasextrafieldsmodule=1;
 }
 
-$awpcp_db_version = "1.0.6";
+$awpcp_db_version = "1.0.6.1";
 
 if(field_exists($field='uploadfoldername'))
 {
@@ -186,18 +191,6 @@ function awpcp_insert_thickbox() {
 	add_shortcode('AWPCPSEARCHADS','awpcpui_searchformscreen');
 	add_shortcode('AWPCPBROWSECATS','awpcpui_browsecatsscreen');
 
-	if(get_awpcp_option('activatelanguages') == 1)
-	{
-		add_action( 'init', 'awpcp_load_plugin_textdomain' );
-	}
-
-	function awpcp_load_plugin_textdomain()
-	{
-		$plugin_dir = basename(dirname(__FILE__));
-		load_plugin_textdomain( 'another-wordpress-classifieds-plugin', 'wp-content/plugins/' . $plugin_dir, $plugin_dir );
-
-	}
-
 	if(get_awpcp_option('awpcppagefilterswitch') == 1)
 	{
 		add_filter('wp_list_pages_excludes', 'exclude_awpcp_child_pages');
@@ -278,7 +271,11 @@ add_filter('generate_rewrite_rules', 'awpcp_rules_rewrite');
 		function awpcp_addcss()
 		{
 			$awpcpstylesheet="awpcpstyle.css";
-			 echo "\n".'<style type="text/css" media="screen">@import "'.AWPCPURL.'css/'.$awpcpstylesheet.'";</style>';
+			$awpcpstylesheetie6="awpcpstyle-ie-6.css";
+			 echo "\n".'<style type="text/css" media="screen">@import "'.AWPCPURL.'css/'.$awpcpstylesheet.'";</style>
+			 <!--[if lte IE 6]><style type="text/css" media="screen">@import "'.AWPCPURL.'css/'.$awpcpstylesheetie6.'";</style><![endif]-->
+			 ';
+
 		}
 
 
@@ -391,9 +388,14 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		('postloginformto', '', 'Post login form to [Value should be the full URL to the wordpress login script. Example http://www.awpcp.com/wp-login.php **Only needed if registration is required and your login url is mod-rewritten ] ','7','1'),
 		('registrationurl', '', 'Location of registraiton page [Value should be the full URL to the wordpress registration page. Example http://www.awpcp.com/wp-login.php?action=register **Only needed if registration is required and your login url is mod-rewritten ] ','7','1'),
 		('main_page_display', '0', 'Main page layout [ check for ad listings ] [ Uncheck for categories ]','1','0'),
-		('activatelanguages', '0', 'Activate Language Capability','1','0'),
+		('activatelanguages', '0', 'Activate Language Capability','1','0'),		
+		('sidebarwidgetaftertitle', '</h2>', 'Code to appear after widget title','1','1'),	
+		('sidebarwidgetbeforetitle', '<h2 class=\"widgettitle\">', 'Code to appear before widget title','1','1'),
+		('sidebarwidgetaftercontent', '</div>', 'Code to appear after widget content','1','1'),
+		('sidebarwidgetbeforecontent', '<div class=\"widget\">', 'Code to appear before widget content','1','1'),
 		('activatemylayoutdisplayads', '0', 'Activate display ad mod file [applies only if you created your own layout for the display_ads function in the file awpcp_display_ads_my_layout.php]','1','0'),
 		('activatemylayoutshowad', '0', 'Activate show ad mod file [applies only if you created your own layout for the showad function in the file awpcp_showad_my_layout.php]','1','0'),
+		('usesenderemailinsteadofadmin', '0', 'Check this to use the name and email of the sender in the FROM field when someone replies to an ad. When unchecked the messages go out with the website name and WP admin email address in the from field. Some servers will not process outgoing emails that have an email address from gmail, yahoo, hotmail and other free email services in the FROM field. Some servers will also not process emails that have an email address that is different from the email address associated with your hosting account in the FROM field. If you are with such a webhost you need to leave this option unchecked and make sure your WordPress admin email address is tied to your hosting account.','1','0'),
 		('awpcptitleseparator', '-', 'The character to use to separate ad details used in browser page title [Example: | / - ]','1','1'),
 		('showcityinpagetitle', '1', 'Show city in browser page title when viewing individual ad','1','0'),
 		('showstateinpagetitle', '1', 'Show state in browser page title when viewing individual ad','1','0'),
@@ -539,7 +541,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 		$query=("ALTER TABLE " . $table_name4 . "  ADD `config_group_id` tinyint(1) unsigned NOT NULL DEFAULT '1' AFTER config_diz");
 	 	@mysql_query($query);
 
-		$myconfig_group_ops_1=array('showlatestawpcpnews','uiwelcome','main_page_display','contactformcheckhuman', 'contactformcheckhumanhighnumval','awpcptitleseparator','showcityinpagetitle','showstateinpagetitle','showcountryinpagetitle','showcategoryinpagetitle','showcountyvillageinpagetitle','activatemylayoutshowad','activatemylayoutdisplayads','awpcppagefilterswitch','activatelanguages');
+		$myconfig_group_ops_1=array('showlatestawpcpnews','uiwelcome','main_page_display','contactformcheckhuman', 'contactformcheckhumanhighnumval','awpcptitleseparator','showcityinpagetitle','showstateinpagetitle','showcountryinpagetitle','showcategoryinpagetitle','showcountyvillageinpagetitle','activatemylayoutshowad','activatemylayoutdisplayads','awpcppagefilterswitch','activatelanguages','sidebarwidgetbeforecontent','sidebarwidgetaftercontent','sidebarwidgetbeforetitle','sidebarwidgetaftertitle','usesenderemailinsteadofadmin');
 		$myconfig_group_ops_2=array('addurationfreemode','autoexpiredisabledelete','maxcharactersallowed','notifyofadexpiring', 'notifyofadposted', 'adapprove', 'disablependingads', 'showadcount', 'displayadviews','onlyadmincanplaceads','allowhtmlinadtext', 'hyperlinkurlsinadtext', 'notice_awaiting_approval_ad', 'buildsearchdropdownlists','visitwebsitelinknofollow','groupbrowseadsby','groupsearchresultsby','displayadthumbwidth');
 		$myconfig_group_ops_3=array('freepay','paylivetestmode','paypalemail', 'paypalcurrencycode', 'displaycurrencycode', '2checkout', 'activatepaypal', 'activate2checkout','twocheckoutpaymentsrecurring','paypalpaymentsrecurring');
 		$myconfig_group_ops_4=array('imagesallowdisallow', 'awpcp_thickbox_disabled','imagesapprove', 'imagesallowedfree', 'uploadfoldername', 'maximagesize','minimagesize', 'imgthumbwidth');
@@ -574,7 +576,6 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
  	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Match up the ad settings fields of current versions and upgrading versions
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	if(!field_exists($field='userpagename')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('userpagename', 'AWPCP', 'Name for classifieds page. [CAUTION: Make sure page does not already exist]','10','1');");}
 	if(!field_exists($field='showadspagename')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('showadspagename', 'Show Ad', 'Name for show ads page. [CAUTION: existing page will be overwritten]','10','1');");}
 	if(!field_exists($field='placeadpagename')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('placeadpagename', 'Place Ad', 'Name for place ads page. [CAUTION: existing page will be overwritten]','10','1');");}
@@ -592,8 +593,13 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	if(!field_exists($field='registrationurl')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('registrationurl', '', 'Location of registraiton page [Value should be the full URL to the wordpress registration page. Example http://www.awpcp.com/wp-login.php?action=register **Only needed if registration is required and your login url is mod-rewritten ] ','7','1');");}
 	if(!field_exists($field='main_page_display')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('main_page_display', '0', 'Main page layout [ check for ad listings | Uncheck for categories ]','1','0');");}
 	if(!field_exists($field='activatelanguages')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('activatelanguages', '0', 'Activate Language Capability','1','0');");}
+	if(!field_exists($field='sidebarwidgetaftertitle')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('sidebarwidgetaftertitle', '</h2>', 'Code to appear after widget title','1','1');");}
+	if(!field_exists($field='sidebarwidgetbeforetitle')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('sidebarwidgetbeforetitle', '<h2 class=\"widgettitle\">', 'Code to appear before widget title','1','1');");}
+	if(!field_exists($field='sidebarwidgetaftercontent')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('sidebarwidgetaftercontent', '</div>', 'Code to appear after widget content','1','1');");}
+	if(!field_exists($field='sidebarwidgetbeforecontent')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('sidebarwidgetbeforecontent', '<div class=\"widget\">', 'Code to appear before widget content','1','1');");}
 	if(!field_exists($field='activatemylayoutdisplayads')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES		('activatemylayoutdisplayads', '0', 'Activate display ad mod file [applies only if you created your own layout for the display_ads function in the file awpcp_display_ads_my_layout.php]','1','0');");}
 	if(!field_exists($field='activatemylayoutshowad')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('activatemylayoutshowad', '0', 'Activate show ad mod file [applies only if you created your own layout for the showad function in the file awpcp_showad_my_layout.php]','1','0');");}
+	if(!field_exists($field='usesenderemailinsteadofadmin')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('usesenderemailinsteadofadmin', '0', 'Check this to use the name and email of the sender in the FROM field when someone replies to an ad. When unchecked the messages go out with the website name and WP admin email address in the from field. Some servers will not process outgoing emails that have an email address from gmail, yahoo, hotmail and other free email services in the FROM field. Some servers will also not process emails that have an email address that is different from the email address associated with your hosting account in the FROM field. If you are with such a webhost you need to leave this option unchecked and make sure your WordPress admin email address is tied to your hosting account.','1','0');");}
 	if(!field_exists($field='awpcptitleseparator')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('awpcptitleseparator', '-', 'The character to use to separate ad details used in browser page title [Example: | / - ]','1','1');");}
 	if(!field_exists($field='showcityinpagetitle')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('showcityinpagetitle', '1', 'Show city in browser page title when viewing individual ad','1','0');");}
 	if(!field_exists($field='showstateinpagetitle')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('showstateinpagetitle', '1', 'Show state in browser page title when viewing individual ad','1','0');");}
@@ -847,6 +853,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 
   	}
   }
+  
 }
 
 
@@ -1343,6 +1350,8 @@ function awpcp_opsconfig_settings()
 
 	while($rsrow=mysql_fetch_row($res)) {
 		list($config_option,$config_value,$config_diz,$option_type)=$rsrow;
+		
+		$config_value=str_replace("\"","&quot;",$config_value);
 
 	if($config_option == 'smtppassword')
 	{
@@ -1381,7 +1390,7 @@ function awpcp_opsconfig_settings()
 					if($orderbyop == 6){ $orderbyoptext=__("Most viewed then most recent","AWPCP");}
 
 					if($config_value == $orderbyop){$checked="checked";}else{ $checked="";}
-					$field.="<br/><input name=\"$config_option\" type=\"radio\" value=\"$orderbyop\" $checked>$orderbyoptext";
+					$field.="<br/><input name=\"$config_option\" type=\"radio\" value=\"$orderbyop\" $checked />$orderbyoptext";
 				}
 			}
 			if($config_option == 'groupsearchresultsby')
@@ -1398,7 +1407,7 @@ function awpcp_opsconfig_settings()
 
 					if($config_value == $orderbyop){$checked="checked";}else{ $checked="";}
 
-					$field.="<br/><input name=\"$config_option\" type=\"radio\" value=\"$orderbyop\" $checked>$orderbyoptext";
+					$field.="<br/><input name=\"$config_option\" type=\"radio\" value=\"$orderbyop\" $checked />$orderbyoptext";
 				}
 			}
 		}
@@ -1414,8 +1423,8 @@ function awpcp_opsconfig_settings()
 	}
 
 	echo "
-	<input type=\"hidden\" name=\"cgid\" value=\"$cgid\">
-	<input type=\"hidden\" name=\"makesubpages\" value=\"$makesubpages\">
+	<input type=\"hidden\" name=\"cgid\" value=\"$cgid\" />
+	<input type=\"hidden\" name=\"makesubpages\" value=\"$makesubpages\" />
 	<p><input class=\"button\" name=\"savesettings\" type=\"submit\" value=\"";
 	_e("Save Settings","AWPCP");
 	echo "\" /></p></form></div>";
@@ -1959,10 +1968,10 @@ function awpcp_opsconfig_categories()
 			 echo "$pager1 <form name=\"mycats\" id=\"mycats\" method=\"post\">
 			 <p><input type=\"submit\" name=\"deletemultiplecategories\" class=\"button\" value=\"";
 			 _e("Delete Selected Categories","AWPCP");
-			 echo "\">
+			 echo "\" />
 			 <input type=\"submit\" name=\"movemultiplecategories\" class=\"button\" value=\"";
 			 _e("Move Selected Categories","AWPCP");
-			 echo "\">
+			 echo "\" />
 			 <select name=\"moveadstocategory\"><option value=\"0\">";
 			 _e("Select Move-To category","AWPCP");
 			 echo "</option>";
@@ -1970,9 +1979,9 @@ function awpcp_opsconfig_categories()
 						echo "$movetocategories</select></p>
 			<p>";
 			_e("If deleting categories","AWPCP");
-			echo "<input type=\"radio\" name=\"movedeleteads\" value=\"1\" checked>";
+			echo "<input type=\"radio\" name=\"movedeleteads\" value=\"1\" checked />";
 			_e("Move Ads if any","AWPCP");
-			echo "<input type=\"radio\" name=\"movedeleteads\" value=\"2\">";
+			echo "<input type=\"radio\" name=\"movedeleteads\" value=\"2\" />";
 			_e("Delete Ads if any","AWPCP");
 			echo "</p>";
 
@@ -2014,12 +2023,12 @@ function awpcp_opsconfig_categories()
 					$awpcpeditcategoryword=__("Edit Category","AWPCP");
 					$awpcpdeletecategoryword=__("Delete Category","AWPCP");
 
-					$items[]="<tr><td style=\"width:40%;padding:5px;border-bottom:1px dotted #dddddd;font-weight:normal;\"><input type=\"checkbox\" name=\"category_to_delete_or_move[]\" value=\"$thecategory_id\">$thecategory_name ($totaladsincat)</td>
+					$items[]="<tr><td style=\"width:40%;padding:5px;border-bottom:1px dotted #dddddd;font-weight:normal;\"><input type=\"checkbox\" name=\"category_to_delete_or_move[]\" value=\"$thecategory_id\" />$thecategory_name ($totaladsincat)</td>
 					<td style=\"width:40%;padding:5px;border-bottom:1px dotted #dddddd;font-weight:normal;\">$thecategory_parent_name</td>
 					<td style=\"padding:5px;border-bottom:1px dotted #dddddd;font-size:smaller;font-weight:normal;\"> <a href=\"?page=Configure3&cat_ID=$thecategory_id&action=editcat&offset=$offset&results=$results\"><img src=\"$imagesurl/edit_ico.png\" alt=\"$awpcpeditcategoryword\" border=\"0\"></a> <a href=\"?page=Configure3&cat_ID=$thecategory_id&action=delcat&offset=$offset&results=$results\"><img src=\"$imagesurl/delete_ico.png\" alt=\"$awpcpdeletecategoryword\" border=\"0\"></a> $managecaticon</td></tr>";
 				}
 
-					$opentable="<table class=\"listcatsh\"><tr><td style=\"width:40%;padding:5px;\"><input type=\"checkbox\" onclick=\"CheckAll()\">";
+					$opentable="<table class=\"listcatsh\"><tr><td style=\"width:40%;padding:5px;\"><input type=\"checkbox\" onclick=\"CheckAll()\" />";
 					$opentable.=__("Category Name (Total Ads)","AWPCP");
 					$opentable.="</td><td style=\"width:40%;padding:5px;\">";
 					$opentable.=__("Parent","AWPCP");
@@ -2534,7 +2543,7 @@ function awpcp_manage_viewlistings()
 								$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 								$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
 
-									$ad_title="<input type=\"checkbox\" name=\"awpcp_ad_to_delete[]\" value=\"$ad_id\"><a href=\"?page=Manage1&action=viewad&id=$ad_id&offset=$offset&results=$results\">".$rsrow[2]."</a>";
+									$ad_title="<input type=\"checkbox\" name=\"awpcp_ad_to_delete[]\" value=\"$ad_id\" /><a href=\"?page=Manage1&action=viewad&id=$ad_id&offset=$offset&results=$results\">".$rsrow[2]."</a>";
 									$handlelink="<a href=\"?page=Manage1&action=deletead&id=$ad_id&offset=$offset&results=$results\">";
 									$handlelink.=__("Delete","AWPCP");
 									$handlelink.="</a> | <a href=\"?page=Manage1&action=editad&id=$ad_id&offset=$offset&results=$results\">";
@@ -2610,7 +2619,7 @@ function awpcp_manage_viewlistings()
 								$items[]="<tr><td class=\"displayadscell\" width=\"200\">$ad_title</td><td> $approvelink $handlelink</td>$paymentstatus $imagesnote</tr>";
 
 
-								$opentable="<table class=\"widefat fixed\"><thead><tr><th><input type=\"checkbox\" onclick=\"CheckAllAds()\">";
+								$opentable="<table class=\"widefat fixed\"><thead><tr><th><input type=\"checkbox\" onclick=\"CheckAllAds()\" />";
 								$opentable.=__("Ad Headline","AWPCP");
 								$opentable.="</th><th>";
 								$opentable.=__("Manage Ad","AWPCP");
@@ -2622,7 +2631,7 @@ function awpcp_manage_viewlistings()
 								$showadstomanage="$theadlistitems";
 								$showadstomanagedeletemultiplesubmitbutton="<input type=\"submit\" name=\"deletemultipleads\" class=\"button\" value=\"";
 								$showadstomanagedeletemultiplesubmitbutton.=__("Delete Checked Ads","AWPCP");
-								$showadstomanagedeletemultiplesubmitbutton.="\"></p>";
+								$showadstomanagedeletemultiplesubmitbutton.="\" /></p>";
 
 						}
 						if(!isset($ad_id) || empty($ad_id) || $ad_id == '0' )
@@ -2668,8 +2677,8 @@ function awpcp_manage_viewlistings()
 			<input type=\"radio\" name=\"lookupadbychoices\" value=\"adtitle\"/>Ad Title
 			<input type=\"radio\" name=\"lookupadbychoices\" value=\"titdet\"/>Key Word
 			<input type=\"text\" name=\"lookupadidortitle\" value=\"$lookupadidortitle\"/>
-			<input type=\"hidden\" name=\"action\" value=\"lookupadby\">
-			<input type=\"submit\" class=\"button\" value=\"Look Up Ad\">
+			<input type=\"hidden\" name=\"action\" value=\"lookupadby\" />
+			<input type=\"submit\" class=\"button\" value=\"Look Up Ad\" />
 			</form>
 			</div>
 			</div>
@@ -2823,15 +2832,15 @@ function viewimages($where)
 
 		
 						$dellink="<form method=\"post\">";
-						$dellink.="<input type=\"hidden\" name=\"adid\" value=\"$adid\">";
-						$dellink.="<input type=\"hidden\" name=\"picid\" value=\"$ikey\">";
-						$dellink.="<input type=\"hidden\" name=\"adtermid\" value=\"$adtermid\">";
-						$dellink.="<input type=\"hidden\" name=\"adkey\" value=\"$adkey\">";
-						$dellink.="<input type=\"hidden\" name=\"editemail\" value=\"$editemail\">";
-						$dellink.="<input type=\"hidden\" name=\"action\" value=\"deletepic\">";
+						$dellink.="<input type=\"hidden\" name=\"adid\" value=\"$adid\" />";
+						$dellink.="<input type=\"hidden\" name=\"picid\" value=\"$ikey\" />";
+						$dellink.="<input type=\"hidden\" name=\"adtermid\" value=\"$adtermid\" />";
+						$dellink.="<input type=\"hidden\" name=\"adkey\" value=\"$adkey\" />";
+						$dellink.="<input type=\"hidden\" name=\"editemail\" value=\"$editemail\" />";
+						$dellink.="<input type=\"hidden\" name=\"action\" value=\"deletepic\" />";
 						$dellink.="<input type=\"submit\" class=\"button\" value=\"";
 						$dellink.=__("Delete","AWPCP");
-						$dellink.="\">";
+						$dellink.="\" />";
 						$dellink.="</form>";
 						$transval='';
 						if($disabled == 1){
@@ -2844,28 +2853,28 @@ function viewimages($where)
 							if($disabled == 1)
 							{
 								$approvelink="<form method=\"post\">";
-								$approvelink.="<input type=\"hidden\" name=\"adid\" value=\"$adid\">";
-								$approvelink.="<input type=\"hidden\" name=\"picid\" value=\"$ikey\">";
-								$approvelink.="<input type=\"hidden\" name=\"adtermid\" value=\"$adtermid\">";
-								$approvelink.="<input type=\"hidden\" name=\"adkey\" value=\"$adkey\">";
-								$approvelink.="<input type=\"hidden\" name=\"editemail\" value=\"$editemail\">";
-								$approvelink.="<input type=\"hidden\" name=\"action\" value=\"approvepic\">";
+								$approvelink.="<input type=\"hidden\" name=\"adid\" value=\"$adid\" />";
+								$approvelink.="<input type=\"hidden\" name=\"picid\" value=\"$ikey\" />";
+								$approvelink.="<input type=\"hidden\" name=\"adtermid\" value=\"$adtermid\" />";
+								$approvelink.="<input type=\"hidden\" name=\"adkey\" value=\"$adkey\" />";
+								$approvelink.="<input type=\"hidden\" name=\"editemail\" value=\"$editemail\" />";
+								$approvelink.="<input type=\"hidden\" name=\"action\" value=\"approvepic\" />";
 								$approvelink.="<input type=\"submit\" class=\"button\" value=\"";
 								$approvelink.=__("Approve","AWPCP");
-								$approvelink.="\">";
+								$approvelink.="\" />";
 								$approvelink.="</form>";
 							}
 							else {
 								$approvelink="<form method=\"post\">";
-								$approvelink.="<input type=\"hidden\" name=\"adid\" value=\"$adid\">";
-								$approvelink.="<input type=\"hidden\" name=\"picid\" value=\"$ikey\">";
-								$approvelink.="<input type=\"hidden\" name=\"adtermid\" value=\"$adtermid\">";
-								$approvelink.="<input type=\"hidden\" name=\"adkey\" value=\"$adkey\">";
-								$approvelink.="<input type=\"hidden\" name=\"editemail\" value=\"$editemail\">";
-								$approvelink.="<input type=\"hidden\" name=\"action\" value=\"rejectpic\">";
+								$approvelink.="<input type=\"hidden\" name=\"adid\" value=\"$adid\" />";
+								$approvelink.="<input type=\"hidden\" name=\"picid\" value=\"$ikey\" />";
+								$approvelink.="<input type=\"hidden\" name=\"adtermid\" value=\"$adtermid\" />";
+								$approvelink.="<input type=\"hidden\" name=\"adkey\" value=\"$adkey\" />";
+								$approvelink.="<input type=\"hidden\" name=\"editemail\" value=\"$editemail\" />";
+								$approvelink.="<input type=\"hidden\" name=\"action\" value=\"rejectpic\" />";
 								$approvelink.="<input type=\"submit\" class=\"button\" value=\"";
 								$approvelink.=__("Disable","AWPCP");
-								$approvelink.="\">";
+								$approvelink.="\" />";
 								$approvelink.="</form>";
 							}
 						}
@@ -5041,7 +5050,7 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$adaccesskey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset,$results,$ermsg,$websiteurl,$checkhuman,$numval1,$numval2)
 {
 	
-	global $wpdb,$siteurl,$hasregionsmodule, $hasgooglecheckoutmodule,$hasextrafieldsmodule;
+	global $wpdb,$siteurl,$hasregionsmodule,$hasgooglecheckoutmodule,$hasextrafieldsmodule;
 	
 	$isadmin=checkifisadmin();
 
@@ -5058,55 +5067,60 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 	$editadpageid=awpcp_get_page_id($editadpagename);
 	$placeadpagename=sanitize_title(get_awpcp_option('placeadpagename'), $post_ID='');
 	$placeadpageid=awpcp_get_page_id($placeadpagename);
+	
 
-					if( get_awpcp_option('seofriendlyurls') )
-					{
-						if(isset($permastruc) && !empty($permastruc))
-						{
-							$url_placeadpage="$quers/$placeadpagename";
-							$awpcpquerymark="?";
-						}
-						else
-						{
-							$url_placeadpage="$quers/?page_id=$placeadpageid";
-							$awpcpquerymark="&";
-						}
-					}
-					elseif(!(get_awpcp_option('seofriendlyurls') ) )
-					{
-						if(isset($permastruc) && !empty($permastruc))
-						{
-							$url_placeadpage="$quers/$placeadpagename";
-							$awpcpquerymark="?";
-						}
-						else
-						{
-							$url_placeadpage="$quers/?page_id=$placeadpageid";
-							$awpcpquerymark="&";
-						}
-					}
-
-		if(get_awpcp_option('onlyadmincanplaceads') && ($isadmin != 1))
+	if( get_awpcp_option('seofriendlyurls') )
+	{
+		if(isset($permastruc) && !empty($permastruc))
 		{
+			$url_placeadpage="$quers/$placeadpagename";
+			$awpcpquerymark="?";
+		}
+		else
+		{
+			$url_placeadpage="$quers/?page_id=$placeadpageid";
+			$awpcpquerymark="&";
+		}
+	}
+	elseif(!(get_awpcp_option('seofriendlyurls') ) )
+	{
+		if(isset($permastruc) && !empty($permastruc))
+		{
+			$url_placeadpage="$quers/$placeadpagename";
+			$awpcpquerymark="?";
+		}
+		else
+		{
+			$url_placeadpage="$quers/?page_id=$placeadpageid";
+			$awpcpquerymark="&";
+		}
+	}
+	
+	// Handle if only admin can post and non admin user arrives somehow on post ad page
+	if(get_awpcp_option('onlyadmincanplaceads') && ($isadmin != 1))
+	{
 
-			echo "<div id=\"classiwrapper\"><p>";
-			_e("You do not have permission to perform the function you are trying to perform. Access to this page has been denied","AWPCP");
-			echo "</p></div>";
+		echo "<div id=\"classiwrapper\"><p>";
+		_e("You do not have permission to perform the function you are trying to perform. Access to this page has been denied","AWPCP");
+		echo "</p></div>";
+	}
+	// Handle if user must be registered 
+	elseif(get_awpcp_option('requireuserregistration') && !is_user_logged_in())
+	{
+
+		$postloginformto=get_awpcp_option('postloginformto');
+
+		if(!isset($postloginformto) || empty($postloginformto))
+		{
+			$postloginformto="$siteurl/wp-login.php";
 		}
 
-		elseif(get_awpcp_option('requireuserregistration') && !is_user_logged_in())
-		{
+		$registrationurl=get_awpcp_option('registrationurl');
 
-			$postloginformto=get_awpcp_option('postloginformto');
-			if(!isset($postloginformto) || empty($postloginformto))
-			{
-				$postloginformto="$siteurl/wp-login.php";
-			}
-			$registrationurl=get_awpcp_option('registrationurl');
-			if(!isset($registrationurl) || empty($registrationurl))
-			{
-				$registrationurl="$siteurl/wp-login.php?action=register";
-			}
+		if(!isset($registrationurl) || empty($registrationurl))
+		{
+			$registrationurl="$siteurl/wp-login.php?action=register";
+		}
 			$putregisterlink="<a href=\"$registrationurl\" title=\"Register\"><b>";
 			$putregisterlink.=__("Register","AWPCP");
 			$putregisterlink.="</b></a>";
@@ -5115,122 +5129,128 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 			_e("Only registered users can post ads. If you are already registered, please login below in order to post your ad.","AWPCP");
 			echo "</p><h2>";
 			_e("Login","AWPCP");
-			echo "</h2>
-				  <form name=\"loginform\" id=\"loginform\" action=\"$postloginformto\" method=\"post\">
-				  	<p>
-				  		<label>";
-				  		_e("Username","AWPCP");
-				  		echo "<br>
-				  		<input name=\"log\" id=\"user_login\" value=\"\" class=\"textinput\" size=\"20\" tabindex=\"10\" type=\"text\"></label>
-				  	</p>
-
-				  	<p>
-				  		<label>";
-				  		_e("Password","AWPCP");
-				  		echo "<br>
-				  		<input name=\"pwd\" id=\"user_pass\" value=\"\" class=\"textinput\" size=\"20\" tabindex=\"20\" type=\"password\"></label>
-				  	</p>
-				  	<p><label><input name=\"rememberme\" id=\"rememberme\" value=\"forever\" tabindex=\"90\" type=\"checkbox\">";_e("Remember Me","AWPCP");
-				  	echo "</label></p>
-				  	<p align=\"center\">
-				  		<input name=\"login-submit\" id=\"wp-submit\" value=\"";_e("Log In","AWPCP");echo "\" class=\"submitbutton\" tabindex=\"100\" type=\"submit\">
-				  		<input name=\"redirect_to\" value=\"$url_placeadpage\" type=\"hidden\">
-				  		<input name=\"testcookie\" value=\"1\" type=\"hidden\">
-				  	</p>
-  				</form><p>$putregisterlink</p>
-				</div>";
-
-		}
-		else
-		{
-			$table_name2 = $wpdb->prefix . "awpcp_adfees";
-			$table_name3 = $wpdb->prefix . "awpcp_ads";
-
-			$images='';
-			$displaydeleteadlink='';
-
-				if($action == 'editad')
-				{
-					$savedemail=get_adposteremail($adid);
-
-					if((strcasecmp($editemail, $savedemail) == 0) || ($isadmin == 1 ))
-					{
-					
-						if($hasextrafieldsmodule == 1)
-						{
-							$x_fields_fetch="";
-							$x_fields_list="";
-
-							$x_fields_get_thefields=x_fields_fetch_fields();
-							$x_fields_fetch_last=end($x_fields_get_thefields);
-							foreach($x_fields_get_thefields as $x_fieldsfield)
-							{
-								$x_fields_fetch.=$x_fieldsfield;
-								if(!($x_fields_fetch_last == $x_fieldsfield))
-								{
-									$x_fields_fetch.=",";
-								}
-
-								$x_fields_list.='$';
-								$x_fields_list.=$x_fieldsfield;
-								if(!($x_fields_fetch_last == $x_fieldsfield))
-								{
-									$x_fields_list.=",";
-								}
-							}
-
-						}
-						else
-						{
-							$x_fields_fetch='';
-							$x_fields_list='';
-						}
-
-					 	$query="SELECT ad_title,ad_contact_name,ad_contact_email,ad_category_id,ad_contact_phone,ad_city,ad_state,ad_country,ad_county_village,ad_item_price,ad_details,ad_key,websiteurl $x_fields_fetch from ".$table_name3." WHERE ad_id='$adid' AND ad_contact_email='$editemail' AND ad_key='$adaccesskey'";
-					 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-
-						while ($rsrow=mysql_fetch_row($res))
-						{
-							list($adtitle,$adcontact_name,$adcontact_email,$adcategory,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$ad_key,$websiteurl,$x_fields_list)=$rsrow;
-						}
-
-						if(isset($ad_item_price) && !empty($ad_item_price))
-						{
-							$ad_item_price=($ad_item_price/100);
-						}
-						else
-						{
-							$ad_item_price='';
-						}
-
-								$displaydeleteadlink="<div class=\"alert\">";
-								$displaydeleteadlink.="<form method=\"post\">";
-								$displaydeleteadlink.="<input type=\"hidden\" name=\"adid\" value=\"$adid\"/>";
-								$displaydeleteadlink.="<input type=\"hidden\" name=\"adkey\" value=\"$adaccesskey\"/>";
-								$displaydeleteadlink.="<input type=\"hidden\" name=\"editemail\" value=\"$editemail\"/>";
-								$displaydeleteadlink.="<input type=\"hidden\" name=\"a\" value=\"deletead\"/>";
-								$displaydeleteadlink.="<input type=\"submit\" name=\"deletead\" class=\"button\" value=\"";
-								$displaydeleteadlink.=__("Delete Ad","AWPCP");
-								$displaydeleteadlink.="\">";
-								$displaydeleteadlink.="</form>";
-								$displaydeleteadlink.="</div>";
-
-					}
-					else
-					{
-						unset($action);
-					}
-				}
-	echo "<div id=\"classiwrapper\">";
-
-	if(!is_admin())
-	{
-		awpcp_menu_items();
+			echo "</h2>";
+			echo "<form name=\"loginform\" id=\"loginform\" action=\"$postloginformto\" method=\"post\">";
+			echo "<p>";
+			echo "<label>";
+			_e("Username","AWPCP");
+			echo "</label>";
+			echo "<br/>";
+			echo "<input name=\"log\" id=\"user_login\" value=\"\" class=\"textinput\" size=\"20\" tabindex=\"10\" type=\"text\" />";
+			echo "</p>";
+			echo "<p>";
+			echo "<label>";
+			_e("Password","AWPCP");
+			echo "</label>";
+			echo "<br/>";
+			echo "<input name=\"pwd\" id=\"user_pass\" value=\"\" class=\"textinput\" size=\"20\" tabindex=\"20\" type=\"password\" />";
+			echo "</p>";
+			echo "<p>";
+			echo "<input name=\"rememberme\" id=\"rememberme\" value=\"forever\" tabindex=\"90\" type=\"checkbox\" /><label>";
+			_e("Remember Me","AWPCP");
+			echo "</label>";
+			echo "</p>";
+			echo "<p align=\"center\">";
+			echo "<input name=\"login-submit\" id=\"wp-submit\" value=\"";
+			_e("Log In","AWPCP");
+			echo "\" class=\"submitbutton\" tabindex=\"100\" type=\"submit\" />";
+			echo "<input name=\"redirect_to\" value=\"$url_placeadpage\" type=\"hidden\" />";
+			echo "<input name=\"testcookie\" value=\"1\" type=\"hidden\" />";
+			echo "</p>";
+			echo "</form>";
+			echo "<p>$putregisterlink</p>";
+			echo "</div>";
 	}
+	// Handle ad post form 
+	else
+	{
+	
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// START pre-form configurations
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 
-		////////////////////////////////////////////////////////////////////////////////
-		// If running in pay mode get and display the payment option settings
-		////////////////////////////////////////////////////////////////////////////////
+		$table_name2 = $wpdb->prefix . "awpcp_adfees";
+		$table_name3 = $wpdb->prefix . "awpcp_ads";
+		$images='';
+		$displaydeleteadlink='';
+		
+		if($action == 'editad')
+		{
+			$savedemail=get_adposteremail($adid);
+
+			if((strcasecmp($editemail, $savedemail) == 0) || ($isadmin == 1 ))
+			{
+
+				if($hasextrafieldsmodule == 1)
+				{
+					$x_fields_fetch="";
+					$x_fields_list="";
+
+					$x_fields_get_thefields=x_fields_fetch_fields();
+					$x_fields_fetch_last=end($x_fields_get_thefields);
+					foreach($x_fields_get_thefields as $x_fieldsfield)
+					{
+						$x_fields_fetch.=$x_fieldsfield;
+						if(!($x_fields_fetch_last == $x_fieldsfield))
+						{
+							$x_fields_fetch.=",";
+						}
+
+						$x_fields_list.='$';
+						$x_fields_list.=$x_fieldsfield;
+						if(!($x_fields_fetch_last == $x_fieldsfield))
+						{
+							$x_fields_list.=",";
+						}
+					}
+
+				}
+				else
+				{
+					$x_fields_fetch='';
+					$x_fields_list='';
+				}
+
+				$query="SELECT ad_title,ad_contact_name,ad_contact_email,ad_category_id,ad_contact_phone,ad_city,ad_state,ad_country,ad_county_village,ad_item_price,ad_details,ad_key,websiteurl $x_fields_fetch from ".$table_name3." WHERE ad_id='$adid' AND ad_contact_email='$editemail' AND ad_key='$adaccesskey'";
+				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+				while ($rsrow=mysql_fetch_row($res))
+				{
+					list($adtitle,$adcontact_name,$adcontact_email,$adcategory,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$ad_key,$websiteurl,$x_fields_list)=$rsrow;
+				}
+
+				if(isset($ad_item_price) && !empty($ad_item_price))
+				{
+					$ad_item_price=($ad_item_price/100);
+				}
+				else
+				{
+					$ad_item_price='';
+				}
+
+				$displaydeleteadlink="<div class=\"alert\">";
+				$displaydeleteadlink.="<form method=\"post\">";
+				$displaydeleteadlink.="<input type=\"hidden\" name=\"adid\" value=\"$adid\"/>";
+				$displaydeleteadlink.="<input type=\"hidden\" name=\"adkey\" value=\"$adaccesskey\"/>";
+				$displaydeleteadlink.="<input type=\"hidden\" name=\"editemail\" value=\"$editemail\"/>";
+				$displaydeleteadlink.="<input type=\"hidden\" name=\"a\" value=\"deletead\"/>";
+				$displaydeleteadlink.="<input type=\"submit\" name=\"deletead\" class=\"button\" value=\"";
+				$displaydeleteadlink.=__("Delete Ad","AWPCP");
+				$displaydeleteadlink.="\" />";
+				$displaydeleteadlink.="</form>";
+				$displaydeleteadlink.="</div>";
+
+			}
+			else
+			{
+				unset($action);
+			}
+		}
+		// End if $action == 'editad'	
+		
+		////////////////////////////////////////////////////////////////////////////////////////
+		// START configuration of payment option settings (ie paypal, 2checkout google checkout
+		////////////////////////////////////////////////////////////////////////////////////////
 
 		if(get_awpcp_option(freepay) == 1)
 		{
@@ -5257,386 +5277,490 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 					}
 
 						$paymethod="<div id=\"showhidepaybutton\" style=\"display:none;\"><h2>";
-						$payment.=__("Payment gateway","AWPCP");
-						$payment.="</h2><p>";
-						$payment.=__("Choose your payment gateway","AWPCP");
-						$payment.="</p>";
+						$paymethod.=__("Payment gateway","AWPCP");
+						$paymethod.="</h2>";
+						$paymethod.=__("Choose your payment gateway","AWPCP");
+						$paymethod.="<p>";
 
 						if(get_awpcp_option('activatepaypal') == 1)
 						{
-							$paymethod.="<input type=\"radio\" name=\"adpaymethod\" value=\"paypal\" $ischeckedP>PayPal<br/>";
+							$paymethod.="<input type=\"radio\" name=\"adpaymethod\" value=\"paypal\" $ischeckedP />PayPal<br/>";
 						}
 
 						if(get_awpcp_option('activate2checkout') == 1)
 						{
-							$paymethod.="<input type=\"radio\" name=\"adpaymethod\" value=\"2checkout\"  $ischecked2co>2Checkout<br/>";
+							$paymethod.="<input type=\"radio\" name=\"adpaymethod\" value=\"2checkout\"  $ischecked2co />2Checkout<br/>";
 						}
 
 						if($hasgooglecheckoutmodule == 1)
 						{
 							if(get_awpcp_option('activategooglecheckout') == 1)
 							{
-								$paymethod.="<input type=\"radio\" name=\"adpaymethod\" value=\"googlecheckout\"  $ischeckedGC>Google Checkout<br/>";
+								$paymethod.="<input type=\"radio\" name=\"adpaymethod\" value=\"googlecheckout\"  $ischeckedGC />Google Checkout<br/>";
 							}
 						}
+						$paymethod.="</p>";
+						$paymethod.="</div>";
+				}
+			}
+		}		
+		////////////////////////////////////////////////////////////////////////////////////////
+		// END configuration of payment option settings (ie paypal, 2checkout google checkout
+		////////////////////////////////////////////////////////////////////////////////////////		
+		
+		////////////////////////////////////////////////////////////////////////////////////////
+		// START configuration of ad term options
+		////////////////////////////////////////////////////////////////////////////////////////		
 
-						$paymethod.="</div><div class=\"fixfloat\"></div>";
+		if($action == 'editad')
+		{
+			$adtermscode='';
+		}
+
+		else
+		{
+
+			if(!isset($adterm_id) || empty($adterm_id))
+			{
+
+				if(adtermsset() && !is_admin())
+				{
+
+					$adtermscode="<h2>";
+					$adtermscode.=__("Select Ad Term","AWPCP");
+					$adtermscode.="</h2>";
+
+					//////////////////////////////////////////////////
+					// Get and configure pay options
+					/////////////////////////////////////////////////
+
+
+					$paytermslistitems=array();
+
+					$query="SELECT * FROM  ".$table_name2."";
+					if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+					if (mysql_num_rows($res))
+					{
+
+						while ($rsrow=mysql_fetch_row($res))
+						{
+							list($savedadtermid,$adterm_name,$amount,$recurring,$rec_period,$rec_increment)=$rsrow;
+
+							if($rec_increment == "M"){$termname="Month";}
+							if($rec_increment == "D"){$termname="Day";}
+							if($rec_increment == "W"){$termname="Week";}
+							if($rec_increment == "Y"){$termname="Year";}
+
+							$termname=$termname;
+
+							if($adtermid == $savedadtermid)
+							{
+								$ischecked="checked";
+							}
+							else
+							{
+								$ischecked='';
+							}
+
+							$awpcpthecurrencysymbol=awpcp_get_currency_code();
+
+							$adtermscode.="<input type=\"radio\" name=\"adtermid\"";
+
+							if($amount > 0)
+							{
+								$adtermscode.="onclick=\"awpcp_toggle_visibility('showhidepaybutton');\"";
+							}
+
+							if($amount <= 0)
+							{
+								$adtermscode.="onclick=\"awpcp_toggle_visibility_reverse('showhidepaybutton');\"";
+							}
+
+							$awpcpduration=__("Duration","AWPCP");
+
+							$adtermscode.="value=\"$savedadtermid\" $ischecked />$adterm_name ($awpcpthecurrencysymbol$amount $awpcpduration: $rec_period $termname )<br/>";
+						}
+
+					}
 				}
 			}
 		}
 
-	echo "<div class=\"fixfloat\"></div>";
 
+		////////////////////////////////////////////////////////////////////////////////////////
+		// END configuration of ad term options
+		////////////////////////////////////////////////////////////////////////////////////////
+		
+		/////////////////////////////////////////////////////////////////////
+		// Retrieve the categories to populate the select list
+		/////////////////////////////////////////////////////////////////////
 
-						/////////////////////////////////////////////////////////////////////
-						// Retrieve the categories to populate the select list
-						/////////////////////////////////////////////////////////////////////
+		$allcategories=get_categorynameidall($adcategory);
 
-						$allcategories=get_categorynameidall($adcategory);
+		/////////////////////////////////////////////////////////////////////
+		// START Setup javascript checkpoints
+		/////////////////////////////////////////////////////////////////////
 
-						// Setup javascript checkpoints
+		if((get_awpcp_option('displayphonefield') == 1) && (get_awpcp_option('displayphonefieldreqop') == 1))
+		{
+			$phoneerrortxt=__("You did not fill out a phone number for the ad contact person. The information is required","AWPCP");
+			$phonecheck="
+			if(the.adcontact_phone.value===''){
+			alert('$phoneerrortxt');
+			the.adcontact_phone.focus();
+			return false;
+			}";
+		}else {$phonecheck='';}
 
-				if((get_awpcp_option('displayphonefield') == 1)
-				&&(get_awpcp_option('displayphonefieldreqop') == 1))
-				{
-				$phoneerrortxt=__("You did not fill out a phone number for the ad contact person. The information is required","AWPCP");
-				$phonecheck="if(the.adcontact_phone.value==='')
-				{
-							alert('$phoneerrortxt');
-							the.adcontact_phone.focus();
-							return false;
-						}";
-				}else {$phonecheck='';}
+		if((get_awpcp_option('displaycityfield') == 1) && (get_awpcp_option('displaycityfieldreqop') == 1))
+		{
+			$cityerrortxt=__("You did not fill out your city. The information is required","AWPCP");
+			$citycheck="
+			if(the.adcontact_city.value==='') {
+			alert('$cityerrortxt');
+			the.adcontact_city.focus();
+			return false;
+			}";
+		}else {$citycheck='';}
 
-				if((get_awpcp_option('displaycityfield') == 1)
-				&&(get_awpcp_option('displaycityfieldreqop') == 1))
-				{
-					$cityerrortxt=__("You did not fill out your city. The information is required","AWPCP");
-					$citycheck="if(the.adcontact_city.value==='') {
-							alert('$cityerrortxt');
-							the.adcontact_city.focus();
-							return false;
-						}";
-				}else {$citycheck='';}
+		if((get_awpcp_option('displaystatefield') == 1) && (get_awpcp_option('displaystatefieldreqop') == 1))
+		{
+			$stateerrortxt=__("You did not fill out your state. The information is required","AWPCP");
+			$statecheck="
+			if(the.adcontact_state.value==='') {
+			alert('$stateerrortxt');
+			the.adcontact_state.focus();
+			return false;
+			}";
+		}else {$statecheck='';}
 
-				if((get_awpcp_option('displaystatefield') == 1)
-				&&(get_awpcp_option('displaystatefieldreqop') == 1))
-				{
-					$stateerrortxt=__("You did not fill out your state. The information is required","AWPCP");
-					$statecheck="if(the.adcontact_state.value==='') {
-							alert('$stateerrortxt');
-							the.adcontact_state.focus();
-							return false;
-						}";
-				}else {$statecheck='';}
+		if((get_awpcp_option('displaycountyvillagefield') == 1) && (get_awpcp_option('displaycountyvillagefieldreqop') == 1))
+		{
+			$countyvillageerrortxt=__("You did not fill out your county/village/other. The information is required","AWPCP");
+			$countyvillagecheck="
+			if(the.adcontact_countyvillage.value==='') {
+			alert('$countyvillageerrortxt');
+			the.adcontact_countyvillage.focus();
+			return false;
+			}";
+		}else {$countyvillagecheck='';}
 
-				if((get_awpcp_option('displaycountyvillagefield') == 1)
-				&&(get_awpcp_option('displaycountyvillagefieldreqop') == 1))
-				{
-					$countyvillageerrortxt=__("You did not fill out your county/village/other. The information is required","AWPCP");
-					$countyvillagecheck="if(the.adcontact_countyvillage.value==='') {
-							alert('$countyvillageerrortxt');
-							the.adcontact_countyvillage.focus();
-							return false;
-						}";
-				}else {$countyvillagecheck='';}
+		if((get_awpcp_option('displaycountryfield') == 1) && (get_awpcp_option('displaycountryfieldreqop') == 1))
+		{
+			$countryerrortxt=__("You did not fill out your country. The information is required","AWPCP");
+			$countrycheck="
+			if(the.adcontact_country.value==='') {
+			alert('$countryerrortxt');
+			the.adcontact_country.focus();
+			return false;
+			}";
+		}else {$countrycheck='';}
 
-				if((get_awpcp_option('displaycountryfield') == 1)
-				&&(get_awpcp_option('displaycountryfieldreqop') == 1))
-				{
-					$countryerrortxt=__("You did not fill out your country. The information is required","AWPCP");
-					$countrycheck="if(the.adcontact_country.value==='') {
-							alert('$countryerrortxt');
-							the.adcontact_country.focus();
-							return false;
-						}";}else {$countrycheck='';}
+		if((get_awpcp_option('displaywebsitefield') == 1) && (get_awpcp_option('displaywebsitefieldreqop') == 1))
+		{
+			$websiteerrortxt=__("You did not fill out your website address. The information is required","AWPCP");
+			$websitecheck="
+			if(the.websiteurl.value==='') {
+			alert('$websiteerrortxt');
+			the.websiteurl.focus();
+			return false;
+			}";
+		}else {$websitecheck='';}
 
-				if((get_awpcp_option('displaywebsitefield') == 1)
-				&&(get_awpcp_option('displaywebsitefieldreqop') == 1))
-				{
-					$websiteerrortxt=__("You did not fill out your website address. The information is required","AWPCP");
-					$websitecheck="if(the.websiteurl.value==='') {
-							alert('$websiteerrortxt');
-							the.websiteurl.focus();
-							return false;
-						}";
-				}else {$websitecheck='';}
+		if((get_awpcp_option('displaypricefield') == 1) && (get_awpcp_option('displaypricefieldreqop') == 1))
+		{
+			$itempriceerrortxt=__("You did not enter a value for the item price. The information is required","AWPCP");
+			$itempricecheck="
+			if(the.ad_item_price.value==='') {
+			alert('$itempriceerrortxt');
+			the.ad_item_price.focus();
+			return false;
+			}";
+		}else {$itempricecheck='';}
 
-				if((get_awpcp_option('displaypricefield') == 1)
-				&&(get_awpcp_option('displaypricefieldreqop') == 1))
-				{
-					$itempriceerrortxt=__("You did not enter a value for the item price. The information is required","AWPCP");
-					$itempricecheck="if(the.ad_item_price.value==='') {
-							alert('$itempriceerrortxt');
-							the.ad_item_price.focus();
-							return false;
-						}";
-				}else {$itempricecheck='';}
+		if( (get_awpcp_option('freepay') == 1) && ($action == 'placead') && !is_admin())
+		{
+			$paymethoderrortxt=__("You did not select your payment method. The information is required","AWPCP");
+			$paymethodcheck="
+			if(!checked(the.adpaymethod)) {
+			alert('$paymethoderrortxt');
+			the.adpaymethod.focus();
+			return false;
+			}";
+		}else {$paymethodcheck='';}
 
-				if( (get_awpcp_option('freepay') == 1) && ($action == 'placead') && !is_admin())
-				{
-					$paymethoderrortxt=__("You did not select your payment method. The information is required","AWPCP");
-					$paymethodcheck="if(!checked(the.adpaymethod)) {
-							alert('$paymethoderrortxt');
-							the.adpaymethod.focus();
-							return false;
-						}";
-				}else {$paymethodcheck='';}
+		if( (get_awpcp_option('freepay') == 1) && ($action == 'placead') && !is_admin() )
+		{
+			$adtermerrortxt=__("You did not select your ad term choice. The information is required","AWPCP");
+			$adtermcheck="
+			if(the.adterm_id.value==='') {
+			alert('$adtermerrortxt');
+			the.adterm_id.focus();
+			return false;
+			}";
+		}else {$adtermcheck='';}
 
-				if( (get_awpcp_option('freepay') == 1) && ($action == 'placead') && !is_admin() )
-				{
-					$adtermerrortxt=__("You did not select your ad term choice. The information is required","AWPCP");
-					$adtermcheck="if(the.adterm_id.value==='') {
-							alert('$adtermerrortxt');
-							the.adterm_id.focus();
-							return false;
-						}";
-				}else {$adtermcheck='';}
+		if((get_awpcp_option('contactformcheckhuman') == 1) && !is_admin())
+		{
+			if(isset($numval1) && !empty($numval1)) { $numval1=$numval1;}
+			else { $numval1=rand(1,get_awpcp_option('contactformcheckhumanhighnumval'));}
+			if(isset($numval2) && !empty($numval2))	{ $numval2=$numval2;	}
+			else { $numval2=rand(1,get_awpcp_option('contactformcheckhumanhighnumval'));}
 
-				if((get_awpcp_option('contactformcheckhuman') == 1) && !is_admin())
-				{
-					if(isset($numval1) && !empty($numval1))
-					{
-						$numval1=$numval1;
-					}
-					else
-					{
-						$numval1=rand(1,get_awpcp_option('contactformcheckhumanhighnumval'));
-					}
-					if(isset($numval2) && !empty($numval2))
-					{
-						$numval2=$numval2;
-					}
-					else
-					{
-						$numval2=rand(1,get_awpcp_option('contactformcheckhumanhighnumval'));
-					}
+			$thesum=($numval1 +  $numval2);
 
-					$thesum=($numval1 +  $numval2);
+			$checkhumanerrortxt1=__("You did not solve the math problem. Please solve the math problem to proceed.","AWPCP");
+			$checkhumanerrortxt2=__("Your answer to the math problem was not correct. Please try again.","AWPCP");
 
-					$checkhumanerrortxt1=__("You did not solve the math problem. Please solve the math problem to proceed.","AWPCP");
-					$checkhumanerrortxt2=__("Your answer to the math problem was not correct. Please try again.","AWPCP");
+			$checkhumancheck="
+			if (the.checkhuman.value==='') {
+			alert('$checkhumanerrortxt1');
+			the.checkhuman.focus();
+			return false;
+			}
+			if (the.checkhuman.value != $thesum){
+			alert('$checkhumanerrortxt2');
+			the.checkhuman.focus();
+			return false;
+			}";
+		}
 
-					$checkhumancheck="
+		$adtitleerrortxt=__("You did not fill out an ad title. The information is required","AWPCP");
+		$adcategoryerrortxt=__("You did not select an ad category. The information is required","AWPCP");
+		$adcontactemailerrortxt=__("Either you did not enter your email address or the email address you entered is not valid","AWPCP");
+		$adcontactnameerrortxt=__("You did not fill in the name of the ad contact person. The information is required","AWPCP");
+		$addetailserrortxt=__("You did not fill in any details for your ad. The information is required","AWPCP");
 
-					if (the.checkhuman.value==='')
-					{
-						alert('$checkhumanerrortxt1');
-						the.checkhuman.focus();
-						return false;
-					}
-					if (the.checkhuman.value != $thesum)
-					{
-						alert('$checkhumanerrortxt2');
-						the.checkhuman.focus();
-						return false;
-					}
+		$checktheform="<script type=\"text/javascript\">
+			function checkform() {
+			var the=document.adpostform;
+   			var checkemj = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;  
+			
+			if (the.adtitle.value==='') {
+				alert('$adtitleerrortxt');
+				the.adtitle.focus();
+				return false;
+			}
+			if (the.adcategory.value==='') {
+				alert('$adcategoryerrortxt');
+				the.adcategory.focus();
+				return false;
+			}
+			if (the.adcontact_name.value==='') {
+				alert('$adcontactnameerrortxt');
+				the.adcontact_name.focus();
+				return false;
+			}
+			if(checkemj.test(the.adcontact_email.value) == false) {
+				alert('$adcontactemailerrortxt');
+				the.adcontact_email.focus();
+				return false;
+			}
 
-					";
+			$phonecheck;
+			$citycheck;
+			$statecheck;
+			$countrycheck;
+			$websitecheck;
+			$countyvillagecheck;
+			$itempricecheck
+			$paymethodcheck;
+			$adtermcheck;
+			$checkhumancheck;
+
+			if (the.addetails.value==='')
+			{
+				alert('$addetailserrortxt');
+				the.addetails.focus();
+				return false;
+			}
+
+			return true;
+			}
+
+			function textCounter(field, countfield, maxlimit)
+			{
+				if (field.value.length > maxlimit)
+				{ // if too long...trim it!
+					field.value = field.value.substring(0, maxlimit);
 				}
+				// otherwise, update 'characters left' counter
 
-				$adtitleerrortxt=__("You did not fill out an ad title. The information is required","AWPCP");
-				$adcategoryerrortxt=__("You did not select an ad category. The information is required","AWPCP");
-				$adcontactemailerrortxt=__("Either you did not enter your email address or the email address you entered is not valid","AWPCP");
-				$adcontactnameerrortxt=__("You did not fill in the name of the ad contact person. The information is required","AWPCP");
-				$addetailserrortxt=__("You did not fill in any details for your ad. The information is required","AWPCP");
-
-				$checktheform="<script type=\"text/javascript\">
-					function checkform() {
-						var the=document.adpostform;
-						if (the.adtitle.value==='') {
-							alert('$adtitleerrortxt');
-							the.adtitle.focus();
-							return false;
-						}
-						if (the.adcategory.value==='') {
-							alert('$adcategoryerrortxt');
-							the.adcategory.focus();
-							return false;
-						}
-						if (the.adcontact_name.value==='') {
-							alert('$adcontactnameerrortxt');
-							the.adcontact_name.focus();
-							return false;
-						}
-						if ((the.adcontact_email.value==='') || (the.adcontact_email.value.indexOf('@')==-1) || (the.adcontact_email.value.indexOf('.',the.adcontact_email.value.indexOf('@')+2)==-1) || (the.adcontact_email.value.lastIndexOf('.')==the.adcontact_email.value.length-1)) {
-							alert('$adcontactemailerrortxt');
-							the.adcontact_email.focus();
-							return false;
-						}
-
-						$phonecheck;
-						$citycheck;
-						$statecheck;
-						$countrycheck;
-						$websitecheck;
-						$countyvillagecheck;
-						$itempricecheck
-						$paymethodcheck;
-						$adtermcheck;
-						$checkhumancheck;
-
-						if (the.addetails.value==='')
-						{
-							alert('$addetailserrortxt');
-							the.addetails.focus();
-							return false;
-						}
-
-						return true;
-					}
-
-							function textCounter(field, countfield, maxlimit)
-							{
-								if (field.value.length > maxlimit)
-								{ // if too long...trim it!
-									field.value = field.value.substring(0, maxlimit);
-								}
-								// otherwise, update 'characters left' counter
-
-								else
-								{
-									countfield.value = maxlimit - field.value.length;
-								}
-							}
-
-
-							 function awpcp_toggle_visibility(id)
-							 {
-								 var e = document.getElementById(id);
-								 if(e.style.display == 'block')
-								 {
-								      e.style.display = 'block';
-								  }
-								 else
-								 {
-									 e.style.display = 'block';
-								}
-				    		}
-
-				    		 function awpcp_toggle_visibility_reverse(id)
-				    		 {
-								 var e = document.getElementById(id);
-									if(e.style.display == 'block')
-									{
-										 e.style.display = 'none';
-									 }
-									 else
-									{
-										 e.style.display = 'none';
-									}
-				    		}
-
-				</script>";
-
-
-
-				$addetailsmaxlength=get_awpcp_option('maxcharactersallowed');
-
-				$theformbody='';
-
-				$addetails=preg_replace("/(\r\n)+|(\n|\r)+/", "\n\n", $addetails);
-				$htmlstatus=get_awpcp_option('htmlstatustext');
-				$readonlyacname='';
-				$readonlyacem='';
-
-				if( get_awpcp_option('requireuserregistration') && is_user_logged_in() && !is_admin() )
-				{
-					global $current_user;
-				    get_currentuserinfo();
-
-				    $adcontact_name=$current_user->user_login;
-				    $adcontact_email=$current_user->user_email;
-				    $readonlyacname="readonly";
-				    $readonlyacem="readonly";
-				}
-
-				///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-				// START configuration of dropdown lists used with regions module if regions module exists and pre-set regions exist
-				///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-				if( $hasregionsmodule ==  1 )
-				{
-					if($action == 'editad')
-					{
-						// Do nothing
-					}
-					else
-					{
-						if(isset($_SESSION['regioncountryID']) )
-						{
-							$thesessionregionidval1=$_SESSION['regioncountryID'];
-						}
-
-						if(isset($_SESSION['regionstatownID']) )
-						{
-							$thesessionregionidval2=$_SESSION['regionstatownID'];
-						}
-
-						if(isset($_SESSION['regioncityID']) )
-						{
-							$thesessionregionidval3=$_SESSION['regioncityID'];
-						}
-
-
-						if( !isset($thesessionregionidval1) || empty($thesessionregionidval1) )
-						{
-							if(get_awpcp_option('displaycountryfield') )
-							{
-								if( regions_countries_exist() )
-								{
-									set_session_regionID(1);
-									$formdisplayvalue="none";
-								}
-
-							}
-
-						}
-
-						elseif( isset($thesessionregionidval1) && !isset ($thesessionregionidval2) )
-						{
-							if(get_awpcp_option('displaystatefield') )
-							{
-								if( regions_states_exist($thesessionregionidval1) )
-								{
-									set_session_regionID(2);
-									$formdisplayvalue="none";
-								}
-							}
-						}
-
-						elseif( isset($thesessionregionidval1) && isset($thesessionregionidval2) && !isset ($thesessionregionidval3) )
-						{
-							if(get_awpcp_option('displaycityfield') )
-							{
-								if( regions_cities_exist($thesessionregionidval2) )
-								{
-									set_session_regionID(3);
-									$formdisplayvalue="none";
-								}
-
-							}
-						}
-					}
-				}
-
-
-				if(!isset($formdisplayvalue) || empty($formdisplayvalue) )
-				{
-					$formdisplayvalue="block";
-				}
-
-				if($action== 'editad' )
-				{
-					$editorposttext=__("Your ad details have been filled out in the form below. Make any changes needed then resubmit the ad to update it","AWPCP");
-				}
 				else
 				{
-					$editorposttext=__("Fill out the form below to post your classified ad. ","AWPCP");
+					countfield.value = maxlimit - field.value.length;
+				}
+			}
+
+
+			 function awpcp_toggle_visibility(id)
+			 {
+				 var e = document.getElementById(id);
+				 if(e.style.display == 'block')
+				 {
+				      e.style.display = 'block';
+				  }
+				 else
+				 {
+					 e.style.display = 'block';
+				}
 				}
 
-				echo "<div style=\"display:$formdisplayvalue\">";
+				 function awpcp_toggle_visibility_reverse(id)
+				 {
+					var e = document.getElementById(id);
+					if(e.style.display == 'block')
+					{
+						 e.style.display = 'none';
+					}
+					else
+					{
+						 e.style.display = 'none';
+					}
+				}
+		</script>";
 
+		/////////////////////////////////////////////////////////////////////
+		// END Setup javascript checkpoints
+		/////////////////////////////////////////////////////////////////////
+
+
+		/////////////////////////////////////////////////////////////////////
+		// START Setup additional variables
+		/////////////////////////////////////////////////////////////////////
+
+		$addetailsmaxlength=get_awpcp_option('maxcharactersallowed');
+
+		$theformbody='';
+
+		$addetails=preg_replace("/(\r\n)+|(\n|\r)+/", "\n\n", $addetails);
+		$htmlstatus=get_awpcp_option('htmlstatustext');
+		$readonlyacname='';
+		$readonlyacem='';
+
+		if( get_awpcp_option('requireuserregistration') && is_user_logged_in() && !is_admin() )
+		{
+			global $current_user;
+		    get_currentuserinfo();
+
+		    $adcontact_name=$current_user->user_login;
+		    $adcontact_email=$current_user->user_email;
+		    $readonlyacname="readonly";
+		    $readonlyacem="readonly";
+		}
+
+		/////////////////////////////////////////////////////////////////////
+		// END Setup additional variables
+		/////////////////////////////////////////////////////////////////////
+
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// START configuration of dropdown lists used with regions module if regions module exists and pre-set regions exist
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		if( $hasregionsmodule ==  1 )
+		{
+			if($action == 'editad')
+			{
+				// Do nothing
+			}
+			else
+			{
+				if(isset($_SESSION['regioncountryID']) )
+				{
+					$thesessionregionidval1=$_SESSION['regioncountryID'];
+				}
+
+				if(isset($_SESSION['regionstatownID']) )
+				{
+					$thesessionregionidval2=$_SESSION['regionstatownID'];
+				}
+
+				if(isset($_SESSION['regioncityID']) )
+				{
+					$thesessionregionidval3=$_SESSION['regioncityID'];
+				}
+
+
+				if( !isset($thesessionregionidval1) || empty($thesessionregionidval1) )
+				{
+					if(get_awpcp_option('displaycountryfield') )
+					{
+						if( regions_countries_exist() )
+						{
+							set_session_regionID(1);
+							$formdisplayvalue="none";
+						}
+
+					}
+
+				}
+				elseif( isset($thesessionregionidval1) && !isset ($thesessionregionidval2) )
+				{
+					if(get_awpcp_option('displaystatefield') )
+					{
+						if( regions_states_exist($thesessionregionidval1) )
+						{
+							set_session_regionID(2);
+							$formdisplayvalue="none";
+						}
+					}
+				}
+				elseif( isset($thesessionregionidval1) && isset($thesessionregionidval2) && !isset ($thesessionregionidval3) )
+				{
+					if(get_awpcp_option('displaycityfield') )
+					{
+						if( regions_cities_exist($thesessionregionidval2) )
+						{
+							set_session_regionID(3);
+							$formdisplayvalue="none";
+						}
+
+					}
+				}
+			}
+		}
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// END configuration of dropdown lists used with regions module if regions module exists and pre-set regions exist
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+		if(!isset($formdisplayvalue) || empty($formdisplayvalue) )
+		{
+			$formdisplayvalue="block";
+		}
+
+		if($action== 'editad' )
+		{
+			$editorposttext=__("Your ad details have been filled out in the form below. Make any changes needed then resubmit the ad to update it","AWPCP");
+		}
+		else
+		{
+			$editorposttext=__("Fill out the form below to post your classified ad. ","AWPCP");
+		}
+		
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// END pre-form configurations
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+		
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// START form display
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+
+		// Open  div id classiwrapper
+		echo "<div id=\"classiwrapper\">";
+
+		if(!is_admin())
+		{
+			awpcp_menu_items();
+		}
+		echo "<div class=\"fixfloat\"></div>";
+		
+		echo "<div style=\"display:$formdisplayvalue\">";
+		
+		
 				if(!is_admin())
 				{
 					$theformbody.="$displaydeleteadlink<p>$editorposttext";
@@ -5663,28 +5787,28 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 				$theformbody.="$checktheform $ermsg";
 				$theformbody.="<form method=\"post\" name=\"adpostform\" id=\"adpostform\" $faction onsubmit=\"return(checkform())\">";
-				$theformbody.="<input type=\"hidden\" name=\"adid\" value=\"$adid\">";
-				$theformbody.="<input type=\"hidden\" name=\"adaction\" value=\"$action\">";
-				$theformbody.="<input type=\"hidden\" name=\"a\" value=\"dopost1\">";
+				$theformbody.="<input type=\"hidden\" name=\"adid\" value=\"$adid\" />";
+				$theformbody.="<input type=\"hidden\" name=\"adaction\" value=\"$action\" />";
+				$theformbody.="<input type=\"hidden\" name=\"a\" value=\"dopost1\" />";
 
 				if($action == 'editad')
 				{
-					$theformbody.="<input type=\"hidden\" name=\"adtermid\" value=\"$adtermid\">";
+					$theformbody.="<input type=\"hidden\" name=\"adtermid\" value=\"$adtermid\" />";
 				}
 
-				$theformbody.="<input type=\"hidden\" name=\"adkey\" value=\"$ad_key\">";
-				$theformbody.="<input type=\"hidden\" name=\"editemail\" value=\"$editemail\">";
-				$theformbody.="<input type=\"hidden\" name=\"awpcppagename\" value=\"$awpcppagename\">";
-				$theformbody.="<input type=\"hidden\" name=\"results\" value=\"$results\">";
-				$theformbody.="<input type=\"hidden\" name=\"offset\" value=\"$offset\">";
-				$theformbody.="<input type=\"hidden\" name=\"numval1\" value=\"$numval1\">";
-				$theformbody.="<input type=\"hidden\" name=\"numval2\" value=\"$numval2\">";
+				$theformbody.="<input type=\"hidden\" name=\"adkey\" value=\"$ad_key\" />";
+				$theformbody.="<input type=\"hidden\" name=\"editemail\" value=\"$editemail\" />";
+				$theformbody.="<input type=\"hidden\" name=\"awpcppagename\" value=\"$awpcppagename\" />";
+				$theformbody.="<input type=\"hidden\" name=\"results\" value=\"$results\" />";
+				$theformbody.="<input type=\"hidden\" name=\"offset\" value=\"$offset\" />";
+				$theformbody.="<input type=\"hidden\" name=\"numval1\" value=\"$numval1\" />";
+				$theformbody.="<input type=\"hidden\" name=\"numval2\" value=\"$numval2\" />";
 				$theformbody.="<br/>";
 				$theformbody.="<h2>";
 				$theformbody.=__("Ad Details and Contact Information","AWPCP");
 				$theformbody.="</h2><p>";
 				$theformbody.=__("Ad Title","AWPCP");
-				$theformbody.="<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"adtitle\" value=\"$adtitle\"></p>";
+				$theformbody.="<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"adtitle\" value=\"$adtitle\" /></p>";
 				$theformbody.="<p>";
 				$theformbody.=__("Ad Category","AWPCP");
 				$theformbody.="<br/><select name=\"adcategory\"><option value=\"\">";
@@ -5698,16 +5822,16 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 				$theformbody.="<p>";
 				$theformbody.=__("Name of person to contact","AWPCP");
-				$theformbody.="<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_name\" value=\"$adcontact_name\" $readonlyacname></p>";
+				$theformbody.="<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_name\" value=\"$adcontact_name\" $readonlyacname /></p>";
 				$theformbody.="<p>";
 				$theformbody.=__("Contact Person's Email [Please enter a valid email. The codes needed to edit your ad will be sent to your email address]","AWPCP");
-				$theformbody.="<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_email\" value=\"$adcontact_email\" $readonlyacem></p>";
+				$theformbody.="<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_email\" value=\"$adcontact_email\" $readonlyacem /></p>";
 
 				if(get_awpcp_option(displayphonefield) == 1)
 				{
 					$theformbody.="<p>";
 					$theformbody.=__("Contact Person's Phone Number","AWPCP");
-					$theformbody.="<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_phone\" value=\"$adcontact_phone\"></p>";
+					$theformbody.="<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_phone\" value=\"$adcontact_phone\" /></p>";
 				}
 
 
@@ -5723,7 +5847,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 						if(!isset($opsitemregcountrylist) || empty($opsitemregcountrylist) )
 						{
-							$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_country\" value=\"$adcontact_country\">";
+							$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_country\" value=\"$adcontact_country\" />";
 						}
 						else
 						{
@@ -5734,7 +5858,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 					}
 					else
 					{
-						$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_country\" value=\"$adcontact_country\">";
+						$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_country\" value=\"$adcontact_country\" />";
 					}
 
 						$theformbody.="</p>";
@@ -5761,7 +5885,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 						if(!isset($opsitemregstatownlist) || empty($opsitemregstatownlist) )
 						{
-							$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_state\" value=\"$adcontact_state\">";
+							$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_state\" value=\"$adcontact_state\" />";
 						}
 						else
 						{
@@ -5772,7 +5896,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 					}
 					else
 					{
-						$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_state\" value=\"$adcontact_state\">";
+						$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_state\" value=\"$adcontact_state\" />";
 					}
 
 						$theformbody.="</p>";
@@ -5792,7 +5916,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 						if(!isset($opsitemregcitylist) || empty($opsitemregcitylist) )
 						{
-							$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_city\" value=\"$adcontact_city\">";
+							$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_city\" value=\"$adcontact_city\" />";
 						}
 						else
 						{
@@ -5803,7 +5927,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 					}
 					else
 					{
-						$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_city\" value=\"$adcontact_city\">";
+						$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_city\" value=\"$adcontact_city\" />";
 					}
 
 						$theformbody.="</p>";
@@ -5821,7 +5945,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 						if(!isset($opsitemregcountyvillagelist) || empty($opsitemregcountyvillagelist) )
 						{
-							$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_countyvillage\" value=\"$ad_county_village\">";
+							$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_countyvillage\" value=\"$ad_county_village\" />";
 						}
 						else
 						{
@@ -5832,7 +5956,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 					}
 					else
 					{
-						$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_countyvillage\" value=\"$ad_county_village\">";
+						$theformbody.="<input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_countyvillage\" value=\"$ad_county_village\" />";
 					}
 
 						$theformbody.="</p>";
@@ -5842,131 +5966,73 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 				{
 					$theformbody.="<p>";
 					$theformbody.=__("Item Price","AWPCP");
-					$theformbody.="<br/><input size=\"10\" type=\"text\" class=\"inputboxprice\" maxlength=\"10\" name=\"ad_item_price\" value=\"$ad_item_price\"></p>";
+					$theformbody.="<br/><input size=\"10\" type=\"text\" class=\"inputboxprice\" maxlength=\"10\" name=\"ad_item_price\" value=\"$ad_item_price\" /></p>";
 				}
 					$theformbody.="<p>";
 					$theformbody.=__("Ad Details","AWPCP");
-					$theformbody.="<br/><input readonly type=\"text\" name=\"remLen\" size=\"10\" maxlength=\"5\" class=\"inputboxmini\" value=\"$addetailsmaxlength\">";
+					$theformbody.="<br/><input readonly type=\"text\" name=\"remLen\" size=\"10\" maxlength=\"5\" class=\"inputboxmini\" value=\"$addetailsmaxlength\" />";
 					$theformbody.=__("characters left","AWPCP");
 					$theformbody.="<br/><br/>$htmlstatus<br/><textarea name=\"addetails\" rows=\"10\" cols=\"50\" class=\"textareainput\" onKeyDown=\"textCounter(this.form.addetails,this.form.remLen,$addetailsmaxlength);\" onKeyUp=\"textCounter(this.form.addetails,this.form.remLen,$addetailsmaxlength);\">$addetails</textarea></p>";
-					
 
 
-	if(get_awpcp_option(freepay) == '0')
-	{
-		echo "$theformbody";
-		if($hasextrafieldsmodule == 1)
-		{
-			build_extra_field_form($action,$adid);
-		}
-	}
+				if(get_awpcp_option(freepay) == '0')
+				{
+					echo "$theformbody";
 
-	else
-	{
+					if($hasextrafieldsmodule == 1)
+					{
+						build_extra_field_form($action,$adid);
+					}
+				}
 
-		echo "$theformbody";
-		if($hasextrafieldsmodule == 1)
-		{
-			build_extra_field_form($action,$adid);
-		}
-
-		if($action == 'editad')
-		{
-			$adtermscode='';
-		}
-
-		else
-		{
-
-
-			if(!isset($adterm_id) || empty($adterm_id))
-			{
-
-				if(adtermsset() && !is_admin())
+				else
 				{
 
-					$adtermscode="<h2>";
-					$adtermscode.=__("Select Ad Term","AWPCP");
-					$adtermscode.="</h2>";
+					echo "$theformbody";
 
-						//////////////////////////////////////////////////
-						// Get and configure pay options
-						/////////////////////////////////////////////////
+					if($hasextrafieldsmodule == 1)
+					{
+						build_extra_field_form($action,$adid);
+					}
 
-
-						$paytermslistitems=array();
-
-						$query="SELECT * FROM  ".$table_name2."";
-						if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-
-							if (mysql_num_rows($res))
-							{
-
-							while ($rsrow=mysql_fetch_row($res))
-							{
-								list($savedadtermid,$adterm_name,$amount,$recurring,$rec_period,$rec_increment)=$rsrow;
-								 if($rec_increment == "M"){$termname="Month";}
-								 if($rec_increment == "D"){$termname="Day";}
-								 if($rec_increment == "W"){$termname="Week";}
-								 if($rec_increment == "Y"){$termname="Year";}
-
-								$termname=$termname;
-
-								if($adtermid == $savedadtermid)
-								{
-									$ischecked="checked";
-								}
-								else
-								{
-									$ischecked='';
-								}
-
-								$awpcpthecurrencysymbol=awpcp_get_currency_code();
-
-								$adtermscode.="<input type=\"radio\" name=\"adtermid\"";
-
-								if($amount > 0)
-								{
-									$adtermscode.="onclick=\"awpcp_toggle_visibility('showhidepaybutton');\"";
-								}
-
-								if($amount <= 0)
-								{
-									$adtermscode.="onclick=\"awpcp_toggle_visibility_reverse('showhidepaybutton');\"";
-								}
-
-								$awpcpduration=__("Duration","AWPCP");
-
-								$adtermscode.="value=\"$savedadtermid\" $ischecked>$adterm_name ($awpcpthecurrencysymbol$amount $awpcpduration: $rec_period $termname )<br/>";
-							}
-
-						}
+					echo "<br/>";
+					echo "$adtermscode";
+					echo "<br/>";
+					echo "$paymethod";
 
 				}
 
-					echo "$adtermscode<p>$paymethod</p>";
 
-				}//end if adtermsset
-			}
-		}
-		
-		
 				if((get_awpcp_option('contactformcheckhuman') == 1) && !is_admin())
 				{
 					echo "<p>";
 					_e("Enter the value of the following sum","AWPCP");
-					echo ": <b>$numval1 + $numval2</b><br><input type=\"text\" name=\"checkhuman\" value=\"$checkhuman\" size=\"5\"></p>";
+					echo ": <b>$numval1 + $numval2</b>";
+					echo "<br/>";
+					echo "<input type=\"text\" name=\"checkhuman\" value=\"$checkhuman\" size=\"5\" />";
+					echo "</p>";
 				}
-				
-				echo "<input type=\"submit\" class=\"scbutton\" value=\"";
-				_e("Continue","AWPCP");
-				echo "\"></form>";
-				echo "</div>";
-				echo "</div>";
+
+				$continuebuttontxt=__("Continue","AWPCP");
+				echo "<input type=\"submit\" class=\"scbutton\" value=\"$continuebuttontxt\" />";
+				echo "</form>";
 
 
-	}
+		echo "</div>";
+		// Close div style display:$formdisplayvalue		
+		
+		echo "</div>";
+		// Close div id classiwrapper
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// END form display
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+		
+	
+	} 
+	// End Handle ad post form
 
+//End function load_ad_post_form
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -6016,8 +6082,9 @@ function load_ad_edit_form($action,$awpcppagename,$usereditemail,$adaccesskey,$m
 			$checktheform="<script type=\"text/javascript\">
 				function checkform() {
 					var the=document.myform;
+			   		var checkemj = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
 
-					if ((the.editemail.value==='') || (the.editemail.value.indexOf('@')==-1) || (the.editemail.value.indexOf('.',the.editemail.value.indexOf('@')+2)==-1) || (the.editemail.value.lastIndexOf('.')==the.editemail.value.length-1)) {
+					if(checkemj.test(the.editemail.value) == false) {					
 						alert('Either you did not enter your email address or the email address you entered is not valid.');
 						the.editemail.focus();
 						return false;
@@ -6050,19 +6117,19 @@ function load_ad_edit_form($action,$awpcppagename,$usereditemail,$adaccesskey,$m
 		}
 		echo $checktheform;
 		echo "<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">";
-		echo "<input type=\"hidden\" name=\"awpcppagename\" value=\"$awpcppagename\">";
-		echo "<input type=\"hidden\" name=\"a\" value=\"doadedit1\">";
+		echo "<input type=\"hidden\" name=\"awpcppagename\" value=\"$awpcppagename\" />";
+		echo "<input type=\"hidden\" name=\"a\" value=\"doadedit1\" />";
 		echo "<p>";
 		_e("Enter your Email address","AWPCP");
 		echo "<br/>";
-		echo "<input type=\"text\" name=\"editemail\" value=\"$usereditemail\" class=\"inputbox\"></p>";
+		echo "<input type=\"text\" name=\"editemail\" value=\"$usereditemail\" class=\"inputbox\" /></p>";
 		echo "<p>";
 		_e("Enter your ad access key","AWPCP");
 		echo "<br/>";
-		echo "<input type=\"text\" name=\"adaccesskey\" value=\"$adaccesskey\" class=\"inputbox\"></p>";
+		echo "<input type=\"text\" name=\"adaccesskey\" value=\"$adaccesskey\" class=\"inputbox\" /></p>";
 		echo "<input type=\"submit\" class=\"scbutton\" value=\"";
 		_e("Continue","AWPCP");
-		echo "\"> <a href=\"$url_editpage".$awpcpquerymark."a=resendaccesskey\">";
+		echo "\" /> <a href=\"$url_editpage".$awpcpquerymark."a=resendaccesskey\">";
 		_e("Resend Ad Access Key","AWPCP");
 		echo "</a>";
 		echo "<br/>";
@@ -6104,9 +6171,9 @@ function resendadaccesskeyform($editemail,$awpcppagename)
 			$checktheform="<script type=\"text/javascript\">
 				function checkform() {
 					var the=document.myform;
+			   		var checkemj = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
 
-					if ((the.editemail.value==='') || (the.editemail.value.indexOf('@')==-1) || (the.editemail.value.indexOf('.',the.editemail.value.indexOf('@')+2)==-1) || (the.editemail.value.lastIndexOf('.')==the.editemail.value.length-1)) {
-						alert('$awpcpresendemailerrortxt');
+					if(checkemj.test(the.editemail.value) == false) {						alert('$awpcpresendemailerrortxt');
 						the.editemail.focus();
 						return false;
 					}
@@ -6224,18 +6291,18 @@ function resendadaccesskeyform($editemail,$awpcppagename)
 	}
 	else
 	{
-		$awpcpresendprocessresponse=$checktheform;
+		$awpcpresendprocessresponse="$checktheform";
 		$awpcpresendprocessresponse="$message";
 		$awpcpresendprocessresponse.="<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">";
-		$awpcpresendprocessresponse.="<input type=\"hidden\" name=\"awpcppagename\" value=\"$awpcppagename\">";
-		$awpcpresendprocessresponse.="<input type=\"hidden\" name=\"a\" value=\"resendaccesskey\">";
+		$awpcpresendprocessresponse.="<input type=\"hidden\" name=\"awpcppagename\" value=\"$awpcppagename\" />";
+		$awpcpresendprocessresponse.="<input type=\"hidden\" name=\"a\" value=\"resendaccesskey\" />";
 		$awpcpresendprocessresponse.="<p>";
 		$awpcpresendprocessresponse.=__("Enter your Email address","AWPCP");
 		$awpcpresendprocessresponse.="<br/>";
-		$awpcpresendprocessresponse.="<input type=\"text\" name=\"editemail\" value=\"$editemail\" class=\"inputbox\"></p>";
+		$awpcpresendprocessresponse.="<input type=\"text\" name=\"editemail\" value=\"$editemail\" class=\"inputbox\" /></p>";
 		$awpcpresendprocessresponse.="<input type=\"submit\" class=\"scbutton\" value=\"";
 		$awpcpresendprocessresponse.=__("Continue","AWPCP");
-		$awpcpresendprocessresponse.="\"><br/></form>";
+		$awpcpresendprocessresponse.="\" /><br/></form>";
 
 	}
 
@@ -6296,13 +6363,15 @@ function load_ad_contact_form($adid,$sendersname,$checkhuman,$numval1,$numval2,$
 	$checktheform="<script type=\"text/javascript\">
 	function checkform() {
 		var the=document.myform;
+		var checkemj = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
 
 		if (the.sendersname.value==='') {
 			alert('$awpcpusernamemissing');
 			the.sendersname.focus();
 			return false;
 		}
-		if ((the.sendersemail.value==='') || (the.sendersemail.value.indexOf('@')==-1) || (the.sendersemail.value.indexOf('.',the.sendersemail.value.indexOf('@')+2)==-1) || (the.sendersemail.value.lastIndexOf('.')==the.sendersemail.value.length-1)) {
+
+		if(checkemj.test(the.sendersemail.value) == false) {
 			alert('$awpcpemailinvalid');
 			the.sendersemail.focus();
 			return false;
@@ -6342,18 +6411,18 @@ function load_ad_contact_form($adid,$sendersname,$checkhuman,$numval1,$numval2,$
 		}
 		echo $checktheform;
 		echo "<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">";
-		echo "<input type=\"hidden\" name=\"adid\" value=\"$adid\">";
-		echo "<input type=\"hidden\" name=\"a\" value=\"docontact1\">";
-		echo "<input type=\"hidden\" name=\"numval1\" value=\"$numval1\">";
-		echo "<input type=\"hidden\" name=\"numval2\" value=\"$numval2\">";
+		echo "<input type=\"hidden\" name=\"adid\" value=\"$adid\" />";
+		echo "<input type=\"hidden\" name=\"a\" value=\"docontact1\" />";
+		echo "<input type=\"hidden\" name=\"numval1\" value=\"$numval1\" />";
+		echo "<input type=\"hidden\" name=\"numval2\" value=\"$numval2\" />";
 		echo "<p>";
 		_e("Your Name","AWPCP");
 		echo "<br/>";
-		echo "<input type=\"text\" name=\"sendersname\" value=\"$sendersname\" class=\"inputbox\"></p>";
+		echo "<input type=\"text\" name=\"sendersname\" value=\"$sendersname\" class=\"inputbox\" /></p>";
 		echo "<p>";
 		_e("Enter your Email address","AWPCP");
 		echo "<br/>";
-		echo "<input type=\"text\" name=\"sendersemail\" value=\"$sendersemail\" class=\"inputbox\"></p>";
+		echo "<input type=\"text\" name=\"sendersemail\" value=\"$sendersemail\" class=\"inputbox\" /></p>";
 		echo "<p>";
 		_e("Enter your message below","AWPCP");
 		echo "<br/>";
@@ -6364,12 +6433,12 @@ function load_ad_contact_form($adid,$sendersname,$checkhuman,$numval1,$numval2,$
 			echo "<p>";
 			_e("Enter the value of the following sum","AWPCP");
 			echo ": <b>$numval1 + $numval2</b><br>";
-			echo "<input type=\"text\" name=\"checkhuman\" value=\"$checkhuman\" size=\"5\"></p>";
+			echo "<input type=\"text\" name=\"checkhuman\" value=\"$checkhuman\" size=\"5\" /></p>";
 		}
 
 		echo "<input type=\"submit\" class=\"scbutton\" value=\"";
 		_e("Continue","AWPCP");
-		echo "\">";
+		echo "\" />";
 		echo "<br/></form></div>";
 
 }
@@ -6446,7 +6515,7 @@ function processadcontact($adid,$sendersname,$checkhuman,$numval1,$numval2,$send
 		$sendersemailmsg.=__("You did not enter your name. You must include a name for this message to be relayed on your behalf","AWPCP");
 		$sendersemailmsg.="</li>";
 	}
-	if (!eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $sendersemail))
+	if (!isValidEmailAddress($sendersemail))
 	{
 		$error=true;
 		$sendersemailwrongmsg="<li>";
@@ -6499,7 +6568,15 @@ function processadcontact($adid,$sendersname,$checkhuman,$numval1,$numval2,$send
 		$contactformbodymessage.=$siteurl;
 
 
-		$awpcp_from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
+		if(get_awpcp_option('usesenderemailinsteadofadmin'))
+		{
+			$awpcp_from_header = "From: ". $sendersname . " <" . $sendersemail . ">\r\n";
+		}
+		else
+		{
+			$awpcp_from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
+		}
+		
 
 
 				if(send_email($thisadminemail,$sendtoemail,$subject,$contactformbodymessage,true))
@@ -6709,10 +6786,10 @@ if(!isset($adcontact_city) || empty($adcontact_city) )
 	}
 	echo $checktheform;
 	echo "<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">";
-	echo "<input type=\"hidden\" name=\"a\" value=\"dosearch\">";
+	echo "<input type=\"hidden\" name=\"a\" value=\"dosearch\" />";
 	echo "<p>";
 	_e("Search for ads containing this word or phrase","AWPCP");
-	echo ":<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"keywordphrase\" value=\"$keywordphrase\"></p>";
+	echo ":<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"keywordphrase\" value=\"$keywordphrase\" /></p>";
 	echo "<p>";
 	_e("Search in Category","AWPCP");
 	echo "<br><select name=\"searchcategory\"><option value=\"\">";
@@ -6749,8 +6826,8 @@ if(!isset($adcontact_city) || empty($adcontact_city) )
 		}
 		else
 		{
-			echo "<input type=\"hidden\" name=\"searchpricemin\" value=\"\">";
-			echo "<input type=\"hidden\" name=\"searchpricemax\" value=\"\">";
+			echo "<input type=\"hidden\" name=\"searchpricemin\" value=\"\" />";
+			echo "<input type=\"hidden\" name=\"searchpricemax\" value=\"\" />";
 		}
 	}
 
@@ -6786,7 +6863,7 @@ if(get_awpcp_option(displaycountryfield) == 1){
 					{
 						echo "
 							(separate countries by commas)<br/>
-							<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountry\" value=\"$searchccountry\">
+							<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountry\" value=\"$searchccountry\" />
 						";
 					}
 					elseif(get_awpcp_option('buildsearchdropdownlists'))
@@ -6809,7 +6886,7 @@ if(get_awpcp_option(displaycountryfield) == 1){
 							echo "(";
 							_e("separate countries by commas","AWPCP");
 							echo ")<br/>
-								<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountry\" value=\"$searchccountry\">
+								<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountry\" value=\"$searchccountry\" />
 							";
 						}
 					}
@@ -6819,7 +6896,7 @@ if(get_awpcp_option(displaycountryfield) == 1){
 						echo "(";
 						_e("separate countries by commas","AWPCP");
 						echo ")<br/>
-							<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountry\" value=\"$searchccountry\">
+							<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountry\" value=\"$searchccountry\" />
 						";
 				}
 			}
@@ -6832,7 +6909,7 @@ if(get_awpcp_option(displaycountryfield) == 1){
 				echo "(";
 				_e("separate countries by commas","AWPCP");
 				echo ")<br/>
-				<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountry\" value=\"$searchccountry\">
+				<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountry\" value=\"$searchccountry\" />
 				";
 			}
 			elseif(get_awpcp_option('buildsearchdropdownlists'))
@@ -6855,7 +6932,7 @@ if(get_awpcp_option(displaycountryfield) == 1){
 					echo "(";
 					_e("separate countries by commas","AWPCP");
 					echo ")<br/>
-						<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountry\" value=\"$searchccountry\">
+						<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountry\" value=\"$searchccountry\" />
 					";
 				}
 			}
@@ -6897,7 +6974,7 @@ if(get_awpcp_option(displaystatefield) == 1)
 						echo "(";
 						_e("separate states by commas","AWPCP");
 						echo ")<br/>
-							<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchstate\" value=\"$searchstate\">
+							<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchstate\" value=\"$searchstate\" />
 						";
 					}
 					elseif(get_awpcp_option('buildsearchdropdownlists'))
@@ -6922,7 +6999,7 @@ if(get_awpcp_option(displaystatefield) == 1)
 							echo "(";
 							_e("separate states by commas","AWPCP");
 							echo ")<br/>
-								<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchstate\" value=\"$searchstate\">
+								<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchstate\" value=\"$searchstate\" />
 							";
 						}
 					}
@@ -6932,7 +7009,7 @@ if(get_awpcp_option(displaystatefield) == 1)
 						echo "(";
 						_e("separate states by commas","AWPCP");
 						echo ")<br/>
-							<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchstate\" value=\"$searchstate\">
+							<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchstate\" value=\"$searchstate\" />
 						";
 				}
 			}
@@ -6945,7 +7022,7 @@ if(get_awpcp_option(displaystatefield) == 1)
 				echo "(";
 				_e("separate states by commas","AWPCP");
 				echo ")<br/>
-				<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchstate\" value=\"$searchstate\">
+				<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchstate\" value=\"$searchstate\" />
 				";
 			}
 			elseif(get_awpcp_option('buildsearchdropdownlists'))
@@ -6969,7 +7046,7 @@ if(get_awpcp_option(displaystatefield) == 1)
 					echo "(";
 					_e("separate states by commas","AWPCP");
 					echo ")<br/>
-						<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchstate\" value=\"$searchstate\">
+						<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchstate\" value=\"$searchstate\" />
 					";
 				}
 			}
@@ -7010,7 +7087,7 @@ if(get_awpcp_option(displaycityfield) == 1)
 						echo "(";
 						_e("separate cities by commas","AWPCP");
 						echo ")<br/>
-						<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcity\" value=\"$searchccity\">
+						<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcity\" value=\"$searchccity\" />
 						";
 					}
 					elseif(get_awpcp_option('buildsearchdropdownlists'))
@@ -7035,7 +7112,7 @@ if(get_awpcp_option(displaycityfield) == 1)
 							echo "(";
 							_e("separate cities by commas","AWPCP");
 							echo ")<br/>
-								<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcity\" value=\"$searchccity\">
+								<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcity\" value=\"$searchccity\" />
 							";
 						}
 					}
@@ -7045,7 +7122,7 @@ if(get_awpcp_option(displaycityfield) == 1)
 						echo "(";
 						_e("separate cities by commas","AWPCP");
 						echo ")<br/>
-							<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcity\" value=\"$searchccity\">
+							<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcity\" value=\"$searchccity\" />
 						";
 				}
 			}
@@ -7058,7 +7135,7 @@ if(get_awpcp_option(displaycityfield) == 1)
 				echo "(";
 				_e("separate cities by commas","AWPCP");
 				echo ")<br/>
-				<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcity\" value=\"$searchcity\">
+				<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcity\" value=\"$searchcity\" />
 				";
 			}
 			elseif(get_awpcp_option('buildsearchdropdownlists'))
@@ -7082,7 +7159,7 @@ if(get_awpcp_option(displaycityfield) == 1)
 					echo "(";
 					_e("separate cities by commas","AWPCP");
 					echo ")<br/>
-						<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcity\" value=\"$searchcity\">
+						<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcity\" value=\"$searchcity\" />
 					";
 				}
 			}
@@ -7121,7 +7198,7 @@ if(get_awpcp_option(displaycountyvillagefield) == 1)
 						echo "(";
 						_e("separate counties by commas","AWPCP");
 						echo ")<br/>
-						<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountyvillage\" value=\"$searchccountyvillage\">
+						<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountyvillage\" value=\"$searchccountyvillage\" />
 						";
 					}
 					elseif(get_awpcp_option('buildsearchdropdownlists'))
@@ -7140,7 +7217,7 @@ if(get_awpcp_option(displaycountyvillagefield) == 1)
 							echo "(";
 							_e("separate counties by commas","AWPCP");
 							echo ")<br/>
-								<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountyvillage\" value=\"$searchccountyvillage\">
+								<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountyvillage\" value=\"$searchccountyvillage\" />
 							";
 						}
 					}
@@ -7150,7 +7227,7 @@ if(get_awpcp_option(displaycountyvillagefield) == 1)
 						echo "(";
 						_e("separate counties by commas","AWPCP");
 						echo ")<br/>
-							<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountyvillage\" value=\"$searchccountyvillage\">
+							<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountyvillage\" value=\"$searchccountyvillage\" />
 						";
 				}
 			}
@@ -7163,7 +7240,7 @@ if(get_awpcp_option(displaycountyvillagefield) == 1)
 				echo "(";
 				_e("separate counties by commas","AWPCP");
 				echo ")<br/>
-				<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountyvillage\" value=\"$searchccountyvillage\">
+				<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountyvillage\" value=\"$searchccountyvillage\" />
 				";
 			}
 			elseif(get_awpcp_option('buildsearchdropdownlists'))
@@ -7183,7 +7260,7 @@ if(get_awpcp_option(displaycountyvillagefield) == 1)
 					echo "(";
 					_e("separate counties by commas","AWPCP");
 					echo ")<br/>
-						<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountyvillage\" value=\"$searchccountyvillage\">
+						<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountyvillage\" value=\"$searchccountyvillage\" />
 					";
 				}
 			}
@@ -7194,7 +7271,7 @@ if(get_awpcp_option(displaycountyvillagefield) == 1)
 
 	echo "<div align=\"center\"><input type=\"submit\" class=\"scbutton\" value=\"";
 	_e("Start Search","AWPCP");
-	echo "\"></div></form>";
+	echo "\" /></div></form>";
 	echo "</div>";
 }
 
@@ -7517,7 +7594,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 	}
 
 	// Check if email address entered is in a valid email address format
-	if (!eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $adcontact_email))
+	if (!isValidEmailAddress($adcontact_email))
 	{
 		$error=true;
 		$adcemailmsg2="<li class=\"erroralert\">";
@@ -7916,6 +7993,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 				$ad_id=mysql_insert_id();
+				
 
 				if(get_awpcp_option('freepay') == 1)
 				{
@@ -7950,7 +8028,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 }
 
 function processadstep2_paymode($ad_id,$adterm_id,$adkey,$awpcpuerror,$adcontact_name,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$adtitle,$addetails,$adpaymethod)
-{
+{ 
 	$numimgsallowed='';
 
 		if(get_awpcp_option('imagesallowdisallow') == 1)
@@ -7958,7 +8036,7 @@ function processadstep2_paymode($ad_id,$adterm_id,$adkey,$awpcpuerror,$adcontact
 			$numimgsallowed=get_numimgsallowed($adterm_id);
 
 			if( $numimgsallowed > 0 )
-			{
+			{ 
 
 				echo "<h2>";
 				_e("Step 2 Upload Images","AWPCP");
@@ -7967,22 +8045,26 @@ function processadstep2_paymode($ad_id,$adterm_id,$adkey,$awpcpuerror,$adcontact
 				$totalimagesuploaded=get_total_imagesuploaded($ad_id);
 
 				if($totalimagesuploaded < $numimgsallowed)
-				{
+				{ 
 					$showimageuploadform=display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction='',$nextstep='payment',$adpaymethod,$awpcpuperror='');
+					
 				}
 				else
 				{
-					$showimageuploadform="";
+					$showimageuploadform=display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction='',$nextstep='finishnoform',$adpaymethod,$awpcpuperror='');
 				}
 
-				$uploadimagesform.="$showimageuploadform";
+			}
+			elseif( $numimgsallowed <= 0 )
+			{
+				$showimageuploadform=display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction='',$nextstep='finishnoform',$adpaymethod,$awpcpuperror='');
 			}
 
-				$classicontent=$uploadimagesform;
+				$classicontent=$showimageuploadform;
 				echo "$classicontent";
 		}
 		else
-		{
+		{ 
 			processadstep3($ad_id,$adterm_id,$adkey,$adpaymethod);
 		}
 }
@@ -7992,6 +8074,10 @@ function processadstep2_freemode($ad_id,$adterm_id,$adkey,$awpcpuerror,$adcontac
 
 	if( (get_awpcp_option('imagesallowdisallow') == 1) && ( get_awpcp_option('imagesallowedfree') > 0))
 	{
+	
+				echo "<h2>";
+				_e("Step 2 Upload Images","AWPCP");
+				echo "</h2>";	
 
 		$imagesforfree=get_awpcp_option('imagesallowedfree');
 
@@ -8001,11 +8087,10 @@ function processadstep2_freemode($ad_id,$adterm_id,$adkey,$awpcpuerror,$adcontac
 		}
 		else
 		{
-			$showimageuploadform="";
+			$showimageuploadform=display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction='',$nextstep='finishnoform',$adpaymethod,$awpcpuperror='');
 		}
 
 		$classicontent="$showimageuploadform";
-
 		echo "$classicontent";
 	}
 	else
@@ -8146,7 +8231,7 @@ function processadstep3($adid,$adterm_id,$key,$adpaymethod)
 		$finishbutton.=__("Please click the finish button to complete the process of submitting your listing","AWPCP");
 		$finishbutton.="</p>
 		<form method=\"post\" id=\"awpcpui_process\">
-		<input type=\"hidden\" name=\"a\" value=\"adpostfinish\">
+		<input type=\"hidden\" name=\"a\" value=\"adpostfinish\" />
 		<input type=\"hidden\" name=\"ad_id\" value=\"$adid\" />
 		<input type=\"hidden\" name=\"adkey\" value=\"$key\" />
 		<input type=\"hidden\" name=\"adterm_id\" value=\"$adterm_id\" />
@@ -8251,16 +8336,16 @@ function awpcp_displaypaymentbutton_paypal($adid,$custom,$adterm_name,$adterm_id
 	$showpaybuttonpaypal.="<input type=\"hidden\" name=\"sra\" value=\"1\" />";
 	if(get_awpcp_option('paypalpaymentsrecurring'))
 	{
-		$showpaybuttonpaypal.="<input type=\"hidden\" name=\"a3\" value=\"$amount\">";
-		$showpaybuttonpaypal.="<input type=\"hidden\" name=\"p3\" value=\"$recperiod\">";
-		$showpaybuttonpaypal.="<input type=\"hidden\" name=\"t3\" value=\"D\">";
+		$showpaybuttonpaypal.="<input type=\"hidden\" name=\"a3\" value=\"$amount\" />";
+		$showpaybuttonpaypal.="<input type=\"hidden\" name=\"p3\" value=\"$recperiod\" />";
+		$showpaybuttonpaypal.="<input type=\"hidden\" name=\"t3\" value=\"D\" />";
 	}
 	//$showpaybuttonpaypal.="<input class=\"button\" type=\"submit\" value=\"";
 	//$showpaybuttonpaypal.=__("Pay With PayPal","AWPCP");
-	//$showpaybuttonpaypal.="\">";
+	//$showpaybuttonpaypal.="\" />";
 	$showpaybuttonpaypal.="<input type=\"image\" src=\"$imagesurl/paypalbuynow.gif\" border=\"0\" name=\"submit\" alt=\"";
 	$showpaybuttonpaypal.=__("Make payments with PayPal - it's fast, free and secure!","AWPCP");
-	$showpaybuttonpaypal.="\">";
+	$showpaybuttonpaypal.="\" />";
 	$showpaybuttonpaypal.="</form>";
 
 	return $showpaybuttonpaypal;
@@ -8298,7 +8383,7 @@ function awpcp_displaypaymentbutton_twocheckout($adid,$custom,$adterm_name,$adte
 
 	if(get_awpcp_option('twocheckoutpaymentsrecurring'))
 	{
-		$x_login_sid="<input type='hidden' name=\"sid\" value=\"".get_awpcp_option('2checkout')."\" >";
+		$x_login_sid="<input type='hidden' name=\"sid\" value=\"".get_awpcp_option('2checkout')."\" />";
 	}
 	else
 	{
@@ -8310,7 +8395,7 @@ function awpcp_displaypaymentbutton_twocheckout($adid,$custom,$adterm_name,$adte
 	$showpaybuttontwocheckout.="<input type=\"hidden\" name=\"id_type\" value=\"1\" />";
 	$showpaybuttontwocheckout.="<input type=\"hidden\" name=\"fixed\" value=\"Y\" />";
 	$showpaybuttontwocheckout.="<input type=\"hidden\" name=\"pay_method\" value=\"CC\" />";
-	$showpaybuttontwocheckout.="<input type=\"hidden\" name=\"x_Receipt_Link_URL\" value=\"$x_receipt_link_url\">";
+	$showpaybuttontwocheckout.="<input type=\"hidden\" name=\"x_Receipt_Link_URL\" value=\"$x_receipt_link_url\" />";
 	$showpaybuttontwocheckout.="<input type=\"hidden\" name=\"x_invoice_num\" value=\"1\" />";
 	$showpaybuttontwocheckout.="<input type=\"hidden\" name=\"x_amount\" value=\"$amount\" />";
 	$showpaybuttontwocheckout.="<input type=\"hidden\" name=\"c_prod\" value=\"$adterm_id\" />";
@@ -8322,7 +8407,7 @@ function awpcp_displaypaymentbutton_twocheckout($adid,$custom,$adterm_name,$adte
 
 	if(get_awpcp_option('twocheckoutpaymentsrecurring'))
 	{
-		$showpaybuttontwocheckout.="<input type='hidden' name=\"quantity\" value='1' >";
+		$showpaybuttontwocheckout.="<input type='hidden' name=\"quantity\" value='1' />";
 		$showpaybuttontwocheckout.="<input type='hidden' name=\"product_id\" value=\"".get_2co_prodid($adterm_id)."\" />";
 		$showpaybuttontwocheckout.="<input type='hidden' name=\"x_twocorec\" value=\"1\" />";
 	}
@@ -8454,16 +8539,16 @@ function display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction,$nex
 				<form method=\"post\" id=\"awpcpui_process\">";
 				if($nextstep == 'payment')
 				{
-					$finishbutton.="<input type=\"hidden\" name=\"a\" value=\"loadpaymentpage\">";
-					$finishbutton.="<input type=\"hidden\" name=\"adpaymethod\" value=\"$adpaymethod\">";
+					$finishbutton.="<input type=\"hidden\" name=\"a\" value=\"loadpaymentpage\" />";
+					$finishbutton.="<input type=\"hidden\" name=\"adpaymethod\" value=\"$adpaymethod\" />";
 				}
 				elseif($nextstep == 'finish')
 				{
-					$finishbutton.="<input type=\"hidden\" name=\"a\" value=\"adpostfinish\">";
+					$finishbutton.="<input type=\"hidden\" name=\"a\" value=\"adpostfinish\" />";
 				}
 				else
 				{
-					$finishbutton.="<input type=\"hidden\" name=\"a\" value=\"adpostfinish\">";
+					$finishbutton.="<input type=\"hidden\" name=\"a\" value=\"adpostfinish\" />";
 				}
 				$finishbutton.="
 				<input type=\"hidden\" name=\"ad_id\" value=\"$ad_id\" />
@@ -10349,9 +10434,9 @@ function display_ads($where,$byl,$hidepager,$grouporderby)
 		echo "</a>";
 		$allcategories=get_categorynameidall($adcategory='');
 		echo "$allcategories";
-		echo "</select><input type=\"hidden\" name=\"a\" value=\"browsecat\"><input class=\"button\" type=\"submit\" value=\"";
+		echo "</select><input type=\"hidden\" name=\"a\" value=\"browsecat\" /><input class=\"button\" type=\"submit\" value=\"";
 		_e("Change Category","AWPCP");
-		echo "\"></form></div><div class=\"fixfloat\"></div>";
+		echo "\" /></form></div><div class=\"fixfloat\"></div>";
 		echo "$showcategories";
 		echo "<div class=\"pager\">$pager2</div>";
 		if($byl)
