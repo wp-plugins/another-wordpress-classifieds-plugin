@@ -1,6 +1,6 @@
 <?php
 
-function handleimagesupload()
+function handleimagesupload($adid,$adtermid,$nextstep,$adpaymethod,$adaction,$adkey)
 {
 
 	global $wpdb, $wpcontentdir,$awpcp_plugin_path;
@@ -52,10 +52,10 @@ function handleimagesupload()
 		$imgmaxsize = get_awpcp_option('maximagesize');
 		$imgminsize = get_awpcp_option('minimagesize');
 
-		if(isset($_REQUEST['ADID']) && !empty($_REQUEST['ADID'])){
-		$adid=$_REQUEST['ADID'];}else { $adid='';}
-		if(isset($_REQUEST['ADTERMID']) && !empty($_REQUEST['ADTERMID'])){
-		$adtermid=$_REQUEST['ADTERMID'];}else { $adtermid='';}
+		if(isset($_REQUEST['adid']) && !empty($_REQUEST['adid'])){
+		$adid=$_REQUEST['adid'];}else { $adid='';}
+		if(isset($_REQUEST['adtermid']) && !empty($_REQUEST['adtermid'])){
+		$adtermid=$_REQUEST['adtermid'];}else { $adtermid='';}
 		if(isset($_REQUEST['nextstep']) && !empty($_REQUEST['nextstep'])){
 		$nextstep=$_REQUEST['nextstep'];}
 		if(isset($_REQUEST['adpaymethod']) && !empty($_REQUEST['adpaymethod'])){
@@ -75,7 +75,14 @@ function handleimagesupload()
 		if(get_awpcp_option('freepay') == 1)
 		{
 
-			$numimgsallowed=get_numimgsallowed($adtermid);
+			if($adtermid != -1)
+			{
+				$numimgsallowed=get_numimgsallowed($adtermid);
+			}
+			else
+			{
+				$numimgsallowed=get_awpcp_option('imagesallowedfree');
+			}
 		}
 		else
 		{
@@ -325,7 +332,24 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 						$awpcpadpostedmsg.="</p>";
 					}
 
-					ad_success_email($adid,$txn_id='',$adkey,$awpcpadpostedmsg,$gateway='');
+					$awpcpshowadsample=1;
+					$awpcpsubmissionresultmessage ='';
+					$message='';
+					$awpcpsubmissionresultmessage =ad_success_email($adid,$txn_id='',$adkey,$awpcpadpostedmsg,$gateway='');
+
+					echo "<div id=\"classiwrapper\">";
+					awpcp_menu_items();
+					echo "<p>";
+					echo $awpcpsubmissionresultmessage;
+					echo "</p>";
+					if($awpcpshowadsample == 1)
+					{		
+						echo "<h2>";
+						_e("Sample of your ad","AWPCP");
+						echo "</h2>";
+						showad($adid,$omitmenu='1');
+					}
+					echo "</div>";					
 				}
 
 				elseif($nextstep == 'payment')
@@ -352,7 +376,24 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 						$awpcpadpostedmsg.="</p>";
 					}
 
-					ad_success_email($adid,$txn_id='',$adkey,$awpcpadpostedmsg,$gateway='');
+					$awpcpshowadsample=1;
+					$awpcpsubmissionresultmessage ='';
+					$message='';
+					$awpcpsubmissionresultmessage =ad_success_email($adid,$txn_id='',$adkey,$awpcpadpostedmsg,$gateway='');
+
+					echo "<div id=\"classiwrapper\">";
+					awpcp_menu_items();
+					echo "<p>";
+					echo $awpcpsubmissionresultmessage;
+					echo "</p>";
+					if($awpcpshowadsample == 1)
+					{		
+						echo "<h2>";
+						_e("Sample of your ad","AWPCP");
+						echo "</h2>";
+						showad($adid,$omitmenu='1');
+					}
+					echo "</div>";					
 				}
 			}
 

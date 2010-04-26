@@ -244,7 +244,8 @@ font-weight:normal;
 .cl-adsense {
 margin:10px 0 10px 0;
 text-align:center;
-
+background:#f2f2f2;
+padding:10px;
 }
 
 .alert {
@@ -362,3 +363,12 @@ p.uploaderror { padding:5px; background:#ffffcc; color:#000000; }
 div.unsetsavedlocationslink { clear:both;padding:5px;background:#f2f2f2; width:300px;text-align:center;}
 
 .erroralert { color:#ff0000;font-weight:bold;font-size:14px; }
+.adinfo { margin-bottom:10px; }
+.adviewed { margin:10px 0px; border-top:1px dotted #333333; padding-top:10px; }
+.thumbshow { background:#f2f2f2;	display: inline; 	border:1px solid #d3d3d3;	padding:9px; }
+label {font-weight:bold;}
+
+.dropdownparentcategory { background-color:#eeeeee;margin-bottom:3px; color:#000000;}
+
+#displayaditemsodd { background:#f2f2f2; width:100%; margin-bottom:10px; }
+#displayaditemseven { width:100%; margin-bottom:10px; }
