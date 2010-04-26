@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
-Version: 1.0.6.3
+Version: 1.0.6.4
 Author: A Lewis
 Author URI: http://www.antisocialmediallc.com
 */
@@ -77,7 +77,7 @@ $nameofsite=get_option('blogname');
 $siteurl=get_option('siteurl');
 $thisadminemail=get_option('admin_email');
 
-$awpcp_db_version = "1.0.6.3";
+$awpcp_db_version = "1.0.6.4";
 
 if(field_exists($field='uploadfoldername'))
 {
@@ -305,6 +305,112 @@ add_filter('generate_rewrite_rules', 'awpcp_rules_rewrite');
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //	Create the database tables if they do not not exist
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function do_settings_insert()
+{
+
+	global $wpdb;
+	$table_name4 = $wpdb->prefix . "awpcp_adsettings";
+	
+		$query="INSERT INTO " . $table_name4 . " (`config_option`, `config_value`, `config_diz`,`config_group_id`, `option_type`) VALUES
+		('userpagename', 'AWPCP', 'Name for classifieds page. [CAUTION: existing page will be overwritten]','10','1'),
+		('showadspagename', 'Show Ad', 'Name for show ads page. [CAUTION: existing page will be overwritten]','10','1'),
+		('placeadpagename', 'Place Ad', 'Name for place ads page. [CAUTION: existing page will be overwritten]','10','1'),
+		('browseadspagename', 'Browse Ads', 'Name browse ads apge. [CAUTION: existing page will be overwritten]','10','1'),
+		('replytoadpagename', 'Reply To Ad', 'Name for reply to ad page. [CAUTION: existing page will be overwritten]','10','1'),
+		('paymentthankyoupagename', 'Payment Thank You', 'Name for payment thank you page. [CAUTION: existing page will be overwritten]','10','1'),
+		('paymentcancelpagename', 'Cancel Payment', 'Name for payment cancel page. [CAUTION: existing page will be overwritten]','10','1'),
+		('searchadspagename', 'Search Ads', 'Name for search ads page. [CAUTION: existing page will be overwritten]','10','1'),
+		('browsecatspagename', 'Browse Categories', 'Name for browse categories page. [ CAUTION: existing page will be overwritten ]','10','1'),
+		('editadpagename', 'Edit Ad', 'Name for edit ad page. [ CAUTION: existing page will be overwritten ]','10','1'),
+		('categoriesviewpagename', 'View Categories', 'Name for categories view page. [ Dynamic Page ]','10','1'),
+		('freepay', '0', 'Charge Listing Fee?','3','0'),
+		('requireuserregistration', '0', 'Require user registration?','7','0'),
+		('postloginformto', '', 'Post login form to [Value should be the full URL to the wordpress login script. Example http://www.awpcp.com/wp-login.php **Only needed if registration is required and your login url is mod-rewritten ] ','7','1'),
+		('registrationurl', '', 'Location of registraiton page [Value should be the full URL to the wordpress registration page. Example http://www.awpcp.com/wp-login.php?action=register **Only needed if registration is required and your login url is mod-rewritten ] ','7','1'),
+		('main_page_display', '0', 'Main page layout [ check for ad listings ] [ Uncheck for categories ]','1','0'),
+		('activatemylayoutdisplayads', '0', 'Activate display ad mod file [applies only if you created your own layout for the display_ads function in the file awpcp_display_ad_my_layout.php]','1','0'),
+		('activatemylayoutshowad', '0', 'Activate show ad mod file [applies only if you created your own layout for the showad function in the file awpcp_showad_my_layout.php]','1','0'),
+		('awpcptitleseparator', '-', 'The character to use to separate ad details used in browser page title [Example: | / - ]','1','1'),
+		('showcityinpagetitle', '1', 'Show city in browser page title when viewing individual ad','1','0'),
+		('showstateinpagetitle', '1', 'Show state in browser page title when viewing individual ad','1','0'),
+		('showcountryinpagetitle', '1', 'Show country in browser page title when viewing individual ad','1','0'),
+		('showcountyvillageinpagetitle', '1', 'Show county/village/other setting in browser page title when viewing individual ad','1','0'),
+		('showcategoryinpagetitle', '1', 'Show category in browser page title when viewing individual ad','1','0'),
+		('paylivetestmode', '0', 'Put Paypal and 2Checkout in test mode.','3','0'),
+		('useadsense', '1', 'Activate adsense','5','0'),
+		('adsense', 'Adsense code', 'Your adsense code [ Best if 468 by 60 text or banner. ]','5',2),
+		('adsenseposition', '2', 'Adsense position. [ 1 - above ad text body ] [ 2 - under ad text body ] [ 3 - below ad images. ]','5','1'),
+		('addurationfreemode', '0', 'Expire free ads after how many days? [0 for no expiry].','2','1'),
+		('imagesallowdisallow', '1', 'Uncheck to disallow images in ads. [Affects both free and paid]','4','0'),
+		('awpcp_thickbox_disabled', '0', 'Turn off the thickbox/lightbox if it conflicts with other elements of your site','4','0'),
+		('imagesallowedfree', '4', ' Free mode number of images allowed?','4','1'),
+		('uploadfoldername', 'uploads', 'Upload folder name. [ Folder must exist and be located in your wp-content directory ]','4','1'),
+		('maximagesize', '150000', 'Maximum size per image user can upload to system.','4','1'),
+		('minimagesize', '300', 'Minimum size per image user can upload to system','4','1'),
+		('imgthumbwidth', '125', 'Width for thumbnails created upon upload.','4','1'),
+		('maxcharactersallowed', '750', 'What is the maximum number of characters the text of an ad can contain?','2','1'),
+		('paypalemail', 'xxx@xxxxxx.xxx', 'Email address for paypal payments [if running in paymode and if paypal is activated]','3','1'),
+		('paypalcurrencycode', 'USD', 'The currency in which you would like to receive your paypal payments','3','1'),
+		('displaycurrencycode', 'USD', 'The currency to show on your payment pages','3','1'),
+		('2checkout', 'xxxxxxx', 'Account for 2Checkout payments [if running in pay mode and if 2Checkout is activated]','3','1'),
+		('activatepaypal', '1', 'Activate PayPal','3','0'),
+		('activate2checkout', '1', 'Activate 2Checkout ','3','0'),
+		('paypalpaymentsrecurring', '0', 'Use recurring payments paypal [ this feature is not fully automated or fully integrated. For more reliable results do not use recurring ','3','0'),
+		('twocheckoutpaymentsrecurring', '0', 'Use recurring payments 2checkout [ this feature is not fully automated or fully integrated. For more reliable results do not use recurring ','3','0'),
+		('notifyofadexpiring', '1', 'Notify ad poster that their ad has expired?','2','0'),
+		('listingaddedsubject', 'Your classified ad listing has been submitted', 'Subject line for email sent out when someone posts an ad','8','1'),
+		('listingaddedbody', 'Thank you for submitting your classified ad. The details of your ad are shown below.', 'Message body text for email sent out when someone posts an ad','8','2'),
+		('notifyofadposted', '1', 'Notify admin of new ad.','2','0'),
+		('imagesapprove', '0', 'Hide images until admin approves them','4','0'),
+		('adapprove', '0', 'Disable ad until admin approves','2','0'),
+		('disablependingads', '1', 'Enable paid ads that are pending payment.','2','0'),
+		('showadcount', '1', 'Show how many ads a category contains.','2','0'),
+		('noadsinparentcat', '0', 'Prevent ads from being posted to top level categories?.','2','0'),
+		('displayadviews', '1', 'Show ad views','2','0'),
+		('smtphost', 'mail.example.com', 'SMTP host [ if emails not processing normally]', 9 ,'1'),
+		('smtpusername', 'smtp_username', 'SMTP username [ if emails not processing normally]', 9,'1'),
+		('smtppassword', '', 'SMTP password [ if emails not processing normally]', 9,'1'),
+		('onlyadmincanplaceads', '0', 'Only admin can post ads', '2','0'),
+		('contactformcheckhuman', '1', 'Activate Math ad post and contact form validation', '1','0'),
+		('contactformcheckhumanhighnumval', '10', 'Math validation highest number', '1','1'),
+		('contactformsubjectline', 'Response to your AWPCP Demo Ad', 'Subject line for email sent out when someone replies to ad','8', '1'),
+		('contactformbodymessage', 'Someone has responded to your AWPCP Demo Ad', 'Message body text for email sent out when someone replies to ad', '8','2'),
+		('resendakeyformsubjectline', 'The classified ad activation key you requested', 'Subject line for email sent out when someone requests their activation key resent','8', '1'),
+		('resendakeyformbodymessage', 'You asked to have your classified ad activation key resent. Below are all the activation keys in the system that are tied to the email address you provided', 'Message body text for email sent out when someone requests their activation key resent', '8','2'),
+		('paymentabortedsubjectline', 'There was a problem processing your classified ads listing payment', 'Subject line for email sent out when the payment processing does not complete','8', '1'),
+		('paymentabortedbodymessage', 'There was a problem encountered during your attempt to submit payment for your classified ad listing. If funds were removed from the account you tried to use to make a payment please contact the website admin or the payment website customer service for assistance.','Message body text for email sent out when the payment processing does not complete', '8','2'),
+		('seofriendlyurls', '0', 'Search Engine Friendly URLs? [ Does not work in some instances ]', '11','0'),
+		('pathvaluecontact', '3', 'If contact page link not working in seo mode change value until correct path is found. Start at 1', '11','1'),
+		('pathvalueshowad', '3', 'If show ad links not working in seo mode change value until correct path is found. Start at 1', '11','1'),
+		('pathvaluebrowsecats', '2', 'If browse categories links not working in seo mode change value until correct path is found. Start at 1', '11','1'),
+		('pathvalueviewcategories', '2', 'If the menu link to view categories layout is not working in seo mode change value until correct path is found. Start at 1', '11','1'),
+		('pathvaluecancelpayment', '2', 'If the cancel payment buttons are not working in seo mode it means the path the plugin is using is not correct. Change the until the correct path is found. Start at 1', '11','1'),
+		('pathvaluepaymentthankyou', '2', 'If the payment thank you page is not working in seo mode it means the path the plugin is using is not correct. Change the until the correct path is found. Start at 1', '11','1'),
+		('allowhtmlinadtext', '0', 'Allow HTML in ad text [ Not recommended ]', '2','0'),
+		('htmlstatustext', 'No HTML Allowed', 'Display this text above ad detail text input box on ad post page', '2','2'),
+		('hyperlinkurlsinadtext', '1', 'Make URLs in ad text clickable', '2','0'),
+		('visitwebsitelinknofollow', '1', 'Add no follow to links in ads', '2','0'),
+		('notice_awaiting_approval_ad', 'All ads must first be approved by the administrator before they are activated in the system. As soon as an admin has approved your ad it will become visible in the system. Thank you for your business.','Text for message to notify user that ad is awaiting approval','2','2'),
+		('displayphonefield', '1', 'Show phone field','6','0'),
+		('displayphonefieldreqop', '0', 'Require phone','6','0'),
+		('displaycityfield', '1', 'Show city field.','6','0'),
+		('displaycityfieldreqop', '0', 'Require city','6','0'),
+		('displaystatefield', '1', 'Show state field.','6','0'),
+		('displaystatefieldreqop', '0', 'Require state','6','0'),
+		('displaycountryfield', '1', 'Show country field.','6','0'),
+		('displaycountryfieldreqop', '0', 'Require country','6','0'),
+		('displaycountyvillagefield', '0', 'Show County/village/other.','6','0'),
+		('displaycountyvillagefieldreqop', '0', 'Require county/village/other.','6','0'),
+		('displaypricefield', '1', 'Show price field.','6','0'),
+		('displaypricefieldreqop', '0', 'Require price.','6','0'),
+		('displaywebsitefield', '1', 'Show website field','6','0'),
+		('displaywebsitefieldreqop', '0', 'Require website','6','0'),
+		('buildsearchdropdownlists', '0', 'The search form can attempt to build drop down country, state, city and county lists if data is available in the system. Limits search to available locations. Note that with the regions module installed the value for this option is overridden.','2','0'),
+		('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side','1','2'),
+		('showlatestawpcpnews', '1', 'Allow AWPCP RSS.','1','0')";
+		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+		mysql_query($query);
+}
 
 function awpcp_install() {
 
@@ -389,122 +495,6 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	  PRIMARY KEY (`config_option`)
 	) ENGINE=MyISAM COMMENT='0-checkbox, 1-text,2-textarea';
 
-		INSERT INTO " . $table_name4 . " (`config_option`, `config_value`, `config_diz`,`config_group_id`, `option_type`) VALUES
-		('userpagename', 'AWPCP', 'Name for classifieds page. [CAUTION: existing page will be overwritten]','10','1'),
-		('showadspagename', 'Show Ad', 'Name for show ads page. [CAUTION: existing page will be overwritten]','10','1'),
-		('placeadpagename', 'Place Ad', 'Name for place ads page. [CAUTION: existing page will be overwritten]','10','1'),
-		('browseadspagename', 'Browse Ads', 'Name browse ads apge. [CAUTION: existing page will be overwritten]','10','1'),
-		('replytoadpagename', 'Reply To Ad', 'Name for reply to ad page. [CAUTION: existing page will be overwritten]','10','1'),
-		('paymentthankyoupagename', 'Payment Thank You', 'Name for payment thank you page. [CAUTION: existing page will be overwritten]','10','1'),
-		('paymentcancelpagename', 'Cancel Payment', 'Name for payment cancel page. [CAUTION: existing page will be overwritten]','10','1'),
-		('searchadspagename', 'Search Ads', 'Name for search ads page. [CAUTION: existing page will be overwritten]','10','1'),
-		('browsecatspagename', 'Browse Categories', 'Name for browse categories page. [ CAUTION: existing page will be overwritten ]','10','1'),
-		('editadpagename', 'Edit Ad', 'Name for edit ad page. [ CAUTION: existing page will be overwritten ]','10','1'),
-		('categoriesviewpagename', 'View Categories', 'Name for categories view page. [ Dynamic Page ]','10','1'),
-		('freepay', '0', 'Charge Listing Fee?','3','0'),
-		('requireuserregistration', '0', 'Require user registration?','7','0'),
-		('postloginformto', '', 'Post login form to [Value should be the full URL to the wordpress login script. Example http://www.awpcp.com/wp-login.php **Only needed if registration is required and your login url is mod-rewritten ] ','7','1'),
-		('registrationurl', '', 'Location of registraiton page [Value should be the full URL to the wordpress registration page. Example http://www.awpcp.com/wp-login.php?action=register **Only needed if registration is required and your login url is mod-rewritten ] ','7','1'),
-		('main_page_display', '0', 'Main page layout [ check for ad listings ] [ Uncheck for categories ]','1','0'),
-		('activatelanguages', '0', 'Activate Language Capability','1','0'),		
-		('awpcpadminaccesslevel', 'admin', 'Set wordpress role of users who can have admin access to classifieds. Choices [admin,editor][case sensitive]. Currently no other roles will be granted access.','1','1'),				
-		('sidebarwidgetaftertitle', '</h2>', 'Code to appear after widget title','1','1'),	
-		('sidebarwidgetbeforetitle', '<h2 class=\"widgettitle\">', 'Code to appear before widget title','1','1'),
-		('sidebarwidgetaftercontent', '</div>', 'Code to appear after widget content','1','1'),
-		('sidebarwidgetbeforecontent', '<div class=\"widget\">', 'Code to appear before widget content','1','1'),
-		('activatemylayoutdisplayads', '0', 'Activate display ad mod file [applies only if you created your own layout for the display_ads function in the file awpcp_display_ads_my_layout.php]','1','0'),
-		('activatemylayoutshowad', '0', 'Activate show ad mod file [applies only if you created your own layout for the showad function in the file awpcp_showad_my_layout.php]','1','0'),
-		('usesenderemailinsteadofadmin', '0', 'Check this to use the name and email of the sender in the FROM field when someone replies to an ad. When unchecked the messages go out with the website name and WP admin email address in the from field. Some servers will not process outgoing emails that have an email address from gmail, yahoo, hotmail and other free email services in the FROM field. Some servers will also not process emails that have an email address that is different from the email address associated with your hosting account in the FROM field. If you are with such a webhost you need to leave this option unchecked and make sure your WordPress admin email address is tied to your hosting account.','1','0'),
-		('awpcpadminemail', '', 'Emails go out using your WordPress admin email. If you prefer to use a different email enter it here.','1','1'),		
-		('awpcptitleseparator', '-', 'The character to use to separate ad details used in browser page title [Example: | / - ]','1','1'),
-		('showcityinpagetitle', '1', 'Show city in browser page title when viewing individual ad','1','0'),
-		('showstateinpagetitle', '1', 'Show state in browser page title when viewing individual ad','1','0'),
-		('showcountryinpagetitle', '1', 'Show country in browser page title when viewing individual ad','1','0'),
-		('awpcppagefilterswitch', '1', 'Uncheck this if you need to turn off the awpcp page filter that prevents awpcp classifieds children pages from showing up in your wp pages menu [you might need to do this if for example the awpcp page filter is messing up your page menu. It means you will have to manually exclude the awpcp children pages from showing in your page list. Some of the pages really should not be visible to your users by default]','1','0'),
-		('showcountyvillageinpagetitle', '1', 'Show county/village/other setting in browser page title when viewing individual ad','1','0'),
-		('showcategoryinpagetitle', '1', 'Show category in browser page title when viewing individual ad','1','0'),
-		('paylivetestmode', '0', 'Put payment gateways in test mode.','3','0'),
-		('useadsense', '1', 'Activate adsense','5','0'),
-		('adsense', 'Adsense code', 'Your adsense code [ Best if 468 by 60 text or banner. ]','5',2),
-		('adsenseposition', '2', 'Adsense position. [ 1 - above ad text body ] [ 2 - under ad text body ] [ 3 - below ad images. ]','5','1'),
-		('addurationfreemode', '0', 'Expire free ads after how many days? [0 for no expiry].','2','1'),
-		('autoexpiredisabledelete', '0', 'Disable expired ads instead of deleting them?','2','0'),
-		('imagesallowdisallow', '1', 'Uncheck to disallow images in ads. [Affects both free and paid]','4','0'),
-		('awpcp_thickbox_disabled', '0', 'Turn off the thickbox/lightbox if it conflicts with other elements of your site','4','0'),
-		('imagesallowedfree', '4', ' Free mode number of images allowed?','4','1'),
-		('uploadfoldername', 'uploads', 'Upload folder name. [ Folder must exist and be located in your wp-content directory ]','4','1'),
-		('maximagesize', '150000', 'Maximum size per image user can upload to system.','4','1'),
-		('minimagesize', '300', 'Minimum size per image user can upload to system','4','1'),
-		('imgthumbwidth', '125', 'Width for thumbnails created upon upload.','4','1'),
-		('maxcharactersallowed', '750', 'What is the maximum number of characters the text of an ad can contain?','2','1'),
-		('paypalemail', 'xxx@xxxxxx.xxx', 'Email address for paypal payments [if running in paymode and if paypal is activated]','3','1'),
-		('paypalcurrencycode', 'USD', 'The currency in which you would like to receive your paypal payments','3','1'),
-		('displaycurrencycode', 'USD', 'The currency to show on your payment pages','3','1'),
-		('2checkout', 'xxxxxxx', 'Account for 2Checkout payments [if running in pay mode and if 2Checkout is activated]','3','1'),
-		('activatepaypal', '1', 'Activate PayPal','3','0'),
-		('activate2checkout', '1', 'Activate 2Checkout ','3','0'),
-		('paypalpaymentsrecurring', '0', 'Use recurring payments paypal [ this feature is not fully automated or fully integrated. For more reliable results do not use recurring ','3','0'),
-		('twocheckoutpaymentsrecurring', '0', 'Use recurring payments 2checkout [ this feature is not fully automated or fully integrated. For more reliable results do not use recurring ','3','0'),
-		('notifyofadexpiring', '1', 'Notify ad poster that their ad has expired?','2','0'),
-		('listingaddedsubject', 'Your classified ad listing has been submitted', 'Subject line for email sent out when someone posts an ad','8','1'),
-		('listingaddedbody', 'Thank you for submitting your classified ad. The details of your ad are shown below.', 'Message body text for email sent out when someone posts an ad','8','2'),
-		('notifyofadposted', '1', 'Notify admin of new ad.','2','0'),
-		('imagesapprove', '0', 'Hide images until admin approves them','4','0'),
-		('adapprove', '0', 'Disable ad until admin approves','2','0'),
-		('displayadthumbwidth', '80', 'Width for thumbnails in ad listings view [Only numerical value]','2','1'),
-		('disablependingads', '1', 'Enable paid ads that are pending payment.','2','0'),
-		('groupbrowseadsby', '1', 'Group ad listings by','2','3'),
-		('groupsearchresultsby', '1', 'Group ad listings in search results by','2','3'),
-		('showadcount', '1', 'Show how many ads a category contains.','2','0'),
-		('adresultsperpage', '10', 'Default number of ads per page','2','1'),
-		('noadsinparentcat', '0', 'Prevent ads from being posted to top level categories?.','2','0'),
-		('displayadviews', '1', 'Show ad views','2','0'),
-		('displayadlayoutcode', '<div id=\"\$awpcpdisplayaditems\"><div style=\"width:\$imgblockwidth;padding:5px;float:left;\">\$awpcp_image_name_srccode</div><div style=\"width:50%;padding:5px;float:left;\"><h4>\$ad_title</h4> \$addetailssummary...</div><div style=\"padding:5px;float:left;\"> \$awpcpadpostdate \$awpcp_city_display \$awpcp_state_display \$awpcp_display_adviews \$awpcp_display_price </div><div class=\"fixfloat\"></div></div><div class=\"fixfloat\"></div>', 'Modify as needed to control layout of ad listings page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.','2','2'),		
-		('awpcpshowtheadlayout', '<div id=\"showad\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"adinfo\">\$featureimg<label>Contact Information</label><br/><a href=\"\$quers/\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location</div>\$aditemprice \$awpcpextrafields \$showadsense1<div class=\"adinfo\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><div class=\"fixfloat\"></div>\$awpcpadviews \$showadsense3</div>', 'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.','2','2'),		
-		('smtphost', 'mail.example.com', 'SMTP host [ if emails not processing normally]', 9 ,'1'),
-		('smtpusername', 'smtp_username', 'SMTP username [ if emails not processing normally]', 9,'1'),
-		('smtppassword', '', 'SMTP password [ if emails not processing normally]', 9,'1'),
-		('onlyadmincanplaceads', '0', 'Only admin can post ads', '2','0'),
-		('contactformcheckhuman', '1', 'Activate Math ad post and contact form validation', '1','0'),
-		('contactformcheckhumanhighnumval', '10', 'Math validation highest number', '1','1'),
-		('contactformsubjectline', 'Response to your AWPCP Demo Ad', 'Subject line for email sent out when someone replies to ad','8', '1'),
-		('contactformbodymessage', 'Someone has responded to your AWPCP Demo Ad', 'Message body text for email sent out when someone replies to ad', '8','2'),
-		('resendakeyformsubjectline', 'The classified ad ad access key you requested', 'Subject line for email sent out when someone requests their ad access key resent','8', '1'),
-		('resendakeyformbodymessage', 'You asked to have your classified ad ad access key resent. Below are all the ad access keys in the system that are tied to the email address you provided', 'Message body text for email sent out when someone requests their ad access key resent', '8','2'),
-		('paymentabortedsubjectline', 'There was a problem processing your classified ads listing payment', 'Subject line for email sent out when the payment processing does not complete','8', '1'),
-		('paymentabortedbodymessage', 'There was a problem encountered during your attempt to submit payment for your classified ad listing. If funds were removed from the account you tried to use to make a payment please contact the website admin or the payment website customer service for assistance.','Message body text for email sent out when the payment processing does not complete', '8','2'),
-		('adexpiredsubjectline', 'Your classifieds listing at has expired', 'Subject line for email sent out when an ad has auto-expired','8', '1'),
-		('adexpiredbodymessage', 'This is an automated notification that your classified ad has expired.','Message body text for email sent out when an ad has auto-expired', '8','2'),
-		('seofriendlyurls', '0', 'Search Engine Friendly URLs? [ Does not work in some instances ]', '11','0'),
-		('pathvaluecontact', '3', 'If contact page link not working in seo mode change value until correct path is found. Start at 1', '11','1'),
-		('pathvalueshowad', '3', 'If show ad links not working in seo mode change value until correct path is found. Start at 1', '11','1'),
-		('pathvaluebrowsecats', '2', 'If browse categories links not working in seo mode change value until correct path is found. Start at 1', '11','1'),
-		('pathvalueviewcategories', '2', 'If the menu link to view categories layout is not working in seo mode change value until correct path is found. Start at 1', '11','1'),
-		('pathvaluecancelpayment', '2', 'If the cancel payment buttons are not working in seo mode it means the path the plugin is using is not correct. Change the until the correct path is found. Start at 1', '11','1'),
-		('pathvaluepaymentthankyou', '2', 'If the payment thank you page is not working in seo mode it means the path the plugin is using is not correct. Change the until the correct path is found. Start at 1', '11','1'),
-		('allowhtmlinadtext', '0', 'Allow HTML in ad text [ Not recommended ]', '2','0'),
-		('htmlstatustext', 'No HTML Allowed', 'Display this text above ad detail text input box on ad post page', '2','2'),
-		('hyperlinkurlsinadtext', '0', 'Make URLs in ad text clickable', '2','0'),
-		('visitwebsitelinknofollow', '1', 'Add no follow to links in ads', '2','0'),
-		('notice_awaiting_approval_ad', 'All ads must first be approved by the administrator before they are activated in the system. As soon as an admin has approved your ad it will become visible in the system. Thank you for your business.','Text for message to notify user that ad is awaiting approval','2','2'),
-		('displayphonefield', '1', 'Show phone field','6','0'),
-		('displayphonefieldreqop', '0', 'Require phone','6','0'),
-		('displaycityfield', '1', 'Show city field.','6','0'),
-		('displaycityfieldreqop', '0', 'Require city','6','0'),
-		('displaystatefield', '1', 'Show state field.','6','0'),
-		('displaystatefieldreqop', '0', 'Require state','6','0'),
-		('displaycountryfield', '1', 'Show country field.','6','0'),
-		('displaycountryfieldreqop', '0', 'Require country','6','0'),
-		('displaycountyvillagefield', '0', 'Show County/village/other.','6','0'),
-		('displaycountyvillagefieldreqop', '0', 'Require county/village/other.','6','0'),
-		('displaypricefield', '1', 'Show price field.','6','0'),
-		('displaypricefieldreqop', '0', 'Require price.','6','0'),
-		('displaywebsitefield', '1', 'Show website field','6','0'),
-		('displaywebsitefieldreqop', '0', 'Require website','6','0'),
-		('buildsearchdropdownlists', '0', 'The search form can attempt to build drop down country, state, city and county lists if data is available in the system. Limits search to available locations. Note that with the regions module installed the value for this option is overridden.','2','0'),
-		('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side','1','2'),
-		('showlatestawpcpnews', '1', 'Allow AWPCP RSS.','1','0');
-
 
 	CREATE TABLE " . $table_name5 . " (
 	  `key_id` int(10) NOT NULL AUTO_INCREMENT,
@@ -531,6 +521,8 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
       add_option("awpcp_db_version", $awpcp_db_version);
 
       wp_schedule_event( time(), 'hourly', 'doadexpirations_hook' );
+      
+      do_settings_insert();
 
    }
 
@@ -671,7 +663,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 	if(!field_exists($field='noadsinparentcat')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('noadsinparentcat', '0', 'Prevent ads from being posted to top level categories?.','2','0');");}
 	if(!field_exists($field='displayadviews')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('displayadviews', '1', 'Show ad views','2','0');");}
 	if(!field_exists($field='displayadlayoutcode')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('displayadlayoutcode', '<div id=\"\$awpcpdisplayaditems\"><div style=\"width:\$imgblockwidth;padding:5px;float:left;\">\$awpcp_image_name_srccode</div><div style=\"width:50%;padding:5px;float:left;\"><h4>\$ad_title</h4> \$addetailssummary...</div><div style=\"padding:5px;float:left;\"> \$awpcpadpostdate \$awpcp_city_display \$awpcp_state_display \$awpcp_display_adviews \$awpcp_display_price </div><div class=\"fixfloat\"></div></div><div class=\"fixfloat\"></div>', 'Modify as needed to control layout of ad listings page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.','2','2');");}
-	if(!field_exists($field='awpcpshowtheadlayout')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('awpcpshowtheadlayout', '<div id=\"showad\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"adinfo\">\$featureimg<label>Contact Information</label><br/><a href=\"\$quers/\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location</div>\$aditemprice \$awpcpextrafields \$showadsense1<div class=\"adinfo\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><div class=\"fixfloat\"></div>\$awpcpadviews \$showadsense3</div>', 'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.','2','2');");}
+	if(!field_exists($field='awpcpshowtheadlayout')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('awpcpshowtheadlayout', '<div id=\"showad\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"adinfo\">\$featureimg<label>Contact Information</label><br/><a href=\"\$quers/\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location</div>\$aditemprice \$awpcpextrafields <div class=\"fixfloat\"></div> \$showadsense1<div class=\"adinfo\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><div class=\"fixfloat\"></div>\$awpcpadviews \$showadsense3</div>', 'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.','2','2');");}
 	if(!field_exists($field='smtphost')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('smtphost', 'mail.example.com', 'SMTP host [ if emails not processing normally]', 9 ,'1');");}
 	if(!field_exists($field='smtpusername')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('smtpusername', 'smtp_username', 'SMTP username [ if emails not processing normally]', 9,'1');");}
 	if(!field_exists($field='smtppassword')){$wpdb->query("INSERT  INTO " . $table_name4 . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('smtppassword', '', 'SMTP password [ if emails not processing normally]', 9,'1');");}
@@ -957,7 +949,7 @@ function awpcp_home_screen()
 	
 	if($hasextrafieldsmodule == 1)
 	{
-		if(!($extrafieldsversioncompatibility == $awpcp_db_version))
+		if(!($extrafieldsversioncompatibility == 1))
 		{
 			echo "<div id=\"message\" class=\"updated fade\" style=\"padding:10px;width:92%;\">";
 			_e("The version of the extra fields module that you are using is not compatible with this version of Another Wordpress Classifieds Plugin. Please request the updated files for the extra fields module","AWPCP");
@@ -11127,6 +11119,7 @@ function showad($adid,$omitmenu)
 									</div>
 									$aditemprice
 									$awpcpextrafields
+									<div class=\"fixfloat\"></div>
 									$showadsense1
 									<div class=\"adinfo\"><label>";
 									$awpcpshowthead.=__("More Information","AWPCP");
