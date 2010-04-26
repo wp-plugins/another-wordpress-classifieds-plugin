@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
-Version: 1.0.6.2.1
+Version: 1.0.6.3
 Author: A Lewis
 Author URI: http://www.antisocialmediallc.com
 */
@@ -77,7 +77,7 @@ $nameofsite=get_option('blogname');
 $siteurl=get_option('siteurl');
 $thisadminemail=get_option('admin_email');
 
-$awpcp_db_version = "1.0.6.2.1";
+$awpcp_db_version = "1.0.6.3";
 
 if(field_exists($field='uploadfoldername'))
 {
@@ -10674,7 +10674,7 @@ function display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 						else
 						{
 							$items[]="
-							<div id=\"${awpcpdisplayaditems}\">
+							<div id=\"\$awpcpdisplayaditems\">
 							<div style=\"width:$imgblockwidth;padding:5px;float:left;\">$awpcp_image_name_srccode</div>
 							<div style=\"width:50%;padding:5px;float:left;\"><h4>$ad_title</h4> $addetailssummary...</div>
 							<div style=\"padding:5px;float:left;\"> $awpcpadpostdate $awpcp_city_display $awpcp_state_display $awpcp_display_adviews $awpcp_display_price </div>
