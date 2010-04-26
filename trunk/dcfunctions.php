@@ -32,20 +32,42 @@ function smart_table($array,$table_cols=1,$opentable,$closetable) {
 				$row=0;
 				$total_vals=count($array);
 				$i=1;
-				foreach ($array as $v) {
-					if ((($i-1)%$table_cols)==0) {
-						$myreturn.="<tr>\n";
-						$row++;
+				$awpcpdisplayaditemclass='';
+				
+				
+				if( (isset($opentable) && !empty($opentable)) && (isset($closetable) && !empty($closetable)) )
+				{
+					$usingtable=1;
+				}
+
+					foreach ($array as $v) { 
+					
+					if ($i % 2 == 0) { $awpcpdisplayaditemclass = "displayaditemsodd"; } else { $awpcpdisplayaditemclass = "displayaditemseven"; }				
+
+
+						$v=str_replace("\$awpcpdisplayaditems",$awpcpdisplayaditemclass,$v);
+						if ((($i-1)%$table_cols)==0) 
+						{
+					
+								$myreturn.="<tr>\n";
+						
+							$row++;
+						}
+						
+								$myreturn.="\t<td valign=\"top\">$v</td>\n";
+								
+								if ($i%$table_cols==0) {$myreturn.="</tr>\n";}
+							
+						$i++;
 					}
-					$myreturn.="\t<td valign=\"top\">$v</td>\n";
-					if ($i%$table_cols==0) {$myreturn.="</tr>\n";}
-					$i++;
-				}
-				$rest=($i-1)%$table_cols;
-				if ($rest!=0) {
-					$colspan=$table_cols-$rest;
-					$myreturn.="\t<td".(($colspan==1) ? '' : " colspan=\"$colspan\"")."></td>\n</tr>\n";
-				}
+					$rest=($i-1)%$table_cols;
+					if ($rest!=0) {
+						$colspan=$table_cols-$rest;
+			
+								$myreturn.="\t<td".(($colspan==1) ? '' : " colspan=\"$colspan\"")."></td>\n</tr>\n";
+							
+					}
+				//}
 				$myreturn.="$closetable\n";
 				return $myreturn;
 	}

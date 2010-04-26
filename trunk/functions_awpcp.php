@@ -124,27 +124,34 @@ function checkifisadmin() {
 	global $current_user;
 	get_currentuserinfo();
 
-$thisuserlevel=$current_user->user_level;
-
-if(!isset($thisuserlevel) || empty($thisuserlevel)) {
-
-if(is_admin()) {
-
-	// This is assumptive and here because some users
-	// run plugins that alter the wordpress user_level
-	// structure thereby rendering $current_user->user_level
-	// null and void
-
-	$thisuserlevel = "10";
-
+	if(get_awpcp_option('awpcpadminaccesslevel') == 'admin')
+	{
+		if(current_user_can('install_plugins'))
+		{
+			$isadmin=1;
+		}
+		else
+		{
+			$isadmin=0;
+		}
 	}
-}
+	if(get_awpcp_option('awpcpadminaccesslevel') == 'editor')
+	{
+		if(current_user_can('edit_pages'))
+		{
+			$isadmin=1;
+		}
+		else
+		{
+			$isadmin=0;
+		}
+	}
+	else
+	{
+		$isadmin=0;
+	}
 
-	if($thisuserlevel == '10'){
-		$isadmin=1;
-	} else { $isadmin = 0; }
-
-return $isadmin;
+	return $isadmin;
 
 }
 
@@ -735,7 +742,7 @@ function get_categorynameidall($cat_id = 0)
 						$cat_ID=$rsrow[0];
 						$cat_name=$rsrow[1];
 
-						$opstyle="style=\"background-color:#eeeeee;margin-bottom:3px;\"";
+						$opstyle="class=\"dropdownparentcategory\"";
 
 						if($cat_ID == $cat_id)
 						{
@@ -1112,6 +1119,7 @@ function total_ads_in_cat($catid) {
 global $wpdb,$hasregionsmodule;
 $table_name3 = $wpdb->prefix . "awpcp_ads";
 	$totaladsincat='';
+	$filter='';
 
 
 		if((get_awpcp_option('disablependingads') == 1)  && (get_awpcp_option('freepay') == 1)){
@@ -1425,6 +1433,40 @@ function url_placead()
 		return $url_placead;
 }
 
+function url_classifiedspage()
+{
+	$url_classifiedspage='';
+	$awpcppage=get_currentpagename();
+	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+	$quers=setup_url_structure($awpcppagename);
+	$permastruc=get_option('permalink_structure');
+	$awpcp_pageid=awpcp_get_page_id($awpcppagename);
+					if( get_awpcp_option('seofriendlyurls') )
+					{
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							$url_classifiedspage="$quers/$awpcppagename";
+						}
+						else
+						{
+							$url_classifiedspage="$quers/?page_id=$awpcp_pageid";
+						}
+					}
+					elseif(!(get_awpcp_option('seofriendlyurls') ) )
+					{
+						if(isset($permastruc) && !empty($permastruc))
+						{
+							$url_classifiedspage="$quers/$awpcppagename";
+						}
+						else
+						{
+							$url_classifiedspage="$quers/?page_id=$awpcp_pageid";
+						}
+					}
+
+		return $url_classifiedspage;
+}
+
 function url_searchads()
 {
 	$url_searchad='';
@@ -1678,7 +1720,7 @@ function findpage($pagename,$shortcode) {
 global $wpdb,$table_prefix;
 $myreturn=false;
 
-			 $query="SELECT post_title FROM {$table_prefix}posts WHERE post_title='$pagename' AND post_content='$shortcode'";
+			 $query="SELECT post_title FROM {$table_prefix}posts WHERE post_title='$pagename' AND post_content LIKE '%$shortcode%'";
 			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 				if (mysql_num_rows($res) && mysql_result($res,0,0)) {
 					$myreturn=true;
@@ -1837,8 +1879,8 @@ function doadexpirations(){
 	$awpcpbreak2="<br/><br/>";
 
 
-	if(!renewsubscription($adid))
-	{
+	//if(!renewsubscription($adid))
+	//{
 
 		foreach ($expiredid as $adid)
 		{
@@ -1858,49 +1900,7 @@ function doadexpirations(){
 			if(get_awpcp_option('notifyofadexpiring') == '1')
 			{
 
-				if(send_email($thisadminemail,$awpcpnotifyexpireemail,$awpcpadexpiredsubject,$awpcpadexpiredbody,true))
-				{
-					$awpcpadexpiredemailsent=1;
-				}
-				else
-				{
-					$awpcpadexpiredbody=str_replace("$awpcpbreak1", "\n", $awpcpadexpiredbody);
-					$awpcpadexpiredbody=str_replace("$awpcpbreak2", "\n\n", $awpcpadexpiredbody);
-
-					if((mail($awpcpnotifyexpireemail, $awpcpadexpiredsubject, $awpcpadexpiredbody, $awpcp_from_header)))
-					{
-						$awpcpadexpiredemailsent=1;
-					}
-					else
-					{
-						$awpcp_smtp_host = get_awpcp_option('smtphost');
-						$awpcp_smtp_username = get_awpcp_option('smtpusername');
-						$awpcp_smtp_password = get_awpcp_option('smtppassword');
-
-						$awpcpadexpiredbody=str_replace("$awpcpbreak1", "\n", $awpcpadexpiredbody);
-						$awpcpadexpiredbody=str_replace("$awpcpbreak2", "\n\n", $awpcpadexpiredbody);
-
-						$headers = array ('From' => $awpcp_from_header,
-						  'To' => $awpcpnotifyexpireemail,
-						  'Subject' => $awpcpadexpiredsubject);
-						$smtp = Mail::factory('smtp',
-						  array ('host' => $awpcp_smtp_host,
-							'auth' => true,
-							'username' => $awpcp_smtp_username,
-							'password' => $awpcp_smtp_password));
-
-						$mail = $smtp->send($awpcpnotifyexpireemail, $headers, $awpcpadexpiredbody);
-
-						if (PEAR::isError($mail))
-						{
-						  $awpcpadexpiredemailsent=0;
-						}
-						else
-						{
-							$awpcpadexpiredemailsent=1;
-						}
-					}
-				}
+				@awpcp_process_mail($awpcpsenderemail=$thisadminemail,$awpcpreceiveremail=$awpcpnotifyexpireemail,$awpcpemailsubject=$awpcpadexpiredsubject,$awpcpemailbody=$awpcpadexpiredbody,$awpcpsendername=$nameofsite,$awpcpreplytoemail=$thisadminemail);
 			}
 		}
 
@@ -1943,7 +1943,7 @@ function doadexpirations(){
 				$query="DELETE FROM ".$table_name3." WHERE ad_id IN ('$adstodelete')";
 				@mysql_query($query);
 			}
-	}
+	//}
 
 }
 
@@ -2217,7 +2217,7 @@ $limit=10;}
 
 						$url_showad=url_showad($ad_id);
 
-						$ad_title="<a href=\"$url_showad\">".$rsrow[1]."</a>";
+						$ad_title="<a href=\"$url_showad\">".stripslashes($rsrow[1])."</a>";
 
 
 			echo "<li>$ad_title</li>";
@@ -2241,6 +2241,7 @@ function checkforduplicate($cpagename_awpcp)
 
 	$pageswithawpcpname=array();
 	global $wpdb,$table_prefix;
+	$totalpageswithawpcpname='';
 
 	$query="SELECT ID FROM {$table_prefix}posts WHERE post_name = '$awpcppagename' AND post_type='post'";
 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
@@ -2262,10 +2263,13 @@ function checkfortotalpageswithawpcpname($awpcppage) {
 $awpcppagename = sanitize_title($awpcppage, $post_ID='');
 $totalpageswithawpcpname='';
 
+	$allpageswithawpcppagename=array();
 	$pageswithawpcpname=array();
+	$childpageswithawpcpname=array();
+	
 	global $wpdb,$table_prefix;
 
-	$query="SELECT ID FROM {$table_prefix}posts WHERE post_title='$awpcppage' AND post_name = '$awpcppagename' AND post_content LIKE '%AWPCP%' AND post_type='post'";
+	$query="SELECT ID FROM {$table_prefix}posts WHERE post_title='$awpcppage' AND post_name = '$awpcppagename' AND post_content LIKE '%AWPCP%' AND post_type='page'";
 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 	if (mysql_num_rows($res))
@@ -2273,31 +2277,55 @@ $totalpageswithawpcpname='';
 	 	while ($rsrow=mysql_fetch_row($res))
 	 	{
 	 		$pageswithawpcpname[]=$rsrow[0];
-	 	}
-	 	$totalpageswithawpcpname=count($pageswithawpcpname);
+	 	}	 	
 	}
-
-	if( $totalpageswithawpcpname >= 1 )
+	
+	if(!empty($pageswithawpcpname))
 	{
-
 		foreach ( $pageswithawpcpname as $pagewithawpcpname )
+		{	
+			// Get child pages if any
+			$query="SELECT ID FROM {$table_prefix}posts WHERE post_parent='$pagewithawpcpname' AND post_content LIKE '%AWPCP%'";
+			if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+
+			if (mysql_num_rows($res))
+			{
+				while ($rsrow=mysql_fetch_row($res))
+				{
+					$childpageswithawpcpname[]=$rsrow[0];
+				}	 	
+			}
+		}
+		
+		if(!empty($childpageswithawpcpname))
+		{
+			$allpageswithawpcppagename=array_merge($pageswithawpcpname,$childpageswithawpcpname);
+		}
+		else
+		{
+			$allpageswithawpcppagename=$pageswithawpcpname;
+		}
+	 	
+	 	$totalpageswithawpcpname=count($allpageswithawpcppagename);
+		
+		if( $totalpageswithawpcpname >= 1 )
 		{
 
-			//Delete the pages
-			$query="DELETE FROM {$table_prefix}posts WHERE ID = '$pagewithawpcpname' AND post_type='post' OR (post_parent='$pagewithawpcpname' AND post_content LIKE '%AWPCP%')";
-			@mysql_query($query);
+			foreach ( $allpageswithawpcppagename as $thispagewithawpcpname )
+			{
+				//Delete the pages
+				wp_delete_post( $thispagewithawpcpname, $force_delete = true );
+			}
 
-			//$query="DELETE FROM {$table_prefix}postmeta WHERE post_id = '$pagewithawpcpname'";
-			//@mysql_query($query);
-
-			//$query="DELETE FROM {$table_prefix}comments WHERE comment_post_ID = '$pagewithawpcpname'";
-			//@mysql_query($query);
-
-		}
-
-			deleteuserpageentry($awpcppage);
+				deleteuserpageentry($awpcppage);		
+		}		
 
 	}
+	else
+	{
+		return 0;
+	}
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2350,7 +2378,7 @@ function create_price_dropdownlist_min($searchpricemin)
 			{
 				echo "<option value=\"$pricerangevalue\"";
 
-				if($pricerangevalue == $theawpcphighvalue)
+				if($pricerangevalue == $theawpcplowvalue)
 				{
 					echo "selected ";
 				}
@@ -2865,5 +2893,75 @@ function strip_html_tags( $text )
 // END FUNCTION
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function awpcp_process_mail($awpcpsenderemail,$awpcpreceiveremail,$awpcpemailsubject,$awpcpemailbody,$awpcpsendername,$awpcpreplytoemail)
+{
+
+	
+	$headers =	"MIME-Version: 1.0\n" .
+	"From: $awpcpsendername <$awpcpsenderemail>\n" .
+	"Reply-To: $awpcpreplytoemail\n" .
+	"Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"\n";
+
+	$subject = $awpcpemailsubject;
+
+	$time = date_i18n( __('l F j, Y \a\t g:i a'), current_time( 'timestamp' ) );
+
+	$message = "
+
+	$awpcpemailbody 	
+
+	Time: $time
+
+	";
+	
+		if(wp_mail( $awpcpreceiveremail, $subject, $message, $headers ))
+		{
+			return 1;
+		}
+		elseif( send_email($awpcpsenderemail,$awpcpreceiveremail,$awpcpemailsubject,$awpcpemailbody,true) )
+		{
+			return 1;
+		}
+		elseif( @mail($awpcpreceiveremail, $awpcpemailsubject, $awpcpemailbody, $headers) )
+		{
+			return 1;
+		}
+		else
+		{	
+			// None of the other email methods have worked so try the SMTP
+
+			$awpcp_smtp_host = get_awpcp_option('smtphost');
+			$awpcp_smtp_username = get_awpcp_option('smtpusername');
+			$awpcp_smtp_password = get_awpcp_option('smtppassword');
+			
+
+			if( isset($awpcp_smtp_username) && !empty($awpcp_smtp_username) && isset($awpcp_smtp_password) && !empty($awpcp_smtp_password) && isset($awpcp_smtp_hostname) && !empty($awpcp_smtp_hostname))
+			{		
+				include("Mail.php");
+				$recipients = $awpcpreceiveremail;
+				$mailmsg = $awpcpemailbody;
+				$smtpinfo["host"] = $awpcp_smtp_host;
+				$smtpinfo["port"] = "25";
+				$smtpinfo["auth"] = true;
+				$smtpinfo["username"] = $awpcp_smtp_username;
+				$smtpinfo["password"] = $awpcp_smtp_password;
+				$mail_object =& Mail::factory("smtp", $smtpinfo);
+
+				if($mail_object->send($recipients, $headers, $mailmsg))
+				{
+					return 1;
+				}
+				else
+				{
+					return 0;
+				}
+			}
+			else
+			{
+				return 0;
+			}
+		}
+		
+}
 
 ?>
