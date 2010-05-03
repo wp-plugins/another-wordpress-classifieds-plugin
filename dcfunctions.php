@@ -28,6 +28,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 //---------------------------------------------------------------------------//
 
 function smart_table($array,$table_cols=1,$opentable,$closetable) {
+				$usingtable='';
 		  		$myreturn="$opentable\n";
 				$row=0;
 				$total_vals=count($array);
@@ -46,17 +47,37 @@ function smart_table($array,$table_cols=1,$opentable,$closetable) {
 
 
 						$v=str_replace("\$awpcpdisplayaditems",$awpcpdisplayaditemclass,$v);
+
 						if ((($i-1)%$table_cols)==0) 
 						{
 					
+							if($usingtable)
+							{
 								$myreturn.="<tr>\n";
+							}
 						
 							$row++;
 						}
 						
-								$myreturn.="\t<td valign=\"top\">$v</td>\n";
+							if($usingtable)
+							{
+								$myreturn.="\t<td valign=\"top\">";
+							}
+							
+							$myreturn.="$v";
+							
+							if($usingtable)
+							{
+								$myreturn.="</td>\n";
+							}
 								
-								if ($i%$table_cols==0) {$myreturn.="</tr>\n";}
+								if ($i%$table_cols==0) 
+								{
+									if($usingtable)
+									{								
+										$myreturn.="</tr>\n";
+									}
+								}
 							
 						$i++;
 					}
