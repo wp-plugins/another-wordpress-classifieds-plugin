@@ -6,7 +6,7 @@
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
-Version: 1.0.6.5
+Version: 1.0.6.6
 Author: A Lewis
 Author URI: http://www.antisocialmediallc.com
 */
@@ -71,7 +71,7 @@ $nameofsite=get_option('blogname');
 $siteurl=get_option('siteurl');
 $thisadminemail=get_option('admin_email');
 
-$awpcp_db_version = "1.0.6.5";
+$awpcp_db_version = "1.0.6.6";
 
 if(field_exists($field='uploadfoldername'))
 {
@@ -873,7 +873,7 @@ if($wpdb->get_var("show tables like '$table_name1'") != $table_name1) {
 }
 
 
-function flush_rewrite_rules()
+function awpcp_flush_rewrite_rules()
 {
 global $wp_rewrite;
 $wp_rewrite->flush_rules();
@@ -1627,6 +1627,7 @@ function awpcp_opsconfig_categories()
 
 	$cpagename_awpcp=get_awpcp_option('userpagename');
 	$awpcppagename = sanitize_title($cpagename_awpcp, $post_ID='');
+	$action='';
 
 	$isclassifiedpage = checkifclassifiedpage($cpagename_awpcp);
 	if ($isclassifiedpage == false)
@@ -1963,7 +1964,7 @@ function awpcp_opsconfig_categories()
 
 			 echo "
 			 </div>
-			 <div class=\"postbox\" style=\"width:30%;float:left;padding:10px;$backfont\">
+			 <div class=\"postbox\" style=\"width:30%;float:left;padding:10px;\">
 			 <form method=\"post\" id=\"awpcp_launch\">
 			 <input type=\"hidden\" name=\"category_id\" value=\"$cat_ID\" />
 			  <input type=\"hidden\" name=\"aeaction\" value=\"$aeaction\" />
@@ -2073,7 +2074,7 @@ function awpcp_opsconfig_categories()
 					$closetable.="</td></tr></table>";
 
 					$theitems=smart_table($items,intval($results/$results),$opentable,$closetable);
-					$showcategories.="$theitems";
+					$showcategories="$theitems";
 
 			echo "
 			<style>
@@ -2104,6 +2105,7 @@ function awpcp_manage_viewimages()
 
 	$cpagename_awpcp=get_awpcp_option('userpagename');
 	$awpcppagename = sanitize_title($cpagename_awpcp, $post_ID='');
+	$laction='';
 
 	$isclassifiedpage = checkifclassifiedpage($cpagename_awpcp);
 	if ($isclassifiedpage == false)
@@ -2128,7 +2130,7 @@ function awpcp_manage_viewimages()
 		_e("Below you can manage the images users have uploaded. Your options are to delete images, and in the event you are operating with image approval turned on you can approve or disable images","AWPCP");
 		echo "</p>";
 
-		if ( $_REQUEST['pdel'] ) 
+		if(isset($_REQUEST['pdel']) && !empty( $_REQUEST['pdel'] ) )
 		{ 
 			echo "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">?>";
 			_e("The image was deleted successfully","AWPCP");
@@ -2884,7 +2886,6 @@ function viewimages($where)
 						}
 
 						$approvelink='';
-						if(get_awpcp_option('imagesapprove') == 1){
 
 							if($disabled == 1)
 							{
@@ -2913,7 +2914,7 @@ function viewimages($where)
 								$approvelink.="\" />";
 								$approvelink.="</form>";
 							}
-						}
+	
 
 						$theimages="<a href=\"".AWPCPUPLOADURL."/$image_name\"><img $transval src=\"".AWPCPTHUMBSUPLOADURL."/$image_name\"></a><br/>$dellink $approvelink";
 
@@ -3174,7 +3175,7 @@ if(isset($_REQUEST['savesettings']) && !empty($_REQUEST['savesettings']))
 function maketheclassifiedpage($newuipagename,$makesubpages)
 {
 
-	add_action('init', 'flush_rewrite_rules');
+	add_action('init', 'awpcp_flush_rewrite_rules');
 	global $wpdb,$table_prefix,$wp_rewrite;
 	$table_name6 = $wpdb->prefix . "awpcp_pagename";
 	$pdate = date("Y-m-d");
@@ -3225,7 +3226,7 @@ function maketheclassifiedpage($newuipagename,$makesubpages)
 
 function maketheclassifiedsubpage($theawpcppagename,$awpcpwppostpageid,$awpcpshortcodex)
 {
-	add_action('init', 'flush_rewrite_rules');
+	add_action('init', 'awpcp_flush_rewrite_rules');
 	global $wpdb,$table_prefix,$wp_rewrite;
 
 	$pdate = date("Y-m-d");
@@ -9449,7 +9450,7 @@ function do_paypal($payment_status,$item_name,$item_number,$receiver_email,$quan
 					}
 					else
 					{
-						$message=__("There appears to be a problem. Please contact customer service if you are viewing this page after having made a payment. If you have not tried to make a payment and you are viewing this page, it means you have arrived at this page in error.","AWPCP");
+						$message=__("There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment. If you have not tried to make a payment and you are viewing this message, it means this message is being shown in error and can be disregarded.","AWPCP");
 						$awpcpshowadsample=0;
 						$awpcppaymentresultmessage=abort_payment($message,$ad_id,$txn_id,$gateway);
 
@@ -10117,7 +10118,7 @@ echo "</a></p>";
 //	START FUNCTION: Thank you page to display to user after successfully completing payment via paypal
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function paymentthankyou ()
+function paymentthankyou()
 {
 	$pathvaluepaymentthankyou=get_awpcp_option('pathvaluepaymentthankyou');
 	$permastruc=get_option('permalink_structure');
@@ -10157,7 +10158,7 @@ function paymentthankyou ()
 	{
 		$awpcpayhandler="twocheckout";
 	}
-	if( (isset($_POST['custom']) && !empty($_POST['custom']))  || ( isset($_POST['txn_type']) && !empty($_POST['txn_type'])) || ( isset($_POST['txn_id']) && !empty($_POST['txn_id'])) )
+	if( (isset($_POST['custom']) && !empty($_POST['custom']))  && ( isset($_POST['txn_type']) && !empty($_POST['txn_type'])) && ( isset($_POST['txn_id']) && !empty($_POST['txn_id'])) )
 	{
 		$awpcpayhandler="paypal";
 	}
@@ -10284,15 +10285,16 @@ function paymentthankyou ()
 			}
 		}
 		
+	
 		// If payment verified proceed
 		if ($payment_verified)
 		{
 			do_paypal($payment_status,$item_name,$item_number,$receiver_email,$quantity,$mcgross,$payment_gross,$txn_id,$custom,$txn_type);
 		}
 		else
-		{
-			$message=__("There appears to be a problem. Please contact customer service if you are viewing this page after having made a payment via PayPal. If you have not tried to make a payment and you are viewing this page, it means you have arrived at this page in error.","AWPCP");
-			abort_payment($message,$ad_id,$txn_id,$gateway);
+		{ 
+			$message=__("There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment via PayPal. If you have not tried to make a payment and you are viewing this message, it means this message is being shown in error and can be disregarded.","AWPCP");
+			abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
 		}
 	}
 	elseif($awpcpayhandler == 'twocheckout')
@@ -10338,8 +10340,8 @@ function paymentthankyou ()
 		}
 		else
 		{
-			$message=__("There appears to be a problem. Please contact customer service if you are viewing this page after having made a payment via 2Checkout. If you have not tried to make a payment and you are viewing this page, it means you have arrived at this page in error.","AWPCP");
-			abort_payment($message,$ad_id,$txn_id,$gateway);		
+			$message=__("There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment via 2Checkout. If you have not tried to make a payment and you are viewing this message, it means this message has been sent in error and can be disregarded.","AWPCP");
+			abort_payment_no_email($message,$ad_id,$txn_id,$gateway);		
 		}
 		
 	}
@@ -10352,8 +10354,8 @@ function paymentthankyou ()
 	}
 	else
 	{
-		$message=__("There appears to be a problem. Please contact customer service if you are viewing this page after having made a payment. If you have not tried to make a payment and you are viewing this page, it means you have arrived at this page in error.","AWPCP");
-		abort_payment($message,$ad_id,$txn_id,$gateway);	
+		$message=__("There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment. If you have not tried to make a payment and you are viewing this message, it means this message is being shown in error and can be disregarded.","AWPCP");
+		abort_payment_no_email($message,$ad_id,$txn_id,$gateway);	
 	}
 }
 

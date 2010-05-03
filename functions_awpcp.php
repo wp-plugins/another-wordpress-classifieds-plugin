@@ -148,7 +148,14 @@ function checkifisadmin() {
 	}
 	else
 	{
-		$isadmin=0;
+		if(current_user_can('install_plugins'))
+		{
+			$isadmin=1;
+		}
+		else
+		{
+			$isadmin=0;
+		}
 	}
 
 	return $isadmin;
@@ -691,12 +698,13 @@ $adterm_amount='';
 	{
 
 		global $wpdb;
+		$optionitem='';
 		$table_name1 = $wpdb->prefix . "awpcp_categories";
 
 		if(isset($exclude) && !empty($exclude))
 		{
 			$excludequery="AND category_id !='$exclude'";
-		}
+		}else{$excludequery='';}
 
 	 	$catnid=$wpdb->get_results("select category_id as cat_ID, category_parent_id as cat_parent_ID, category_name as cat_name from ".$table_name1." WHERE category_parent_id='0' AND category_name <> '' $excludequery");
 
@@ -793,6 +801,7 @@ function get_categorynameidall($cat_id = 0)
 	function get_adcatname($cat_ID){
 
 			global $wpdb;
+			$cname='';
 			$table_name1 = $wpdb->prefix . "awpcp_categories";
 
 			if(isset($cat_ID) && (!empty($cat_ID))){
@@ -982,6 +991,7 @@ function get_categorynameidall($cat_id = 0)
 	function get_cat_parent_ID($cat_ID){
 
 			global $wpdb;
+			$cpID='';
 			$table_name1 = $wpdb->prefix . "awpcp_categories";
 
 			if(isset($cat_ID) && (!empty($cat_ID))){
@@ -1899,11 +1909,11 @@ function doadexpirations(){
 
 			if(get_awpcp_option('notifyofadexpiring') == '1')
 			{
-
 				@awpcp_process_mail($awpcpsenderemail=$thisadminemail,$awpcpreceiveremail=$awpcpnotifyexpireemail,$awpcpemailsubject=$awpcpadexpiredsubject,$awpcpemailbody=$awpcpadexpiredbody,$awpcpsendername=$nameofsite,$awpcpreplytoemail=$thisadminemail);
 			}
 		}
 
+			
 			// Delete or disable the ad images
 			if(get_awpcp_option('autoexpiredisabledelete') == 1)
 			{
@@ -2778,6 +2788,20 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: check a specific ad to see if it is disabled or enabled
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function check_ad_fee_paid($adid) {
+global $wpdb;
+$table_name3 = $wpdb->prefix . "awpcp_ads";
+		$adfeeispaid=false;
+		$query="SELECT ad_fee_paid FROM ".$table_name3." WHERE ad_id='$adid'";
+			while ($rsrow=mysql_fetch_row($res))
+			{
+		 		list($ad_fee_paid)=$rsrow;
+			}
+			if($ad_fee_paid > 0){$adfeeispaid=true;}
+
+		return $adfeeispaid;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: get the currency code for price fields
