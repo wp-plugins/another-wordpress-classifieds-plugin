@@ -6,7 +6,7 @@
 Plugin Name: Another Wordpress Classifieds Plugin
 Plugin URI: http://www.awpcp.com
 Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
-Version: 1.0.6.6
+Version: 1.0.6.7
 Author: A Lewis
 Author URI: http://www.antisocialmediallc.com
 */
@@ -71,7 +71,7 @@ $nameofsite=get_option('blogname');
 $siteurl=get_option('siteurl');
 $thisadminemail=get_option('admin_email');
 
-$awpcp_db_version = "1.0.6.6";
+$awpcp_db_version = "1.0.6.7";
 
 if(field_exists($field='uploadfoldername'))
 {
@@ -8229,7 +8229,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 				$ad_id=mysql_insert_id();
 				
 
-				if( (get_awpcp_option('freepay') == 1) && ( $feeamt > 0))
+				if( (get_awpcp_option('freepay') == 1) )
 				{
 					processadstep2_paymode($ad_id,$adterm_id,$key,$awpcpuerror='',$adcontact_name,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$adtitle,$addetails,$adpaymethod,$adaction);
 				}
@@ -8726,6 +8726,10 @@ function display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction,$nex
 	}
 
 	$numimgsleft=($numimgsallowed - $totalimagesuploaded);
+	
+	$awpcp_payment_fee=get_adfee_amount($adterm_id);
+	
+	if($awpcp_payment_fee <= 0){$nextstep ="finish";}
 
 	if($nextstep == 'finishnoform')
 	{
@@ -8870,7 +8874,7 @@ function display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction,$nex
 				$finishbutton.="\"/>
 				</form>";
 				$awpcp_image_upload_form.="$finishbutton";
-				$awpcp_image_upload_form.="</div></div>";
+				$awpcp_image_upload_form.="</div><div class=\"fixfloat\"></div></div>";
 
 
 
@@ -10149,8 +10153,9 @@ function paymentthankyou()
 
 				$adkeyelements = explode("_", $ad_id_key);
 				$ad_id=$adkeyelements[0];
-				if(!isset($key) || empty($key)){$key=$adkeyelements[1];}
-				if(!isset($pproc) || empty($pproc)){$pproc=$adkeyelements[2];}
+				if(isset($adkeyelements[1]) && !empty($adkeyelements[1])){$awpcpadkey=$adkeyelements[1];}else{$awpcpadkey='';}
+				if(isset($adkeyelements[2]) && !empty($adkeyelements[2])){$pproc=$adkeyelements[2];}else{$pproc='';}
+				if(!isset($key) || empty($key)){$key=$awpcpadkey;}
 				
 		}
 	}	
@@ -10179,8 +10184,10 @@ function paymentthankyou()
 
 			$adkeyelements = explode("_", $ad_id_key);
 			$ad_id=$adkeyelements[0];
-			$key=$adkeyelements[1];
-			$pproc=$adkeyelements[2];
+			if(isset($adkeyelements[1]) && !empty($adkeyelements[1])){$awpcpadkey=$adkeyelements[1];}else{$awpcpadkey='';}
+			if(isset($adkeyelements[2]) && !empty($adkeyelements[2])){$pproc=$adkeyelements[2];}else{$pproc='';}
+			if(!isset($key) || empty($key)){$key=$awpcpadkey;}
+
 		}		
 		if(isset($pproc) && !empty($pproc) && ($pproc == 'GCH'))
 		{
@@ -10395,11 +10402,10 @@ function display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 	{
 		echo "<div id=\"classiwrapper\">";
 
-		if($hidepager == 1)
-		{
+
 			$uiwelcome=get_awpcp_option('uiwelcome');
 			echo "<div class=\"uiwelcome\">$uiwelcome</div>";
-		}
+
 
 		$isadmin=checkifisadmin();
 		awpcp_menu_items();
