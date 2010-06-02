@@ -1,9 +1,9 @@
 === Another Wordpress Classifieds Plugin ===
 Contributors: awpcp.com
-Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4459898
-Tags: classifieds,ads,classified ads,classified
+Donate link: http://awpcp.com/donate
+Tags: classifieds,ads,classified ads,classified, awpcp
 Requires at least: 2.7
-Tested up to: 2.9.1
+Tested up to: 2.9.2
 Stable tag: trunk
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your wordpress blog. 
@@ -53,7 +53,7 @@ For more information and support please visit http://awpcp.com
 
 == Credits ==
 
-Copyright 2009 A. Lewis awpcp.com
+Copyright 2009 awpcp.com
 
 AWPCP Classifieds icons courtesy of http://www.famfamfam.com/lab/icons/silk/
 dcfunctions.php courtesy of Dan Caragea http://www.datemill.com
@@ -77,7 +77,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 == Installation ==
 
-!!!IMPORTANT!!! Please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
+!!!IMPORTANT!!! 
+
+<b>Please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.</b>
+
 Pre-installation note: If you have previously tried other classified plugins and you plan to give the classifieds page created by Another Wordpress Classifieds Plugin the same name as previously used with other classifieds plugins you've installed, please make sure your database has been cleared of any entries in the wp_posts table where the post_name value and the post_title value are the same as the name you plan to give your classifieds page.
 For example, if your classifieds page will be named "Classifieds", you might have a wp_posts database entry post_title value of "Classifieds" and post_name value of "classifieds" still left over from previous installations of other classifieds plugins. 
 You need to check your database to make sure data from your previous classifieds plugins does not still exist. Specifically, you need to delete all entries from your wp_posts table where the post_title and post_name values are the same as what you plan to name your classifieds page.
@@ -93,7 +96,7 @@ You need to check your database to make sure data from your previous classifieds
 5. 	After you have created your categories you should setup your payment fees if you are going to be running in pay mode.
 
 
-Your classifieds should now be ready and working. If you are having problems please visit http://www.awpcp.com for help
+Your classifieds should now be ready and working. If you are having problems please visit http://forum.awpcp.com for support, documentation and FAQs.
 
 
 == Screenshots ==
@@ -102,9 +105,6 @@ For screen shots of the application please visit http://www.awpcp.com/features
 
 == Frequently Asked Questions ==
 
-Question: Is this product guaranteed to be free of bugs
-Answer: This product is not guaranteed to be free of bugs. This is an ongoing development project. If you encounter problems using the plugin please considering helping to improve the product by reporting the problems you encounter. 
-
 Question: Will this plugin work with versions of wordpress earlier than 2.7?
 Answer: The plugin has only been tested with version 2.7 and above. If you wish to test it on earlier versions you are free to do so. If you find that it works on an earlier version please consider sharing this information for the benefit of others. At some point in the near future time will be set aside to test the plugin on earlier versions of wordpress.
 
@@ -112,6 +112,7 @@ Question: Does your plugin have any particular requirements for PHP or MySQL ver
 Answer: Yes, you need PHP 5+ and Mysql 5+
 
 
+For support, FAQs and docs: http://forum.awpcp.com
 For more Frequently asked questions about this plugin visit http://www.awpcp.com/category/questions-answers/
 For usage docs: http://www.awpcp.com/about/
 
