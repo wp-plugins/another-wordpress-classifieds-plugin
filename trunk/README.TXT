@@ -10,16 +10,18 @@ Another Wordpress Classifieds Plugin provides the ability for you to add classif
 
 == Description ==
 
-This plugin is designed to allow you to add a classifieds ad section to your blog. You can use it to add pretty much any type of classified ads service that can run under a simplified structure taking some basic information from the user. 
+Thanks for making us the #1 Classifieds Plugin for WordPress!  We're one year old and have 30,000+ downloads!
+
+This plugin is designed to allow you to add a classifieds ad section to your blog. The plugin supports any type of classified ads service that can run under a simple structure, taking some basic information from the user. 
 
 Features:
 
-* You can make it free to post an ad or you can charge a fee. 
-* Paypal and 2checkout built-in (You can use one or the other or both)
-* Users can upload pictures or if you prefer you can turn off this option so users can't upload pictures
-* If running in pay mode you can have multiple payment fee scales 
-* If running in pay mode you can set a different number of pictures users can upload based on a specific fee scale
-* If running in free mode and users can upload pictures you can set a specific value for the number of pictures they can upload
+* Posting ads can be free or paid. 
+* Support for Paypal and 2checkout built-in.  Google Checkout is also supported via Premium Modules.
+* Ads can (optionally) support user-uploaded pictures
+* Ads in Paid Mode supports multiple fee scales 
+* Ads in Paid Mode supports different number of pictures users can upload based on a specific fee scale
+* Ads in Free Mode supports picture upload limits
 * You can control the size of image files users can upload
 * You can turn on image approval so images are hidden until you approve them
 * You can turn on ad approval so ads are hidden until you approve them
@@ -101,7 +103,7 @@ Your classifieds should now be ready and working. If you are having problems ple
 
 == Screenshots ==
 
-For screen shots of the application please visit http://www.awpcp.com/features
+For screen shots of the application, please visit http://www.awpcp.com/features
 
 == Frequently Asked Questions ==
 
@@ -113,7 +115,9 @@ Answer: Yes, you need PHP 5+ and Mysql 5+
 
 
 For support, FAQs and docs: http://forum.awpcp.com
+
 For more Frequently asked questions about this plugin visit http://www.awpcp.com/category/questions-answers/
+
 For usage docs: http://www.awpcp.com/about/
 
 
