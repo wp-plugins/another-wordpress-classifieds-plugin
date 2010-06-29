@@ -4,80 +4,120 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Another Wordpress Classifieds Plugin: This file: functions_awpcp.php
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Debugger helper:
+if(!function_exists('_log')){
+  function _log( $message ) {
+    if( WP_DEBUG === true ){
+      if( is_array( $message ) || is_object( $message ) ){
+        error_log( print_r( $message, true ) );
+      } else {
+        error_log( $message );
+      }
+    }
+  }
+}
+
+////////////////////////////////////////
+// Error handler functions
+////////////////////////////////////////
+function awpcpErrorHandler($errno, $errstr, $errfile, $errline){
+	$output = '';
+	switch ($errno) {
+		case E_USER_ERROR:
+			if ($errstr == "(SQL)"){
+				// handling an sql error
+				$output .= "<b>AWPCP SQL Error</b> Errno: [$errno] SQLError:" . SQLMESSAGE . "<br />\n";
+				$output .= "Query : " . SQLQUERY . "<br />\n";
+				$output .= "Called by line " . SQLERRORLINE . " in file " . SQLERRORFILE . ", error in ".__FILE__." at line ".__LINE__;
+				$output .= ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+				$output .= "Aborting...<br />\n";
+			} else {
+				$output .= "<b>AWPCP PHP Error</b> [$errno] $errstr<br />\n";
+				$output .= "  Fatal error called by line $errline in file $errfile, error in ".__FILE__." at line ".__LINE__;
+				$output .= ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+				$output .= "Aborting...<br />\n";
+			}
+			//Echo OK here:
+			echo $output;
+			exit(1);
+			break;
+
+		case E_USER_WARNING:
+		case E_USER_NOTICE:
+	}
+	/* true=Don't execute PHP internal error handler */
+	return true;
+}
+
+function sqlerrorhandler($ERROR, $QUERY, $PHPFILE, $LINE){
+	define("SQLQUERY", $QUERY);
+	define("SQLMESSAGE", $ERROR);
+	define("SQLERRORLINE", $LINE);
+	define("SQLERRORFILE", $PHPFILE);
+	trigger_error("(SQL)", E_USER_ERROR);
+}
+
+//Error handler installed in main awpcp.php file, after this file is included.
+
+function add_slashes_recursive( $variable )
+{
+    if ( is_string( $variable ) )
+        return addslashes( $variable ) ;
+
+    elseif ( is_array( $variable ) )
+        foreach( $variable as $i => $value )
+            $variable[ $i ] = add_slashes_recursive( $value ) ;
+
+    return $variable ;
+}
+
+function strip_slashes_recursive( $variable )
+{
+    if ( is_string( $variable ) )
+        return stripslashes( $variable ) ;
+    if ( is_array( $variable ) )
+        foreach( $variable as $i => $value )
+            $variable[ $i ] = strip_slashes_recursive( $value ) ;
+   
+    return $variable ;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: retrieve individual options from settings table
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function get_awpcp_option($option) {
+function get_awpcp_setting($column, $option) {
 	global $wpdb;
-	$table_name4 = $wpdb->prefix . "awpcp_adsettings";
+	$tbl_ad_settings = $wpdb->prefix . "awpcp_adsettings";
 	$myreturn=0;
-	$tableexists=checkfortable($table_name4);
+	$tableexists=checkfortable($tbl_ad_settings);
 
 	if($tableexists)
 	{
-		$query="SELECT config_value FROM  ".$table_name4." WHERE config_option='$option'";
-		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+		$query="SELECT ".$column." FROM  ".$tbl_ad_settings." WHERE config_option='$option'";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 		if (mysql_num_rows($res))
 		{
 			$myreturn=mysql_result($res,0,0);
 		}
 	}
 	return $myreturn;
+}
+
+function get_awpcp_option($option) {
+	return get_awpcp_setting('config_value', $option);
 }
 
 function get_awpcp_option_group_id($option) {
-	global $wpdb;
-	$table_name4 = $wpdb->prefix . "awpcp_adsettings";
-	$myreturn=0;
-	$tableexists=checkfortable($table_name4);
-
-	if($tableexists)
-	{
-		$query="SELECT config_group_id FROM  ".$table_name4." WHERE config_option='$option'";
-		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-		if (mysql_num_rows($res))
-		{
-			$myreturn=mysql_result($res,0,0);
-		}
-	}
-	return $myreturn;
+	return get_awpcp_setting('config_group_id', $option);
 }
 
 function get_awpcp_option_type($option) {
-	global $wpdb;
-	$table_name4 = $wpdb->prefix . "awpcp_adsettings";
-	$myreturn=0;
-	$tableexists=checkfortable($table_name4);
-
-	if($tableexists)
-	{
-		$query="SELECT option_type FROM  ".$table_name4." WHERE config_option='$option'";
-		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-		if (mysql_num_rows($res))
-		{
-			$myreturn=mysql_result($res,0,0);
-		}
-	}
-	return $myreturn;
+	return get_awpcp_setting('option_type', $option);
 }
 
 function get_awpcp_option_config_diz($option) {
-	global $wpdb;
-	$table_name4 = $wpdb->prefix . "awpcp_adsettings";
-	$myreturn=0;
-	$tableexists=checkfortable($table_name4);
-
-	if($tableexists)
-	{
-		$query="SELECT config_diz FROM  ".$table_name4." WHERE config_option='$option'";
-		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-		if (mysql_num_rows($res))
-		{
-			$myreturn=mysql_result($res,0,0);
-		}
-	}
-	return $myreturn;
+	return get_awpcp_setting('config_diz', $option);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,28 +128,17 @@ function awpcp_is_classifieds()
 {
 	global $post,$table_prefix;
 	$awpcppageid=$post->ID;
-
-
 	$classifiedspagecontent="[AWPCPCLASSIFIEDSUI]";
 
-
 	$query="SELECT post_content FROM {$table_prefix}posts WHERE ID='$awpcppageid' AND post_type='page' AND post_status='publish'";
-	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
 	while ($rsrow=mysql_fetch_row($res))
 	{
-	 	list($thepostcontentvalue)=$rsrow;
+		list($thepostcontentvalue)=$rsrow;
 	}
 
-	if(strcasecmp($thepostcontentvalue, $classifiedspagecontent) == 0)
-	{
-		$istheclassifiedspage=true;
-	}
-	else
-	{
-		$istheclassifiedspage=false;
-	}
-
+	$istheclassifiedspage= (strcasecmp($thepostcontentvalue, $classifiedspagecontent) == 0);
 	return $istheclassifiedspage;
 
 }
@@ -117,8 +146,6 @@ function awpcp_is_classifieds()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: Check if the user is an admin
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 function checkifisadmin() {
 
 	global $current_user;
@@ -167,12 +194,23 @@ function checkifisadmin() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function awpcpistableempty($table){
-
-global $wpdb;
+	global $wpdb;
 
 	$myreturn=true;
 	$query="SELECT count(*) FROM ".$table."";
-	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	if (mysql_num_rows($res) && mysql_result($res,0,0)) {
+		$myreturn=false;
+	}
+	return $myreturn;
+}
+
+function awpcpisqueryempty($table, $where){
+	global $wpdb;
+
+	$myreturn=true;
+	$query="SELECT count(*) FROM ".$table." ".$where;
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 	if (mysql_num_rows($res) && mysql_result($res,0,0)) {
 		$myreturn=false;
 	}
@@ -184,15 +222,10 @@ global $wpdb;
 
 function adtermsset(){
 
-global $wpdb;
-$table_name2 = $wpdb->prefix . "awpcp_adfees";
+	global $wpdb;
+	$tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
 
-	$myreturn=false;
-	$query="SELECT count(*) FROM ".$table_name2."";
-	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
-	if (mysql_num_rows($res) && mysql_result($res,0,0)) {
-		$myreturn=true;
-	}
+	$myreturn=!awpcpistableempty($tbl_ad_fees);
 	return $myreturn;
 }
 
@@ -202,16 +235,16 @@ $table_name2 = $wpdb->prefix . "awpcp_adfees";
 
 function get_2co_prodid($adterm_id) {
 
-global $wpdb;
-$table_name2 = $wpdb->prefix . "awpcp_adfees";
+	global $wpdb;
+	$tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
 
-$twoco_pid='';
+	$twoco_pid='';
 
-$query="SELECT twoco_pid from ".$table_name2." WHERE adterm_id='$adterm_id'";
-if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	$query="SELECT twoco_pid from ".$tbl_ad_fees." WHERE adterm_id='$adterm_id'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 	while ($rsrow=mysql_fetch_row($res))
 	{
- 		list($twoco_pid)=$rsrow;
+		list($twoco_pid)=$rsrow;
 	}
 
 	return $twoco_pid;
@@ -223,15 +256,10 @@ if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 function categoriesexist(){
 
-global $wpdb;
-$table_name1 = $wpdb->prefix . "awpcp_categories";
+	global $wpdb;
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 
-	$myreturn=false;
-	$query="SELECT count(*) FROM ".$table_name1."";
-	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
-	if (mysql_num_rows($res) && mysql_result($res,0,0)) {
-		$myreturn=true;
-	}
+	$myreturn=!awpcpistableempty($tbl_categories);
 	return $myreturn;
 }
 
@@ -242,16 +270,10 @@ $table_name1 = $wpdb->prefix . "awpcp_categories";
 
 function adtermidinuse($adterm_id)
 {
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
-
-	$myreturn=false;
-	$query="SELECT count(*) FROM ".$table_name3." WHERE adterm_id='$adterm_id'";
-	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-	if (mysql_num_rows($res) && mysql_result($res,0,0)) {
-		$myreturn=true;
-	}
+	$myreturn=!awpcpisqueryempty($tbl_ads, " WHERE adterm_id='$adterm_id'");
 	return $myreturn;
 }
 
@@ -261,15 +283,15 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 
 function countlistings(){
 
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
 	$totallistings='';
 
-	$query="SELECT count(*) FROM ".$table_name3."";
-	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	$query="SELECT count(*) FROM ".$tbl_ads."";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 	while ($rsrow=mysql_fetch_row($res)) {
-	 	list($totallistings)=$rsrow;
+		list($totallistings)=$rsrow;
 	}
 	return $totallistings;
 }
@@ -284,15 +306,15 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 
 function countcategories(){
 
-global $wpdb;
-$table_name1 = $wpdb->prefix . "awpcp_categories";
+	global $wpdb;
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 
 	$totalcategories='';
 
-	$query="SELECT count(*) FROM ".$table_name1."";
-	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	$query="SELECT count(*) FROM ".$tbl_categories."";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 	while ($rsrow=mysql_fetch_row($res)) {
-	 	list($totalcategories)=$rsrow;
+		list($totalcategories)=$rsrow;
 	}
 	return $totalcategories;
 }
@@ -307,14 +329,14 @@ $table_name1 = $wpdb->prefix . "awpcp_categories";
 
 function countcategoriesparents(){
 
-global $wpdb;
-$table_name1 = $wpdb->prefix . "awpcp_categories";
+	global $wpdb;
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 
 	$totalparentcategories='';
-	$query="SELECT count(*) FROM ".$table_name1." WHERE category_parent_id='0'";
-	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	$query="SELECT count(*) FROM ".$tbl_categories." WHERE category_parent_id='0'";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 	while ($rsrow=mysql_fetch_row($res)) {
-	 	list($totalparentcategories)=$rsrow;
+		list($totalparentcategories)=$rsrow;
 	}
 	return $totalparentcategories;
 }
@@ -329,14 +351,14 @@ $table_name1 = $wpdb->prefix . "awpcp_categories";
 
 function countcategorieschildren(){
 
-global $wpdb;
-$table_name1 = $wpdb->prefix . "awpcp_categories";
+	global $wpdb;
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 
 	$totalchildrencategories='';
-	$query="SELECT count(*) FROM ".$table_name1." WHERE category_parent_id!='0'";
-	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	$query="SELECT count(*) FROM ".$tbl_categories." WHERE category_parent_id!='0'";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 	while ($rsrow=mysql_fetch_row($res)) {
-	 	list($totalchildrencategories)=$rsrow;
+		list($totalchildrencategories)=$rsrow;
 	}
 	return $totalchildrencategories;
 }
@@ -350,13 +372,13 @@ $table_name1 = $wpdb->prefix . "awpcp_categories";
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function get_numimgsallowed($adtermid){
-global $wpdb;
-$table_name2 = $wpdb->prefix . "awpcp_adfees";
-$imagesallowed='';
-$query="SELECT imagesallowed FROM ".$table_name2." WHERE adterm_id='$adtermid'";
-if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	global $wpdb;
+	$tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
+	$imagesallowed='';
+	$query="SELECT imagesallowed FROM ".$tbl_ad_fees." WHERE adterm_id='$adtermid'";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 	while ($rsrow=mysql_fetch_row($res)) {
-	list($imagesallowed)=$rsrow;
+		list($imagesallowed)=$rsrow;
 	}
 	return $imagesallowed;
 }
@@ -372,20 +394,20 @@ if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
 
 function ad_term_id_set($adid)
 {
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-$myreturn=false;
+	$myreturn=false;
 
-			 $query="SELECT adterm_id from ".$table_name3." WHERE ad_id='$adid'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($adterm_id)=$rsrow;
-				}
-				if($adterm_id > 0)
-				{
-					$myreturn=true;
-				}
+	$query="SELECT adterm_id from ".$tbl_ads." WHERE ad_id='$adid'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($adterm_id)=$rsrow;
+	}
+	if($adterm_id > 0)
+	{
+		$myreturn=true;
+	}
 
 	return $myreturn;;
 
@@ -404,15 +426,15 @@ $myreturn=false;
 
 function get_total_imagesuploaded($ad_id) {
 
-global $wpdb;
-$table_name5 = $wpdb->prefix . "awpcp_adphotos";
+	global $wpdb;
+	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 
-$totalimagesuploaded='';
+	$totalimagesuploaded='';
 
-	$query="SELECT count(*) FROM ".$table_name5." WHERE ad_id='$ad_id'";
-	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	$query="SELECT count(*) FROM ".$tbl_ad_photos." WHERE ad_id='$ad_id'";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 	while ($rsrow=mysql_fetch_row($res)) {
-	 	list($totalimagesuploaded)=$rsrow;
+		list($totalimagesuploaded)=$rsrow;
 	}
 	return $totalimagesuploaded;
 
@@ -428,15 +450,15 @@ $totalimagesuploaded='';
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function get_num_days_in_term($adtermid) {
-$numdaysinterm='';
-global $wpdb;
-$table_name2 = $wpdb->prefix . "awpcp_adfees";
+	$numdaysinterm='';
+	global $wpdb;
+	$tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
 
-			 $query="SELECT rec_period from ".$table_name2." WHERE adterm_id='$adtermid'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($numdaysinterm)=$rsrow;
-				}
+	$query="SELECT rec_period from ".$tbl_ad_fees." WHERE adterm_id='$adtermid'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($numdaysinterm)=$rsrow;
+	}
 	return $numdaysinterm;
 }
 
@@ -450,16 +472,16 @@ $table_name2 = $wpdb->prefix . "awpcp_adfees";
 
 function get_adterm_id($adid) {
 
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-$adterm_id='';
+	$adterm_id='';
 
-			 $query="SELECT adterm_id from ".$table_name3." WHERE ad_id='$adid'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($adterm_id)=$rsrow;
-				}
+	$query="SELECT adterm_id from ".$tbl_ads." WHERE ad_id='$adid'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($adterm_id)=$rsrow;
+	}
 	return $adterm_id;
 }
 
@@ -473,16 +495,16 @@ $adterm_id='';
 
 function get_adterm_name($adterm_id) {
 
-global $wpdb;
-$table_name2 = $wpdb->prefix . "awpcp_adfees";
+	global $wpdb;
+	$tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
 
-$adterm_name='';
+	$adterm_name='';
 
-			 $query="SELECT adterm_name from ".$table_name2." WHERE adterm_id='$adterm_id'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($adterm_name)=$rsrow;
-				}
+	$query="SELECT adterm_name from ".$tbl_ad_fees." WHERE adterm_id='$adterm_id'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($adterm_name)=$rsrow;
+	}
 	return $adterm_name;
 }
 
@@ -496,16 +518,16 @@ $adterm_name='';
 
 function get_fee_recperiod($adterm_id) {
 
-global $wpdb;
-$table_name2 = $wpdb->prefix . "awpcp_adfees";
+	global $wpdb;
+	$tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
 
-$recperiod='';
+	$recperiod='';
 
-			 $query="SELECT rec_period from ".$table_name2." WHERE adterm_id='$adterm_id'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($recperiod)=$rsrow;
-				}
+	$query="SELECT rec_period from ".$tbl_ad_fees." WHERE adterm_id='$adterm_id'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($recperiod)=$rsrow;
+	}
 	return $recperiod;
 }
 
@@ -520,15 +542,15 @@ $recperiod='';
 
 function get_adpostername($adid) {
 
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-$adpostername='';
-			 $query="SELECT ad_contact_name from ".$table_name3." WHERE ad_id='$adid'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($adpostername)=$rsrow;
-				}
+	$adpostername='';
+	$query="SELECT ad_contact_name from ".$tbl_ads." WHERE ad_id='$adid'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($adpostername)=$rsrow;
+	}
 
 	return $adpostername;
 }
@@ -543,16 +565,16 @@ $adpostername='';
 
 function get_adkey($adid) {
 
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-$adkey='';
+	$adkey='';
 
-			 $query="SELECT ad_key from ".$table_name3." WHERE ad_id='$adid'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($adkey)=$rsrow;
-				}
+	$query="SELECT ad_key from ".$tbl_ads." WHERE ad_id='$adid'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($adkey)=$rsrow;
+	}
 	return $adkey;
 }
 
@@ -565,15 +587,15 @@ $adkey='';
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function get_adcontactbyem($email) {
-$adcontact='';
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$adcontact='';
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-			 $query="SELECT ad_contact_name from ".$table_name3." WHERE ad_contact_email='$email'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($adcontact)=$rsrow;
-				}
+	$query="SELECT ad_contact_name from ".$tbl_ads." WHERE ad_contact_email='$email'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($adcontact)=$rsrow;
+	}
 	return $adcontact;
 
 }
@@ -587,15 +609,15 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function get_adtitlebyem($email) {
-$adtitle='';
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$adtitle='';
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-			 $query="SELECT ad_title from ".$table_name3." WHERE ad_contact_email='$email'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($adtitle)=$rsrow;
-				}
+	$query="SELECT ad_title from ".$tbl_ads." WHERE ad_contact_email='$email'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($adtitle)=$rsrow;
+	}
 	return $adtitle;
 
 }
@@ -610,16 +632,16 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 
 function get_adposteremail($adid) {
 
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-$adposteremail='';
+	$adposteremail='';
 
-			 $query="SELECT ad_contact_email from ".$table_name3." WHERE ad_id='$adid'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($adposteremail)=$rsrow;
-				}
+	$query="SELECT ad_contact_email from ".$tbl_ads." WHERE ad_id='$adid'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($adposteremail)=$rsrow;
+	}
 	return $adposteremail;
 }
 
@@ -634,16 +656,16 @@ $adposteremail='';
 function get_numtimesadviewd($adid)
 {
 
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-$numtimesadviewed='';
+	$numtimesadviewed='';
 
-			 $query="SELECT ad_views from ".$table_name3." WHERE ad_id='$adid'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($numtimesadviewed)=$rsrow;
-				}
+	$query="SELECT ad_views from ".$tbl_ads." WHERE ad_id='$adid'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($numtimesadviewed)=$rsrow;
+	}
 	return $numtimesadviewed;
 
 }
@@ -659,16 +681,16 @@ $numtimesadviewed='';
 
 function get_adtitle($adid) {
 
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-$adtitle='';
+	$adtitle='';
 
-			 $query="SELECT ad_title from ".$table_name3." WHERE ad_id='$adid'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($adtitle)=$rsrow;
-				}
+	$query="SELECT ad_title from ".$tbl_ads." WHERE ad_id='$adid'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($adtitle)=$rsrow;
+	}
 	return $adtitle;
 }
 
@@ -683,16 +705,16 @@ $adtitle='';
 
 function get_adfee_amount($adterm_id) {
 
-global $wpdb;
-$table_name2 = $wpdb->prefix . "awpcp_adfees";
+	global $wpdb;
+	$tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
 
-$adterm_amount='';
+	$adterm_amount='';
 
-			 $query="SELECT amount from ".$table_name2." WHERE adterm_id='$adterm_id'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($adterm_amount)=$rsrow;
-				}
+	$query="SELECT amount from ".$tbl_ad_fees." WHERE adterm_id='$adterm_id'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($adterm_amount)=$rsrow;
+	}
 	return $adterm_amount;
 }
 
@@ -705,36 +727,36 @@ $adterm_amount='';
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	function get_categorynameid($cat_id = 0,$cat_parent_id= 0,$exclude)
+function get_categorynameid($cat_id = 0,$cat_parent_id= 0,$exclude)
+{
+
+	global $wpdb;
+	$optionitem='';
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
+
+	if(isset($exclude) && !empty($exclude))
+	{
+		$excludequery="AND category_id !='$exclude'";
+	}else{$excludequery='';}
+
+	$catnid=$wpdb->get_results("select category_id as cat_ID, category_parent_id as cat_parent_ID, category_name as cat_name from ".$tbl_categories." WHERE category_parent_id='0' AND category_name <> '' $excludequery");
+
+	foreach($catnid as $categories)
 	{
 
-		global $wpdb;
-		$optionitem='';
-		$table_name1 = $wpdb->prefix . "awpcp_categories";
-
-		if(isset($exclude) && !empty($exclude))
+		if($categories->cat_ID == $cat_parent_id)
 		{
-			$excludequery="AND category_id !='$exclude'";
-		}else{$excludequery='';}
+			$optionitem .= "<option selected value='$categories->cat_ID'>$categories->cat_name</option>";
+		}
+		else
+		{
+			$optionitem .= "<option value='$categories->cat_ID'>$categories->cat_name</option>";
+		}
 
-	 	$catnid=$wpdb->get_results("select category_id as cat_ID, category_parent_id as cat_parent_ID, category_name as cat_name from ".$table_name1." WHERE category_parent_id='0' AND category_name <> '' $excludequery");
-
-	 	foreach($catnid as $categories)
-	 	{
-
-	  	if($categories->cat_ID == $cat_parent_id)
-	   	{
-	   		$optionitem .= "<option selected value='$categories->cat_ID'>$categories->cat_name</option>";
-	   	}
-	  	else
-	   	{
-	   		$optionitem .= "<option value='$categories->cat_ID'>$categories->cat_name</option>";
-	   	}
-
-	 	}
-
-	 	return $optionitem;
 	}
+
+	return $optionitem;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: create list of top level categories for admin category management
@@ -745,61 +767,61 @@ $adterm_amount='';
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function get_categorynameidall($cat_id = 0)
+{
+
+	global $wpdb;
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
+	$optionitem='';
+
+	// Start with the main categories
+
+	$query="SELECT category_id,category_name FROM ".$tbl_categories." WHERE category_parent_id='0' and category_name <> '' ORDER BY category_name ASC";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+
+	while ($rsrow=mysql_fetch_row($res)) {
+
+		$cat_ID=$rsrow[0];
+		$cat_name=$rsrow[1];
+
+		$opstyle="class=\"dropdownparentcategory\"";
+
+		if($cat_ID == $cat_id)
 		{
+			$maincatoptionitem = "<option $opstyle selected value='$cat_ID'>$cat_name</option>";
+		}
+		else {
+			$maincatoptionitem = "<option $opstyle value='$cat_ID'>$cat_name</option>";
+		}
 
-			global $wpdb;
-			$table_name1 = $wpdb->prefix . "awpcp_categories";
-			$optionitem='';
+		$optionitem.="$maincatoptionitem";
 
-			// Start with the main categories
+		// While still looping through main categories get any sub categories of the main category
 
-			$query="SELECT category_id,category_name FROM ".$table_name1." WHERE category_parent_id='0' and category_name <> '' ORDER BY category_name ASC";
-			if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+		$maincatid=$cat_ID;
 
-					while ($rsrow=mysql_fetch_row($res)) {
+		$query="SELECT category_id,category_name FROM ".$tbl_categories." WHERE category_parent_id='$maincatid' ORDER BY category_name ASC";
+		if (!($res2=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-						$cat_ID=$rsrow[0];
-						$cat_name=$rsrow[1];
-
-						$opstyle="class=\"dropdownparentcategory\"";
-
-						if($cat_ID == $cat_id)
-						{
-							$maincatoptionitem = "<option $opstyle selected value='$cat_ID'>$cat_name</option>";
-						}
-						else {
-							$maincatoptionitem = "<option $opstyle value='$cat_ID'>$cat_name</option>";
-						}
-
-						$optionitem.="$maincatoptionitem";
-
-						// While still looping through main categories get any sub categories of the main category
-
-						$maincatid=$cat_ID;
-
-		   					$query="SELECT category_id,category_name FROM ".$table_name1." WHERE category_parent_id='$maincatid' ORDER BY category_name ASC";
-							if (!($res2=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-
-							while ($rsrow2=mysql_fetch_row($res2)) {
+		while ($rsrow2=mysql_fetch_row($res2)) {
 
 
-								$subcat_ID=$rsrow2[0];
-								$subcat_name=$rsrow2[1];
+			$subcat_ID=$rsrow2[0];
+			$subcat_name=$rsrow2[1];
 
-								if($subcat_ID == $cat_id)
-								{
-									$subcatoptionitem = "<option selected value='$subcat_ID'>$subcat_name</option>";
-								}
-								else {
-									$subcatoptionitem = "<option  value='$subcat_ID'>$subcat_name</option>";
-								}
+			if($subcat_ID == $cat_id)
+			{
+				$subcatoptionitem = "<option selected value='$subcat_ID'>$subcat_name</option>";
+			}
+			else {
+				$subcatoptionitem = "<option  value='$subcat_ID'>$subcat_name</option>";
+			}
 
-								$optionitem.="$subcatoptionitem";
-							}
-		   			}
-
-		 	return $optionitem;
+			$optionitem.="$subcatoptionitem";
+		}
 	}
+
+	return $optionitem;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: create drop down list of categories for ad post form
@@ -809,21 +831,37 @@ function get_categorynameidall($cat_id = 0)
 // START FUNCTION: Retrieve the category name
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	function get_adcatname($cat_ID){
+function get_adcatname($cat_ID){
 
-			global $wpdb;
-			$cname='';
-			$table_name1 = $wpdb->prefix . "awpcp_categories";
+	global $wpdb;
+	$cname='';
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 
-			if(isset($cat_ID) && (!empty($cat_ID))){
-			 $query="SELECT category_name from ".$table_name1." WHERE category_id='$cat_ID'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($cname)=$rsrow;
-				}
-			}
-			return $cname;
+	if(isset($cat_ID) && (!empty($cat_ID))){
+		$query="SELECT category_name from ".$tbl_categories." WHERE category_id='$cat_ID'";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+		while ($rsrow=mysql_fetch_row($res)) {
+			list($cname)=$rsrow;
+		}
 	}
+	return $cname;
+}
+
+function get_adcatorder($cat_ID){
+
+	global $wpdb;
+	$cname='';
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
+
+	if(isset($cat_ID) && (!empty($cat_ID))){
+		$query="SELECT category_order from ".$tbl_categories." WHERE category_id='$cat_ID'";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+		while ($rsrow=mysql_fetch_row($res)) {
+			list($cname)=$rsrow;
+		}
+	}
+	return $cname;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: get the category name
@@ -833,22 +871,22 @@ function get_categorynameidall($cat_id = 0)
 // START FUNCTION: Retrieve the country associated with a specific ad
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	function get_adcountryvalue($adid){
+function get_adcountryvalue($adid){
 
-			global $wpdb;
-			$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-			$theadcountry='';
+	$theadcountry='';
 
-			if(isset($adid) && (!empty($adid))){
-			 $query="SELECT ad_country from ".$table_name3." WHERE ad_id='$adid'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($theadcountry)=$rsrow;
-				}
-			}
-			return $theadcountry;
+	if(isset($adid) && (!empty($adid))){
+		$query="SELECT ad_country from ".$tbl_ads." WHERE ad_id='$adid'";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+		while ($rsrow=mysql_fetch_row($res)) {
+			list($theadcountry)=$rsrow;
+		}
 	}
+	return $theadcountry;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: Retrieve the country associated with a specific ad
@@ -859,22 +897,22 @@ function get_categorynameidall($cat_id = 0)
 // START FUNCTION: Retrieve the state associated with a specific ad
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	function get_adstatevalue($adid){
+function get_adstatevalue($adid){
 
-			global $wpdb;
-			$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-			$theadstate='';
+	$theadstate='';
 
-			if(isset($adid) && (!empty($adid))){
-			 $query="SELECT ad_state from ".$table_name3." WHERE ad_id='$adid'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($theadstate)=$rsrow;
-				}
-			}
-			return $theadstate;
+	if(isset($adid) && (!empty($adid))){
+		$query="SELECT ad_state from ".$tbl_ads." WHERE ad_id='$adid'";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+		while ($rsrow=mysql_fetch_row($res)) {
+			list($theadstate)=$rsrow;
+		}
 	}
+	return $theadstate;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: Retrieve the state associated with a specific ad
@@ -885,22 +923,22 @@ function get_categorynameidall($cat_id = 0)
 // START FUNCTION: Retrieve the city associated with a specific ad
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	function get_adcityvalue($adid){
+function get_adcityvalue($adid){
 
-			global $wpdb;
-			$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-			$theadcity='';
+	$theadcity='';
 
-			if(isset($adid) && (!empty($adid))){
-			 $query="SELECT ad_city from ".$table_name3." WHERE ad_id='$adid'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($theadcity)=$rsrow;
-				}
-			}
-			return $theadcity;
+	if(isset($adid) && (!empty($adid))){
+		$query="SELECT ad_city from ".$tbl_ads." WHERE ad_id='$adid'";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+		while ($rsrow=mysql_fetch_row($res)) {
+			list($theadcity)=$rsrow;
+		}
 	}
+	return $theadcity;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: Retrieve the city associated with a specific ad
@@ -910,22 +948,22 @@ function get_categorynameidall($cat_id = 0)
 // START FUNCTION: Retrieve the city associated with a specific ad
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	function get_adcountyvillagevalue($adid){
+function get_adcountyvillagevalue($adid){
 
-			global $wpdb;
-			$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-			$theadcountyvillage='';
+	$theadcountyvillage='';
 
-			if(isset($adid) && (!empty($adid))){
-			 $query="SELECT ad_county_village from ".$table_name3." WHERE ad_id='$adid'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($theadcountyvillage)=$rsrow;
-				}
-			}
-			return $theadcountyvillage;
+	if(isset($adid) && (!empty($adid))){
+		$query="SELECT ad_county_village from ".$tbl_ads." WHERE ad_id='$adid'";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+		while ($rsrow=mysql_fetch_row($res)) {
+			list($theadcountyvillage)=$rsrow;
+		}
 	}
+	return $theadcountyvillage;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: Retrieve the city associated with a specific ad
@@ -936,22 +974,22 @@ function get_categorynameidall($cat_id = 0)
 // START FUNCTION: Retrieve the category associated with a specific ad
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	function get_adcategory($adid){
+function get_adcategory($adid){
 
-			global $wpdb;
-			$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-			$theadcategoryid='';
+	$theadcategoryid='';
 
-			if(isset($adid) && (!empty($adid))){
-			 $query="SELECT ad_category_id from ".$table_name3." WHERE ad_id='$adid'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($theadcategoryid)=$rsrow;
-				}
-			}
-			return $theadcategoryid;
+	if(isset($adid) && (!empty($adid))){
+		$query="SELECT ad_category_id from ".$tbl_ads." WHERE ad_id='$adid'";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+		while ($rsrow=mysql_fetch_row($res)) {
+			list($theadcategoryid)=$rsrow;
+		}
 	}
+	return $theadcategoryid;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: Retrieve the category associated with a specific ad
@@ -963,33 +1001,33 @@ function get_categorynameidall($cat_id = 0)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-		function get_adparentcatname($cat_ID){
+function get_adparentcatname($cat_ID){
 
-			global $wpdb;
-			$table_name1 = $wpdb->prefix . "awpcp_categories";
-			$cname='';
+	global $wpdb;
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
+	$cname='';
 
-			if($cat_ID == '0')
-			{
-				$cname="Top Level Category";
-			}
-
-			else
-			{
-
-				if(isset($cat_ID) && (!empty($cat_ID)))
-				{
-			 		$query="SELECT category_name from ".$table_name1." WHERE category_id='$cat_ID'";
-			 		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-
- 						while ($rsrow=mysql_fetch_row($res))
- 						{
- 							list($cname)=$rsrow;
-						}
-				}
-			}
-			return $cname;
+	if($cat_ID == '0')
+	{
+		$cname="Top Level Category";
 	}
+
+	else
+	{
+
+		if(isset($cat_ID) && (!empty($cat_ID)))
+		{
+			$query="SELECT category_name from ".$tbl_categories." WHERE category_id='$cat_ID'";
+			if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+
+			while ($rsrow=mysql_fetch_row($res))
+			{
+				list($cname)=$rsrow;
+			}
+		}
+	}
+	return $cname;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: get the name of the category parent
@@ -999,21 +1037,21 @@ function get_categorynameidall($cat_id = 0)
 // START FUNCTION: Retrieve the parent category ID
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	function get_cat_parent_ID($cat_ID){
+function get_cat_parent_ID($cat_ID){
 
-			global $wpdb;
-			$cpID='';
-			$table_name1 = $wpdb->prefix . "awpcp_categories";
+	global $wpdb;
+	$cpID='';
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 
-			if(isset($cat_ID) && (!empty($cat_ID))){
-			 $query="SELECT category_parent_id from ".$table_name1." WHERE category_id='$cat_ID'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res)) {
- 					list($cpID)=$rsrow;
-				}
-			}
-			return $cpID;
+	if(isset($cat_ID) && (!empty($cat_ID))){
+		$query="SELECT category_parent_id from ".$tbl_categories." WHERE category_id='$cat_ID'";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+		while ($rsrow=mysql_fetch_row($res)) {
+			list($cpID)=$rsrow;
+		}
 	}
+	return $cpID;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: get the ID or the category parent
@@ -1024,16 +1062,10 @@ function get_categorynameidall($cat_id = 0)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function isdupetransid($transid){
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
-
-	$myreturn=false;
-	$query="SELECT count(*) FROM ".$table_name3." WHERE ad_transaction_id='$transid'";
-	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
-	if (mysql_num_rows($res) && mysql_result($res,0,0)) {
-		$myreturn=true;
-	}
+	$myreturn=!awpcpisqueryempty($tbl_ads, " WHERE ad_transaction_id='$transid'");
 	return $myreturn;
 }
 
@@ -1047,14 +1079,9 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 
 
 function ads_exist() {
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
-	$myreturn=false;
-	$query="SELECT count(*) FROM ".$table_name3."";
-	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
-	if (mysql_num_rows($res) && mysql_result($res,0,0)) {
-		$myreturn=true;
-	}
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
+	$myreturn=!awpcpistableempty($tbl_ads);
 	return $myreturn;
 }
 
@@ -1068,14 +1095,9 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 
 
 function ads_exist_cat($catid) {
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
-	$myreturn=false;
-	$query="SELECT count(*) FROM ".$table_name3." WHERE ad_category_id='$catid' OR ad_category_parent_id='$catid'";
-	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
-	if (mysql_num_rows($res) && mysql_result($res,0,0)) {
-		$myreturn=true;
-	}
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
+	$myreturn=!awpcpisqueryempty($tbl_ads, " WHERE ad_category_id='$catid' OR ad_category_parent_id='$catid'");
 	return $myreturn;
 }
 
@@ -1089,14 +1111,9 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 
 
 function category_has_children($catid) {
-global $wpdb;
-$table_name1 = $wpdb->prefix . "awpcp_categories";
-	$myreturn=false;
-	$query="SELECT count(*) FROM ".$table_name1." WHERE category_parent_id='$catid'";
-	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
-	if (mysql_num_rows($res) && mysql_result($res,0,0)) {
-		$myreturn=true;
-	}
+	global $wpdb;
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
+	$myreturn=!awpcpisqueryempty($tbl_categories, " WHERE category_parent_id='$catid'");
 	return $myreturn;
 }
 
@@ -1110,19 +1127,19 @@ $table_name1 = $wpdb->prefix . "awpcp_categories";
 
 
 function category_is_child($catid) {
-global $wpdb;
-$table_name1 = $wpdb->prefix . "awpcp_categories";
+	global $wpdb;
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 	$myreturn=false;
 
-	$query="SELECT category_parent_id FROM ".$table_name1." WHERE category_id='$catid'";
-	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
-		while ($rsrow=mysql_fetch_row($res)) {
- 			list($cparentid)=$rsrow;
- 			if( $cparentid != '0' )
- 			{
- 				$myreturn=true;
- 			}
+	$query="SELECT category_parent_id FROM ".$tbl_categories." WHERE category_id='$catid'";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($cparentid)=$rsrow;
+		if( $cparentid != '0' )
+		{
+			$myreturn=true;
 		}
+	}
 	return $myreturn;
 }
 
@@ -1137,31 +1154,31 @@ $table_name1 = $wpdb->prefix . "awpcp_categories";
 
 
 function total_ads_in_cat($catid) {
-global $wpdb,$hasregionsmodule;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb,$hasregionsmodule;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 	$totaladsincat='';
 	$filter='';
 
 
-		if((get_awpcp_option('disablependingads') == 1)  && (get_awpcp_option('freepay') == 1)){
-				$filter=" AND payment_status != 'Pending'";
-			}
+	if((get_awpcp_option('disablependingads') == 1)  && (get_awpcp_option('freepay') == 1)){
+		$filter=" AND payment_status != 'Pending'";
+	}
 
-						if($hasregionsmodule == 1)
-						{
-							if( isset($_SESSION['theactiveregionid']) )
-							{
-								$theactiveregionid=$_SESSION['theactiveregionid'];
-								$theactiveregionname=get_theawpcpregionname($theactiveregionid);
+	if($hasregionsmodule == 1)
+	{
+		if( isset($_SESSION['theactiveregionid']) )
+		{
+			$theactiveregionid=$_SESSION['theactiveregionid'];
+			$theactiveregionname=get_theawpcpregionname($theactiveregionid);
 
-								$filter.="AND (ad_city='$theactiveregionname' OR ad_state='$theactiveregionname' OR ad_country='$theactiveregionname' OR ad_county_village='$theactiveregionname')";
-							}
-						}
+			$filter.="AND (ad_city='$theactiveregionname' OR ad_state='$theactiveregionname' OR ad_country='$theactiveregionname' OR ad_county_village='$theactiveregionname')";
+		}
+	}
 
-	$query="SELECT count(*) FROM ".$table_name3." WHERE (ad_category_id='$catid' OR ad_category_parent_id='$catid') AND disabled = '0' $filter";
-	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
- 	while ($rsrow=mysql_fetch_row($res)) {
- 		list($totaladsincat)=$rsrow;
+	$query="SELECT count(*) FROM ".$tbl_ads." WHERE (ad_category_id='$catid' OR ad_category_parent_id='$catid') AND disabled = '0' $filter";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res)) {
+		list($totaladsincat)=$rsrow;
 	}
 	return $totaladsincat;
 }
@@ -1176,14 +1193,9 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 
 
 function images_exist() {
-global $wpdb;
-$table_name5 = $wpdb->prefix . "awpcp_ads";
-	$myreturn=false;
-	$query="SELECT count(*) FROM ".$table_name5."";
-	if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
-	if (mysql_num_rows($res) && mysql_result($res,0,0)) {
-		$myreturn=true;
-	}
+	global $wpdb;
+	$tbl_ad_photos = $wpdb->prefix . "awpcp_ads";
+	$myreturn=!awpcpistableempty($tbl_ad_photos);
 	return $myreturn;
 }
 
@@ -1199,13 +1211,13 @@ $table_name5 = $wpdb->prefix . "awpcp_ads";
 function cleanstring($text)
 {
 
-$code_entities_match = array(' ','--','&quot;','!','@','#','$','%','^','&','*','(',')','+','{','}','|',':','"','<','>','?','[',']','\\',';',"'",',','.','/','*','+','~','`','=');
-$code_entities_replace = array('_','_','','','','','','','','','','','','','','','','','','','','','','','');
-$text = str_replace($code_entities_match, $code_entities_replace, $text);
-if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
-	$text="".(filter_var($text, FILTER_SANITIZE_URL))."";
-}
-return $text;
+	$code_entities_match = array(' ','--','&quot;','!','@','#','$','%','^','&','*','(',')','+','{','}','|',':','"','<','>','?','[',']','\\',';',"'",',','.','/','*','+','~','`','=');
+	$code_entities_replace = array('_','_','','','','','','','','','','','','','','','','','','','','','','','');
+	$text = str_replace($code_entities_match, $code_entities_replace, $text);
+	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
+		$text="".(filter_var($text, FILTER_SANITIZE_URL))."";
+	}
+	return $text;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1217,8 +1229,8 @@ return $text;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function add_dashes($text) {
-$text=str_replace("_","-",$text);
-return $text;
+	$text=str_replace("_","-",$text);
+	return $text;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1261,42 +1273,42 @@ function awpcp_get_guid($awpcpshowadspageid){
 function get_group_orderby()
 {
 
-		$getgrouporderby=get_awpcp_option('groupbrowseadsby');
+	$getgrouporderby=get_awpcp_option('groupbrowseadsby');
 
-		if(!isset($getgrouporderby) || empty($getgrouporderby))
+	if(!isset($getgrouporderby) || empty($getgrouporderby))
+	{
+		$grouporderby='';
+	}
+	else
+	{
+		if(isset($getgrouporderby) && !empty($getgrouporderby))
 		{
-			$grouporderby='';
-		}
-		else
-		{
-			if(isset($getgrouporderby) && !empty($getgrouporderby))
+			if($getgrouporderby == 1)
 			{
-				if($getgrouporderby == 1)
-				{
-					$grouporderby="ORDER BY ad_key DESC";
-				}
-				elseif($getgrouporderby == 2)
-				{
-					$grouporderby="ORDER BY ad_title DESC";
-				}
-				elseif($getgrouporderby == 3)
-				{
-					$grouporderby="ORDER BY ad_is_paid DESC, ad_postdate DESC, ad_title ASC";
-				}
-				elseif($getgrouporderby == 4)
-				{
-					$grouporderby="ORDER BY ad_is_paid DESC, ad_title ASC";
-				}
-				elseif($getgrouporderby == 5)
-				{
-					$grouporderby="ORDER BY ad_views DESC, ad_title ASC";
-				}
-				elseif($getgrouporderby == 6)
-				{
-					$grouporderby="ORDER BY ad_views DESC, ad_key DESC";
-				}
+				$grouporderby="ORDER BY ad_key DESC";
+			}
+			elseif($getgrouporderby == 2)
+			{
+				$grouporderby="ORDER BY ad_title DESC";
+			}
+			elseif($getgrouporderby == 3)
+			{
+				$grouporderby="ORDER BY ad_is_paid DESC, ad_postdate DESC, ad_title ASC";
+			}
+			elseif($getgrouporderby == 4)
+			{
+				$grouporderby="ORDER BY ad_is_paid DESC, ad_title ASC";
+			}
+			elseif($getgrouporderby == 5)
+			{
+				$grouporderby="ORDER BY ad_views DESC, ad_title ASC";
+			}
+			elseif($getgrouporderby == 6)
+			{
+				$grouporderby="ORDER BY ad_views DESC, ad_key DESC";
 			}
 		}
+	}
 
 	return $grouporderby;
 }
@@ -1312,28 +1324,28 @@ function get_group_orderby()
 
 function setup_url_structure($awpcpthepagename)
 {
-			$quers='';
-			$theblogurl=get_bloginfo('url');
+	$quers='';
+	$theblogurl=get_bloginfo('url');
 
-			$permastruc=get_option('permalink_structure');
+	$permastruc=get_option('permalink_structure');
 
-			if( strstr($permastruc,'index.php') )
-			{
-				$theblogurl.="/index.php";
-			}
+	if( strstr($permastruc,'index.php') )
+	{
+		$theblogurl.="/index.php";
+	}
 
-		if(isset($permastruc) && !empty($permastruc))
-		{
-			$quers="$theblogurl/$awpcpthepagename";
-		}
-		else
-		{
-			$quers="$theblogurl";
-		}
+	if(isset($permastruc) && !empty($permastruc))
+	{
+		$quers="$theblogurl/$awpcpthepagename";
+	}
+	else
+	{
+		$quers="$theblogurl";
+	}
 
 
-			return $quers;
-		}
+	return $quers;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // END FUNCTION: setup structure of URLs based on if permalinks are on and SEO urls are turned on
@@ -1357,66 +1369,66 @@ function url_showad($ad_id)
 	$modtitle=cleanstring($awpcpadtitle);
 	$modtitle=add_dashes($modtitle);
 
-					if( get_awpcp_option('seofriendlyurls') )
-					{
-						if(isset($permastruc) && !empty($permastruc))
-						{
-							$url_showad="$quers/$showadspagename/$ad_id/$modtitle";
-						}
-						else
-						{
-							$awpcp_showad_pageid=awpcp_get_page_id($showadspagename);
-							$url_showad="$quers/?page_id=$awpcp_showad_pageid&id=$ad_id";
-						}
-					}
-					elseif(!(get_awpcp_option('seofriendlyurls') ) )
-					{
-						if(isset($permastruc) && !empty($permastruc))
-						{
-							$url_showad="$quers/$showadspagename/?id=$ad_id";
-						}
-						else
-						{
-							$awpcp_showad_pageid=awpcp_get_page_id($awpcp_showad_pagename=(sanitize_title(get_awpcp_option('showadspagename'), $post_ID='')));
-							$url_showad="$quers/?page_id=$awpcp_showad_pageid&id=$ad_id";
-						}
-					}
+	if( get_awpcp_option('seofriendlyurls') )
+	{
+		if(isset($permastruc) && !empty($permastruc))
+		{
+			$url_showad="$quers/$showadspagename/$ad_id/$modtitle";
+		}
+		else
+		{
+			$awpcp_showad_pageid=awpcp_get_page_id($showadspagename);
+			$url_showad="$quers/?page_id=$awpcp_showad_pageid&id=$ad_id";
+		}
+	}
+	elseif(!(get_awpcp_option('seofriendlyurls') ) )
+	{
+		if(isset($permastruc) && !empty($permastruc))
+		{
+			$url_showad="$quers/$showadspagename/?id=$ad_id";
+		}
+		else
+		{
+			$awpcp_showad_pageid=awpcp_get_page_id($awpcp_showad_pagename=(sanitize_title(get_awpcp_option('showadspagename'), $post_ID='')));
+			$url_showad="$quers/?page_id=$awpcp_showad_pageid&id=$ad_id";
+		}
+	}
 
-					if( get_awpcp_option('seofriendlyurls') )
-					{
-						if(isset($permastruc) && !empty($permastruc))
-						{
-							if( get_awpcp_option('showcityinpagetitle') && !empty($awpcpadcity) )
-							{
-								$url_showad.="/";
-								$url_showad.=cleanstring(add_dashes(get_adcityvalue($ad_id)));
-							}
-							if( get_awpcp_option('showstateinpagetitle') && !empty($awpcpadstate) )
-							{
-									$url_showad.="/";
-									$url_showad.=cleanstring(add_dashes(get_adstatevalue($ad_id)));
-							}
-							if( get_awpcp_option('showcountryinpagetitle') && !empty($awpcpadcountry) )
-							{
-								$url_showad.="/";
-								$url_showad.=cleanstring(add_dashes(get_adcountryvalue($ad_id)));
-							}
-							if( get_awpcp_option('showcountyvillageinpagetitle') && !empty($awpcpadcountyvillage) )
-							{
-								$url_showad.="/";
-								$url_showad.=cleanstring(add_dashes(get_adcountyvillagevalue($ad_id)));
-							}
-							if( get_awpcp_option('showcategoryinpagetitle') )
-							{
-								$awpcp_ad_category_id=get_adcategory($ad_id);
-								$awpcp_ad_category_name=cleanstring(add_dashes(get_adcatname($awpcp_ad_category_id)));
+	if( get_awpcp_option('seofriendlyurls') )
+	{
+		if(isset($permastruc) && !empty($permastruc))
+		{
+			if( get_awpcp_option('showcityinpagetitle') && !empty($awpcpadcity) )
+			{
+				$url_showad.="/";
+				$url_showad.=cleanstring(add_dashes(get_adcityvalue($ad_id)));
+			}
+			if( get_awpcp_option('showstateinpagetitle') && !empty($awpcpadstate) )
+			{
+				$url_showad.="/";
+				$url_showad.=cleanstring(add_dashes(get_adstatevalue($ad_id)));
+			}
+			if( get_awpcp_option('showcountryinpagetitle') && !empty($awpcpadcountry) )
+			{
+				$url_showad.="/";
+				$url_showad.=cleanstring(add_dashes(get_adcountryvalue($ad_id)));
+			}
+			if( get_awpcp_option('showcountyvillageinpagetitle') && !empty($awpcpadcountyvillage) )
+			{
+				$url_showad.="/";
+				$url_showad.=cleanstring(add_dashes(get_adcountyvillagevalue($ad_id)));
+			}
+			if( get_awpcp_option('showcategoryinpagetitle') )
+			{
+				$awpcp_ad_category_id=get_adcategory($ad_id);
+				$awpcp_ad_category_name=cleanstring(add_dashes(get_adcatname($awpcp_ad_category_id)));
 
-								$url_showad.="/";
-								$url_showad.=$awpcp_ad_category_name;
-							}
-						}
-					}
-						return $url_showad;
+				$url_showad.="/";
+				$url_showad.=$awpcp_ad_category_name;
+			}
+		}
+	}
+	return $url_showad;
 }
 
 function url_placead()
@@ -1428,30 +1440,30 @@ function url_placead()
 	$permastruc=get_option('permalink_structure');
 	$placeadpagename=sanitize_title(get_awpcp_option('placeadpagename'), $post_ID='');
 	$awpcp_placead_pageid=awpcp_get_page_id($placeadpagename);
-					if( get_awpcp_option('seofriendlyurls') )
-					{
-						if(isset($permastruc) && !empty($permastruc))
-						{
-							$url_placead="$quers/$placeadpagename";
-						}
-						else
-						{
-							$url_placead="$quers/?page_id=$awpcp_placead_pageid";
-						}
-					}
-					elseif(!(get_awpcp_option('seofriendlyurls') ) )
-					{
-						if(isset($permastruc) && !empty($permastruc))
-						{
-							$url_placead="$quers/$placeadpagename";
-						}
-						else
-						{
-							$url_placead="$quers/?page_id=$awpcp_placead_pageid";
-						}
-					}
+	if( get_awpcp_option('seofriendlyurls') )
+	{
+		if(isset($permastruc) && !empty($permastruc))
+		{
+			$url_placead="$quers/$placeadpagename";
+		}
+		else
+		{
+			$url_placead="$quers/?page_id=$awpcp_placead_pageid";
+		}
+	}
+	elseif(!(get_awpcp_option('seofriendlyurls') ) )
+	{
+		if(isset($permastruc) && !empty($permastruc))
+		{
+			$url_placead="$quers/$placeadpagename";
+		}
+		else
+		{
+			$url_placead="$quers/?page_id=$awpcp_placead_pageid";
+		}
+	}
 
-		return $url_placead;
+	return $url_placead;
 }
 
 function url_classifiedspage()
@@ -1462,30 +1474,30 @@ function url_classifiedspage()
 	$quers=setup_url_structure($awpcppagename);
 	$permastruc=get_option('permalink_structure');
 	$awpcp_pageid=awpcp_get_page_id($awpcppagename);
-					if( get_awpcp_option('seofriendlyurls') )
-					{
-						if(isset($permastruc) && !empty($permastruc))
-						{
-							$url_classifiedspage="$quers/$awpcppagename";
-						}
-						else
-						{
-							$url_classifiedspage="$quers/?page_id=$awpcp_pageid";
-						}
-					}
-					elseif(!(get_awpcp_option('seofriendlyurls') ) )
-					{
-						if(isset($permastruc) && !empty($permastruc))
-						{
-							$url_classifiedspage="$quers/$awpcppagename";
-						}
-						else
-						{
-							$url_classifiedspage="$quers/?page_id=$awpcp_pageid";
-						}
-					}
+	if( get_awpcp_option('seofriendlyurls') )
+	{
+		if(isset($permastruc) && !empty($permastruc))
+		{
+			$url_classifiedspage="$quers/$awpcppagename";
+		}
+		else
+		{
+			$url_classifiedspage="$quers/?page_id=$awpcp_pageid";
+		}
+	}
+	elseif(!(get_awpcp_option('seofriendlyurls') ) )
+	{
+		if(isset($permastruc) && !empty($permastruc))
+		{
+			$url_classifiedspage="$quers/$awpcppagename";
+		}
+		else
+		{
+			$url_classifiedspage="$quers/?page_id=$awpcp_pageid";
+		}
+	}
 
-		return $url_classifiedspage;
+	return $url_classifiedspage;
 }
 
 function url_searchads()
@@ -1498,30 +1510,30 @@ function url_searchads()
 	$searchadspagename=sanitize_title(get_awpcp_option('searchadspagename'), $post_ID='');
 	$awpcp_searchads_pageid=awpcp_get_page_id($searchadspagename);
 
-					if( get_awpcp_option('seofriendlyurls') )
-					{
-						if(isset($permastruc) && !empty($permastruc))
-						{
-							$url_searchads="$quers/$searchadspagename";
-						}
-						else
-						{
-							$url_searchads="$quers/?page_id=$awpcp_searchads_pageid";
-						}
-					}
-					elseif(!(get_awpcp_option('seofriendlyurls') ) )
-					{
-						if(isset($permastruc) && !empty($permastruc))
-						{
-							$url_searchads="$quers/$searchadspagename";
-						}
-						else
-						{
-							$url_searchads="$quers/?page_id=$awpcp_searchads_pageid";
-						}
-					}
+	if( get_awpcp_option('seofriendlyurls') )
+	{
+		if(isset($permastruc) && !empty($permastruc))
+		{
+			$url_searchads="$quers/$searchadspagename";
+		}
+		else
+		{
+			$url_searchads="$quers/?page_id=$awpcp_searchads_pageid";
+		}
+	}
+	elseif(!(get_awpcp_option('seofriendlyurls') ) )
+	{
+		if(isset($permastruc) && !empty($permastruc))
+		{
+			$url_searchads="$quers/$searchadspagename";
+		}
+		else
+		{
+			$url_searchads="$quers/?page_id=$awpcp_searchads_pageid";
+		}
+	}
 
-		return $url_searchads;
+	return $url_searchads;
 }
 
 function url_editad()
@@ -1533,30 +1545,30 @@ function url_editad()
 	$permastruc=get_option('permalink_structure');
 	$editadpagename=sanitize_title(get_awpcp_option('editadpagename'), $post_ID='');
 	$awpcp_editad_pageid=awpcp_get_page_id($editadpagename);
-					if( get_awpcp_option('seofriendlyurls') )
-					{
-						if(isset($permastruc) && !empty($permastruc))
-						{
-							$url_editad="$quers/$editadpagename";
-						}
-						else
-						{
-							$url_editad="$quers/?page_id=$awpcp_editad_pageid";
-						}
-					}
-					elseif(!(get_awpcp_option('seofriendlyurls') ) )
-					{
-						if(isset($permastruc) && !empty($permastruc))
-						{
-							$url_editad="$quers/$editpagename";
-						}
-						else
-						{
-							$url_editad="$quers/?page_id=$awpcp_editad_pageid";
-						}
-					}
+	if( get_awpcp_option('seofriendlyurls') )
+	{
+		if(isset($permastruc) && !empty($permastruc))
+		{
+			$url_editad="$quers/$editadpagename";
+		}
+		else
+		{
+			$url_editad="$quers/?page_id=$awpcp_editad_pageid";
+		}
+	}
+	elseif(!(get_awpcp_option('seofriendlyurls') ) )
+	{
+		if(isset($permastruc) && !empty($permastruc))
+		{
+			$url_editad="$quers/$editpagename";
+		}
+		else
+		{
+			$url_editad="$quers/?page_id=$awpcp_editad_pageid";
+		}
+	}
 
-		return $url_editad;
+	return $url_editad;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: get the parent_id of the post
@@ -1596,13 +1608,13 @@ function get_awpcp_parent_page_name($awpcppageparentid) {
 
 function checkfortable($table) {
 
-		$tableexists=false;
-		$query="SELECT count(*) FROM ".$table."";
-		if (($res=mysql_query($query))) {
-			$tableexists=true;
-		}
+	$tableexists=false;
+	$query="SELECT count(*) FROM ".$table."";
+	if (($res=mysql_query($query))) {
+		$tableexists=true;
+	}
 
-		return $tableexists;
+	return $tableexists;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1618,10 +1630,10 @@ function checkfortable($table) {
 function add_config_group_id($cvalue,$coption)
 {
 	global $wpdb;
-	$table_name4 = $wpdb->prefix . "awpcp_adsettings";
+	$tbl_ad_settings = $wpdb->prefix . "awpcp_adsettings";
 
-	$query="UPDATE ".$table_name4." SET config_group_id='$cvalue' WHERE config_option='$coption'";
-	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	$query="UPDATE ".$tbl_ad_settings." SET config_group_id='$cvalue' WHERE config_option='$coption'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1633,27 +1645,27 @@ function add_config_group_id($cvalue,$coption)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function adidexists($adid) {
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
-		$adidexists=false;
-		$query="SELECT count(*) FROM ".$table_name3." WHERE ad_id='$adid'";
-		if (($res=mysql_query($query))) {
-			$adidexists=true;
-		}
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
+	$adidexists=false;
+	$query="SELECT count(*) FROM ".$tbl_ads." WHERE ad_id='$adid'";
+	if (($res=mysql_query($query))) {
+		$adidexists=true;
+	}
 
-		return $adidexists;
+	return $adidexists;
 }
 
 function categoryidexists($adcategoryid) {
-global $wpdb;
-$table_name1 = $wpdb->prefix . "awpcp_adcategories";
-		$categoryidexists=false;
-		$query="SELECT count(*) FROM ".$table_name1." WHERE categoryid='$adcategoryid'";
-		if (($res=mysql_query($query))) {
-			$categoryidexists=true;
-		}
+	global $wpdb;
+	$tbl_categories = $wpdb->prefix . "awpcp_adcategories";
+	$categoryidexists=false;
+	$query="SELECT count(*) FROM ".$tbl_categories." WHERE categoryid='$adcategoryid'";
+	if (($res=mysql_query($query))) {
+		$categoryidexists=true;
+	}
 
-		return $categoryidexists;
+	return $categoryidexists;
 }
 
 
@@ -1684,27 +1696,27 @@ function display_setup_text()
 }
 
 function get_currentpagename() {
-global $wpdb;
-$table_name6 = $wpdb->prefix . "awpcp_pagename";
+	global $wpdb;
+	$tbl_pagename = $wpdb->prefix . "awpcp_pagename";
 
-$tableexists=checkfortable($table_name6);
-$currentpagename='';
+	$tableexists=checkfortable($tbl_pagename);
+	$currentpagename='';
 
-		if(!$tableexists){
-			$currentpagename='';
+	if(!$tableexists){
+		$currentpagename='';
+	}
+
+	else {
+
+		$query="SELECT userpagename from ".$tbl_pagename."";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+		while ($rsrow=mysql_fetch_row($res))
+		{
+			list($currentpagename)=$rsrow;
 		}
+	}
 
-		else {
-
-			 $query="SELECT userpagename from ".$table_name6."";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
- 				while ($rsrow=mysql_fetch_row($res))
- 				{
- 					list($currentpagename)=$rsrow;
-				}
-		}
-
-			return $currentpagename;
+	return $currentpagename;
 
 }
 
@@ -1719,12 +1731,12 @@ $currentpagename='';
 
 function deleteuserpageentry() {
 
-global $wpdb;
-$table_name6 = $wpdb->prefix . "awpcp_pagename";
+	global $wpdb;
+	$tbl_pagename = $wpdb->prefix . "awpcp_pagename";
 
-			 $query="TRUNCATE ".$table_name6."";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-			 mysql_query($query);
+	$query="TRUNCATE ".$tbl_pagename."";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	mysql_query($query);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1738,33 +1750,15 @@ $table_name6 = $wpdb->prefix . "awpcp_pagename";
 
 function findpage($pagename,$shortcode) {
 
-global $wpdb,$table_prefix;
-$myreturn=false;
+	global $wpdb,$table_prefix;
+	$myreturn=false;
 
-			 $query="SELECT post_title FROM {$table_prefix}posts WHERE post_title='$pagename' AND post_content LIKE '%$shortcode%'";
-			 if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-				if (mysql_num_rows($res) && mysql_result($res,0,0)) {
-					$myreturn=true;
-			}
-			return $myreturn;
-
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// END FUNCTION: check if classifieds page exists
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-function printmessage($message){
-
-	if(isset($message) && !empty($message)){
-		echo "$message";
-		die;
+	$query="SELECT post_title FROM {$table_prefix}posts WHERE post_title='$pagename' AND post_content LIKE '%$shortcode%'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	if (mysql_num_rows($res) && mysql_result($res,0,0)) {
+		$myreturn=true;
 	}
-	else {
-		echo "There is a small problem. You have just completed a task but the system is confused about how to respond as it has received no message to relay to you.Please check to make sure you successfully completed what you were trying to do";
-		die;
-	}
+	return $myreturn;
 
 }
 
@@ -1773,26 +1767,26 @@ function printmessage($message){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function field_exists($field){
-global $wpdb;
-$table_name4 = $wpdb->prefix . "awpcp_adsettings";
+	global $wpdb;
+	$tbl_ad_settings = $wpdb->prefix . "awpcp_adsettings";
 
-$tableexists=checkfortable($table_name4);
+	$tableexists=checkfortable($tbl_ad_settings);
 
-		if($tableexists)
+	if($tableexists)
+	{
+		$query="SELECT config_value FROM  ".$tbl_ad_settings." WHERE config_option='$field'";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+		if (mysql_num_rows($res))
 		{
-			 $query="SELECT config_value FROM  ".$table_name4." WHERE config_option='$field'";
-			 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-			 	if (mysql_num_rows($res))
-			 	{
-					$myreturn=true;
-				}
-				else
-				{
-					$myreturn=false;
-				}
-
-			return $myreturn;
+			$myreturn=true;
 		}
+		else
+		{
+			$myreturn=false;
+		}
+
+		return $myreturn;
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1804,21 +1798,21 @@ $tableexists=checkfortable($table_name4);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function awpcpLimitText($Text,$Min,$Max,$MinAddChar) {
-	    if (strlen($Text) < $Min) {
-	        $Limit = $Min-strlen($Text);
-	        $Text .= $MinAddChar;
-	    }
-	    elseif (strlen($Text) >= $Max) {
-	        $words = explode(" ", $Text);
-	        $check=1;
-	        while (strlen($Text) >= $Max) {
-	            $c=count($words)-$check;
-	            $Text=substr($Text,0,(strlen($words[$c])+1)*(-1));
-	            $check++;
-	        }
-	    }
+	if (strlen($Text) < $Min) {
+		$Limit = $Min-strlen($Text);
+		$Text .= $MinAddChar;
+	}
+	elseif (strlen($Text) >= $Max) {
+		$words = explode(" ", $Text);
+		$check=1;
+		while (strlen($Text) >= $Max) {
+			$c=count($words)-$check;
+			$Text=substr($Text,0,(strlen($words[$c])+1)*(-1));
+			$check++;
+		}
+	}
 
-	    return $Text;
+	return $Text;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1827,41 +1821,41 @@ function awpcpLimitText($Text,$Min,$Max,$MinAddChar) {
 
 function isValidURL($url)
 {
- return preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $url);
+	return preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $url);
 }
 
 
 function isValidEmailAddress($email) {
-  if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $email)) {
-    return false;
-  }
+	if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $email)) {
+		return false;
+	}
 
-  $email_array = explode("@", $email);
-  $local_array = explode(".", $email_array[0]);
-  for ($i = 0; $i < sizeof($local_array); $i++) {
-    if
-(!ereg("^(([A-Za-z0-9!#$%&'*+/=?^_`{|}~-][A-Za-z0-9!#$%&
+	$email_array = explode("@", $email);
+	$local_array = explode(".", $email_array[0]);
+	for ($i = 0; $i < sizeof($local_array); $i++) {
+		if
+		(!ereg("^(([A-Za-z0-9!#$%&'*+/=?^_`{|}~-][A-Za-z0-9!#$%&
 ?'*+/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$",
-$local_array[$i])) {
-      return false;
-    }
-  }
+		$local_array[$i])) {
+			return false;
+		}
+	}
 
-  if (!ereg("^\[?[0-9\.]+\]?$", $email_array[1])) {
-    $domain_array = explode(".", $email_array[1]);
-    if (sizeof($domain_array) < 2) {
-        return false; // Not enough parts to domain
-    }
-    for ($i = 0; $i < sizeof($domain_array); $i++) {
-      if
-(!ereg("^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|
+	if (!ereg("^\[?[0-9\.]+\]?$", $email_array[1])) {
+		$domain_array = explode(".", $email_array[1]);
+		if (sizeof($domain_array) < 2) {
+			return false; // Not enough parts to domain
+		}
+		for ($i = 0; $i < sizeof($domain_array); $i++) {
+			if
+			(!ereg("^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|
 ?([A-Za-z0-9]+))$",
-$domain_array[$i])) {
-        return false;
-      }
-    }
-  }
-  return true;
+			$domain_array[$i])) {
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 
@@ -1873,22 +1867,22 @@ $domain_array[$i])) {
 function doadexpirations(){
 
 	global $wpdb,$nameofsite,$siteurl,$thisadminemail;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
-	$table_name5 = $wpdb->prefix . "awpcp_adphotos";
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
+	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 	$awpcp_from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
 
 	// Get the IDs of the ads to be deleted
-	$query="SELECT ad_id FROM ".$table_name3." WHERE ad_enddate < CURDATE()";
-	if (!($res=mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	$query="SELECT ad_id FROM ".$tbl_ads." WHERE ad_enddate < CURDATE()";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
 	$expiredid=array();
 
 	if (mysql_num_rows($res))
 	{
 
-	 	while ($rsrow=mysql_fetch_row($res))
-	 	{
- 			$expiredid[]=$rsrow[0];
+		while ($rsrow=mysql_fetch_row($res))
+		{
+			$expiredid[]=$rsrow[0];
 
 		}
 
@@ -1903,68 +1897,68 @@ function doadexpirations(){
 	//if(!renewsubscription($adid))
 	//{
 
-		foreach ($expiredid as $adid)
+	foreach ($expiredid as $adid)
+	{
+		$adcontact=get_adpostername($adid);
+		$awpcpnotifyexpireemail=get_adposteremail($adid);
+		$adtitle=get_adtitle($adid);
+
+		$awpcpadexpiredsubject=get_awpcp_option('adexpiredsubjectline');
+		$awpcpadexpiredbody=get_awpcp_option('adexpiredbodymessage');
+		$awpcpadexpiredbody.="$awpcpbreak2";
+		$awpcpadexpiredbody.=__("Listing Details");
+		$awpcpadexpiredbody.="$awpcpbreak2";
+		$awpcpadexpiredbody.="$listingtitle";
+		$awpcpadexpiredbody.="$awpcpbreak2";
+		$awpcpadexpiredbody.="$siteurl";
+
+		if(get_awpcp_option('notifyofadexpiring') == '1')
 		{
-			$adcontact=get_adpostername($adid);
-			$awpcpnotifyexpireemail=get_adposteremail($adid);
-			$adtitle=get_adtitle($adid);
+			//email notification temporarily disabled
+			//@awpcp_process_mail($awpcpsenderemail=$thisadminemail,$awpcpreceiveremail=$awpcpnotifyexpireemail,$awpcpemailsubject=$awpcpadexpiredsubject,$awpcpemailbody=$awpcpadexpiredbody,$awpcpsendername=$nameofsite,$awpcpreplytoemail=$thisadminemail);
+		}
+	}
 
-			$awpcpadexpiredsubject=get_awpcp_option('adexpiredsubjectline');
-			$awpcpadexpiredbody=get_awpcp_option('adexpiredbodymessage');
-			$awpcpadexpiredbody.="$awpcpbreak2";
-			$awpcpadexpiredbody.=__("Listing Details");
-			$awpcpadexpiredbody.="$awpcpbreak2";
-			$awpcpadexpiredbody.="$listingtitle";
-			$awpcpadexpiredbody.="$awpcpbreak2";
-			$awpcpadexpiredbody.="$siteurl";
 
-			if(get_awpcp_option('notifyofadexpiring') == '1')
+	// Delete or disable the ad images
+	if(get_awpcp_option('autoexpiredisabledelete') == 1)
+	{
+
+		//Disable the images
+		$query="UPDATE ".$tbl_ad_photos." set disabled='1' WHERE ad_id IN ('$adstodelete')";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+
+		// Disable the ads
+		$query="UPDATE ".$tbl_ads." set disabled='1' WHERE ad_id IN ('$adstodelete')";
+		@mysql_query($query);
+
+	}
+	else
+	{
+		$query="SELECT image_name FROM ".$tbl_ad_photos." WHERE ad_id IN ('$adstodelete')";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+
+		for ($i=0;$i<mysql_num_rows($res);$i++)
+		{
+			$photo=mysql_result($res,$i,0);
+
+			if (file_exists(AWPCPUPLOADDIR.'/'.$photo))
 			{
-				//email notification temporarily disabled
-				//@awpcp_process_mail($awpcpsenderemail=$thisadminemail,$awpcpreceiveremail=$awpcpnotifyexpireemail,$awpcpemailsubject=$awpcpadexpiredsubject,$awpcpemailbody=$awpcpadexpiredbody,$awpcpsendername=$nameofsite,$awpcpreplytoemail=$thisadminemail);
+				@unlink(AWPCPUPLOADDIR.'/'.$photo);
+			}
+			if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo))
+			{
+				@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
 			}
 		}
 
-			
-			// Delete or disable the ad images
-			if(get_awpcp_option('autoexpiredisabledelete') == 1)
-			{
+		$query="DELETE FROM ".$tbl_ad_photos." WHERE ad_id IN ('$adstodelete')";
+		if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-				//Disable the images
-				$query="UPDATE ".$table_name5." set disabled='1' WHERE ad_id IN ('$adstodelete')";
-				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-
-				// Disable the ads
-				$query="UPDATE ".$table_name3." set disabled='1' WHERE ad_id IN ('$adstodelete')";
-				@mysql_query($query);
-
-			}
-			else
-			{
-				$query="SELECT image_name FROM ".$table_name5." WHERE ad_id IN ('$adstodelete')";
-				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-
-				for ($i=0;$i<mysql_num_rows($res);$i++)
-				{
-					$photo=mysql_result($res,$i,0);
-
-					if (file_exists(AWPCPUPLOADDIR.'/'.$photo))
-					{
-						@unlink(AWPCPUPLOADDIR.'/'.$photo);
-					}
-					if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo))
-					{
-						@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
-					}
-				}
-
-				$query="DELETE FROM ".$table_name5." WHERE ad_id IN ('$adstodelete')";
-				if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-
-				// Delete the ads
-				$query="DELETE FROM ".$table_name3." WHERE ad_id IN ('$adstodelete')";
-				@mysql_query($query);
-			}
+		// Delete the ads
+		$query="DELETE FROM ".$tbl_ads." WHERE ad_id IN ('$adstodelete')";
+		@mysql_query($query);
+	}
 	//}
 
 }
@@ -1973,19 +1967,19 @@ function renewsubscription($adid)
 {
 
 	global $wpdb;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
 	$myreturn=false;
-		$query="SELECT payment_status FROM ".$table_name3." WHERE ad_id='$adid'";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
-		while ($rsrow=mysql_fetch_row($res))
-		{
-	 		list($paymentstatus)=$rsrow;
-		}
-			if($paymentstatus != 'Cancelled')
-			{
-				$myreturn=true;
-         		}
+	$query="SELECT payment_status FROM ".$tbl_ads." WHERE ad_id='$adid'";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	while ($rsrow=mysql_fetch_row($res))
+	{
+		list($paymentstatus)=$rsrow;
+	}
+	if($paymentstatus != 'Cancelled')
+	{
+		$myreturn=true;
+	}
 
 	return $myreturn;
 
@@ -2003,15 +1997,15 @@ function defaultcatexists($defid) {
 
 
 
-global $wpdb;
-$table_name1 = $wpdb->prefix . "awpcp_categories";
+	global $wpdb;
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 
 	$myreturn=false;
-		$query="SELECT * FROM ".$table_name1." WHERE category_id='$defid'";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
-		if (mysql_num_rows($res)) {
-			$myreturn=true;
-		}
+	$query="SELECT * FROM ".$tbl_categories." WHERE category_id='$defid'";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	if (mysql_num_rows($res)) {
+		$myreturn=true;
+	}
 
 	return $myreturn;
 
@@ -2027,15 +2021,15 @@ $table_name1 = $wpdb->prefix . "awpcp_categories";
 
 function createdefaultcategory($idtomake,$titletocallit) {
 
-		global $wpdb;
-		$table_name1 = $wpdb->prefix . "awpcp_categories";
+	global $wpdb;
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 
-		$query="INSERT INTO ".$table_name1." SET category_name='$titletocallit',category_parent_id='0'";
-	 	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
-	 	$newdefid=mysql_insert_id();
+	$query="INSERT INTO ".$tbl_categories." SET category_name='$titletocallit',category_parent_id='0'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	$newdefid=mysql_insert_id();
 
-	 	$query="UPDATE ".$table_name1." SET category_id='1' WHERE category_id='$newdefid'";
-		if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	$query="UPDATE ".$tbl_categories." SET category_id='1' WHERE category_id='$newdefid'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2049,49 +2043,49 @@ function createdefaultcategory($idtomake,$titletocallit) {
 function massdeleteadsfromcategory($catid){
 
 	global $wpdb,$nameofsite,$siteurl,$thisadminemail;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
-	$table_name5 = $wpdb->prefix . "awpcp_adphotos";
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
+	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 
 	// Get the IDs of the ads to be deleted
-	$query="SELECT ad_id FROM ".$table_name3." WHERE ad_category_id='$catid'";
-	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	$query="SELECT ad_id FROM ".$tbl_ads." WHERE ad_category_id='$catid'";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
 	$fordeletionid=array();
 
 	if (mysql_num_rows($res)) {
 
-	 	while ($rsrow=mysql_fetch_row($res)) {
- 			$fordeletionid[]=$rsrow[0];
+		while ($rsrow=mysql_fetch_row($res)) {
+			$fordeletionid[]=$rsrow[0];
 
 		}
 		$totalusers=count($fordeletionid);
 	}
 
-				$adstodelete=join("','",$fordeletionid);
-				// Delete the ad images
+	$adstodelete=join("','",$fordeletionid);
+	// Delete the ad images
 
-					$query="SELECT image_name FROM ".$table_name5." WHERE ad_id IN ('$adstodelete')";
-					if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	$query="SELECT image_name FROM ".$tbl_ad_photos." WHERE ad_id IN ('$adstodelete')";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-					for ($i=0;$i<mysql_num_rows($res);$i++) {
-					$photo=mysql_result($res,$i,0);
+	for ($i=0;$i<mysql_num_rows($res);$i++) {
+		$photo=mysql_result($res,$i,0);
 
-						if (file_exists(AWPCPUPLOADDIR.'/'.$photo)) {
-							@unlink(AWPCPUPLOADDIR.'/'.$photo);
-						}
-						if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo)) {
-							@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
-						}
-					}
+		if (file_exists(AWPCPUPLOADDIR.'/'.$photo)) {
+			@unlink(AWPCPUPLOADDIR.'/'.$photo);
+		}
+		if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo)) {
+			@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
+		}
+	}
 
-					$query="DELETE FROM ".$table_name5." WHERE ad_id IN ('$adstodelete')";
-					@mysql_query($query);
+	$query="DELETE FROM ".$tbl_ad_photos." WHERE ad_id IN ('$adstodelete')";
+	@mysql_query($query);
 
 
-					// Delete the ads
+	// Delete the ads
 
-					$query="DELETE FROM ".$table_name3." WHERE ad_id IN ('$adstodelete')";
-					@mysql_query($query);
+	$query="DELETE FROM ".$tbl_ads." WHERE ad_id IN ('$adstodelete')";
+	@mysql_query($query);
 
 
 }
@@ -2106,6 +2100,7 @@ function massdeleteadsfromcategory($catid){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ### Function: Init AWPCP Latest Classified Headlines Widget
 function init_awpcpsbarwidget() {
+	$output = '';
 	if (!function_exists('register_sidebar_widget')) {
 		return;
 	}
@@ -2131,54 +2126,52 @@ function init_awpcpsbarwidget() {
 			$awpcp_sb_widget_beforetitle=get_awpcp_option('sidebarwidgetbeforetitle');
 			$awpcp_sb_widget_aftertitle=get_awpcp_option('sidebarwidgetaftertitle');
 
-			
-			
+
+
 			if(isset($awpcp_sb_widget_beforecontent) && !empty($awpcp_sb_widget_beforecontent))
 			{$awpcp_sb_widget_beforecontent="$awpcp_sb_widget_beforecontent";}
 			else{$awpcp_sb_widget_beforecontent="";}
-			
+
 			if(isset($awpcp_sb_widget_aftercontent) && !empty($awpcp_sb_widget_aftercontent))
 			{$awpcp_sb_widget_aftercontent="$awpcp_sb_widget_aftercontent";}
 			else{$awpcp_sb_widget_aftercontent="";}
-			
+
 			if(isset($awpcp_sb_widget_beforetitle) && !empty($awpcp_sb_widget_beforetitle))
 			{$awpcp_sb_widget_beforetitle="$awpcp_sb_widget_beforetitle";}
 			else{$awpcp_sb_widget_beforetitle="";}
-			
+
 			if(isset($awpcp_sb_widget_aftertitle) && !empty($awpcp_sb_widget_aftertitle))
 			{$awpcp_sb_widget_aftertitle="$awpcp_sb_widget_aftertitle";}
 			else{$awpcp_sb_widget_aftertitle="";}
-			
+
 			if(isset($awpcp_sb_widget_beforecontent) && !empty($awpcp_sb_widget_beforecontent))
 			{
-				echo "$awpcp_sb_widget_beforecontent";
+				$output .= "$awpcp_sb_widget_beforecontent";
 			}
 			if(isset($awpcp_sb_widget_beforetitle) && !empty($awpcp_sb_widget_beforetitle))
 			{
-				echo "$awpcp_sb_widget_beforetitle";
-			}			
-			
-			echo "$title";
+				$output .= "$awpcp_sb_widget_beforetitle";
+			}
+
+			$output .= "$title";
 
 
 			if(isset($awpcp_sb_widget_aftertitle) && !empty($awpcp_sb_widget_aftertitle))
 			{
-				echo "$awpcp_sb_widget_aftertitle";
+				$output .= "$awpcp_sb_widget_aftertitle";
 			}
 
 			if (function_exists('awpcp_sidebar_headlines'))
 			{
-				echo '<ul>'."\n";
-				awpcp_sidebar_headlines($limit);
-				echo '</ul>'."\n";
+				$output .= '<ul>'."\n";
+				$output .= awpcp_sidebar_headlines($limit);
+				$output .= '</ul>'."\n";
 			}
 
 			if(isset($awpcp_sb_widget_aftercontent) && !empty($awpcp_sb_widget_aftercontent))
 			{
-				echo "$awpcp_sb_widget_aftercontent";
+				$output .= "$awpcp_sb_widget_aftercontent";
 			}
-
-
 		}
 	}
 
@@ -2197,18 +2190,16 @@ function init_awpcpsbarwidget() {
 			//$options['aftertitle'] = $_POST['awpcpwid-aftertitle'];
 			update_option('widget_awpcplatestads', $options);
 		}
-		echo '<p><label for="awpcpwid-title">'.__('Widget Title', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-title" size="35" name="awpcpwid-title" value="'.htmlspecialchars(stripslashes($options['title'])).'" />';
-		echo '<p><label for="awpcpwid-limit">'.__('Number of headlines to Show', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" size="5" id="awpcpwid-limit" name="awpcpwid-limit" value="'.htmlspecialchars(stripslashes($options['hlimit'])).'" />';
-		//echo '<p><label for="awpcpwid-beforewidget">'.__('Before Widget HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforewidget" size="35" name="awpcpwid-beforewidget" value="'.htmlspecialchars(stripslashes($options['beforewidget'])).'" />';
-		//echo '<p><label for="awpcpwid-afterwidget">'.__('After Widget HTML<br>Exclude all quotes<br>(<del>class="XYZ"</del> => class=XYZ)', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-afterwidget" size="35" name="awpcpwid-afterwidget" value="'.htmlspecialchars(stripslashes($options['afterwidget'])).'" />';
-		//echo '<p><label for="awpcpwid-beforetitle">'.__('Before title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforetitle" size="35" name="awpcpwid-beforetitle" value="'.htmlspecialchars(stripslashes($options['beforetitle'])).'" />';
-		//echo '<p><label for="awpcpwid-aftertitle">'.__('After title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-aftertitle" size="35" name="awpcpwid-aftertitle" value="'.htmlspecialchars(stripslashes($options['aftertitle'])).'" />';
-
-
-
-		echo '<input type="hidden" id="awpcplatestads-submit" name="awpcplatestads-submit" value="1" />'."\n";
+		$output .= '<p><label for="awpcpwid-title">'.__('Widget Title', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-title" size="35" name="awpcpwid-title" value="'.htmlspecialchars(stripslashes($options['title'])).'" />';
+		$output .= '<p><label for="awpcpwid-limit">'.__('Number of headlines to Show', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" size="5" id="awpcpwid-limit" name="awpcpwid-limit" value="'.htmlspecialchars(stripslashes($options['hlimit'])).'" />';
+		//$output .= '<p><label for="awpcpwid-beforewidget">'.__('Before Widget HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforewidget" size="35" name="awpcpwid-beforewidget" value="'.htmlspecialchars(stripslashes($options['beforewidget'])).'" />';
+		//$output .= '<p><label for="awpcpwid-afterwidget">'.__('After Widget HTML<br>Exclude all quotes<br>(<del>class="XYZ"</del> => class=XYZ)', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-afterwidget" size="35" name="awpcpwid-afterwidget" value="'.htmlspecialchars(stripslashes($options['afterwidget'])).'" />';
+		//$output .= '<p><label for="awpcpwid-beforetitle">'.__('Before title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforetitle" size="35" name="awpcpwid-beforetitle" value="'.htmlspecialchars(stripslashes($options['beforetitle'])).'" />';
+		//$output .= '<p><label for="awpcpwid-aftertitle">'.__('After title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-aftertitle" size="35" name="awpcpwid-aftertitle" value="'.htmlspecialchars(stripslashes($options['aftertitle'])).'" />';
+		$output .= '<input type="hidden" id="awpcplatestads-submit" name="awpcplatestads-submit" value="1" />'."\n";
 	}
-
+	//Echo ok here:
+	echo $output;
 	// Register Widgets
 	register_sidebar_widget('AWPCPClassifieds', 'widget_awpcplatestads');
 	register_widget_control('AWPCPClassifieds', 'widget_awpcplatestads_options', 350, 120);
@@ -2216,36 +2207,34 @@ function init_awpcpsbarwidget() {
 }
 
 function awpcp_sidebar_headlines($limit) {
+	$output = '';
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$awpcppage=get_currentpagename();
+	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+	$permastruc=get_option('permalink_structure');
+	$quers=setup_url_structure($awpcppagename);
 
+	if(!isset($limit) || empty ($limit)){
+		$limit=10;
+	}
 
-$awpcppage=get_currentpagename();
-$awpcppagename = sanitize_title($awpcppage, $post_ID='');
-$permastruc=get_option('permalink_structure');
-$quers=setup_url_structure($awpcppagename);
+	$query="SELECT ad_id,ad_title FROM ".$tbl_ads." WHERE ad_title <> '' AND disabled = '0' ORDER BY ad_postdate DESC LIMIT ".$limit."";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-if(!isset($limit) || empty ($limit)){
-$limit=10;}
+	while ($rsrow=mysql_fetch_row($res)) {
+		$ad_id=$rsrow[0];
+		$modtitle=cleanstring($rsrow[1]);
+		$modtitle=add_dashes($modtitle);
 
-			$query="SELECT ad_id,ad_title FROM ".$table_name3." WHERE ad_title <> '' AND disabled = '0' ORDER BY ad_postdate DESC LIMIT ".$limit."";
-			if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+		$url_showad=url_showad($ad_id);
 
-			while ($rsrow=mysql_fetch_row($res)) {
-				$ad_id=$rsrow[0];
-				$modtitle=cleanstring($rsrow[1]);
-				$modtitle=add_dashes($modtitle);
+		$ad_title="<a href=\"$url_showad\">".stripslashes($rsrow[1])."</a>";
 
-						$url_showad=url_showad($ad_id);
-
-						$ad_title="<a href=\"$url_showad\">".stripslashes($rsrow[1])."</a>";
-
-
-			echo "<li>$ad_title</li>";
-
-			}
-
+		$output .= "<li>$ad_title</li>";
+	}
+	return $output;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2258,7 +2247,6 @@ $limit=10;}
 
 function checkforduplicate($cpagename_awpcp)
 {
-
 	$awpcppagename = sanitize_title($cpagename_awpcp, $post_ID='');
 
 	$pageswithawpcpname=array();
@@ -2266,15 +2254,15 @@ function checkforduplicate($cpagename_awpcp)
 	$totalpageswithawpcpname='';
 
 	$query="SELECT ID FROM {$table_prefix}posts WHERE post_name = '$awpcppagename' AND post_type='post'";
-	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
 	if (mysql_num_rows($res))
 	{
-	 	while ($rsrow=mysql_fetch_row($res))
-	 	{
-	 		$pageswithawpcpname[]=$rsrow[0];
-	 	}
-	 	$totalpageswithawpcpname=count($pageswithawpcpname);
+		while ($rsrow=mysql_fetch_row($res))
+		{
+			$pageswithawpcpname[]=$rsrow[0];
+		}
+		$totalpageswithawpcpname=count($pageswithawpcpname);
 	}
 
 	return $totalpageswithawpcpname;
@@ -2282,43 +2270,43 @@ function checkforduplicate($cpagename_awpcp)
 
 function checkfortotalpageswithawpcpname($awpcppage) {
 
-$awpcppagename = sanitize_title($awpcppage, $post_ID='');
-$totalpageswithawpcpname='';
+	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+	$totalpageswithawpcpname='';
 
 	$allpageswithawpcppagename=array();
 	$pageswithawpcpname=array();
 	$childpageswithawpcpname=array();
-	
+
 	global $wpdb,$table_prefix;
 
 	$query="SELECT ID FROM {$table_prefix}posts WHERE post_title='$awpcppage' AND post_name = '$awpcppagename' AND post_content LIKE '%AWPCP%' AND post_type='page'";
-	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
 	if (mysql_num_rows($res))
 	{
-	 	while ($rsrow=mysql_fetch_row($res))
-	 	{
-	 		$pageswithawpcpname[]=$rsrow[0];
-	 	}	 	
+		while ($rsrow=mysql_fetch_row($res))
+		{
+			$pageswithawpcpname[]=$rsrow[0];
+		}
 	}
-	
+
 	if(!empty($pageswithawpcpname))
 	{
 		foreach ( $pageswithawpcpname as $pagewithawpcpname )
-		{	
+		{
 			// Get child pages if any
 			$query="SELECT ID FROM {$table_prefix}posts WHERE post_parent='$pagewithawpcpname' AND post_content LIKE '%AWPCP%'";
-			if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+			if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
 			if (mysql_num_rows($res))
 			{
 				while ($rsrow=mysql_fetch_row($res))
 				{
 					$childpageswithawpcpname[]=$rsrow[0];
-				}	 	
+				}
 			}
 		}
-		
+
 		if(!empty($childpageswithawpcpname))
 		{
 			$allpageswithawpcppagename=array_merge($pageswithawpcpname,$childpageswithawpcpname);
@@ -2327,21 +2315,18 @@ $totalpageswithawpcpname='';
 		{
 			$allpageswithawpcppagename=$pageswithawpcpname;
 		}
-	 	
-	 	$totalpageswithawpcpname=count($allpageswithawpcppagename);
-		
+			
+		$totalpageswithawpcpname=count($allpageswithawpcppagename);
+
 		if( $totalpageswithawpcpname >= 1 )
 		{
-
 			foreach ( $allpageswithawpcppagename as $thispagewithawpcpname )
 			{
 				//Delete the pages
 				wp_delete_post( $thispagewithawpcpname, $force_delete = true );
 			}
-
-				deleteuserpageentry($awpcppage);		
-		}		
-
+			deleteuserpageentry($awpcppage);
+		}
 	}
 	else
 	{
@@ -2360,18 +2345,18 @@ $totalpageswithawpcpname='';
 
 function create_ad_postedby_list()
 {
-
+	$output = '';
 	global $wpdb;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
+	$query="SELECT DISTINCT ad_contact_name FROM ".$tbl_ads."";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-		$query="SELECT DISTINCT ad_contact_name FROM ".$table_name3."";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
-
-			while ($rsrow=mysql_fetch_row($res))
-			{
-		 		echo "<option value=\"$rsrow[0]\">$rsrow[0]</option>";
-			}
+	while ($rsrow=mysql_fetch_row($res))
+	{
+		$output .= "<option value=\"$rsrow[0]\">$rsrow[0]</option>";
+	}
+	return $output;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2385,84 +2370,79 @@ function create_ad_postedby_list()
 
 function create_price_dropdownlist_min($searchpricemin)
 {
+	$output = '';
+	$pricerangevalues=array('0','25','50','100','500','1000','2500','5000','7500','10000','25000','50000','100000','250000','500000','1000000');
 
-		$pricerangevalues=array('0','25','50','100','500','1000','2500','5000','7500','10000','25000','50000','100000','250000','500000','1000000');
+	if( isset($searchpricemin) && !empty($searchpricemin) )
+	{
+		$theawpcplowvalue=$searchpricemin;
+	}
+	else
+	{
+		$theawpcplowvalue='';
+	}
+	foreach ($pricerangevalues as $pricerangevalue)
+	{
+		$output .= "<option value=\"$pricerangevalue\"";
 
-		if( isset($searchpricemin) && !empty($searchpricemin) )
+		if($pricerangevalue == $theawpcplowvalue)
 		{
-			$theawpcplowvalue=$searchpricemin;
+			$output .= "selected ";
 		}
-		else
-		{
-			$theawpcplowvalue='';
-		}
-			foreach ($pricerangevalues as $pricerangevalue)
-			{
-				echo "<option value=\"$pricerangevalue\"";
-
-				if($pricerangevalue == $theawpcplowvalue)
-				{
-					echo "selected ";
-				}
-					echo ">$pricerangevalue</option>";
-			}
+		$output .= ">$pricerangevalue</option>";
+	}
+	return $output;
 }
 
 function create_price_dropdownlist_max($searchpricemax)
 {
+	$output = '';
+	$pricerangevalues=array('0','25','50','100','500','1000','2500','5000','7500','10000','25000','50000','100000','250000','500000','1000000');
 
-		$pricerangevalues=array('0','25','50','100','500','1000','2500','5000','7500','10000','25000','50000','100000','250000','500000','1000000');
+	if( isset($searchpricemax) && !empty($searchpricemax) )
+	{
+		$theawpcphighvalue=$searchpricemax;
+	}
+	else
+	{
+		$theawpcphighvalue='';
+	}
 
-		if( isset($searchpricemax) && !empty($searchpricemax) )
+	foreach ($pricerangevalues as $pricerangevalue)
+	{
+		$output .= "<option value=\"$pricerangevalue\"";
+
+		if($pricerangevalue == $theawpcphighvalue)
 		{
-			$theawpcphighvalue=$searchpricemax;
+			$output .= "selected ";
 		}
-		else
-		{
-			$theawpcphighvalue='';
-		}
-
-			foreach ($pricerangevalues as $pricerangevalue)
-			{
-
-				echo "<option value=\"$pricerangevalue\"";
-
-				if($pricerangevalue == $theawpcphighvalue)
-				{
-					echo "selected ";
-				}
-					echo ">$pricerangevalue</option>";
-		 	}
+		$output .= ">$pricerangevalue</option>";
+	}
+	return $output;
 }
 
 
 function awpcp_array_range($from, $to, $step){
 
-    $array = array();
-    for ($x=$from; $x <= $to; $x += $step){
-        $array[] = $x;
-    }
-
-    return $array;
+	$array = array();
+	for ($x=$from; $x <= $to; $x += $step){
+		$array[] = $x;
+	}
+	return $array;
 
 }
 
 
 function awpcp_get_max_ad_price()
 {
+	$query="SELECT MAX(ad_item_price) as endval FROM ".$tbl_ads."";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-		$query="SELECT MAX(ad_item_price) as endval FROM ".$table_name3."";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
-
-			while ($rsrow=mysql_fetch_row($res))
-			{
-
-
-				$maxadprice=$rsrow[0];
-
-			}
-
-			return $maxadprice;
+	while ($rsrow=mysql_fetch_row($res))
+	{
+		$maxadprice=$rsrow[0];
+	}
+	return $maxadprice;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2475,27 +2455,25 @@ function awpcp_get_max_ad_price()
 
 function create_dropdown_from_current_cities()
 {
-
+	$output = '';
 	global $wpdb;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
-
-
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 	$listofsavedcities=array();
 
-		$query="SELECT DISTINCT ad_city FROM ".$table_name3." WHERE ad_city <> ''  ORDER by ad_city ASC";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+	$query="SELECT DISTINCT ad_city FROM ".$tbl_ads." WHERE ad_city <> ''  ORDER by ad_city ASC";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-			while ($rsrow=mysql_fetch_row($res))
-			{
-				$listofsavedcities[]=$rsrow[0];
+	while ($rsrow=mysql_fetch_row($res))
+	{
+		$listofsavedcities[]=$rsrow[0];
+		$savedcitieslist=array_unique($listofsavedcities);
+	}
 
-				$savedcitieslist=array_unique($listofsavedcities);
-			}
-
-			foreach ($savedcitieslist as $savedcity)
-			{
-				echo "<option value=\"$savedcity\">$savedcity</option>";
-		 	}
+	foreach ($savedcitieslist as $savedcity)
+	{
+		$output .= "<option value=\"$savedcity\">$savedcity</option>";
+	}
+	return $output;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2509,27 +2487,26 @@ function create_dropdown_from_current_cities()
 
 function create_dropdown_from_current_states()
 {
-
+	$output = '';
 	global $wpdb;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
 	$listofsavedstates=array();
 
-		$query="SELECT DISTINCT ad_state FROM ".$table_name3." WHERE ad_state <> ''  ORDER by ad_state ASC";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+	$query="SELECT DISTINCT ad_state FROM ".$tbl_ads." WHERE ad_state <> ''  ORDER by ad_state ASC";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-			while ($rsrow=mysql_fetch_row($res))
-			{
-				$listofsavedstates[]=$rsrow[0];
-				$savedstateslist=array_unique($listofsavedstates);
-			}
+	while ($rsrow=mysql_fetch_row($res))
+	{
+		$listofsavedstates[]=$rsrow[0];
+		$savedstateslist=array_unique($listofsavedstates);
+	}
 
-					foreach ($savedstateslist as $savedstate)
-					{
-		 				echo "<option value=\"$savedstate\">$savedstate</option>";
-		 			}
-
-
+	foreach ($savedstateslist as $savedstate)
+	{
+		$output .= "<option value=\"$savedstate\">$savedstate</option>";
+	}
+	return $output;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2542,27 +2519,26 @@ function create_dropdown_from_current_states()
 
 function create_dropdown_from_current_counties()
 {
-
+	$output = '';
 	global $wpdb;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
 	$listofsavedcounties=array();
 
-		$query="SELECT DISTINCT ad_county_village FROM ".$table_name3." WHERE ad_county_village <> ''  ORDER by ad_county_village ASC";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+	$query="SELECT DISTINCT ad_county_village FROM ".$tbl_ads." WHERE ad_county_village <> ''  ORDER by ad_county_village ASC";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-			while ($rsrow=mysql_fetch_row($res))
-			{
-				$listofsavedcounties[]=$rsrow[0];
-				$savedcountieslist=array_unique($listofsavedcounties);
+	while ($rsrow=mysql_fetch_row($res))
+	{
+		$listofsavedcounties[]=$rsrow[0];
+		$savedcountieslist=array_unique($listofsavedcounties);
 
-			}
-					foreach ($savedcountieslist as $savedcounty)
-					{
-		 				echo "<option value=\"$savedcounty\">$savedcounty</option>";
-		 			}
-
-
+	}
+	foreach ($savedcountieslist as $savedcounty)
+	{
+		$output .= "<option value=\"$savedcounty\">$savedcounty</option>";
+	}
+	return $output;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2575,27 +2551,26 @@ function create_dropdown_from_current_counties()
 
 function create_dropdown_from_current_countries()
 {
-
+	$output = '';
 	global $wpdb;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
 	$listofsavedcountries=array();
 
-		$query="SELECT DISTINCT ad_country FROM ".$table_name3." WHERE ad_country <> '' ORDER by ad_country ASC";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+	$query="SELECT DISTINCT ad_country FROM ".$tbl_ads." WHERE ad_country <> '' ORDER by ad_country ASC";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-			while ($rsrow=mysql_fetch_row($res))
-			{
-				$listofsavedcountries[]=$rsrow[0];
-				$savedcountrieslist=array_unique($listofsavedcountries);
+	while ($rsrow=mysql_fetch_row($res))
+	{
+		$listofsavedcountries[]=$rsrow[0];
+		$savedcountrieslist=array_unique($listofsavedcountries);
 
-			}
-					foreach ($savedcountrieslist as $savedcountry)
-					{
-		 				echo "<option value=\"$savedcountry\">$savedcountry</option>";
-		 			}
-
-
+	}
+	foreach ($savedcountrieslist as $savedcountry)
+	{
+		$output .= "<option value=\"$savedcountry\">$savedcountry</option>";
+	}
+	return $output;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2613,17 +2588,17 @@ function adstablehascities()
 	$myreturn=false;
 
 	global $wpdb;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-		$query="SELECT ad_city FROM ".$table_name3." WHERE ad_city <> ''";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+	$query="SELECT ad_city FROM ".$tbl_ads." WHERE ad_city <> ''";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-		if (mysql_num_rows($res))
-  		{
-  			$myreturn=true;
-  		}
+	if (mysql_num_rows($res))
+	{
+		$myreturn=true;
+	}
 
-  		return $myreturn;
+	return $myreturn;
 
 }
 
@@ -2641,17 +2616,17 @@ function adstablehasstates()
 	$myreturn=false;
 
 	global $wpdb;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-		$query="SELECT ad_state FROM ".$table_name3." WHERE ad_state <> ''";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+	$query="SELECT ad_state FROM ".$tbl_ads." WHERE ad_state <> ''";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-		if (mysql_num_rows($res))
-  		{
-  			$myreturn=true;
-  		}
+	if (mysql_num_rows($res))
+	{
+		$myreturn=true;
+	}
 
-  		return $myreturn;
+	return $myreturn;
 
 }
 
@@ -2669,17 +2644,17 @@ function adstablehascountries()
 	$myreturn=false;
 
 	global $wpdb;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-		$query="SELECT ad_country FROM ".$table_name3." WHERE ad_country <> ''";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+	$query="SELECT ad_country FROM ".$tbl_ads." WHERE ad_country <> ''";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-		if (mysql_num_rows($res))
-  		{
-  			$myreturn=true;
-  		}
+	if (mysql_num_rows($res))
+	{
+		$myreturn=true;
+	}
 
-  		return $myreturn;
+	return $myreturn;
 
 }
 
@@ -2697,17 +2672,17 @@ function adstablehascounties()
 	$myreturn=false;
 
 	global $wpdb;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-		$query="SELECT ad_county_village FROM ".$table_name3." WHERE ad_county_village <> ''";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+	$query="SELECT ad_county_village FROM ".$tbl_ads." WHERE ad_county_village <> ''";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-		if (mysql_num_rows($res))
-  		{
-  			$myreturn=true;
-  		}
+	if (mysql_num_rows($res))
+	{
+		$myreturn=true;
+	}
 
-  		return $myreturn;
+	return $myreturn;
 
 }
 
@@ -2726,17 +2701,17 @@ function price_field_has_values()
 	$myreturn=false;
 
 	global $wpdb;
-	$table_name3 = $wpdb->prefix . "awpcp_ads";
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-		$query="SELECT ad_item_price FROM ".$table_name3." WHERE ad_item_price > '0'";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+	$query="SELECT ad_item_price FROM ".$tbl_ads." WHERE ad_item_price > '0'";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-		if (mysql_num_rows($res))
-  		{
-  			$myreturn=true;
-  		}
+	if (mysql_num_rows($res))
+	{
+		$myreturn=true;
+	}
 
-  		return $myreturn;
+	return $myreturn;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2751,15 +2726,15 @@ function price_field_has_values()
 function get_a_random_image($ad_id)
 {
 
-global $wpdb;
-$table_name5 = $wpdb->prefix . "awpcp_adphotos";
-$awpcp_image_name='';
+	global $wpdb;
+	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
+	$awpcp_image_name='';
 
-	$query="SELECT image_name FROM ".$table_name5." WHERE ad_id='$ad_id' AND disabled='0' LIMIT 1";
-	if (!($res=@mysql_query($query))) {trigger_error(mysql_error(),E_USER_ERROR);}
+	$query="SELECT image_name FROM ".$tbl_ad_photos." WHERE ad_id='$ad_id' AND disabled='0' LIMIT 1";
+	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-  	if (mysql_num_rows($res))
-  	{
+	if (mysql_num_rows($res))
+	{
 		list($awpcp_image_name)=mysql_fetch_row($res);
 	}
 
@@ -2777,21 +2752,21 @@ $awpcp_image_name='';
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function check_if_ad_is_disabled($adid) {
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
 	$myreturn=false;
-		$query="SELECT disabled FROM ".$table_name3." WHERE ad_id='$adid'";
-		if (!($res=mysql_query($query))) {error(mysql_error(),__LINE__,__FILE__);}
+	$query="SELECT disabled FROM ".$tbl_ads." WHERE ad_id='$adid'";
+	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
-			while ($rsrow=mysql_fetch_row($res))
-			{
-		 		list($adstatusdisabled)=$rsrow;
-			}
-				if ($adstatusdisabled == 1)
-				{
-					$myreturn=true;
-				}
+	while ($rsrow=mysql_fetch_row($res))
+	{
+		list($adstatusdisabled)=$rsrow;
+	}
+	if ($adstatusdisabled == 1)
+	{
+		$myreturn=true;
+	}
 
 	return $myreturn;
 
@@ -2802,17 +2777,17 @@ $table_name3 = $wpdb->prefix . "awpcp_ads";
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function check_ad_fee_paid($adid) {
-global $wpdb;
-$table_name3 = $wpdb->prefix . "awpcp_ads";
-		$adfeeispaid=false;
-		$query="SELECT ad_fee_paid FROM ".$table_name3." WHERE ad_id='$adid'";
-			while ($rsrow=mysql_fetch_row($res))
-			{
-		 		list($ad_fee_paid)=$rsrow;
-			}
-			if($ad_fee_paid > 0){$adfeeispaid=true;}
+	global $wpdb;
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
+	$adfeeispaid=false;
+	$query="SELECT ad_fee_paid FROM ".$tbl_ads." WHERE ad_id='$adid'";
+	while ($rsrow=mysql_fetch_row($res))
+	{
+		list($ad_fee_paid)=$rsrow;
+	}
+	if($ad_fee_paid > 0){$adfeeispaid=true;}
 
-		return $adfeeispaid;
+	return $adfeeispaid;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2824,37 +2799,37 @@ function awpcp_get_currency_code()
 
 	$amtcurrencycode=get_awpcp_option('displaycurrencycode');
 
-		if(
-		($amtcurrencycode == 'CAD') ||
-		($amtcurrencycode == 'AUD') ||
-		($amtcurrencycode == 'NZD') ||
-		($amtcurrencycode == 'SGD') ||
-		($amtcurrencycode == 'HKD') ||
-		($amtcurrencycode == 'USD') )
-		{
+	if(
+	($amtcurrencycode == 'CAD') ||
+	($amtcurrencycode == 'AUD') ||
+	($amtcurrencycode == 'NZD') ||
+	($amtcurrencycode == 'SGD') ||
+	($amtcurrencycode == 'HKD') ||
+	($amtcurrencycode == 'USD') )
+	{
 		$thecurrencysymbol="$";
-		}
+	}
 
-		if( ($amtcurrencycode == 'JPY') )
-		{
-			$thecurrencysymbol="&yen;";
-		}
+	if( ($amtcurrencycode == 'JPY') )
+	{
+		$thecurrencysymbol="&yen;";
+	}
 
-		if( ($amtcurrencycode == 'EUR') )
-		{
-			$thecurrencysymbol="&euro;";
-		}
+	if( ($amtcurrencycode == 'EUR') )
+	{
+		$thecurrencysymbol="&euro;";
+	}
 
-		if( ($amtcurrencycode == 'GBP') )
-		{
-			$thecurrencysymbol="&pound;";
-		}
+	if( ($amtcurrencycode == 'GBP') )
+	{
+		$thecurrencysymbol="&pound;";
+	}
 
 
 
-		if(empty($thecurrencysymbol)) {
-			$thecurrencysymbol="$amtcurrencycode";
-		}
+	if(empty($thecurrencysymbol)) {
+		$thecurrencysymbol="$amtcurrencycode";
+	}
 
 	return $thecurrencysymbol;
 }
@@ -2867,37 +2842,11 @@ function awpcp_get_currency_code()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // START FUNCTION: Clear HTML tags
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function myErrorHandler($errno, $errstr, $errfile, $errline){
-    switch ($errno) {
-    case E_USER_ERROR:
-        if ($errstr == "(SQL)"){
-            // handling an sql error
-            echo "<b>SQL Error</b> [$errno] " . SQLMESSAGE . "<br />\n";
-            echo "Query : " . SQLQUERY . "<br />\n";
-            echo "On line " . SQLERRORLINE . " in file " . SQLERRORFILE . " ";
-            echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
-            echo "Aborting...<br />\n";
-        } else {
-            echo "<b>My ERROR</b> [$errno] $errstr<br />\n";
-            echo "  Fatal error on line $errline in file $errfile";
-            echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
-            echo "Aborting...<br />\n";
-        }
-        exit(1);
-        break;
-
-    case E_USER_WARNING:
-    case E_USER_NOTICE:
-    }
-    /* Don't execute PHP internal error handler */
-    return true;
-}
-
 function strip_html_tags( $text )
 {
-    $text = preg_replace(
-        array(
-          // Remove invisible content
+	$text = preg_replace(
+	array(
+	// Remove invisible content
             '@<head[^>]*?>.*?</head>@siu',
             '@<style[^>]*?>.*?</style>@siu',
             '@<script[^>]*?.*?</script>@siu',
@@ -2907,7 +2856,7 @@ function strip_html_tags( $text )
             '@<noframes[^>]*?.*?</noframes>@siu',
             '@<noscript[^>]*?.*?</noscript>@siu',
             '@<noembed[^>]*?.*?</noembed>@siu',
-          // Add line breaks before and after blocks
+	// Add line breaks before and after blocks
             '@</?((address)|(blockquote)|(center)|(del))@iu',
             '@</?((div)|(h[1-9])|(ins)|(isindex)|(p)|(pre))@iu',
             '@</?((dir)|(dl)|(dt)|(dd)|(li)|(menu)|(ol)|(ul))@iu',
@@ -2915,14 +2864,14 @@ function strip_html_tags( $text )
             '@</?((form)|(button)|(fieldset)|(legend)|(input))@iu',
             '@</?((label)|(select)|(optgroup)|(option)|(textarea))@iu',
             '@</?((frameset)|(frame)|(iframe))@iu',
-        ),
-        array(
+	),
+	array(
             ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
             "\n\$0", "\n\$0", "\n\$0", "\n\$0", "\n\$0", "\n\$0",
             "\n\$0", "\n\$0",
-        ),
-        $text );
-    return strip_tags( $text );
+	),
+	$text );
+	return strip_tags( $text );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2931,8 +2880,6 @@ function strip_html_tags( $text )
 
 function awpcp_process_mail($awpcpsenderemail,$awpcpreceiveremail,$awpcpemailsubject,$awpcpemailbody,$awpcpsendername,$awpcpreplytoemail)
 {
-
-	
 	$headers =	"MIME-Version: 1.0\n" .
 	"From: $awpcpsendername <$awpcpsenderemail>\n" .
 	"Reply-To: $awpcpreplytoemail\n" .
@@ -2944,60 +2891,65 @@ function awpcp_process_mail($awpcpsenderemail,$awpcpreceiveremail,$awpcpemailsub
 
 	$message = "
 
-	$awpcpemailbody 	
+	$awpcpemailbody
 
 	Time: $time
 
 	";
-	
-		if(wp_mail( $awpcpreceiveremail, $subject, $message, $headers ))
-		{
-			return 1;
-		}
-		elseif( send_email($awpcpsenderemail,$awpcpreceiveremail,$awpcpemailsubject,$awpcpemailbody,true) )
-		{
-			return 1;
-		}
-		elseif( @mail($awpcpreceiveremail, $awpcpemailsubject, $awpcpemailbody, $headers) )
-		{
-			return 1;
-		}
-		else
-		{	
-			// None of the other email methods have worked so try the SMTP
-
-			$awpcp_smtp_host = get_awpcp_option('smtphost');
-			$awpcp_smtp_username = get_awpcp_option('smtpusername');
-			$awpcp_smtp_password = get_awpcp_option('smtppassword');
+	_log("Processing email");
+	if(wp_mail( $awpcpreceiveremail, $subject, $message, $headers ))
+	{
+		_log("Sent via WP");
+		return 1;
+	}
+	elseif( send_email($awpcpsenderemail,$awpcpreceiveremail,$awpcpemailsubject,$awpcpemailbody,true) )
+	{
+		_log("Sent via send_email");
+		return 1;
+	}
+	elseif( @mail($awpcpreceiveremail, $awpcpemailsubject, $awpcpemailbody, $headers) )
+	{
+		_log("Sent via mail");
+		return 1;
+	}
+	else
+	{
+		_log("Attempting by SMTP, all others failed");
+		// None of the other email methods have worked so try the SMTP
+		$awpcp_smtp_host = get_awpcp_option('smtphost');
+		$awpcp_smtp_username = get_awpcp_option('smtpusername');
+		$awpcp_smtp_password = get_awpcp_option('smtppassword');
 			
+		if( isset($awpcp_smtp_username) && !empty($awpcp_smtp_username) && isset($awpcp_smtp_password) && !empty($awpcp_smtp_password) && isset($awpcp_smtp_hostname) && !empty($awpcp_smtp_hostname))
+		{
+			include("Mail.php");
+			$recipients = $awpcpreceiveremail;
+			$mailmsg = $awpcpemailbody;
+			$smtpinfo["host"] = $awpcp_smtp_host;
+			$smtpinfo["port"] = "25";
+			$smtpinfo["auth"] = true;
+			$smtpinfo["username"] = $awpcp_smtp_username;
+			$smtpinfo["password"] = $awpcp_smtp_password;
+			$mail_object =& Mail::factory("smtp", $smtpinfo);
 
-			if( isset($awpcp_smtp_username) && !empty($awpcp_smtp_username) && isset($awpcp_smtp_password) && !empty($awpcp_smtp_password) && isset($awpcp_smtp_hostname) && !empty($awpcp_smtp_hostname))
-			{		
-				include("Mail.php");
-				$recipients = $awpcpreceiveremail;
-				$mailmsg = $awpcpemailbody;
-				$smtpinfo["host"] = $awpcp_smtp_host;
-				$smtpinfo["port"] = "25";
-				$smtpinfo["auth"] = true;
-				$smtpinfo["username"] = $awpcp_smtp_username;
-				$smtpinfo["password"] = $awpcp_smtp_password;
-				$mail_object =& Mail::factory("smtp", $smtpinfo);
-
-				if($mail_object->send($recipients, $headers, $mailmsg))
-				{
-					return 1;
-				}
-				else
-				{
-					return 0;
-				}
+			if($mail_object->send($recipients, $headers, $mailmsg))
+			{
+				_log("SMTP succeeded");
+				return 1;
 			}
 			else
 			{
+				_log("SMTP failed during send");
 				return 0;
 			}
 		}
-		
+		else
+		{
+			_log("SMTP not configured properly, all attempts failed");
+			return 0;
+		}
+	}
+
 }
 
 ?>
