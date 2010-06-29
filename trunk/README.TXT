@@ -3,47 +3,57 @@ Contributors: awpcp.com
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified, awpcp
 Requires at least: 2.7
-Tested up to: 2.9.2
-Stable tag: tags/1.0.6.9
+Tested up to: 3.0
+Stable tag: tags/1.0.6.10
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your wordpress blog. 
 
 == Description ==
 
-Thanks for making us the #1 Classifieds Plugin for WordPress!  We're one year old and have 30,000+ downloads!
+Thanks for making us the #1 Classifieds Plugin for WordPress!  We're over one year old and have 30,000+ downloads!
 
 This plugin is designed to allow you to add a classifieds ad section to your blog. The plugin supports any type of classified ads service that can run under a simple structure, taking some basic information from the user. 
 
 Features:
 
-* Posting ads can be free or paid. 
-* Support for Paypal and 2checkout built-in.  Google Checkout is also supported via Premium Modules.
-* Ads can (optionally) support user-uploaded pictures
-* Ads in Paid Mode supports multiple fee scales 
-* Ads in Paid Mode supports different number of pictures users can upload based on a specific fee scale
-* Ads in Free Mode supports picture upload limits
-* You can control the size of image files users can upload
-* You can turn on image approval so images are hidden until you approve them
-* You can turn on ad approval so ads are hidden until you approve them
-* The standard form takes an ad title, at text, contact name, email, city, state, country, phone. If you want you can disable city, state, country and phone so only title, contact name, email and ad text fields are shown in the submission form
-* You can turn on or off notification when new ads are posted
-* Ads will autoexpire based on free or paid mode. If free mode, you can set a value for how long an ad can stay in the system. If running in pay mode ad term length depends on the value you configure and ads will automatically expire when that term ends.
-* You can turn on or off the option to display adsense in ads
-* If displaying adsense in ads you can configure the position based on 3 position options
-* You can turn on or off search engine friendly URls
-* You can allow or disallow HTML in ad text 
-* You can set a limit on the size of the ad text
-* You can turn on or off notification to ad poster when ad expires
-* Users can edit their ads
-* Users can delete their ad
-* Admin can edit user ads
-* Viewers can contact the ad poster. Ad poster's email is never shown
-* Ads can be searched by keyword, city, state, country, name of poster.
-* Classifieds can be setup so only admin can post ads
-* Classifieds can be setup so only registered users can post ad. 
-* Lost access Key retrieval for users needing to edit their ad who can't remember their access key
-* Display how many times an ad has been viewed (admin can turn off or on)
-* For sites where HTML will not be allowed in ad text admin has the option turn on or off hyperlinking of any URLs found in text
+    * Ad Features
+         1. Search ads by city, state, country, username, or keyword
+         2. Allow AdSense ads to be displayed
+         3. Control over HTML use in ads
+         4. Limit the text size of ad postings
+         5. Standard form fields can be enabled or disabled, depending on your needs (title, website, name, country, etc)
+         6. Allow or disallow image posting with ads
+         7. Automatic expiration of ads (free or paid)
+         8. Configurable ad display for AdSense placement
+    * Notification Features
+         1. Allow posters to be notified of expiring ads
+         2. Allow admin to be notified when new ads are posted
+         3. Classified ad users can contact the ad poster without exposing the poster's email (blind email system, similar to Craigslist)
+    * Payment Features
+         1. Allows for paid or free ads
+         2. Supports PayPal and 2Checkout for paid ads
+         3. Google Checkout support for paid ads also through a Premium Module
+         4. Allow for image posting limits higher than free ads
+         5. Multiple fee scales for posting ads (allows you to have longer ad postings with higher fees)
+         6. Variable ad expiration lengths connected to fee scale (e.g. allow ads to run for 30 days for $10, 60 days for $15, etc)
+    * Ad Posting Controls
+         1. Allow admin to approve ads prior to posting
+         2. Allow admin to approve images prior to posting
+         3. Users can edit or delete their own ads
+         4. Admin can edit or delete all ads in the system
+         5. Secure system gives users a unique editing key to administer their own ads
+         6. Allows for limiting image posting (by image size, height, width and total count if desired)
+    * Image Features
+         1. Allow image posting or shut it off completely
+         2. Control the number, filesize, height and width of images posted
+         3. Allow for different numbers of images to be posted with paid ads vs. free ads
+         4. Allow for image approval prior to posting
+    * Premium Modules (add-ons, not included with plugin, but they are available for purchase)
+         1. Category Icons (adds small icons to give visual cues to your user for each category in AWPCP)
+         2. Extra Fields (allows you to add any custom fields for display.  For example, if you have a pet-related board, you might have "Sex", "Breed", and "Dam/Sire" as additional fields you require for display)
+         3. Region Control (allows you to restrict viewing of ads based on locale, so users don't see items they aren't physically near them, also allows customization of the region types, such as village, borough, etc)
+         4. Google Checkout (allows you to support Google Checkout as a payment method for paid ad posting)
+         5. "Powered By" Link Removal (allows you to get rid of the link at the bottom of all AWPCP pages)
 
 These are just some of the features of Another Wordpress Classifieds Plugin
 
@@ -51,11 +61,12 @@ Note: This plugin has been developed by a hobbyist programmer who does not prete
 Use this plugin knowing it comes with no guarantee that the methods of coding used are up to PHP, MYSQL or wordpress plugin development expert standards. 
 
 For more information and support please visit http://awpcp.com
+For plugin support please visit http://forum.awpcp.com
 
 
 == Credits ==
 
-Copyright 2009 awpcp.com
+Copyright 2009-10 awpcp.com
 
 AWPCP Classifieds icons courtesy of http://www.famfamfam.com/lab/icons/silk/
 dcfunctions.php courtesy of Dan Caragea http://www.datemill.com

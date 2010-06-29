@@ -1,15 +1,15 @@
 <?php
 /******************************************************************************
-Etano
-===============================================================================
-File:                       includes/classes/fileop.class.php
-$Revision: 321 $
-Software by:                DateMill (http://www.datemill.com)
-Copyright by:               DateMill (http://www.datemill.com)
-Support at:                 http://www.datemill.com/forum
-*******************************************************************************
-* See the "docs/licenses/etano.txt" file for license.                         *
-*******************************************************************************/
+ Etano
+ ===============================================================================
+ File:                       includes/classes/fileop.class.php
+ $Revision: 321 $
+ Software by:                DateMill (http://www.datemill.com)
+ Copyright by:               DateMill (http://www.datemill.com)
+ Support at:                 http://www.datemill.com/forum
+ *******************************************************************************
+ * See the "docs/licenses/etano.txt" file for license.                         *
+ *******************************************************************************/
 
 class fileop {
 
@@ -41,7 +41,7 @@ class fileop {
 	}
 
 
-// $file should have a full basepath (for 'disk' op mode). In case we're using ftp it will be converted to ftp path
+	// $file should have a full basepath (for 'disk' op mode). In case we're using ftp it will be converted to ftp path
 	function set_permission($file,$mode) {
 		$myreturn='';
 		if ($this->op_mode=='disk') {
@@ -60,7 +60,7 @@ class fileop {
 	}
 
 
-// both params should have a full basepath (for 'disk' op mode)
+	// both params should have a full basepath (for 'disk' op mode)
 	function copy($source,$destination) {
 		$myreturn=false;
 		if ($this->op_mode=='disk') {
@@ -76,7 +76,7 @@ class fileop {
 	}
 
 
-// $source should have a full basepath (for 'disk' op mode)
+	// $source should have a full basepath (for 'disk' op mode)
 	function delete($source) {
 		$myreturn=false;
 		if ($this->op_mode=='disk') {
@@ -95,7 +95,7 @@ class fileop {
 	}
 
 
-// both params should have a full basepath (for 'disk' op mode)
+	// both params should have a full basepath (for 'disk' op mode)
 	function rename($source,$destination) {
 		$myreturn=false;
 		if ($this->op_mode=='disk') {
@@ -106,12 +106,12 @@ class fileop {
 			$old_de=ini_get('display_errors');
 			ini_set('display_errors',0);
 			$myreturn=@ftp_rename($this->ftp_id,$source,$destination);
-// because the source might have the web server owner instead of the ftp owner, we try to copy+delete
-//			$this->copy($source,$destination);
-//			if (!$this->_disk_delete($source)) {
-//				$source=str_replace(_BASEPATH_.'/',_FTPPATH_,$source);
-//				$this->_ftp_delete($source);
-//			}
+			// because the source might have the web server owner instead of the ftp owner, we try to copy+delete
+			//			$this->copy($source,$destination);
+			//			if (!$this->_disk_delete($source)) {
+			//				$source=str_replace(_BASEPATH_.'/',_FTPPATH_,$source);
+			//				$this->_ftp_delete($source);
+			//			}
 			ini_set('display_errors',$old_de);
 		}
 		return $myreturn;
@@ -201,9 +201,9 @@ class fileop {
 	}
 
 
-// a special way to mark the backup files. Why? because accessing file.php~ on the web would show the source code
-// while file~.php wouldn't
-// $myfilename should have a full basepath
+	// a special way to mark the backup files. Why? because accessing file.php~ on the web would show the source code
+	// while file~.php wouldn't
+	// $myfilename should have a full basepath
 	function backup_file($myfilename) {
 		$ext=substr($myfilename,strrpos($myfilename,'.'));
 		$basename=substr($myfilename,0,strlen($myfilename)-strlen($ext));
@@ -231,8 +231,8 @@ class fileop {
 		return $myreturn;
 	}
 
-// internal function, do not call from outside. Call fileop->copy() instead
-// both params should have a full basepath
+	// internal function, do not call from outside. Call fileop->copy() instead
+	// both params should have a full basepath
 	function _disk_copy($source,$destination) {
 		$myreturn=false;
 		if (is_dir($source)) {
@@ -254,8 +254,8 @@ class fileop {
 	}
 
 
-// internal function, do not call from outside. Call fileop->copy() instead
-// source must have a disk path and destination must have a ftp path
+	// internal function, do not call from outside. Call fileop->copy() instead
+	// source must have a disk path and destination must have a ftp path
 	function _ftp_copy($source,$destination) {
 		$myreturn=false;
 		if (is_dir($source)) {
@@ -278,8 +278,8 @@ class fileop {
 	}
 
 
-// internal function, do not call from outside. Call fileop->delete() instead
-// $source should have a full basepath
+	// internal function, do not call from outside. Call fileop->delete() instead
+	// $source should have a full basepath
 	function _disk_delete($source) {
 		$myreturn=false;
 		if (is_dir($source)) {
@@ -298,8 +298,8 @@ class fileop {
 	}
 
 
-// internal function, do not call from outside. Call fileop->delete() instead
-// $source should have a full ftppath
+	// internal function, do not call from outside. Call fileop->delete() instead
+	// $source should have a full ftppath
 	function _ftp_delete($source) {
 		$myreturn=false;
 		if (substr($source,-1)=='/') {
@@ -330,7 +330,7 @@ class fileop {
 	}
 
 
-// must call this function to make sure we won't open several connections to the ftp server.
+	// must call this function to make sure we won't open several connections to the ftp server.
 	function finish() {
 		if ($this->op_mode=='ftp') {
 			$old_de=ini_get('display_errors');

@@ -28,90 +28,90 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 //---------------------------------------------------------------------------//
 
 function smart_table($array,$table_cols=1,$opentable,$closetable) {
-				$usingtable='';
-		  		$myreturn="$opentable\n";
-				$row=0;
-				$total_vals=count($array);
-				$i=1;
-				$awpcpdisplayaditemclass='';
-				
-				
-				if( (isset($opentable) && !empty($opentable)) && (isset($closetable) && !empty($closetable)) )
-				{
-					$usingtable=1;
-				}
-
-					foreach ($array as $v) { 
-					
-					if ($i % 2 == 0) { $awpcpdisplayaditemclass = "displayaditemsodd"; } else { $awpcpdisplayaditemclass = "displayaditemseven"; }				
+	$usingtable='';
+	$myreturn="$opentable\n";
+	$row=0;
+	$total_vals=count($array);
+	$i=1;
+	$awpcpdisplayaditemclass='';
 
 
-						$v=str_replace("\$awpcpdisplayaditems",$awpcpdisplayaditemclass,$v);
-
-						if ((($i-1)%$table_cols)==0) 
-						{
-					
-							if($usingtable)
-							{
-								$myreturn.="<tr>\n";
-							}
-						
-							$row++;
-						}
-						
-							if($usingtable)
-							{
-								$myreturn.="\t<td valign=\"top\">";
-							}
-							
-							$myreturn.="$v";
-							
-							if($usingtable)
-							{
-								$myreturn.="</td>\n";
-							}
-								
-								if ($i%$table_cols==0) 
-								{
-									if($usingtable)
-									{								
-										$myreturn.="</tr>\n";
-									}
-								}
-							
-						$i++;
-					}
-					$rest=($i-1)%$table_cols;
-					if ($rest!=0) {
-						$colspan=$table_cols-$rest;
-			
-								$myreturn.="\t<td".(($colspan==1) ? '' : " colspan=\"$colspan\"")."></td>\n</tr>\n";
-							
-					}
-				//}
-				$myreturn.="$closetable\n";
-				return $myreturn;
+	if( (isset($opentable) && !empty($opentable)) && (isset($closetable) && !empty($closetable)) )
+	{
+		$usingtable=1;
 	}
+
+	foreach ($array as $v) {
+			
+		if ($i % 2 == 0) { $awpcpdisplayaditemclass = "displayaditemsodd"; } else { $awpcpdisplayaditemclass = "displayaditemseven"; }
+
+
+		$v=str_replace("\$awpcpdisplayaditems",$awpcpdisplayaditemclass,$v);
+
+		if ((($i-1)%$table_cols)==0)
+		{
+				
+			if($usingtable)
+			{
+				$myreturn.="<tr>\n";
+			}
+
+			$row++;
+		}
+
+		if($usingtable)
+		{
+			$myreturn.="\t<td valign=\"top\">";
+		}
+			
+		$myreturn.="$v";
+			
+		if($usingtable)
+		{
+			$myreturn.="</td>\n";
+		}
+
+		if ($i%$table_cols==0)
+		{
+			if($usingtable)
+			{
+				$myreturn.="</tr>\n";
+			}
+		}
+			
+		$i++;
+	}
+	$rest=($i-1)%$table_cols;
+	if ($rest!=0) {
+		$colspan=$table_cols-$rest;
+			
+		$myreturn.="\t<td".(($colspan==1) ? '' : " colspan=\"$colspan\"")."></td>\n</tr>\n";
+			
+	}
+	//}
+	$myreturn.="$closetable\n";
+	return $myreturn;
+}
 
 
 
 function create_awpcp_random_seed() {
-    list($usec, $sec) = explode(' ', microtime());
-    return (int)$sec+(int)($usec*100000);
+	list($usec, $sec) = explode(' ', microtime());
+	return (int)$sec+(int)($usec*100000);
 }
 
 
 
 function vector2table($vector) {
-    $afis="<table>\n";
-    $i=1;
-    $afis.="<tr>\n\t<td class=title colspan=2>Table</td>\n</tr>\n";
-    while (list($k,$v) = each($vector)) {
-        $afis.="<tr class=".(($i%2) ? "trpar" : "trimpar").">\n\t<td>".htmlentities($k)."</td>\n\t<td>".htmlentities($v)."</td>\n</tr>\n";
-        $i++;
-    }
-    $afis.="</table>\n";
-    return $afis;
+	$afis="<table>\n";
+	$i=1;
+	$afis.="<tr>\n\t<td class=title colspan=2>Table</td>\n</tr>\n";
+	while (list($k,$v) = each($vector)) {
+		$afis.="<tr class=".(($i%2) ? "trpar" : "trimpar").">\n\t<td>".htmlentities($k)."</td>\n\t<td>".htmlentities($v)."</td>\n</tr>\n";
+		$i++;
+	}
+	$afis.="</table>\n";
+	return $afis;
 }
 
 
@@ -156,7 +156,7 @@ function vector2checkboxes($show_vector,$excluded_keys_vector,$checkname,$binval
 		$myreturn.="\t<td>\n";
 		$myreturn.="\t\t<input type=\"checkbox\" name=\"".$checkname."[$k]\"";
 		if (isset($binvalue) && ($binvalue>0) && (($binvalue>>$k)%2)) {
-//print "binvalue=$binvalue k=$k<br>";
+			//print "binvalue=$binvalue k=$k<br>";
 			$myreturn.=" checked";
 		}
 		$myreturn.=">";
@@ -235,37 +235,37 @@ function del_empty_vals($myarray) {
 
 if (!function_exists('stripslashes_mq')) {
 	function stripslashes_mq($value) {
-	if (is_array($value)) {
-	$myreturn=array();
-	while (list($k,$v)=each($value)) {
-	$myreturn[stripslashes_mq($k)]=stripslashes_mq($v);
-	}
-	} else {
-	if(get_magic_quotes_gpc()==0) {
-	$myreturn=$value;
-	} else {
-	$myreturn=stripslashes($value);
-	}
-	}
-	return $myreturn;
+		if (is_array($value)) {
+			$myreturn=array();
+			while (list($k,$v)=each($value)) {
+				$myreturn[stripslashes_mq($k)]=stripslashes_mq($v);
+			}
+		} else {
+			if(get_magic_quotes_gpc()==0) {
+				$myreturn=$value;
+			} else {
+				$myreturn=stripslashes($value);
+			}
+		}
+		return $myreturn;
 	}
 }
 
 if (!function_exists('addslashes_mq')) {
 	function addslashes_mq($value) {
-	if (is_array($value)) {
-	$myreturn=array();
-	while (list($k,$v)=each($value)) {
-	$myreturn[addslashes_mq($k)]=addslashes_mq($v);
-	}
-	} else {
-	if(get_magic_quotes_gpc() == 0) {
-	$myreturn=addslashes($value);
-	} else {
-	$myreturn=$value;
-	}
-	}
-	return $myreturn;
+		if (is_array($value)) {
+			$myreturn=array();
+			while (list($k,$v)=each($value)) {
+				$myreturn[addslashes_mq($k)]=addslashes_mq($v);
+			}
+		} else {
+			if(get_magic_quotes_gpc() == 0) {
+				$myreturn=addslashes($value);
+			} else {
+				$myreturn=$value;
+			}
+		}
+		return $myreturn;
 	}
 }
 
@@ -379,10 +379,10 @@ function create_pager($from,$where,$offset,$results,$tpname)
 			$awpcppage=get_currentpagename();
 			$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 			$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
-				if( !get_awpcp_option('seofriendlyurls') )
-				{
-					$params['page_id']="$awpcpwppostpageid";
-				}
+			if( !get_awpcp_option('seofriendlyurls') )
+			{
+				$params['page_id']="$awpcpwppostpageid";
+			}
 		}
 
 	}
@@ -394,10 +394,10 @@ function create_pager($from,$where,$offset,$results,$tpname)
 		$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 		$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
 
-			if( !get_awpcp_option('seofriendlyurls') )
-			{
-				$params['page_id']="$awpcpwppostpageid";
-			}
+		if( !get_awpcp_option('seofriendlyurls') )
+		{
+			$params['page_id']="$awpcpwppostpageid";
+		}
 	}
 
 	$myrand=mt_rand(1000,2000);
@@ -463,7 +463,7 @@ function _gdinfo() {
 		}
 	}
 	return $myreturn;
-	}
+}
 
 
 function unix2dos($mystring) {
@@ -515,7 +515,7 @@ function send_email($from,$to,$subject,$message,$html=false,$attachments=array()
 	if (isset($_SERVER['WINDIR']) || isset($_SERVER['windir']) || isset($_ENV['WINDIR']) || isset($_ENV['windir'])) {
 		$message=unix2dos($message);
 	}
-//	$headers=unix2dos($headers);
+	//	$headers=unix2dos($headers);
 	$sentok=@mail($to,$subject,$message,$headers,"-f$from");
 	return $sentok;
 }
