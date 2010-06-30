@@ -2100,13 +2100,13 @@ function massdeleteadsfromcategory($catid){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ### Function: Init AWPCP Latest Classified Headlines Widget
 function init_awpcpsbarwidget() {
-	$output = '';
 	if (!function_exists('register_sidebar_widget')) {
 		return;
 	}
 
 	### Function: AWPCP Latest Classified Headlines Widget
 	function widget_awpcplatestads($args) {
+		$output = '';
 		extract($args);
 		$limit=$args[0];
 		$title=$args[1];
@@ -2117,7 +2117,6 @@ function init_awpcpsbarwidget() {
 			$options = get_option('widget_awpcplatestads');
 			$title = htmlspecialchars(stripslashes($options['title']));
 			$limit = htmlspecialchars(stripslashes($options['hlimit']));
-
 		}
 		if(ads_exist())
 		{
@@ -2125,8 +2124,6 @@ function init_awpcpsbarwidget() {
 			$awpcp_sb_widget_aftercontent=get_awpcp_option('sidebarwidgetaftercontent');
 			$awpcp_sb_widget_beforetitle=get_awpcp_option('sidebarwidgetbeforetitle');
 			$awpcp_sb_widget_aftertitle=get_awpcp_option('sidebarwidgetaftertitle');
-
-
 
 			if(isset($awpcp_sb_widget_beforecontent) && !empty($awpcp_sb_widget_beforecontent))
 			{$awpcp_sb_widget_beforecontent="$awpcp_sb_widget_beforecontent";}
@@ -2154,8 +2151,6 @@ function init_awpcpsbarwidget() {
 			}
 
 			$output .= "$title";
-
-
 			if(isset($awpcp_sb_widget_aftertitle) && !empty($awpcp_sb_widget_aftertitle))
 			{
 				$output .= "$awpcp_sb_widget_aftertitle";
@@ -2173,10 +2168,13 @@ function init_awpcpsbarwidget() {
 				$output .= "$awpcp_sb_widget_aftercontent";
 			}
 		}
+		//Echo OK here
+		echo $output;
 	}
 
 	### Function: AWPCP Latest Classified Headlines Widget Options
 	function widget_awpcplatestads_options() {
+		$output = '';
 		$options = get_option('widget_awpcplatestads');
 		if (!is_array($options)) {
 			$options = array('hlimit' => '10', 'title' => __('Latest Classifieds', 'wp-awpcplatestads'));
@@ -2197,12 +2195,12 @@ function init_awpcpsbarwidget() {
 		//$output .= '<p><label for="awpcpwid-beforetitle">'.__('Before title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforetitle" size="35" name="awpcpwid-beforetitle" value="'.htmlspecialchars(stripslashes($options['beforetitle'])).'" />';
 		//$output .= '<p><label for="awpcpwid-aftertitle">'.__('After title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-aftertitle" size="35" name="awpcpwid-aftertitle" value="'.htmlspecialchars(stripslashes($options['aftertitle'])).'" />';
 		$output .= '<input type="hidden" id="awpcplatestads-submit" name="awpcplatestads-submit" value="1" />'."\n";
+		//Echo ok here:
+		echo $output;
 	}
-	//Echo ok here:
-	echo $output;
 	// Register Widgets
-	register_sidebar_widget('AWPCPClassifieds', 'widget_awpcplatestads');
-	register_widget_control('AWPCPClassifieds', 'widget_awpcplatestads_options', 350, 120);
+	register_sidebar_widget('AWPCP Latest Ads', 'widget_awpcplatestads');
+	register_widget_control('AWPCP Latest Ads', 'widget_awpcplatestads_options', 350, 120);
 
 }
 
