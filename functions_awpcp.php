@@ -1607,13 +1607,8 @@ function get_awpcp_parent_page_name($awpcppageparentid) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function checkfortable($table) {
-
-	$tableexists=false;
-	$query="SELECT count(*) FROM ".$table."";
-	if (($res=mysql_query($query))) {
-		$tableexists=true;
-	}
-
+	global $wpdb;
+	$tableexists = $wpdb->get_var("show tables like '$table'") == $table;
 	return $tableexists;
 }
 

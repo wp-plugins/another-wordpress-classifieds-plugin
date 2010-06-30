@@ -6,7 +6,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.0.6.11
+ Version: 1.0.6.12
  Author: A Lewis, D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -163,13 +163,14 @@ if ( file_exists("$awpcp_plugin_path/awpcp_rss_module.php") )
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function awpcpjs() {
-	global $awpcp_plugin_url;
+	global $awpcp_plugin_url,$wpdb;
 	wp_enqueue_script('jquery');
 	wp_enqueue_script('jquery-form');
-
-	if ( !get_awpcp_option('awpcp_thickbox_disabled') )
-	{
-		wp_enqueue_script('thickbox');
+	if (checkfortable($wpdb->prefix . "awpcp_adsettings")) {
+		if ( !get_awpcp_option('awpcp_thickbox_disabled') )
+		{
+			wp_enqueue_script('thickbox');
+		}
 	}
 	wp_enqueue_script('jquery-chuch', $awpcp_plugin_url.'js/checkuncheckboxes.js', array('jquery'));
 }
@@ -430,13 +431,12 @@ function do_settings_insert()
 		('buildsearchdropdownlists', '0', 'The search form can attempt to build drop down country, state, city and county lists if data is available in the system. Limits search to available locations. Note that with the regions module installed the value for this option is overridden.','2','0'),
 		('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side','1','2'),
 		('showlatestawpcpnews', '1', 'Allow AWPCP RSS.','1','0')";
-	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
+	$wpdb->query($query);
 }
 
 function awpcp_install() {
-
 	global $wpdb,$awpcp_db_version,$awpcp_plugin_path;
-
+	_log("Running installation");
 	$tbl_ad_categories = $wpdb->prefix . "awpcp_categories";
 	$tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
@@ -444,9 +444,9 @@ function awpcp_install() {
 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 	$tbl_pagename = $wpdb->prefix . "awpcp_pagename";
 
-
 	if ($wpdb->get_var("show tables like '$tbl_ad_categories'") != $tbl_ad_categories) {
-
+		_log("Fresh install detected");
+			
 		$sql = "CREATE TABLE " . $tbl_ad_categories . " (
 	  `category_id` int(10) NOT NULL AUTO_INCREMENT,
 	  `category_parent_id` int(10) NOT NULL,
@@ -535,16 +535,12 @@ function awpcp_install() {
 
 
 	";
-
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 		dbDelta($sql);
-
-
 		add_option("awpcp_db_version", $awpcp_db_version);
-
 		wp_schedule_event( time(), 'hourly', 'doadexpirations_hook' );
 	} else {
-
+		_log("Upgrade detected");
 		global $wpdb,$awpcp_db_version;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -558,13 +554,12 @@ function awpcp_install() {
 			// Update category ordering
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			$column="category_order";
-			$cat_order_column_exists=mysql_query("SELECT $column FROM $tbl_ad_categories;");
+			$cat_order_column_exists = mysql_query("SELECT $column FROM $tbl_ad_categories;");
 
 			if (mysql_errno())
 			{
 				//Add the category order column:
-				$query=("ALTER TABLE " . $tbl_ad_categories . "  ADD `category_order` int(10) NULL DEFAULT '0' AFTER category_name");
-				@mysql_query($query);
+				$wpdb->query("ALTER TABLE " . $tbl_ad_categories . "  ADD `category_order` int(10) NULL DEFAULT '0' AFTER category_name");
 				$wpdb->query("UPDATE " . $tbl_ad_categories . " SET category_order=0");
 			}
 			
@@ -736,8 +731,6 @@ function awpcp_install() {
 	 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	 	// Create additional classifieds pages if they do not exist
 	 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 	 	$tableexists=checkfortable($tbl_pagename);
 	 	if ($tableexists)
 	 	{
@@ -807,14 +800,11 @@ function awpcp_install() {
 
 	 	if (mysql_errno())
 	 	{
-	 		$query=("ALTER TABLE " . $tbl_ads . "  ADD `websiteurl` VARCHAR( 500 ) NOT NULL AFTER `ad_contact_email`");
-	 		@mysql_query($query);
+	 		$wpdb->query("ALTER TABLE " . $tbl_ads . "  ADD `websiteurl` VARCHAR( 500 ) NOT NULL AFTER `ad_contact_email`");
 	 	}
 
-	 	$query=("ALTER TABLE " . $tbl_ads . "  DROP INDEX `titdes`");
-	 	@mysql_query($query);
-	 	$query=("ALTER TABLE " . $tbl_ads . "  ADD FULLTEXT KEY `titdes` (`ad_title`,`ad_details`)");
-	 	@mysql_query($query);
+	 	$wpdb->query("ALTER TABLE " . $tbl_ads . "  DROP INDEX `titdes`");
+	 	$wpdb->query("ALTER TABLE " . $tbl_ads . "  ADD FULLTEXT KEY `titdes` (`ad_title`,`ad_details`)");
 
 	 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	 	// Add new field ad_fee_paid for sorting ads by paid listings first
@@ -846,7 +836,7 @@ function awpcp_install() {
 
 	 	if (mysql_errno())
 	 	{
-	 		$query=("ALTER TABLE " . $tbl_ads . "  ADD `ad_county_village` varchar(255) NOT NULL AFTER `ad_country`");
+	 		$wpdb->query("ALTER TABLE " . $tbl_ads . "  ADD `ad_county_village` varchar(255) NOT NULL AFTER `ad_country`");
 	 	}
 
 	 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -877,7 +867,7 @@ function awpcp_install() {
 	 	update_option( "awpcp_db_version", $awpcp_db_version );
 		}
 	}
-
+	_log("Installation complete");
 }
 
 function awpcp_flush_rewrite_rules()
@@ -979,7 +969,6 @@ function awpcp_home_screen()
 		$output .= ":</b>";
 		$output .= __("There appears to be a problem with the plugin. The plugin is activated but your database tables are missing. Please de-activate the plugin from your plugins page then try to reactivate it.","AWPCP");
 	}
-
 	else
 	{
 		if (awpcpistableempty($tbl_ad_settings)) {
@@ -2297,7 +2286,7 @@ function awpcp_manage_viewlistings()
 			$offset=clean_field($_REQUEST['offset']);
 			$results=clean_field($_REQUEST['results']);
 				
-			load_ad_post_form($actonid,$action='editad',$awpcppagename,$adtermid='',$editemail,$adaccesskey,$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$ad_county_village='',$ad_item_price='',$addetails='',$adpaymethod='',$offset,$results,$ermsg='',$websiteurl='',$checkhuman='',$numval1='',$numval2='');
+			$output .= load_ad_post_form($actonid,$action='editad',$awpcppagename,$adtermid='',$editemail,$adaccesskey,$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$ad_county_village='',$ad_item_price='',$addetails='',$adpaymethod='',$offset,$results,$ermsg='',$websiteurl='',$checkhuman='',$numval1='',$numval2='');
 		}
 		elseif ($laction == 'dopost1')
 		{
@@ -2343,11 +2332,7 @@ function awpcp_manage_viewlistings()
 				$awpcppagename=clean_field($_REQUEST['awpcppagename']);
 				$offset=clean_field($_REQUEST['offset']);
 				$results=clean_field($_REQUEST['results']);
-
-
-				processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg,$websiteurl,$checkhuman,$numval1,$numval2);
-
-
+				$output .= processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg,$websiteurl,$checkhuman,$numval1,$numval2);
 		}
 		elseif ($laction == 'approvead')
 		{
@@ -2430,8 +2415,7 @@ function awpcp_manage_viewlistings()
 				$output .= "</div>";
 
 				// end insert delete | edit | approve/disable admin links
-
-				showad($actonid,$omitmenu='1');
+				$output .= showad($actonid,$omitmenu='1');
 
 				$output .= "</div>";
 			}
@@ -3481,7 +3465,7 @@ if (isset($_REQUEST['createeditadcategory']) && !empty($_REQUEST['createeditadca
 		$category_order=clean_field($_REQUEST['category_order']);
 		//Ensure we have something like a number:
 		$category_order = ('' != $category_order ? (is_numeric($category_order) ? $category_order : 0) : 0);
-		$query="INSERT INTO ".$tbl_ad_categories." SET category_name='".$category_name."',category_parent_id='".$category_parent_id."'"."',category_order=".$category_order;
+		$query="INSERT INTO ".$tbl_ad_categories." SET category_name='".$category_name."',category_parent_id='".$category_parent_id."'".",category_order=".$category_order;
 		@mysql_query($query);
 		$themessagetoprint=__("The new category has been successfully added","AWPCP");
 	}
@@ -3959,7 +3943,6 @@ function awpcpui_process_editad()
 	}
 	elseif ($action == 'dopost1')
 	{
-
 		$adid='';
 		$action='';
 		$awpcppagename='';
@@ -4061,7 +4044,6 @@ function awpcpui_process_editad()
 		{
 			$output .= showad($theadid,$omitmenu='');
 		}
-
 		else
 		{
 			$awpcpshowadsample=1;
@@ -4393,7 +4375,6 @@ function awpcpui_process_placead()
 
 	if ($action == 'placead')
 	{
-
 		$output .= load_ad_post_form($adid='',$action='',$awpcppagename='',$adtermid='',$editemail='',$adaccesskey='',$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$ad_county_village='',$ad_item_price='',$addetails='',$adpaymethod='',$offset='',$results='',$ermsg='',$websiteurl='',$checkhuman='',$numval1='',$numval2='');
 	}
 	elseif ($action == 'dopost1')
@@ -5239,10 +5220,8 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 
 			if (mysql_num_rows($res2))
 			{
-
 				while ($rsrow2=mysql_fetch_row($res2))
 				{
-
 					if (get_awpcp_option('showadcount') == 1)
 					{
 						$adsincat2=total_ads_in_cat($rsrow2[0]);
@@ -5266,8 +5245,6 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 					{
 						$subcaticonsurl='';
 					}
-
-
 					$myreturn.="<li>";
 
 					$modcatname2=cleanstring($rsrow2[1]);
@@ -5301,8 +5278,6 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 					$myreturn.="</li>";
 
 				} // Close while loop #2
-
-
 				$myreturn.="</ul>"; // Close sub categories list
 				$myreturn.="</li>"; // Close top level item li
 				$i++;
@@ -5386,7 +5361,6 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 	// Handle if only admin can post and non admin user arrives somehow on post ad page
 	if (get_awpcp_option('onlyadmincanplaceads') && ($isadmin != 1))
 	{
-
 		$output .= "<div id=\"classiwrapper\"><p>";
 		$output .= __("You do not have permission to perform the function you are trying to perform. Access to this page has been denied","AWPCP");
 		$output .= "</p></div>";
@@ -5603,13 +5577,10 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 		{
 			$adtermscode='';
 		}
-
 		else
 		{
-
 			if (!isset($adterm_id) || empty($adterm_id))
 			{
-
 				if (adtermsset() && !is_admin())
 				{
 
@@ -5620,8 +5591,6 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 					//////////////////////////////////////////////////
 					// Get and configure pay options
 					/////////////////////////////////////////////////
-
-
 					$paytermslistitems=array();
 
 					$query="SELECT * FROM  ".$tbl_ad_fees."";
@@ -5673,8 +5642,6 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 				}
 			}
 		}
-
-
 		////////////////////////////////////////////////////////////////////////////////////////
 		// END configuration of ad term options
 		////////////////////////////////////////////////////////////////////////////////////////
@@ -6046,8 +6013,6 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 			$output .= "<div class=\"fixfloat\"></div>";
 
 			$output .= "<div style=\"display:$formdisplayvalue\">";
-
-
 			if (!is_admin())
 			{
 				$theformbody.="$displaydeleteadlink<p>$editorposttext";
@@ -6120,8 +6085,6 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 				$theformbody.=__("Contact Person's Phone Number","AWPCP");
 				$theformbody.="<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_phone\" value=\"$adcontact_phone\" /></p>";
 			}
-
-
 			if (get_awpcp_option('displaycountryfield') )
 			{
 				$theformbody.="<p>";
@@ -6149,10 +6112,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 				}
 
 				$theformbody.="</p>";
-
 			}
-
-
 			if (get_awpcp_option('displaystatefield') )
 			{
 				$theformbody.="<p>";
@@ -6188,9 +6148,6 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 				$theformbody.="</p>";
 			}
-
-
-
 			if (get_awpcp_option('displaycityfield') )
 			{
 				$theformbody.="<p>";
@@ -6260,8 +6217,6 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 			$theformbody.="<br/><input readonly type=\"text\" name=\"remLen\" size=\"10\" maxlength=\"5\" class=\"inputboxmini\" value=\"$addetailsmaxlength\" />";
 			$theformbody.=__("characters left","AWPCP");
 			$theformbody.="<br/><br/>$htmlstatus<br/><textarea name=\"addetails\" rows=\"10\" cols=\"50\" class=\"textareainput\" onKeyDown=\"textCounter(this.form.addetails,this.form.remLen,$addetailsmaxlength);\" onKeyUp=\"textCounter(this.form.addetails,this.form.remLen,$addetailsmaxlength);\">$addetails</textarea></p>";
-
-
 			if (get_awpcp_option('freepay') == '0')
 			{
 				$output .= "$theformbody";
@@ -6274,7 +6229,6 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 			else
 			{
-
 				$output .= "$theformbody";
 
 				if ($hasextrafieldsmodule == 1)
@@ -6288,8 +6242,6 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 				$output .= "$paymethod";
 
 			}
-
-
 			if ((get_awpcp_option('contactformcheckhuman') == 1) && !is_admin())
 			{
 				$output .= "<p>";
@@ -8068,19 +8020,17 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 		$ermsg.=__("$adtitlemsg $adcategorymsg $adcnamemsg $adcemailmsg1 $adcemailmsg2 $adcphonemsg $adcitymsg $adstatemsg $adcountrymsg $addetailsmsg $adpaymethodmsg $adtermidmsg $aditempricemsg1 $aditempricemsg2 $websiteurlmsg1 $websiteurlmsg2 $checkhumanmsg $sumwrongmsg $noadsinparentcatmsg $x_field_errors_msg","AWPCP");
 		$ermsg.="</ul>";
 
-		load_ad_post_form($adid,$action=$adaction,$awpcppagename,$adterm_id,$editemail,$adkey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset,$results,$ermsg,$websiteurl,$checkhuman,$numval1,$numval2);
+		$output .= load_ad_post_form($adid,$action=$adaction,$awpcppagename,$adterm_id,$editemail,$adkey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset,$results,$ermsg,$websiteurl,$checkhuman,$numval1,$numval2);
 	}
 	else
 	{
 
 		if ($adaction == 'delete')
 		{
-			//fooo
-			deletead($adid,$adkey,$editemail);
+			$output .= deletead($adid,$adkey,$editemail);
 		}
 		else if ($adaction == 'editad')
 		{
-
 			$isadmin=checkifisadmin();
 
 			$qdisabled='';
@@ -8168,11 +8118,9 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 				}
 			}
-
 		}
 		else
 		{
-
 			//Begin processing new ad
 			$key=time();
 
