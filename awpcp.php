@@ -6155,7 +6155,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 			if (get_awpcp_option('displaystatefield') )
 			{
 				$theformbody.="<p>";
-				$theformbody.=__("State","AWPCP");
+				$theformbody.=__("State/Province","AWPCP");
 				$theformbody.="<br/>";
 
 				if ($hasregionsmodule ==  1)
