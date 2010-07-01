@@ -7189,7 +7189,7 @@ function load_ad_search_form($keywordphrase,$searchname,$searchcity,$searchstate
 	{
 
 		$output .= "<p>";
-		$output .= __("Refine to State","AWPCP");
+		$output .= __("Refine to State/Province","AWPCP");
 		$output .= "<br>";
 
 		if ($hasregionsmodule ==  1)
