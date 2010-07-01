@@ -20,14 +20,16 @@ function handleimagesupload($adid,$adtermid,$nextstep,$adpaymethod,$adaction,$ad
 	require_once $awpcp_plugin_path.'fileop.class.php';
 
 	$fileop=new fileop();
-
-	$fileop->set_permission($uploaddir,0777);
+	$filedata = posix_getpwuid(fileowner($wpcontentdir));
+	$owner = $filedata['name'];
 	//Create the upload dir, if necessary:
 	if ( !is_dir($uploaddir) )
 	{
 		umask(0);
 		mkdir($uploaddir, 0777);
+		chown($uploadir, $owner);
 	}
+	$fileop->set_permission($uploaddir,0777);
 	
 	$themainawpcpuploaddir=$uploaddir . 'awpcp/';
 	$themainawpcpuploadthumbsdir=$uploaddir . 'awpcp/thumbs/';
@@ -36,12 +38,14 @@ function handleimagesupload($adid,$adtermid,$nextstep,$adpaymethod,$adaction,$ad
 	{
 		umask(0);
 		mkdir($themainawpcpuploaddir, 0777);
+		chown($themainawpcpuploaddir, $owner);
 	}
 
 	if ( !is_dir($themainawpcpuploadthumbsdir) )
 	{
 		umask(0);
 		mkdir($themainawpcpuploadthumbsdir, 0777);
+		chown($themainawpcpuploadthumbsdir, $owner);
 	}
 
 	$fileop->set_permission($themainawpcpuploaddir,0777);

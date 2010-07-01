@@ -6,7 +6,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.0.6.12
+ Version: 1.0.6.13
  Author: A Lewis, D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -44,10 +44,51 @@ define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); // no trailing slash, full p
 if ( !defined('WP_CONTENT_URL') )
 define( 'WP_CONTENT_URL', get_option('siteurl') . '/wp-content'); // no trailing slash, full paths only - WP_CONTENT_URL is defined further down
 
+//For PHP4 users, even though it's not technically supported:
+if (!function_exists('array_walk_recursive'))
+{
+    function array_walk_recursive(&$input, $funcname, $userdata = "")
+    {
+        if (!is_callable($funcname)) {
+            return false;
+        }
+        if (!is_array($input)) {
+            return false;
+        }
+       
+        foreach ($input AS $key => $value)
+        {
+            if (is_array($input[$key]))
+            {
+                array_walk_recursive($input[$key], $funcname, $userdata);
+            }
+            else
+            {
+                $saved_value = $value;
+                if (!empty($userdata))
+                {
+                    $funcname($value, $key, $userdata);
+                }
+                else
+                {
+                    $funcname($value, $key);
+                }
+               
+                if ($value != $saved_value)
+                {
+                    $input[$key] = $value;
+                }
+            }
+        }
+        return true;
+    }
+}
+
 $wpcontenturl=WP_CONTENT_URL;
 $wpcontentdir=WP_CONTENT_DIR;
 $wpinc=WPINC;
 
+//Strip slashes added (e.g. "John\'s Mother\'s Food") out of common variables to avoid garbage in the database:
 if (get_magic_quotes_gpc()) {
     function stripslashes_gpc(&$value)
     {
@@ -96,9 +137,6 @@ else
 {
 	$uploadfoldername="uploads";
 }
-
-//Strip slashes added (e.g. "John\'s Mother\'s Food") out of common variables to avoid garbage in the database:
-
 
 define('MAINUPLOADURL', $wpcontenturl .'/' .$uploadfoldername);
 define('MAINUPLOADDIR', $wpcontentdir .'/' .$uploadfoldername);
@@ -3123,7 +3161,8 @@ if (isset($_REQUEST['savesettings']) && !empty($_REQUEST['savesettings']))
 
 		if (!$error)
 		{
-
+			//Protect option data from having SQL injection attacks:
+			$v = add_slashes_recursive($v);
 			$query="UPDATE ".$tbl_ad_settings." SET config_value='$v' WHERE config_option='$k'";
 			if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 		}
@@ -4485,7 +4524,7 @@ function awpcpui_process_placead()
 			$editemail=$keyidelements[4];
 		}
 
-		deletepic($picid,$adid,$adtermid,$adkey,$editemail);
+		$output .= deletepic($picid,$adid,$adtermid,$adkey,$editemail);
 	}
 
 	elseif ($action == 'adpostfinish')
@@ -8412,13 +8451,10 @@ function processadstep3($adid,$adterm_id,$key,$adpaymethod)
 	{
 		list($adterm_name,$amount,$recperiod)=$rsrow;
 	}
-
-
 	if ($amount <= 0)
 	{
 		$showpaybutton='';
 	}
-
 	else
 	{
 		$showpaybutton="<h2>";
@@ -8432,7 +8468,6 @@ function processadstep3($adid,$adterm_id,$key,$adpaymethod)
 		////////////////////////////////////////////////////////////////////////////
 		if ($adpaymethod == 'paypal')
 		{
-
 			$awpcppaypalpaybutton=awpcp_displaypaymentbutton_paypal($adid,$custom,$adterm_name,$adterm_id,$key,$amount,$recperiod,$permastruc,$quers,$paymentthankyoupageid,$paymentcancelpageid,$paymentthankyoupagename,$paymentcancelpagename,$base);
 
 			$showpaybutton.="$awpcppaypalpaybutton";
@@ -8445,11 +8480,8 @@ function processadstep3($adid,$adterm_id,$key,$adpaymethod)
 
 		elseif ($adpaymethod == '2checkout')
 		{
-
 			$awpcptwocheckoutpaybutton=awpcp_displaypaymentbutton_twocheckout($adid,$custom,$adterm_name,$adterm_id,$key,$amount,$recperiod,$permastruc,$quers,$paymentthankyoupageid,$paymentcancelpageid,$paymentthankyoupagename,$paymentcancelpagename,$base);
 			$showpaybutton.="$awpcptwocheckoutpaybutton";
-
-
 		} // End if ad payment is 2checkout
 
 		//////////////////////////////////////////////////////////////////////////////////
@@ -8457,17 +8489,13 @@ function processadstep3($adid,$adterm_id,$key,$adpaymethod)
 		//////////////////////////////////////////////////////////////////////////////////
 		elseif ($adpaymethod == 'googlecheckout')
 		{
-
 			global $hasgooglecheckoutmodule;
 			if ($hasgooglecheckoutmodule == 1)
 			{
 				$awpcpgooglecheckoutpaybutton=awpcp_displaypaymentbutton_googlecheckout($adid,$custom,$adterm_name,$adterm_id,$key,$amount,$recperiod,$permastruc,$quers,$paymentthankyoupageid,$paymentcancelpageid,$paymentthankyoupagename,$paymentcancelpagename,$base);
 				$showpaybutton.="$awpcpgooglecheckoutpaybutton";
 			}
-
 		}
-
-
 	} // End if the fee amount is not a zero value
 
 	// Show page based on if amount is zero or payment needs to be made
@@ -8497,7 +8525,7 @@ function processadstep3($adid,$adterm_id,$key,$adpaymethod)
 
 	$adpostform_content=$displaypaymentform;
 	$output .= "$adpostform_content";
-	return output;
+	return $output;
 }
 
 function awpcp_displaypaymentbutton_paypal($adid,$custom,$adterm_name,$adterm_id,$key,$amount,$recperiod,$permastruc,$quers,$paymentthankyoupageid,$paymentcancelpageid,$paymentthankyoupagename,$paymentcancelpagename,$base)
@@ -10091,6 +10119,7 @@ function awpcp_cancelpayment()
 
 function paymentthankyou()
 {
+	$output = '';
 	$pathvaluepaymentthankyou=get_awpcp_option('pathvaluepaymentthankyou');
 	$permastruc=get_option('permalink_structure');
 	if (isset($_REQUEST['i']) && !empty($_REQUEST['i']))
@@ -10263,12 +10292,12 @@ function paymentthankyou()
 		// If payment verified proceed
 		if ($payment_verified)
 		{
-			do_paypal($payment_status,$item_name,$item_number,$receiver_email,$quantity,$mcgross,$payment_gross,$txn_id,$custom,$txn_type);
+			$output .= do_paypal($payment_status,$item_name,$item_number,$receiver_email,$quantity,$mcgross,$payment_gross,$txn_id,$custom,$txn_type);
 		}
 		else
 		{
 			$message=__("There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment via PayPal. If you have not tried to make a payment and you are viewing this message, it means this message is being shown in error and can be disregarded.","AWPCP");
-			abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
+			$output .= abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
 		}
 	}
 	elseif ($awpcpayhandler == 'twocheckout')
@@ -10310,12 +10339,12 @@ function paymentthankyou()
 
 		if ($payment_verified)
 		{
-			do_2checkout($x_custom,$x_amount,$x_item_number,$x_trans_id,$x_Login);
+			$output .= do_2checkout($x_custom,$x_amount,$x_item_number,$x_trans_id,$x_Login);
 		}
 		else
 		{
 			$message=__("There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment via 2Checkout. If you have not tried to make a payment and you are viewing this message, it means this message has been sent in error and can be disregarded.","AWPCP");
-			abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
+			$output .= abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
 		}
 
 	}
@@ -10324,13 +10353,14 @@ function paymentthankyou()
 		//Handle Google Checkout
 
 		$payment_verified=true;
-		do_googlecheckout($ad_id,$key);
+		$output .= do_googlecheckout($ad_id,$key);
 	}
 	else
 	{
 		$message=__("There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment. If you have not tried to make a payment and you are viewing this message, it means this message is being shown in error and can be disregarded.","AWPCP");
-		abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
+		$output .= abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
 	}
+	return $output;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

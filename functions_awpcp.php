@@ -99,6 +99,8 @@ function get_awpcp_setting($column, $option) {
 		if (mysql_num_rows($res))
 		{
 			$myreturn=mysql_result($res,0,0);
+			//Clear slashes coming out:
+			$myreturn = strip_slashes_recursive($myreturn);
 		}
 	}
 	return $myreturn;
@@ -1626,7 +1628,8 @@ function add_config_group_id($cvalue,$coption)
 {
 	global $wpdb;
 	$tbl_ad_settings = $wpdb->prefix . "awpcp_adsettings";
-
+	//Escape quotes:
+	$cvalue = add_slashes_recursive($cvalue);
 	$query="UPDATE ".$tbl_ad_settings." SET config_group_id='$cvalue' WHERE config_option='$coption'";
 	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 }
