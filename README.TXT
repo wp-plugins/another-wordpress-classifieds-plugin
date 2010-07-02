@@ -55,19 +55,31 @@ Features:
        paid ads vs. free ads
     4. Allow for image approval prior to posting
  = Premium Modules (Add on modules, not included with free plugin) =
-    1. [Category Icons](http://awpcp.com/premium-modules/category-icons-module) (adds small icons to give visual cues to 
+    1. Category Icons (adds small icons to give visual cues to 
        your user for each category in AWPCP)
-    2. [Extra Fields](http://awpcp.com/premium-modules/extra-fields-module) (allows you to add any custom fields for display.  
+    2. Extra Fields (allows you to add any custom fields for display.  
        For example, if you have a pet-related board, you might have 
        "Sex", "Breed", and "Dam/Sire" as additional fields you require for display)
-    3. [Region Control](http://awpcp.com/premium-modules/regions-control-module) (allows you to restrict viewing of ads based on 
+    3. Regions Control (allows you to restrict viewing of ads based on 
        locale, so users don't see items they aren't physically near them, 
        also allows customization of the region types, such as 
        village, borough, etc)
-    4. [Google Checkout](http://awpcp.com/premium-modules/google-checkout-module) (allows you to support Google Checkout as a 
+    4. Google Checkout (allows you to support Google Checkout as a 
        payment method for paid ad posting)
-    5. ["Powered By" Link Removal](http://awpcp.com/donate) (allows you to get rid of the 
+    5. "Powered By" Link Removal (allows you to get rid of the 
        link at the bottom of all AWPCP pages)
+
+= Premium Module Links: =
+
+[Category Icons](http://awpcp.com/premium-modules/category-icons-module)
+
+[Extra Fields](http://awpcp.com/premium-modules/extra-fields-module)
+
+[Region Control](http://awpcp.com/premium-modules/regions-control-module)
+
+[Google Checkout](http://awpcp.com/premium-modules/google-checkout-module)
+
+["Powered By" Link Removal](http://awpcp.com/donate)
 
 These are just some of the features of Another Wordpress Classifieds Plugin
 
