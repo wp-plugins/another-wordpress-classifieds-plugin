@@ -54,8 +54,7 @@ Features:
     3. Allow for different numbers of images to be posted with 
        paid ads vs. free ads
     4. Allow for image approval prior to posting
- = Premium Modules =
-  (add-ons, not included with plugin, but they are [available for purchase](http://awpcp.com/premium-modules/) )
+ = Premium Modules (Add on modules, not included with free plugin) =
     1. [Category Icons](http://awpcp.com/premium-modules/category-icons-module) (adds small icons to give visual cues to 
        your user for each category in AWPCP)
     2. [Extra Fields](http://awpcp.com/premium-modules/extra-fields-module) (allows you to add any custom fields for display.  
