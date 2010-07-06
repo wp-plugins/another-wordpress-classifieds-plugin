@@ -6,7 +6,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.0.6.13
+ Version: 1.0.6.14
  Author: A Lewis, D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -181,19 +181,8 @@ if ( file_exists("$awpcp_plugin_path/awpcp_extra_fields_module.php") )
 
 if ( file_exists("$awpcp_plugin_path/awpcp_rss_module.php") )
 {
+	require("$awpcp_plugin_path/awpcp_rss_module.php");
 	$hasrssmodule=1;
-
-	if (isset($_REQUEST['a']) && !empty($_REQUEST['a']))
-	{
-		$awpcprssaction=$_REQUEST['a'];
-	} else { $awpcprssaction='';}
-
-	if ($awpcprssaction == 'rss')
-	{
-		require("$awpcp_plugin_path/awpcp_rss_module.php");
-
-	}
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1170,7 +1159,8 @@ function awpcp_home_screen()
 				$output .= "</b></p><em>";
 				$output .= __("Installed","AWPCP");
 				$output .= "</em><br/><ul>";
-				if ( ($hasregionsmodule != 1) && ($hascaticonsmodule != 1) && ($hasgooglecheckoutmodule != 1) && ($hasextrafieldsmodule != 1) )
+				$hasrssmodule = (file_exists("$awpcp_plugin_path/awpcp_rss_module.php") ? 1 : 0);
+				if ( ($hasregionsmodule != 1) && ($hascaticonsmodule != 1) && ($hasgooglecheckoutmodule != 1) && ($hasextrafieldsmodule != 1) && ($hasrssmodule != 1) )
 				{
 					$output .= "<li>"; $output .= __("No premium modules installed","AWPCP"); $output .= "</li>";
 				}
@@ -1192,6 +1182,10 @@ function awpcp_home_screen()
 					{
 						$output .= "<li>"; $output .= __("Extra Fields Module","AWPCP"); $output .= "</li>";
 					}
+					if ( ($hasrssmodule == 1) )
+					{
+						$output .= "<li>"; $output .= __("RSS Module","AWPCP"); $output .= "</li>";
+					}
 				}
 
 				$output .= "</ul><em>"; $output .= __("Uninstalled","AWPCP"); $output .= "</em><ul>";
@@ -1212,9 +1206,13 @@ function awpcp_home_screen()
 				{
 					$output .= "<li><a href=\"http://www.awpcp.com/premium-modules/extra-fields-module/\">"; $output .= __("Extra Fields Module","AWPCP"); $output .= "</a></li>";
 				}
-				if ( ($hasregionsmodule == 1) && ($hascaticonsmodule == 1) && ($hasgooglecheckoutmodule == 1) && ($hasextrafieldsmodule == 1) )
+				if ( ($hasrssmodule != 1) )
 				{
-					$output .= "<li>"; $output .= __("No uninstalled premium modules","AWPCP"); $output .= "</li>";
+					$output .= "<li><a href=\"http://www.awpcp.com/premium-modules/rss-module/\">"; $output .= __("RSS Module","AWPCP"); $output .= "</a></li>";
+				}
+				if ( ($hasregionsmodule == 1) && ($hascaticonsmodule == 1) && ($hasgooglecheckoutmodule == 1) && ($hasextrafieldsmodule == 1) && ($hasrssmodule == 1))
+				{
+					$output .= "<li><b>"; $output .= __("All premium modules installed!","AWPCP"); $output .= "</b></li>";
 				}
 
 				$output .= "</ul><p><b>"; 
@@ -1249,7 +1247,7 @@ function awpcp_home_screen()
 				}
 				else
 				{
-					$output .= __("No uninstalled [Other] modules","AWPCP");
+					$output .= __("All [Other] modules installed","AWPCP");
 				}
 				$output .= "</ul>";
 			}
@@ -4928,7 +4926,8 @@ function awpcp_menu_items()
 		{
 			$url_rss_feed="$quers?page_id=$awpcp_page_id&a=rss";
 		}
-		$output .= "<div style=\"float:left;margin-right:10px;\"><a href=\"$url_rss_feed\"><img style=\"border:none;\" src=\"$awpcp_imagesurl/rssicon.png\"/></a></div>";
+		$rsstitle = __("RSS Feed for Classifieds");
+		$output .= "<div style=\"float:left;margin-right:10px;\"><a href=\"$url_rss_feed\"><img style=\"border:none;\" title='".$rsstitle."' alt='.$rsstitle.' src=\"$awpcp_imagesurl/rssicon.png\"/></a></div>";
 	}
 
 	if (!isset($action) || empty ($action))
@@ -5982,7 +5981,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 						{
 							if ( regions_countries_exist() )
 							{
-								set_session_regionID(1);
+								$output .= set_session_regionID(1);
 								$formdisplayvalue="none";
 							}
 
@@ -6262,7 +6261,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 				if ($hasextrafieldsmodule == 1)
 				{
-					build_extra_field_form($action,$adid,$ermsg);
+					$output .= build_extra_field_form($action,$adid,$ermsg);
 				}
 			}
 
@@ -6272,7 +6271,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 				if ($hasextrafieldsmodule == 1)
 				{
-					build_extra_field_form($action,$adid,$ermsg);
+					$output .= build_extra_field_form($action,$adid,$ermsg);
 				}
 
 				$output .= "<br/>";
@@ -7918,7 +7917,6 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 	if (get_awpcp_option('noadsinparentcat'))
 	{
-
 		if (!category_is_child($adcategory))
 		{
 			$awpcpcatname=get_adcatname($adcategory);
@@ -8037,7 +8035,6 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 	if ($hasextrafieldsmodule == 1)
 	{
-
 		$x_field_errors_msg=validate_x_form();
 		if (isset($x_field_errors_msg) && !empty($x_field_errors_msg))
 		{
@@ -8239,12 +8236,12 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 			$ad_id=mysql_insert_id();
 
-
-			if ( (get_awpcp_option('freepay') == 1) )
+			$paymode = (get_awpcp_option('freepay') == 1);
+			if ( $paymode )
 			{
 				$output .= processadstep2_paymode($ad_id,$adterm_id,$key,$awpcpuerror='',$adcontact_name,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$adtitle,$addetails,$adpaymethod,$adaction);
 			}
-			elseif ((get_awpcp_option('freepay') == '0') && (get_awpcp_option('imagesallowdisallow') == 1))
+			elseif (!$paymode && (get_awpcp_option('imagesallowdisallow') == 1))
 			{
 				$output .= processadstep2_freemode($ad_id,$adterm_id,$key,$awpcpuerror='',$adcontact_name,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$adtitle,$addetails,$adpaymethod);
 			}
@@ -8818,18 +8815,17 @@ function display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction,$nex
 		$clicktheword1=__("Finish");$clicktheword2=__("complete");
 	}
 
-	if ($nextstep == 'finishnoform')
+	if($nextstep == 'finishnoform')
 	{
-		$awpcp_image_upload_form.=__("<p>Please click the $clicktheword1 button to $clicktheword2 this process.</p>","AWPCP");
+		$awpcp_image_upload_form.= sprintf( __( '<p>Please click the %1$s button to %2$s this process.</p>', 'AWPCP'), $clicktheword1, $clicktheword2 );
 	}
-	elseif ($nextstep == 'paymentnoform')
+	elseif($nextstep == 'paymentnoform')
 	{
-		$awpcp_image_upload_form.=__("<p>Please click the $clicktheword1 button to $clicktheword2 this process.</p>","AWPCP");
+		$awpcp_image_upload_form.= sprintf( __( '<p>Please click the %1$s button to %2$s this process.</p>', 'AWPCP'), $clicktheword1, $clicktheword2 );
 	}
 	else
 	{
-		$awpcp_image_upload_form.=__("<p>If you prefer not to upload any images please click the $clicktheword1 button to $clicktheword2 this process.</p>","AWPCP");
-
+		$awpcp_image_upload_form.= sprintf( __(' <p>If you prefer not to upload any images please click the %1$s button to %2$s this process.</p>','AWPCP'), $clicktheword1, $clicktheword2 );
 	}
 	$awpcp_image_upload_form.="</div><div class=\"finishbuttonright\">";
 
@@ -10598,9 +10594,6 @@ function display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 				{
 					$awpcp_country_display='';
 				}
-
-
-
 				$awpcp_image_display='';
 				if (get_awpcp_option('imagesallowdisallow'))
 				{
@@ -10657,7 +10650,8 @@ function display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 
 				} else { $awpcp_display_price='';}
 
-				$awpcpadpostdate=date('m/d/Y', strtotime($rsrow[9]))."<br/>";
+				$awpcpdateformat=__("m/d/Y","AWPCP");
+				$awpcpadpostdate=date($awpcpdateformat, strtotime($rsrow[9]))."<br/>";
 
 				$imgblockwidth="$displayadthumbwidth";
 				$imgblockwidth.="px";
@@ -11069,6 +11063,7 @@ function showad($adid,$omitmenu)
 			if ($hasextrafieldsmodule == 1)
 			{
 				$awpcpextrafields=display_x_fields_data($adid);
+				_log("Fields found: ".$awpcpextrafields);
 			} 
 			if (get_awpcp_option('hyperlinkurlsinadtext')){
 				$addetails=preg_replace("/(http:\/\/[^\s]+)/","<a $awpcprelnofollow href=\"\$1\">\$1</a>",$addetails);

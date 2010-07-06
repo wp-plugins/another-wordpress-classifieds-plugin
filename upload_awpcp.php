@@ -20,7 +20,7 @@ function handleimagesupload($adid,$adtermid,$nextstep,$adpaymethod,$adaction,$ad
 	require_once $awpcp_plugin_path.'fileop.class.php';
 
 	$fileop=new fileop();
-	$filedata = posix_getpwuid(fileowner($wpcontentdir));
+	$filedata = fileowner($wpcontentdir);
 	$owner = $filedata['name'];
 	//Create the upload dir, if necessary:
 	if ( !is_dir($uploaddir) )

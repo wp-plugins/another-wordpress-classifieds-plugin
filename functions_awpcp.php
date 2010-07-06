@@ -6,15 +6,15 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Debugger helper:
 if(!function_exists('_log')){
-  function _log( $message ) {
-    if( WP_DEBUG === true ){
-      if( is_array( $message ) || is_object( $message ) ){
-        error_log( print_r( $message, true ) );
-      } else {
-        error_log( $message );
-      }
-    }
-  }
+	function _log( $message ) {
+		if( WP_DEBUG === true ){
+			if( is_array( $message ) || is_object( $message ) ){
+				error_log( print_r( $message, true ) );
+			} else {
+				error_log( $message );
+			}
+		}
+	}
 }
 
 ////////////////////////////////////////
@@ -61,25 +61,25 @@ function sqlerrorhandler($ERROR, $QUERY, $PHPFILE, $LINE){
 
 function add_slashes_recursive( $variable )
 {
-    if ( is_string( $variable ) )
-        return addslashes( $variable ) ;
+	if ( is_string( $variable ) )
+	return addslashes( $variable ) ;
 
-    elseif ( is_array( $variable ) )
-        foreach( $variable as $i => $value )
-            $variable[ $i ] = add_slashes_recursive( $value ) ;
+	elseif ( is_array( $variable ) )
+	foreach( $variable as $i => $value )
+	$variable[ $i ] = add_slashes_recursive( $value ) ;
 
-    return $variable ;
+	return $variable ;
 }
 
 function strip_slashes_recursive( $variable )
 {
-    if ( is_string( $variable ) )
-        return stripslashes( $variable ) ;
-    if ( is_array( $variable ) )
-        foreach( $variable as $i => $value )
-            $variable[ $i ] = strip_slashes_recursive( $value ) ;
-   
-    return $variable ;
+	if ( is_string( $variable ) )
+	return stripslashes( $variable ) ;
+	if ( is_array( $variable ) )
+	foreach( $variable as $i => $value )
+	$variable[ $i ] = strip_slashes_recursive( $value ) ;
+
+	return $variable ;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2948,4 +2948,27 @@ function awpcp_process_mail($awpcpsenderemail,$awpcpreceiveremail,$awpcpemailsub
 
 }
 
+function is_at_least_awpcp_version($version)
+{
+	global $awpcp_plugin_data;
+	$major = (int)strtok($version, ".");
+	$minor = (int)strtok(".");
+	$bug = (int)strtok(".");
+	$patch = (int)strtok(".");
+	$splitstr = strtok($awpcp_plugin_data['Version'], ".");
+	$ok = false;
+	if ((int)$splitstr == $major) {
+		$splitstr = strtok(".");
+		if ((int)$splitstr == $minor) {
+			$splitstr = strtok(".");
+			if ((int)$splitstr >= $bug) {
+				$splitstr = strtok(".");
+				if ((int)$splitstr >= $patch) {
+					$ok = true;
+				}
+			}
+		}
+	}
+	return $ok;
+}
 ?>

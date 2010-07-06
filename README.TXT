@@ -4,7 +4,7 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp
 Requires at least: 2.7
 Tested up to: 3.0
-Stable tag: tags/1.0.6.13
+Stable tag: tags/1.0.6.14
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your wordpress blog. 
 
@@ -161,6 +161,12 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about/)
 
 == Changelog ==
+ 
+ = 1.0.6.14 =
+ NEW: RSS Module Support
+ Bug: Fixed display problems with Extra Fields Module
+ Bug: Fixed bug where users without POSIX installed got image upload errors
+ Bug: Updated string handling for internationalization
  
  = 1.0.6.13 =
  Bug: Fixed PayPal output bugs
