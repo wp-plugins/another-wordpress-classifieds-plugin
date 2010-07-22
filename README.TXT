@@ -4,14 +4,14 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp
 Requires at least: 2.7
 Tested up to: 3.0
-Stable tag: tags/1.0.6.14
+Stable tag: tags/1.0.6.15
 
-Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your wordpress blog. 
+Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog. 
 
 == Description ==
 Add a classified ads section to your Wordpress site, quickly and easily.  
 Lots of features, very configurable.  Easy to setup. 
-We're the #1 Classifieds Plugin for WordPress: over one year old and 33,000+ downloads!
+We're the #1 Classifieds Plugin for WordPress: over one year old and 36,000+ downloads!
 
 Features:
 
@@ -66,7 +66,10 @@ Features:
        village, borough, etc)
     4. Google Checkout (allows you to support Google Checkout as a 
        payment method for paid ad posting)
-    5. "Powered By" Link Removal (allows you to get rid of the 
+    5. RSS Feeds (allows you syndicate your classifieds for your users to
+       download in their favorite RSS reader and come back to your site
+       more often!)
+    6. "Powered By" Link Removal (allows you to get rid of the 
        link at the bottom of all AWPCP pages)
 
 = Premium Module Links: =
@@ -78,6 +81,8 @@ Features:
 [Region Control](http://awpcp.com/premium-modules/regions-control-module)
 
 [Google Checkout](http://awpcp.com/premium-modules/google-checkout-module)
+
+[RSS Feeds](http://awpcp.com/premium-modules/rss-module)
 
 ["Powered By" Link Removal](http://awpcp.com/donate)
 
@@ -161,6 +166,15 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about/)
 
 == Changelog ==
+ 
+ = 1.0.6.15 =
+ NEW: Image thumbnails now display in Latest Ads widget
+ Bug: Fixed bug where thumbnails in ad lists did not have link to ad
+ Bug: Set default search for listing in Admin panel to Keyword
+ Bug: Fixed ad blocking problems by changing class 'adinfo' to 'cladinfo'
+ Bug: Fixed editor role to allow for access to AWPCP Admin menu
+ Bug: Fixed search to send back error when search keyword is < 4 letters
+ Bug: Fixed pagination problem with Browse Categories
  
  = 1.0.6.14 =
  NEW: RSS Module Support

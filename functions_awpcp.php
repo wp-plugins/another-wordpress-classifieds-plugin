@@ -2204,19 +2204,20 @@ function init_awpcpsbarwidget() {
 
 function awpcp_sidebar_headlines($limit) {
 	$output = '';
-	global $wpdb;
+	global $wpdb,$awpcp_imagesurl;
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
 	$awpcppage=get_currentpagename();
 	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 	$permastruc=get_option('permalink_structure');
 	$quers=setup_url_structure($awpcppagename);
-
+	$displayadthumbwidth=get_awpcp_option('displayadthumbwidth');
+	
 	if(!isset($limit) || empty ($limit)){
 		$limit=10;
 	}
 
-	$query="SELECT ad_id,ad_title FROM ".$tbl_ads." WHERE ad_title <> '' AND disabled = '0' ORDER BY ad_postdate DESC LIMIT ".$limit."";
+	$query="SELECT ad_id,ad_title,ad_details FROM ".$tbl_ads." WHERE ad_title <> '' AND disabled = '0' ORDER BY ad_postdate DESC LIMIT ".$limit."";
 	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
 	while ($rsrow=mysql_fetch_row($res)) {
@@ -2225,10 +2226,38 @@ function awpcp_sidebar_headlines($limit) {
 		$modtitle=add_dashes($modtitle);
 
 		$url_showad=url_showad($ad_id);
-
+		
 		$ad_title="<a href=\"$url_showad\">".stripslashes($rsrow[1])."</a>";
-
-		$output .= "<li>$ad_title</li>";
+		$awpcp_image_display="<a href=\"$url_showad\">";
+		if (get_awpcp_option('imagesallowdisallow'))
+		{
+			$totalimagesuploaded=get_total_imagesuploaded($ad_id);
+			if ($totalimagesuploaded >=1)
+			{
+				$awpcp_image_name=get_a_random_image($ad_id);
+				if (isset($awpcp_image_name) && !empty($awpcp_image_name))
+				{
+					$awpcp_image_name_srccode="<img src=\"".AWPCPTHUMBSUPLOADURL."/$awpcp_image_name\" border=\"0\" width=\"$displayadthumbwidth\" alt=\"$modtitle\">";
+				}
+				else
+				{
+					$awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\">";
+				}							
+			}
+			else
+			{
+				$awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\">";
+			}
+		}
+		else
+		{
+			$awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\">";
+		}
+		$ad_teaser = substr($rsrow[2], 0, 50) . "...";
+		$read_more = "<a href=\"$url_showad\">[" . __("Read more", "AWPCP") . "]</a>";
+		$awpcp_image_display.="$awpcp_image_name_srccode</a>";
+		
+		$output .= "<li><div class='awpcplatestbox'><div class='awpcplatestthumb'>$awpcp_image_display</div><p><h3>$ad_title</h3></p><p>$ad_teaser<br/>$read_more</p><div class='awpcplatestspacer'></div></div></li>";
 	}
 	return $output;
 }

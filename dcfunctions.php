@@ -332,7 +332,6 @@ function array2qs($myarray) {
 
 function create_pager($from,$where,$offset,$results,$tpname)
 {
-
 	$permastruc=get_option('permalink_structure');
 	if(isset($permastruc) && !empty($permastruc))
 	{
@@ -365,31 +364,37 @@ function create_pager($from,$where,$offset,$results,$tpname)
 
 	$params=array();
 	$params=array_merge($_GET,$_POST);
-	unset($params['offset'],$params['results'],$params['PHPSESSID'],$params['aeaction'],$params['category_id'],$params['cat_ID'],$params['action'],$params['aeaction'],$params['category_name'],$params['category_parent_id'],$params['createeditadcategory'],$params['deletemultiplecategories'],$params['movedeleteads'],$params['moveadstocategory'],$params['category_to_delete'],$params['tpname'],$params['category_icon'],$params['sortby'],$params['adid'],$params['picid'],$params['adkey'],$params['editemail'],$params['adtermid']);
+	unset($params['page_id'],$params['offset'],$params['results'],$params['PHPSESSID'],$params['aeaction'],$params['category_id'],$params['cat_ID'],$params['action'],$params['aeaction'],$params['category_name'],$params['category_parent_id'],$params['createeditadcategory'],$params['deletemultiplecategories'],$params['movedeleteads'],$params['moveadstocategory'],$params['category_to_delete'],$params['tpname'],$params['category_icon'],$params['sortby'],$params['adid'],$params['picid'],$params['adkey'],$params['editemail'],$params['adtermid']);
 
 	$cid='';
+	if (isset($_REQUEST['category_id']) && !empty($_REQUEST['category_id'])) {
+		//Keep category id in tact, if present, but clean out the string garbage with it:
+		$catinfo = preg_split("/\//", $_REQUEST['category_id']);
+		if ($catinfo && is_numeric($catinfo[0])) {
+			$cid = $catinfo[0];
+			if (!empty($cid)) {
+				$params['category_id']=$cid;
+			}
+		}
+	}
 	if( isset($_REQUEST['a']) && !empty($_REQUEST['a']) && ($_REQUEST['a'] == 'browsecat') )
 	{
-		$cid=$_REQUEST['category_id'];
-		$params['category_id']=$cid;
-
+		//$cid=$_REQUEST['category_id'];
+		if (!empty($cid)) {
+			$params['category_id']=$cid;
+		}
+		
 		if( !get_awpcp_option('seofriendlyurls') )
 		{
-
 			$awpcppage=get_currentpagename();
 			$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 			$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
-			if( !get_awpcp_option('seofriendlyurls') )
-			{
-				$params['page_id']="$awpcpwppostpageid";
-			}
+			$params['page_id']="$awpcpwppostpageid";
 		}
-
 	}
 
 	if( isset($_REQUEST['a']) && !empty($_REQUEST['a']) && ($_REQUEST['a'] == 'browseads') )
 	{
-
 		$awpcppage=get_currentpagename();
 		$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 		$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
@@ -409,7 +414,7 @@ function create_pager($from,$where,$offset,$results,$tpname)
 	if (!($res=@mysql_query($query))) {die(mysql_error().' on line: '.__LINE__);}
 	$totalrows=mysql_result($res,0,0);
 	$total_pages=ceil($totalrows/$results);
-	$myreturn.="\t\t<a  href=\"$tpname".$awpcpoffset_set."0&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
+	$myreturn.="\t\t<a href=\"$tpname".$awpcpoffset_set."0&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
 	$dotsbefore=false;
 	$dotsafter=false;
 	for ($i=1;$i<=$total_pages;$i++) {

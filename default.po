@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AWPCP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-02 15:58-0700\n"
+"POT-Creation-Date: 2010-07-22 13:06-0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: AWPCP <support@awpcp.com>\n"
 "Language-Team: \n"
@@ -542,8 +542,8 @@ msgstr ""
 
 #: awpcp.php:2097
 #: awpcp.php:2106
-#: awpcp_extra_fields_module.php:342
-#: awpcp_extra_fields_module.php:374
+#: premium/awpcp_extra_fields_module.php:347
+#: premium/awpcp_extra_fields_module.php:379
 msgid "Action"
 msgstr ""
 
@@ -586,14 +586,14 @@ msgstr ""
 #: awpcp.php:2419
 #: awpcp.php:2616
 #: awpcp.php:2913
-#: awpcp.php:9015
-#: awpcp_extra_fields_module.php:401
+#: awpcp.php:9020
+#: premium/awpcp_extra_fields_module.php:406
 msgid "Delete"
 msgstr ""
 
 #: awpcp.php:2422
 #: awpcp.php:2618
-#: awpcp_extra_fields_module.php:399
+#: premium/awpcp_extra_fields_module.php:404
 msgid "Edit"
 msgstr ""
 
@@ -622,13 +622,13 @@ msgid "You need to check whether you want to look up the ad by title id or keywo
 msgstr ""
 
 #: awpcp.php:2542
-#: awpcp.php:10455
+#: awpcp.php:10460
 msgid "There are currently no ads in the system"
 msgstr ""
 
 #: awpcp.php:2643
-#: awpcp.php:9616
-#: awpcp_google_checkout_module.php:191
+#: awpcp.php:9621
+#: premium/awpcp_google_checkout_module.php:191
 msgid "Payment Status"
 msgstr ""
 
@@ -661,7 +661,7 @@ msgid "Delete Checked Ads"
 msgstr ""
 
 #: awpcp.php:2708
-#: awpcp.php:10699
+#: awpcp.php:10701
 msgid "There were no ads found"
 msgstr ""
 
@@ -788,13 +788,13 @@ msgstr ""
 
 #: awpcp.php:4099
 #: awpcp.php:4564
-#: awpcp.php:8277
-#: awpcp.php:8393
-#: awpcp.php:9462
-#: awpcp.php:9630
-#: awpcp_google_checkout_module.php:205
+#: awpcp.php:8282
+#: awpcp.php:8398
+#: awpcp.php:9467
+#: awpcp.php:9635
 #: upload_awpcp.php:338
 #: upload_awpcp.php:382
+#: premium/awpcp_google_checkout_module.php:205
 msgid "Sample of your ad"
 msgstr ""
 
@@ -823,25 +823,25 @@ msgid " Step 2"
 msgstr ""
 
 #: awpcp.php:5098
-#: awpcp.php:10413
+#: awpcp.php:10418
 msgid "You are currently browsing in "
 msgstr ""
 
 #: awpcp.php:5100
-#: awpcp.php:10417
+#: awpcp.php:10422
 msgid "Clear session for "
 msgstr ""
 
 #: awpcp.php:5116
 #: awpcp.php:5126
-#: awpcp.php:10765
-#: awpcp.php:10775
+#: awpcp.php:10767
+#: awpcp.php:10777
 msgid "Powered by "
 msgstr ""
 
 #: awpcp.php:5403
 #: awpcp.php:6351
-#: awpcp.php:9126
+#: awpcp.php:9131
 msgid "You do not have permission to perform the function you are trying to perform. Access to this page has been denied"
 msgstr ""
 
@@ -930,7 +930,7 @@ msgid "You did not select your ad term choice. The information is required"
 msgstr ""
 
 #: awpcp.php:5805
-#: awpcp.php:8025
+#: awpcp.php:8031
 msgid "You did not solve the math problem. Please solve the math problem to proceed."
 msgstr ""
 
@@ -1132,7 +1132,7 @@ msgid "There was no text entered for your message"
 msgstr ""
 
 #: awpcp.php:6770
-#: awpcp.php:7849
+#: awpcp.php:7856
 msgid "The email address you entered was not a valid email address. Please check for errors and try again"
 msgstr ""
 
@@ -1141,7 +1141,7 @@ msgid "There has been an error found. Your message has not been sent. Please rev
 msgstr ""
 
 #: awpcp.php:6780
-#: awpcp.php:8056
+#: awpcp.php:8061
 msgid "The errors"
 msgstr ""
 
@@ -1163,8 +1163,8 @@ msgid "Reply To"
 msgstr ""
 
 #: awpcp.php:6843
-#: awpcp_extra_fields_module.php:318
-#: awpcp_extra_fields_module.php:350
+#: premium/awpcp_extra_fields_module.php:323
+#: premium/awpcp_extra_fields_module.php:355
 msgid "Name"
 msgstr ""
 
@@ -1215,7 +1215,7 @@ msgstr ""
 #: awpcp.php:7433
 #: awpcp.php:7459
 #: awpcp.php:7501
-#: awpcp_extra_fields_module.php:565
+#: premium/awpcp_extra_fields_module.php:570
 msgid "Select Option"
 msgstr ""
 
@@ -1299,735 +1299,486 @@ msgstr ""
 msgid "You have entered an invalid maximum price. Make sure your price contains numbers only. Please do not include currency symbols"
 msgstr ""
 
-#: awpcp.php:7752
+#: awpcp.php:7598
+msgid "You have entered a keyword that is too short to search on.  Search keywords must be at least 4 letters in length.  Please try another term"
+msgstr ""
+
+#: awpcp.php:7759
 msgid "The information you have entered does not match the information on file. Please make sure you are using the same email address you used to post your ad and the exact access key that was emailed to you when you posted your ad"
 msgstr ""
 
-#: awpcp.php:7803
+#: awpcp.php:7810
 msgid "You did not enter a title for your ad"
 msgstr ""
 
-#: awpcp.php:7812
+#: awpcp.php:7819
 msgid "You did not enter any text for your ad. Please enter some text for your ad"
 msgstr ""
 
-#: awpcp.php:7821
+#: awpcp.php:7828
 msgid "You did not select a category for your ad. Please select a category for your ad"
 msgstr ""
 
-#: awpcp.php:7830
+#: awpcp.php:7837
 msgid "You did not enter your name. Your name is required"
 msgstr ""
 
-#: awpcp.php:7840
+#: awpcp.php:7847
 msgid "You did not enter your email. Your email is required"
 msgstr ""
 
-#: awpcp.php:7861
+#: awpcp.php:7868
 msgid "You did not enter your phone number. Your phone number is required"
 msgstr ""
 
-#: awpcp.php:7874
+#: awpcp.php:7881
 msgid "You did not enter your city. Your city is required"
 msgstr ""
 
-#: awpcp.php:7887
+#: awpcp.php:7894
 msgid "You did not enter your state. Your state is required"
 msgstr ""
 
-#: awpcp.php:7900
+#: awpcp.php:7907
 msgid "You did not enter your country. Your country is required"
 msgstr ""
 
-#: awpcp.php:7913
+#: awpcp.php:7920
 msgid "You did not enter your county/village. Your county/village is required"
 msgstr ""
 
-#: awpcp.php:7943
+#: awpcp.php:7949
 msgid ">You did not select your payment method. The information is required."
 msgstr ""
 
-#: awpcp.php:7958
+#: awpcp.php:7964
 msgid "You did not select an ad term. The information is required"
 msgstr ""
 
-#: awpcp.php:7973
+#: awpcp.php:7979
 msgid "You did not enter the price of your item. The item price is required."
 msgstr ""
 
-#: awpcp.php:7985
+#: awpcp.php:7991
 msgid "You have entered an invalid item price. Make sure your price contains numbers only. Please do not include currency symbols."
 msgstr ""
 
-#: awpcp.php:7998
+#: awpcp.php:8004
 msgid "You did not enter your website address. Your website address is required."
 msgstr ""
 
-#: awpcp.php:8011
+#: awpcp.php:8017
 msgid "Your website address is not properly formatted. Please make sure you have included the http:// part of your website address"
 msgstr ""
 
-#: awpcp.php:8032
+#: awpcp.php:8038
 msgid "Your solution to the math problem was incorrect. Please try again"
 msgstr ""
 
-#: awpcp.php:8054
+#: awpcp.php:8059
 msgid "There has been an error found. Please review the list of problems, correct them then try again"
 msgstr ""
 
-#: awpcp.php:8109
+#: awpcp.php:8114
 msgid "The ad has been edited successfully."
 msgstr ""
 
-#: awpcp.php:8111
+#: awpcp.php:8116
 msgid "Back to view listings"
 msgstr ""
 
-#: awpcp.php:8142
-#: awpcp.php:8152
+#: awpcp.php:8147
+#: awpcp.php:8157
 msgid "Your changes have been saved"
 msgstr ""
 
-#: awpcp.php:8266
+#: awpcp.php:8271
 msgid "Submission received"
 msgstr ""
 
-#: awpcp.php:8298
-#: awpcp.php:8344
+#: awpcp.php:8303
+#: awpcp.php:8349
 msgid "Step 2 Upload Images"
 msgstr ""
 
-#: awpcp.php:8364
+#: awpcp.php:8369
 #: upload_awpcp.php:308
 #: upload_awpcp.php:352
 msgid "Your ad has been submitted"
 msgstr ""
 
-#: awpcp.php:8375
+#: awpcp.php:8380
 #: upload_awpcp.php:319
 #: upload_awpcp.php:363
 msgid "If you have uploaded images your images will not show up until an admin has approved them."
 msgstr ""
 
-#: awpcp.php:8460
+#: awpcp.php:8465
 msgid "Step 3 Payment"
 msgstr ""
 
-#: awpcp.php:8462
+#: awpcp.php:8467
 msgid "Please click the button below to submit payment for your ad listing"
 msgstr ""
 
-#: awpcp.php:8504
+#: awpcp.php:8509
 msgid "Please click the finish button to complete the process of submitting your listing"
 msgstr ""
 
-#: awpcp.php:8512
-#: awpcp.php:8813
-#: awpcp.php:8817
-#: awpcp.php:8862
-#: awpcp.php:8866
+#: awpcp.php:8517
+#: awpcp.php:8818
+#: awpcp.php:8822
+#: awpcp.php:8867
+#: awpcp.php:8871
 msgid "Finish"
 msgstr ""
 
-#: awpcp.php:8620
+#: awpcp.php:8625
 msgid "Make payments with PayPal - it's fast, free and secure!"
 msgstr ""
 
-#: awpcp.php:8695
+#: awpcp.php:8700
 msgid "Pay With 2Checkout"
 msgstr ""
 
-#: awpcp.php:8743
+#: awpcp.php:8748
 msgid "Image slots available"
 msgstr ""
 
-#: awpcp.php:8750
-#: awpcp.php:8956
+#: awpcp.php:8755
+#: awpcp.php:8961
 msgid "Image approval is in effect so any new images you upload will not be visible to viewers until an admin has approved it"
 msgstr ""
 
-#: awpcp.php:8783
+#: awpcp.php:8788
 msgid "If adding images to your ad, select your image from your hard disk"
 msgstr ""
 
-#: awpcp.php:8794
+#: awpcp.php:8799
 msgid "Upload Selected Files"
 msgstr ""
 
-#: awpcp.php:8809
-#: awpcp.php:8858
+#: awpcp.php:8814
+#: awpcp.php:8863
 msgid "Go To Next Step"
 msgstr ""
 
-#: awpcp.php:8809
+#: awpcp.php:8814
 msgid "continue"
 msgstr ""
 
-#: awpcp.php:8813
-#: awpcp.php:8817
+#: awpcp.php:8818
+#: awpcp.php:8822
 msgid "complete"
 msgstr ""
 
-#: awpcp.php:8822
-#: awpcp.php:8826
+#: awpcp.php:8827
+#: awpcp.php:8831
 #, php-format
 msgid "<p>Please click the %1$s button to %2$s this process.</p>"
 msgstr ""
 
-#: awpcp.php:8830
+#: awpcp.php:8835
 #, php-format
 msgid " <p>If you prefer not to upload any images please click the %1$s button to %2$s this process.</p>"
 msgstr ""
 
-#: awpcp.php:8903
+#: awpcp.php:8908
 msgid "Manage your ad images"
 msgstr ""
 
-#: awpcp.php:8908
+#: awpcp.php:8913
 msgid "There has been a problem encountered. The system is unable to continue processing the task in progress. Please start over and if you encounter the problem again, please contact a system administrator."
 msgstr ""
 
-#: awpcp.php:8943
+#: awpcp.php:8948
 msgid "Your images are displayed below. The total number of images you are allowed is"
 msgstr ""
 
-#: awpcp.php:8949
+#: awpcp.php:8954
 msgid "If you want to change your images you will first need to delete the current images"
 msgstr ""
 
-#: awpcp.php:8989
+#: awpcp.php:8994
 msgid "Disabled"
 msgstr ""
 
-#: awpcp.php:9027
+#: awpcp.php:9032
 msgid "You do not currently have any images uploaded. Use the upload form below to upload your images. If you do not wish to upload any images simply click the finish button. If uploading images, be careful not to click the finish button until after you've uploaded all your images"
 msgstr ""
 
-#: awpcp.php:9091
+#: awpcp.php:9096
 msgid "The image has been deleted"
 msgstr ""
 
-#: awpcp.php:9103
+#: awpcp.php:9108
 msgid "Unable to delete you image, please contact the administrator."
 msgstr ""
 
-#: awpcp.php:9164
+#: awpcp.php:9169
 msgid "The ad has been deleted"
 msgstr ""
 
-#: awpcp.php:9170
+#: awpcp.php:9175
 msgid "Your ad details and any photos you have uploaded have been deleted from the system"
 msgstr ""
 
-#: awpcp.php:9175
+#: awpcp.php:9180
 msgid "Problem encountered. Cannot complete  request"
 msgstr ""
 
-#: awpcp.php:9278
+#: awpcp.php:9283
 msgid "The amount you have paid does not match any of our listing fee amounts. Please contact us to clarify the problem."
 msgstr ""
 
-#: awpcp.php:9299
+#: awpcp.php:9304
 msgid "There was an error processing your transaction. If funds have been deducted from your account they have not been processed to our account. You will need to contact PayPal about the matter."
 msgstr ""
 
-#: awpcp.php:9319
+#: awpcp.php:9324
 msgid "It appears this transaction has already been processed. If you do not see your ad in the system please contact the site adminstrator for assistance."
 msgstr ""
 
-#: awpcp.php:9370
+#: awpcp.php:9375
 msgid "Payment status has been changed to cancelled"
 msgstr ""
 
-#: awpcp.php:9376
+#: awpcp.php:9381
 msgid "Payment has been completed"
 msgstr ""
 
-#: awpcp.php:9402
+#: awpcp.php:9407
 msgid "Payment status has been changed to refunded"
 msgstr ""
 
-#: awpcp.php:9441
+#: awpcp.php:9446
 msgid "Payment is pending"
 msgstr ""
 
-#: awpcp.php:9448
-#: awpcp.php:10358
+#: awpcp.php:9453
+#: awpcp.php:10363
 msgid "There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment. If you have not tried to make a payment and you are viewing this message, it means this message is being shown in error and can be disregarded."
 msgstr ""
 
-#: awpcp.php:9542
+#: awpcp.php:9547
 msgid "The amount you have paid does not match any of our listing fee amounts. Please contact us to clarify the problem"
 msgstr ""
 
-#: awpcp.php:9561
+#: awpcp.php:9566
 msgid "There was an error process your transaction. If funds have been deducted from your account they have not been processed to our account. You will need to contact 2Checkout about the matter"
 msgstr ""
 
-#: awpcp.php:9579
+#: awpcp.php:9584
 msgid "It appears this transaction has already been processed. If you do not see your ad in the system please contact the site adminstrator for assistance"
 msgstr ""
 
-#: awpcp.php:9618
-#: awpcp_google_checkout_module.php:193
+#: awpcp.php:9623
+#: premium/awpcp_google_checkout_module.php:193
 msgid "Completed"
 msgstr ""
 
-#: awpcp.php:9668
+#: awpcp.php:9673
 msgid "Customer attempt to pay for classified ad listing has failed"
 msgstr ""
 
-#: awpcp.php:9670
-#: awpcp.php:9780
-#: awpcp.php:9897
+#: awpcp.php:9675
+#: awpcp.php:9785
+#: awpcp.php:9902
 msgid "Additional Details"
 msgstr ""
 
-#: awpcp.php:9671
-#: awpcp.php:9781
+#: awpcp.php:9676
+#: awpcp.php:9786
 msgid "Transaction ID"
 msgstr ""
 
-#: awpcp.php:9696
-#: awpcp.php:9785
+#: awpcp.php:9701
+#: awpcp.php:9790
 msgid "Dear Administrator"
 msgstr ""
 
-#: awpcp.php:9697
+#: awpcp.php:9702
 msgid "There was a problem encountered during a customer's attempt to submit payment for a classified ad listing"
 msgstr ""
 
-#: awpcp.php:9712
-#: awpcp.php:9801
-#: awpcp.php:9864
+#: awpcp.php:9717
+#: awpcp.php:9806
+#: awpcp.php:9869
 msgid "Listing Title"
 msgstr ""
 
-#: awpcp.php:9716
-#: awpcp.php:9805
-#: awpcp.php:9874
+#: awpcp.php:9721
+#: awpcp.php:9810
+#: awpcp.php:9879
 msgid "Listing ID"
 msgstr ""
 
-#: awpcp.php:9720
-#: awpcp.php:9809
-#: awpcp.php:9869
+#: awpcp.php:9725
+#: awpcp.php:9814
+#: awpcp.php:9874
 msgid "Listing URL"
 msgstr ""
 
-#: awpcp.php:9726
-#: awpcp.php:9815
+#: awpcp.php:9731
+#: awpcp.php:9820
 msgid "Payment transaction ID"
 msgstr ""
 
-#: awpcp.php:9779
+#: awpcp.php:9784
 msgid "Listing payment status change notification"
 msgstr ""
 
-#: awpcp.php:9786
+#: awpcp.php:9791
 msgid "A listing in the system has been updated with a payment status change"
 msgstr ""
 
-#: awpcp.php:9859
+#: awpcp.php:9864
 msgid "New classified ad listing posted"
 msgstr ""
 
-#: awpcp.php:9879
+#: awpcp.php:9884
 msgid "Listing Edit Email"
 msgstr ""
 
-#: awpcp.php:9884
+#: awpcp.php:9889
 msgid "Listing Edit Key"
 msgstr ""
 
-#: awpcp.php:9891
+#: awpcp.php:9896
 msgid "Payment Transaction ID"
 msgstr ""
 
-#: awpcp.php:9906
+#: awpcp.php:9911
 msgid "If you have questions about your listing contact"
 msgstr ""
 
-#: awpcp.php:9913
+#: awpcp.php:9918
 msgid "Thank you for your business"
 msgstr ""
 
-#: awpcp.php:9920
+#: awpcp.php:9925
 msgid "A new classifieds listing has been submitted. A copy of the details sent to the customer can be found below"
 msgstr ""
 
-#: awpcp.php:9933
+#: awpcp.php:9938
 msgid "Your ad has been submitted and an email has been sent to the email address you provided with information you will need to edit your listing."
 msgstr ""
 
-#: awpcp.php:9957
+#: awpcp.php:9962
 msgid "Although your ad has been submitted, there was a problem encountered while attempting to email your ad details to the email address you provided."
 msgstr ""
 
-#: awpcp.php:10061
+#: awpcp.php:10066
 msgid "You have chosen to cancel the payment process. Your ad cannot be activated until you pay the listing fee. You can click the link below to delete your ad information, or you can click the button to make your payment now"
 msgstr ""
 
-#: awpcp.php:10081
+#: awpcp.php:10086
 msgid "Delete Ad Details"
 msgstr ""
 
-#: awpcp.php:10087
+#: awpcp.php:10092
 msgid "Buy With PayPal"
 msgstr ""
 
-#: awpcp.php:10095
+#: awpcp.php:10100
 msgid "Buy With 2Checkout"
 msgstr ""
 
-#: awpcp.php:10103
+#: awpcp.php:10108
 msgid "Buy With Google Checkout"
 msgstr ""
 
-#: awpcp.php:10297
+#: awpcp.php:10302
 msgid "There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment via PayPal. If you have not tried to make a payment and you are viewing this message, it means this message is being shown in error and can be disregarded."
 msgstr ""
 
-#: awpcp.php:10344
+#: awpcp.php:10349
 msgid "There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment via 2Checkout. If you have not tried to make a payment and you are viewing this message, it means this message has been sent in error and can be disregarded."
 msgstr ""
 
-#: awpcp.php:10632
+#: awpcp.php:10634
 msgid "Total views"
 msgstr ""
 
-#: awpcp.php:10646
-#: awpcp.php:10984
+#: awpcp.php:10648
+#: awpcp.php:10986
 msgid "Price"
 msgstr ""
 
-#: awpcp.php:10655
+#: awpcp.php:10657
 msgid "m/d/Y"
 msgstr ""
 
-#: awpcp.php:10746
+#: awpcp.php:10748
 msgid "Select Category"
 msgstr ""
 
-#: awpcp.php:10751
+#: awpcp.php:10753
 msgid "Change Category"
 msgstr ""
 
-#: awpcp.php:10897
+#: awpcp.php:10899
 msgid "Phone"
 msgstr ""
 
-#: awpcp.php:10908
+#: awpcp.php:10910
 msgid "Location "
 msgstr ""
 
-#: awpcp.php:10996
+#: awpcp.php:10998
 msgid "This ad has been viewed "
 msgstr ""
 
-#: awpcp.php:10998
+#: awpcp.php:11000
 msgid " times"
 msgstr ""
 
-#: awpcp.php:11013
+#: awpcp.php:11015
 msgid "Visit Website"
 msgstr ""
 
-#: awpcp.php:11106
+#: awpcp.php:11109
 msgid "Contact Information"
 msgstr ""
 
-#: awpcp.php:11109
+#: awpcp.php:11112
 msgid "Contact"
 msgstr ""
 
-#: awpcp.php:11120
+#: awpcp.php:11123
 msgid "More Information"
 msgstr ""
 
-#: awpcp.php:11285
+#: awpcp.php:11288
 msgid "AWPCP Classifieds Management System Uninstall Plugin"
 msgstr ""
 
-#: awpcp.php:11292
+#: awpcp.php:11295
 msgid "Thank you for using AWPCP. You have arrived at this page by clicking the Uninstall link. If you are certain you wish to uninstall the plugin, please click the link below to proceed. Please note that all your data related to the plugin, your ads, images and everything else created by the plugin will be destroyed"
 msgstr ""
 
-#: awpcp.php:11294
+#: awpcp.php:11297
 msgid "Important Information"
 msgstr ""
 
-#: awpcp.php:11297
+#: awpcp.php:11300
 msgid "If you plan to use the data created by the plugin please export the data from your mysql database before clicking the uninstall link"
 msgstr ""
 
-#: awpcp.php:11304
+#: awpcp.php:11307
 msgid "Proceed with Uninstalling Another Wordpress Classifieds Plugin"
 msgstr ""
 
-#: awpcp.php:11378
+#: awpcp.php:11381
 msgid "Almost done..."
 msgstr ""
 
-#: awpcp.php:11380
+#: awpcp.php:11383
 msgid "One More Step"
 msgstr ""
 
-#: awpcp.php:11382
+#: awpcp.php:11385
 msgid "Please click here to complete the uninstallation process"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:81
-msgid "There was no ID supplied for the field you would like to edit"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:111
-msgid "There was no ID supplied for the field you would like to delete"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:138
-msgid "The field has been successfully deleted"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:166
-msgid "You did not provide a name for the field."
-msgstr ""
-
-#: awpcp_extra_fields_module.php:171
-msgid "You did not provide a post form label for the field."
-msgstr ""
-
-#: awpcp_extra_fields_module.php:176
-msgid "You did not provide an ad view label for the field."
-msgstr ""
-
-#: awpcp_extra_fields_module.php:181
-msgid "You did not indicate the input element type for the field."
-msgstr ""
-
-#: awpcp_extra_fields_module.php:188
-msgid "You have indicated the field input type is either a checkbox, radio button or drop down element, however you did not provide any options for the field. You either need to change the input type to input box or textarea input or provide some options."
-msgstr ""
-
-#: awpcp_extra_fields_module.php:194
-msgid "You did not indicate the field MYSQL data type."
-msgstr ""
-
-#: awpcp_extra_fields_module.php:205
-msgid "Duplicate field name. You cannot use the same field name more than once."
-msgstr ""
-
-#: awpcp_extra_fields_module.php:257
-msgid "The new field has been added successfully"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:310
-#: awpcp_extra_fields_module.php:415
-#: awpcp_extra_fields_module.php:615
-msgid "Add New Field"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:321
-#: awpcp_extra_fields_module.php:353
-msgid "Post Label"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:324
-#: awpcp_extra_fields_module.php:356
-msgid "View Label"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:327
-#: awpcp_extra_fields_module.php:359
-msgid "Input Type"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:330
-#: awpcp_extra_fields_module.php:362
-msgid "Data Type"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:333
-#: awpcp_extra_fields_module.php:365
-msgid "Options"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:336
-#: awpcp_extra_fields_module.php:368
-msgid "Validation"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:339
-#: awpcp_extra_fields_module.php:371
-msgid "Privacy"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:413
-msgid "It appears you have not added any extra fields yet. Start adding extra fields using the link below"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:454
-msgid "View Current Fields"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:459
-msgid "Field Name"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:461
-msgid "A short name for the form field. This is not visible to user"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:467
-msgid "Field Post Label"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:469
-msgid "Text that tells the user what they need to enter or select in the form."
-msgstr ""
-
-#: awpcp_extra_fields_module.php:475
-msgid "Field View Label"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:477
-msgid "Text to use when displaying the field data on the ad view page."
-msgstr ""
-
-#: awpcp_extra_fields_module.php:483
-msgid "Field Input Element Type"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:485
-msgid "What input element type should be used to collect the data from user?"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:490
-msgid "Select Field Input Type"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:502
-msgid "Input Text Box"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:505
-msgid "Select List"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:508
-msgid "Multiple Select List"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:511
-msgid "Radio Button"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:514
-msgid "Checkbox"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:517
-msgid "Textarea"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:521
-msgid "Field MYSQL Data Type"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:523
-msgid "Select Number for values that must save as numbers, money for money values, short text for string values under 300 characters and long text for string values over 300 characters"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:528
-msgid "Select Field MYSQL Data Type"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:537
-msgid "Whole Number"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:540
-msgid "Decimal (Money and other floating values. Uses FLOAT)"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:543
-msgid "Short Text"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:546
-msgid "Long Text"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:550
-msgid "Field Options"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:552
-msgid "for drop down lists, radio buttons, checkboxes "
-msgstr ""
-
-#: awpcp_extra_fields_module.php:554
-msgid "separate by commas"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:558
-msgid "Validate Against"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:560
-msgid "If field is optional do not select a validation option."
-msgstr ""
-
-#: awpcp_extra_fields_module.php:575
-msgid "Email Format"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:578
-msgid "URL format"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:581
-msgid "Missing Value"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:584
-msgid "Numeric decimal allowed"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:587
-msgid "Numeric no decimal allowed"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:591
-msgid "Public or private?"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:593
-msgid "If the field is not intended for public viewing set to private. Defaults to public if private not set."
-msgstr ""
-
-#: awpcp_extra_fields_module.php:598
-msgid "Public"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:601
-msgid "Private"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:611
-msgid "Update Field"
-msgstr ""
-
-#: awpcp_extra_fields_module.php:751
-msgid "Select One"
-msgstr ""
-
-#: awpcp_google_checkout_module.php:118
-msgid "Your listing has not been fully submitted yet. To complete the process you need to click the link below."
-msgstr ""
-
-#: awpcp_google_checkout_module.php:127
-msgid "Pay With Google Checkout"
 msgstr ""
 
 #: functions_awpcp.php:1682
@@ -2062,7 +1813,11 @@ msgstr ""
 msgid "Number of headlines to Show"
 msgstr ""
 
-#: functions_awpcp.php:2886
+#: functions_awpcp.php:2257
+msgid "Read more"
+msgstr ""
+
+#: functions_awpcp.php:2915
 msgid "l F j, Y \\a\\t g:i a"
 msgstr ""
 
@@ -2088,5 +1843,258 @@ msgstr ""
 
 #: upload_awpcp.php:299
 msgid "One or more images failed to be uploaded"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:86
+msgid "There was no ID supplied for the field you would like to edit"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:116
+msgid "There was no ID supplied for the field you would like to delete"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:143
+msgid "The field has been successfully deleted"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:171
+msgid "You did not provide a name for the field."
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:176
+msgid "You did not provide a post form label for the field."
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:181
+msgid "You did not provide an ad view label for the field."
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:186
+msgid "You did not indicate the input element type for the field."
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:193
+msgid "You have indicated the field input type is either a checkbox, radio button or drop down element, however you did not provide any options for the field. You either need to change the input type to input box or textarea input or provide some options."
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:199
+msgid "You did not indicate the field MYSQL data type."
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:210
+msgid "Duplicate field name. You cannot use the same field name more than once."
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:262
+msgid "The new field has been added successfully"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:315
+#: premium/awpcp_extra_fields_module.php:420
+#: premium/awpcp_extra_fields_module.php:620
+msgid "Add New Field"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:326
+#: premium/awpcp_extra_fields_module.php:358
+msgid "Post Label"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:329
+#: premium/awpcp_extra_fields_module.php:361
+msgid "View Label"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:332
+#: premium/awpcp_extra_fields_module.php:364
+msgid "Input Type"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:335
+#: premium/awpcp_extra_fields_module.php:367
+msgid "Data Type"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:338
+#: premium/awpcp_extra_fields_module.php:370
+msgid "Options"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:341
+#: premium/awpcp_extra_fields_module.php:373
+msgid "Validation"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:344
+#: premium/awpcp_extra_fields_module.php:376
+msgid "Privacy"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:418
+msgid "It appears you have not added any extra fields yet. Start adding extra fields using the link below"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:459
+msgid "View Current Fields"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:464
+msgid "Field Name"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:466
+msgid "A short name for the form field. This is not visible to user"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:472
+msgid "Field Post Label"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:474
+msgid "Text that tells the user what they need to enter or select in the form."
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:480
+msgid "Field View Label"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:482
+msgid "Text to use when displaying the field data on the ad view page."
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:488
+msgid "Field Input Element Type"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:490
+msgid "What input element type should be used to collect the data from user?"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:495
+msgid "Select Field Input Type"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:507
+msgid "Input Text Box"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:510
+msgid "Select List"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:513
+msgid "Multiple Select List"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:516
+msgid "Radio Button"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:519
+msgid "Checkbox"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:522
+msgid "Textarea"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:526
+msgid "Field MYSQL Data Type"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:528
+msgid "Select Number for values that must save as numbers, money for money values, short text for string values under 300 characters and long text for string values over 300 characters"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:533
+msgid "Select Field MYSQL Data Type"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:542
+msgid "Whole Number"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:545
+msgid "Decimal (Money and other floating values. Uses FLOAT)"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:548
+msgid "Short Text"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:551
+msgid "Long Text"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:555
+msgid "Field Options"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:557
+msgid "for drop down lists, radio buttons, checkboxes "
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:559
+msgid "separate by commas"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:563
+msgid "Validate Against"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:565
+msgid "If field is optional do not select a validation option."
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:580
+msgid "Email Format"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:583
+msgid "URL format"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:586
+msgid "Missing Value"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:589
+msgid "Numeric decimal allowed"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:592
+msgid "Numeric no decimal allowed"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:596
+msgid "Public or private?"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:598
+msgid "If the field is not intended for public viewing set to private. Defaults to public if private not set."
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:603
+msgid "Public"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:606
+msgid "Private"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:616
+msgid "Update Field"
+msgstr ""
+
+#: premium/awpcp_extra_fields_module.php:756
+msgid "Select One"
+msgstr ""
+
+#: premium/awpcp_google_checkout_module.php:118
+msgid "Your listing has not been fully submitted yet. To complete the process you need to click the link below."
+msgstr ""
+
+#: premium/awpcp_google_checkout_module.php:127
+msgid "Pay With Google Checkout"
 msgstr ""
 

@@ -6,7 +6,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.0.6.14
+ Version: 1.0.6.15
  Author: A Lewis, D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -389,7 +389,7 @@ function do_settings_insert()
 		('uploadfoldername', 'uploads', 'Upload folder name. [ Folder must exist and be located in your wp-content directory ]','4','1'),
 		('maximagesize', '150000', 'Maximum file size per image user can upload to system.','4','1'),
 		('minimagesize', '300', 'Minimum file size per image user can upload to system','4','1'),
-		('imgthumbwidth', '125', 'Width for thumbnails created upon upload.','4','1'),
+		('imgthumbwidth', '125', 'Minimum width/height for uploaded images (used for both).','4','1'),
 		('maxcharactersallowed', '750', 'Maximum ad length (characters)?','2','1'),
 		('paypalemail', 'xxx@xxxxxx.xxx', 'Email address for PayPal payments [if running in pay mode and if PayPal is activated]','3','1'),
 		('paypalcurrencycode', 'USD', 'The currency in which you would like to receive your PayPal payments','3','1'),
@@ -414,7 +414,7 @@ function do_settings_insert()
 		('noadsinparentcat', '0', 'Prevent ads from being posted to top level categories?.','2','0'),
 		('displayadviews', '1', 'Show ad views','2','0'),
 		('displayadlayoutcode', '<div id=\"\$awpcpdisplayaditems\"><div style=\"width:\$imgblockwidth;padding:5px;float:left;margin-right:20px;\">\$awpcp_image_name_srccode</div><div style=\"width:50%;padding:5px;float:left;\"><h4>\$ad_title</h4> \$addetailssummary...</div><div style=\"padding:5px;float:left;\"> \$awpcpadpostdate \$awpcp_city_display \$awpcp_state_display \$awpcp_display_adviews \$awpcp_display_price </div><div class=\"fixfloat\"></div></div><div class=\"fixfloat\"></div>', 'Modify as needed to control layout of ad listings page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.','2','2'),		
-		('awpcpshowtheadlayout', '<div id=\"showad\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"adinfo\">\$featureimg<label>Contact Information</label><br/><a href=\"\$quers/\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location \$awpcpvisitwebsite</div>\$aditemprice \$awpcpextrafields \$showadsense1<div class=\"adinfo\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><div class=\"fixfloat\"></div>\$awpcpadviews \$showadsense3</div>', 'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.','2','2'),		
+		('awpcpshowtheadlayout', '<div id=\"showad\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"cladinfo\">\$featureimg<label>Contact Information</label><br/><a href=\"\$quers/\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location \$awpcpvisitwebsite</div>\$aditemprice \$awpcpextrafields \$showadsense1<div class=\"cladinfo\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><div class=\"fixfloat\"></div>\$awpcpadviews \$showadsense3</div>', 'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.','2','2'),		
 		('smtphost', 'mail.example.com', 'SMTP host [ if emails not processing normally]', 9 ,'1'),
 		('smtpusername', 'smtp_username', 'SMTP username [ if emails not processing normally]', 9,'1'),
 		('smtppassword', '', 'SMTP password [ if emails not processing normally]', 9,'1'),
@@ -463,7 +463,7 @@ function do_settings_insert()
 
 function awpcp_install() {
 	global $wpdb,$awpcp_db_version,$awpcp_plugin_path;
-	_log("Running installation");
+	//_log("Running installation");
 	$tbl_ad_categories = $wpdb->prefix . "awpcp_categories";
 	$tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
@@ -567,7 +567,6 @@ function awpcp_install() {
 		add_option("awpcp_db_version", $awpcp_db_version);
 		wp_schedule_event( time(), 'hourly', 'doadexpirations_hook' );
 	} else {
-		_log("Upgrade detected");
 		global $wpdb,$awpcp_db_version;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -577,6 +576,7 @@ function awpcp_install() {
 		$installed_ver = get_option( "awpcp_db_version" );
 
 		if ( $installed_ver != $awpcp_db_version ) {
+			_log("UPGRADE detected");
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Update category ordering
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -638,7 +638,7 @@ function awpcp_install() {
 	 	if (get_awpcp_option_type('main_page_display') == 1){ $wpdb->query("UPDATE " . $tbl_ad_settings . " SET `config_value` = '0', `option_type` = '0', `config_diz` = 'Main page layout [ check for ad listings ] [ Uncheck for categories ]',config_group_id='1' WHERE `config_option` = 'main_page_display'"); }
 	 	if (get_awpcp_option_config_diz('paylivetestmode') != "Put payment gateways in test mode"){ $wpdb->query("UPDATE " . $tbl_ad_settings . " SET `config_value` = '0', `option_type` = '0', `config_diz` = 'Put payment gateways in test mode' WHERE `config_option` = 'paylivetestmode'");}
 	 	if (get_awpcp_option_config_diz('adresultsperpage') != "Default number of ads per page"){ $wpdb->query("UPDATE " . $tbl_ad_settings . " SET `config_value` = '10', `option_type` = '1', `config_diz` = 'Default number of ads per page' WHERE `config_option` = 'adresultsperpage'");}
-	 	if (get_awpcp_option_config_diz('awpcpshowtheadlayout') != "<div id=\"showad\"><div class=\"adtitle\">$ad_title</div><br/><div class=\"adinfo\">$featureimg<label>Contact Information</label><br/><a href=\"$quers/$codecontact\">Contact $adcontact_name</a>$adcontactphone $location $awpcpvisitwebsite</div>$aditemprice $awpcpextrafields <div class=\"fixfloat\"></div> $showadsense1<div class=\"adinfo\"><label>More Information</label><br/>$addetails</div>$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>$awpcpshowadotherimages</ul></div></div><div class=\"fixfloat\"></div>$awpcpadviews $showadsense3</div>"){ $wpdb->query("UPDATE " . $tbl_ad_settings . " SET `config_value` = '2', `option_type` = '2', `config_diz` = 'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.', `config_value` = '<div id=\"showad\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"adinfo\">\$featureimg<label>Contact Information</label><br/><a href=\"\$quers/\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location \$awpcpvisitwebsite</div>\$aditemprice \$awpcpextrafields <div class=\"fixfloat\"></div> \$showadsense1<div class=\"adinfo\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><div class=\"fixfloat\"></div>\$awpcpadviews \$showadsense3</div>' WHERE `config_option` = 'awpcpshowtheadlayout'");}
+	 	if (get_awpcp_option_config_diz('awpcpshowtheadlayout') != "<div id=\"showad\"><div class=\"adtitle\">$ad_title</div><br/><div class=\"cladinfo\">$featureimg<label>Contact Information</label><br/><a href=\"$quers/$codecontact\">Contact $adcontact_name</a>$adcontactphone $location $awpcpvisitwebsite</div>$aditemprice $awpcpextrafields <div class=\"fixfloat\"></div> $showadsense1<div class=\"cladinfo\"><label>More Information</label><br/>$addetails</div>$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>$awpcpshowadotherimages</ul></div></div><div class=\"fixfloat\"></div>$awpcpadviews $showadsense3</div>"){ $wpdb->query("UPDATE " . $tbl_ad_settings . " SET `config_value` = '2', `option_type` = '2', `config_diz` = 'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.', `config_value` = '<div id=\"showad\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"cladinfo\">\$featureimg<label>Contact Information</label><br/><a href=\"\$quers/\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location \$awpcpvisitwebsite</div>\$aditemprice \$awpcpextrafields <div class=\"fixfloat\"></div> \$showadsense1<div class=\"cladinfo\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><div class=\"fixfloat\"></div>\$awpcpadviews \$showadsense3</div>' WHERE `config_option` = 'awpcpshowtheadlayout'");}
 	 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	 	// Match up the ad settings fields of current versions and upgrading versions
 	 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -685,7 +685,7 @@ function awpcp_install() {
 	 	if (!field_exists($field='uploadfoldername')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('uploadfoldername', 'uploads', 'Upload folder name. [ Folder must exist and be located in your wp-content directory ]','4','1');");}
 	 	if (!field_exists($field='maximagesize')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('maximagesize', '150000', 'Maximum size per image user can upload to system.','4','1');");}
 	 	if (!field_exists($field='minimagesize')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('minimagesize', '300', 'Minimum size per image user can upload to system','4','1');");}
-	 	if (!field_exists($field='imgthumbwidth')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('imgthumbwidth', '125', 'Width for thumbnails created upon upload.','4','1');");}
+	 	if (!field_exists($field='imgthumbwidth')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('imgthumbwidth', '125', 'Minimum height/width for uploaded images (used for both).','4','1');");}
 	 	if (!field_exists($field='maxcharactersallowed')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('maxcharactersallowed', '750', 'What is the maximum number of characters the text of an ad can contain?','2','1');");}
 	 	if (!field_exists($field='paypalemail')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('paypalemail', 'xxx@xxxxxx.xxx', 'Email address for paypal payments [if running in paymode and if paypal is activated]','3','1');");}
 	 	if (!field_exists($field='paypalcurrencycode')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('paypalcurrencycode', 'USD', 'The currency in which you would like to receive your paypal payments','3','1');");}
@@ -710,7 +710,7 @@ function awpcp_install() {
 	 	if (!field_exists($field='noadsinparentcat')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('noadsinparentcat', '0', 'Prevent ads from being posted to top level categories?.','2','0');");}
 	 	if (!field_exists($field='displayadviews')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('displayadviews', '1', 'Show ad views','2','0');");}
 	 	if (!field_exists($field='displayadlayoutcode')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('displayadlayoutcode', '<div id=\"\$awpcpdisplayaditems\"><div style=\"width:\$imgblockwidth;padding:5px;float:left;margin-right:20px;\">\$awpcp_image_name_srccode</div><div style=\"width:50%;padding:5px;float:left;\"><h4>\$ad_title</h4> \$addetailssummary...</div><div style=\"padding:5px;float:left;\"> \$awpcpadpostdate \$awpcp_city_display \$awpcp_state_display \$awpcp_display_adviews \$awpcp_display_price </div><div class=\"fixfloat\"></div></div><div class=\"fixfloat\"></div>', 'Modify as needed to control layout of ad listings page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.','2','2');");}
-	 	if (!field_exists($field='awpcpshowtheadlayout')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('awpcpshowtheadlayout', '<div id=\"showad\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"adinfo\">\$featureimg<label>Contact Information</label><br/><a href=\"\$quers/\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location \$awpcpvisitwebsite</div>\$aditemprice \$awpcpextrafields <div class=\"fixfloat\"></div> \$showadsense1<div class=\"adinfo\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><div class=\"fixfloat\"></div>\$awpcpadviews \$showadsense3</div>', 'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.','2','2');");}
+	 	if (!field_exists($field='awpcpshowtheadlayout')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('awpcpshowtheadlayout', '<div id=\"showad\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"cladinfo\">\$featureimg<label>Contact Information</label><br/><a href=\"\$quers/\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location \$awpcpvisitwebsite</div>\$aditemprice \$awpcpextrafields <div class=\"fixfloat\"></div> \$showadsense1<div class=\"cladinfo\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><div class=\"fixfloat\"></div>\$awpcpadviews \$showadsense3</div>', 'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.','2','2');");}
 	 	if (!field_exists($field='smtphost')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('smtphost', 'mail.example.com', 'SMTP host [ if emails not processing normally]', 9 ,'1');");}
 	 	if (!field_exists($field='smtpusername')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('smtpusername', 'smtp_username', 'SMTP username [ if emails not processing normally]', 9,'1');");}
 	 	if (!field_exists($field='smtppassword')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('smtppassword', '', 'SMTP password [ if emails not processing normally]', 9,'1');");}
@@ -936,21 +936,21 @@ function checkifclassifiedpage($pagename){
 
 function awpcp_launch(){
 	global $awpcp_plugin_path;
-	add_menu_page('AWPCP Classifieds Management System', 'Classifieds', '10', 'awpcp.php', 'awpcp_home_screen', MENUICO);
-	add_submenu_page('awpcp.php', 'Configure General Options ', 'Settings', '10', 'Configure1', 'awpcp_opsconfig_settings');
-	add_submenu_page('awpcp.php', 'Listing Fees Setup', 'Fees', '10', 'Configure2', 'awpcp_opsconfig_fees');
-	add_submenu_page('awpcp.php', 'Add/Edit Categories', 'Categories', '10', 'Configure3', 'awpcp_opsconfig_categories');
-	add_submenu_page('awpcp.php', 'View Ad Listings', 'Listings', '10', 'Manage1', 'awpcp_manage_viewlistings');
-	add_submenu_page('awpcp.php', 'View Ad Images', 'Images', '10', 'Manage2', 'awpcp_manage_viewimages');
+	add_menu_page('AWPCP Classifieds Management System', 'Classifieds', '7', 'awpcp.php', 'awpcp_home_screen', MENUICO);
+	add_submenu_page('awpcp.php', 'Configure General Options ', 'Settings', '7', 'Configure1', 'awpcp_opsconfig_settings');
+	add_submenu_page('awpcp.php', 'Listing Fees Setup', 'Fees', '7', 'Configure2', 'awpcp_opsconfig_fees');
+	add_submenu_page('awpcp.php', 'Add/Edit Categories', 'Categories', '7', 'Configure3', 'awpcp_opsconfig_categories');
+	add_submenu_page('awpcp.php', 'View Ad Listings', 'Listings', '7', 'Manage1', 'awpcp_manage_viewlistings');
+	add_submenu_page('awpcp.php', 'View Ad Images', 'Images', '7', 'Manage2', 'awpcp_manage_viewimages');
 	if ( file_exists("$awpcp_plugin_path/awpcp_region_control_module.php") )
 	{
-		add_submenu_page('awpcp.php', 'Manage Regions', 'Regions', '10', 'Configure4', 'awpcp_opsconfig_regions');
+		add_submenu_page('awpcp.php', 'Manage Regions', 'Regions', '7', 'Configure4', 'awpcp_opsconfig_regions');
 	}
 	if ( file_exists("$awpcp_plugin_path/awpcp_extra_fields_module.php") )
 	{
-		add_submenu_page('awpcp.php', 'Manage Extra Fields', 'Extra Fields', '10', 'Configure5', 'awpcp_add_new_field');
+		add_submenu_page('awpcp.php', 'Manage Extra Fields', 'Extra Fields', '7', 'Configure5', 'awpcp_add_new_field');
 	}
-	add_submenu_page('awpcp.php', 'Uninstall AWPCP', 'Uninstall', '10', 'Manage3', 'awpcp_uninstall');
+	add_submenu_page('awpcp.php', 'Uninstall AWPCP', 'Uninstall', '7', 'Manage3', 'awpcp_uninstall');
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2743,7 +2743,7 @@ function awpcp_manage_viewlistings()
 			<form method=\"post\">
 			<input type=\"radio\" name=\"lookupadbychoices\" value=\"adid\"/>Ad ID
 			<input type=\"radio\" name=\"lookupadbychoices\" value=\"adtitle\"/>Ad Title
-			<input type=\"radio\" name=\"lookupadbychoices\" value=\"titdet\"/>Key Word
+			<input type=\"radio\" checked='true' name=\"lookupadbychoices\" value=\"titdet\"/>Keyword
 			<input type=\"radio\" name=\"lookupadbychoices\" value=\"location\"/>Location
 			<input type=\"text\" name=\"lookupadidortitle\" value=\"$lookupadidortitle\"/>
 			<input type=\"hidden\" name=\"action\" value=\"lookupadby\" />
@@ -4379,7 +4379,7 @@ function awpcpui_process_browsecats()
 //Function to replace addslashes_mq, which is causing major grief.  Stripping of undesireable characters now done
 // through above stripslashes_gpc.
 function clean_field($foo) {
-	return $foo;
+	return addslashes($foo);
 }
 
 function awpcpui_process_placead()
@@ -7155,7 +7155,7 @@ function load_ad_search_form($keywordphrase,$searchname,$searchcity,$searchstate
 				<input size=\"35\" type=\"text\" class=\"inputbox\" name=\"searchcountry\" value=\"$searchcountry\" />
 				";
 			}
-			elseif (get_awpcp_option('buildsearchdropdownlists'))
+			else
 			{
 				if ( adstablehascountries() )
 				{
@@ -7558,7 +7558,7 @@ function dosearch() {
 	!isset($searchpricemin) && empty($searchpricemin) &&
 	!isset($searchpricemax) && empty($searchpricemax) &&
 	!isset($searchcategory) && empty ($searchcategory) &&
-	!isset($searchcountyvillage) && wmpty ($searchcountyvillage)) {
+	!isset($searchcountyvillage) && empty ($searchcountyvillage)) {
 		$error=true;
 		$theerrorslist.="<li>";
 		$theerrorslist.=__("You did not enter a keyword or phrase to search for. You must at the very least provide a keyword or phrase to search for","AWPCP");
@@ -7587,11 +7587,18 @@ function dosearch() {
 		}
 	}
 
-	if ( empty($searchpricemin) && !empty($searchpricemax) )
-	{
+	if ( empty($searchpricemin) && !empty($searchpricemax) ) {
 		$searchpricemin=1;
 	}
-
+	
+	if ( !empty($keywordphrase) ) {
+		if (strlen($keywordphrase) < 4) {
+			$error=true;
+			$theerrorslist.="<li>";
+			$theerrorslist.=__("You have entered a keyword that is too short to search on.  Search keywords must be at least 4 letters in length.  Please try another term","AWPCP");
+			$theerrorslist.="</li>";
+		}
+	}
 	$theerrorslist.="</ul>";
 	$message="<p>$theerrorslist</p>";
 
@@ -9980,10 +9987,10 @@ function awpcp_cancelpayment()
 	$output .= "<div id=\"classiwrapper\">";
 
 	if (isset($_REQUEST['i']) && !empty($_REQUEST['i'])) {
-		$adinfo=$_REQUEST['i'];
+		$cladinfo=$_REQUEST['i'];
 	}
 
-	$adkeyelements = explode("_", $adinfo);
+	$adkeyelements = explode("_", $cladinfo);
 	$ad_id=$adkeyelements[0];
 	$key=$adkeyelements[1];
 	$pproc=$adkeyelements[2];
@@ -10120,8 +10127,8 @@ function paymentthankyou()
 	$permastruc=get_option('permalink_structure');
 	if (isset($_REQUEST['i']) && !empty($_REQUEST['i']))
 	{
-		$adinfo=$_REQUEST['i'];
-		$adkeyelements = explode("_", $adinfo);
+		$cladinfo=$_REQUEST['i'];
+		$adkeyelements = explode("_", $cladinfo);
 		$ad_id=$adkeyelements[0];
 		$key=$adkeyelements[1];
 		$pproc=$adkeyelements[2];
@@ -10594,14 +10601,10 @@ function display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 				{
 					$awpcp_country_display='';
 				}
-				$awpcp_image_display='';
+				$awpcp_image_display="<a href=\"$url_showad\">";
 				if (get_awpcp_option('imagesallowdisallow'))
 				{
-
-					$awpcp_image_display="<a href=\"$url_showad\">";
-
 					$totalimagesuploaded=get_total_imagesuploaded($ad_id);
-
 					if ($totalimagesuploaded >=1)
 					{
 						$awpcp_image_name=get_a_random_image($ad_id);
@@ -10612,11 +10615,12 @@ function display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 						else
 						{
 							$awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" style=\"float:left;margin-right:25px;\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\">";
-						}							}
-						else
-						{
-							$awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\">";
-						}
+						}							
+					}
+					else
+					{
+						$awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\">";
+					}
 				}
 				else
 				{
@@ -10661,7 +10665,7 @@ function display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 				{
 					//$awpcpdisplaylayoutcode=str_replace("\$awpcpdisplayaditems","${awpcpdisplayaditems}",$awpcpdisplaylayoutcode);
 					$awpcpdisplaylayoutcode=str_replace("\$imgblockwidth",$imgblockwidth,$awpcpdisplaylayoutcode);
-					$awpcpdisplaylayoutcode=str_replace("\$awpcp_image_name_srccode",$awpcp_image_name_srccode,$awpcpdisplaylayoutcode);
+					$awpcpdisplaylayoutcode=str_replace("\$awpcp_image_name_srccode",$awpcp_image_display,$awpcpdisplaylayoutcode);
 					$awpcpdisplaylayoutcode=str_replace("\$addetailssummary",$addetailssummary,$awpcpdisplaylayoutcode);
 					$awpcpdisplaylayoutcode=str_replace("\$ad_title",$ad_title,$awpcpdisplaylayoutcode);
 					$awpcpdisplaylayoutcode=str_replace("\$awpcpadpostdate",$awpcpadpostdate,$awpcpdisplaylayoutcode);
@@ -10978,7 +10982,7 @@ function showad($adid,$omitmenu)
 					if ($itempricereconverted >=1 )
 					{
 						$awpcpthecurrencysymbol=awpcp_get_currency_code();
-						$aditemprice="<div class=\"adinfo\"><label>";
+						$aditemprice="<div class=\"cladinfo\"><label>";
 						$aditemprice.=__("Price","AWPCP");
 						$aditemprice.="</label><br/>";
 						$aditemprice.="<b class=\"price\">$awpcpthecurrencysymbol $itempricereconverted</b></div>";
@@ -11099,7 +11103,7 @@ function showad($adid,$omitmenu)
 				$awpcpshowthead="
 									<div id=\"showad\">
 									<div class=\"adtitle\">$ad_title</div><br/>
-									<div class=\"adinfo\">
+									<div class=\"cladinfo\">
 									$featureimg
 									<label>";
 									$awpcpshowthead.=__("Contact Information","AWPCP");
@@ -11115,7 +11119,7 @@ function showad($adid,$omitmenu)
 									$awpcpextrafields
 									<div class=\"fixfloat\"></div>
 									$showadsense1
-									<div class=\"adinfo\"><label>";
+									<div class=\"cladinfo\"><label>";
 									$awpcpshowthead.=__("More Information","AWPCP");
 									$awpcpshowthead.="</label><br/>$addetails</div>
 									$showadsense2

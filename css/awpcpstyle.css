@@ -268,6 +268,22 @@ text-decoration:underline;
 
 .awpcpwidget { clear:both; overflow:hidden; }
 
+.awpcplatestthumb {
+	margin-right:10px;
+	margin-left:10px;
+	margin-bottom:5px;
+	padding:5px;
+	float:left;
+	background: none repeat scroll 0 0 #F2F2F2;
+	-moz-border-radius: 5px 5px 5px 5px;
+}
+.awpcplatestbox {
+	margin-bottom:5px;
+}
+.awpcplatestspacer {
+	clear:both;
+}
+
 #alphabarwrapper ul#alphabar { margin:0; padding:0px 0px 25px 0px;list-style-type:none;float:left; }
 #alphabarwrapper #alphabar li { list-style:none; list-style-type:none; float:left;padding:5px;text-align:center;background:#f1f1f1;margin:0px 2px 2px 0px; } 
 #alphabarwrapper #alphabar li a { text-decoration:none;font-weight:normal;font-size:small; } 
@@ -363,7 +379,7 @@ p.uploaderror { padding:5px; background:#ffffcc; color:#000000; }
 div.unsetsavedlocationslink { clear:both;padding:5px;background:#f2f2f2; width:300px;text-align:center;}
 
 .erroralert { color:#ff0000;font-weight:bold;font-size:14px; }
-.adinfo { margin-bottom:10px; }
+.cladinfo { margin-bottom:10px; }
 .adviewed { margin:10px 0px; border-top:1px dotted #333333; padding-top:10px; }
 .thumbshow { background:#f2f2f2;	display: inline; 	border:1px solid #d3d3d3;	padding:9px; }
 label {font-weight:bold;}
