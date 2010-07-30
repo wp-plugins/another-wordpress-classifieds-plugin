@@ -6,7 +6,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.0.6.15
+ Version: 1.0.6.16
  Author: A Lewis, D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -87,18 +87,6 @@ if (!function_exists('array_walk_recursive'))
 $wpcontenturl=WP_CONTENT_URL;
 $wpcontentdir=WP_CONTENT_DIR;
 $wpinc=WPINC;
-
-//Strip slashes added (e.g. "John\'s Mother\'s Food") out of common variables to avoid garbage in the database:
-if (get_magic_quotes_gpc()) {
-    function stripslashes_gpc(&$value)
-    {
-        $value = stripslashes($value);
-    }
-    array_walk_recursive($_GET, 'stripslashes_gpc');
-    array_walk_recursive($_POST, 'stripslashes_gpc');
-    array_walk_recursive($_COOKIE, 'stripslashes_gpc');
-    array_walk_recursive($_REQUEST, 'stripslashes_gpc');
-}
 
 $awpcp_plugin_path = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
 $awpcp_plugin_url = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
@@ -420,6 +408,7 @@ function do_settings_insert()
 		('smtppassword', '', 'SMTP password [ if emails not processing normally]', 9,'1'),
 		('onlyadmincanplaceads', '0', 'Only admin can post ads', '2','0'),
 		('contactformcheckhuman', '1', 'Activate Math ad post and contact form validation', '1','0'),
+		('useakismet', '1', 'Use Akismet for Posting Ads/Contact Responses (strong anti-spam)', '0','0'),
 		('contactformcheckhumanhighnumval', '10', 'Math validation highest number', '1','1'),
 		('contactformsubjectline', 'Response to your AWPCP Demo Ad', 'Subject line for email sent out when someone replies to ad','8', '1'),
 		('contactformbodymessage', 'Someone has responded to your AWPCP Demo Ad', 'Message body text for email sent out when someone replies to ad', '8','2'),
@@ -608,7 +597,7 @@ function awpcp_install() {
 				$query=("ALTER TABLE " . $tbl_ad_settings . "  ADD `config_group_id` tinyint(1) unsigned NOT NULL DEFAULT '1' AFTER config_diz");
 				@mysql_query($query);
 
-				$myconfig_group_ops_1=array('showlatestawpcpnews','uiwelcome','main_page_display','contactformcheckhuman', 'contactformcheckhumanhighnumval','awpcptitleseparator','showcityinpagetitle','showstateinpagetitle','showcountryinpagetitle','showcategoryinpagetitle','showcountyvillageinpagetitle','awpcppagefilterswitch','activatelanguages','sidebarwidgetbeforecontent','sidebarwidgetaftercontent','sidebarwidgetbeforetitle','sidebarwidgetaftertitle','usesenderemailinsteadofadmin','awpcpadminaccesslevel','awpcpadminemail');
+				$myconfig_group_ops_1=array('showlatestawpcpnews','uiwelcome','main_page_display','useakismet','contactformcheckhuman', 'contactformcheckhumanhighnumval','awpcptitleseparator','showcityinpagetitle','showstateinpagetitle','showcountryinpagetitle','showcategoryinpagetitle','showcountyvillageinpagetitle','awpcppagefilterswitch','activatelanguages','sidebarwidgetbeforecontent','sidebarwidgetaftercontent','sidebarwidgetbeforetitle','sidebarwidgetaftertitle','usesenderemailinsteadofadmin','awpcpadminaccesslevel','awpcpadminemail');
 				$myconfig_group_ops_2=array('addurationfreemode','autoexpiredisabledelete','maxcharactersallowed','notifyofadexpiring', 'notifyofadposted', 'adapprove', 'disablependingads', 'showadcount', 'displayadviews','onlyadmincanplaceads','allowhtmlinadtext', 'hyperlinkurlsinadtext', 'notice_awaiting_approval_ad', 'buildsearchdropdownlists','visitwebsitelinknofollow','groupbrowseadsby','groupsearchresultsby','displayadthumbwidth','adresultsperpage','displayadlayoutcode','awpcpshowtheadlayout');
 				$myconfig_group_ops_3=array('freepay','paylivetestmode','paypalemail', 'paypalcurrencycode', 'displaycurrencycode', '2checkout', 'activatepaypal', 'activate2checkout','twocheckoutpaymentsrecurring','paypalpaymentsrecurring');
 				$myconfig_group_ops_4=array('imagesallowdisallow', 'awpcp_thickbox_disabled','imagesapprove', 'imagesallowedfree', 'uploadfoldername', 'maximagesize','minimagesize', 'imgthumbwidth');
@@ -716,6 +705,7 @@ function awpcp_install() {
 	 	if (!field_exists($field='smtppassword')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('smtppassword', '', 'SMTP password [ if emails not processing normally]', 9,'1');");}
 	 	if (!field_exists($field='onlyadmincanplaceads')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('onlyadmincanplaceads', '0', 'Only admin can post ads', '2','0');");}
 	 	if (!field_exists($field='contactformcheckhuman')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('contactformcheckhuman', '1', 'Activate Math ad post and contact form validation', '1','0');");}
+	 	if (!field_exists($field='useakismet')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('useakismet', '0', 'Use Akismet for Posting Ads/Contact Responses (strong anti-spam)', '1','0');");}
 	 	if (!field_exists($field='contactformcheckhumanhighnumval')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('contactformcheckhumanhighnumval', '10', 'Math validation highest number', '1','1');");}
 	 	if (!field_exists($field='contactformsubjectline')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('contactformsubjectline', 'Response to your AWPCP Demo Ad', 'Subject line for email sent out when someone replies to ad','8', '1');");}
 	 	if (!field_exists($field='contactformbodymessage')){$wpdb->query("INSERT  INTO " . $tbl_ad_settings . " (`config_option` ,	`config_value` , `config_diz` , `config_group_id`, `option_type`	) VALUES('contactformbodymessage', 'Someone has responded to your AWPCP Demo Ad', 'Message body text for email sent out when someone replies to ad', '8','2');");}
@@ -3046,9 +3036,13 @@ if (isset($_REQUEST['savesettings']) && !empty($_REQUEST['savesettings']))
 
 		if (isset($_POST[$config_option]))
 		{
-
-			$myoptions[$config_option]=clean_field($_POST[$config_option],true);
-
+			if (strcmp($config_option, 'awpcpshowtheadlayout') == 0 || 
+				strcmp($config_option, 'displayadlayoutcode') == 0) {
+				//Straight copy for these two options.
+				$myoptions[$config_option]=$_POST[$config_option];
+			} else {
+				$myoptions[$config_option]=clean_field($_POST[$config_option]);
+			}
 			$newuipagename='';
 			$showadspagename='';
 			$placeadpagename='';
@@ -3128,7 +3122,6 @@ if (isset($_REQUEST['savesettings']) && !empty($_REQUEST['savesettings']))
 
 	while (list($k,$v)=each($myoptions))
 	{
-
 		if (($cgid == 3))
 		{
 			$mycurrencycode=$myoptions['paypalcurrencycode'];
@@ -3136,10 +3129,8 @@ if (isset($_REQUEST['savesettings']) && !empty($_REQUEST['savesettings']))
 			//PayPal Currencies supported as of 9-June-2010
 			$currencycodeslist=array('AUD','BRL','CAD','CZK','DKK','EUR','HKD','HUF','ILS','JPY','MYR','MXN','NOK','NZD','PHP','PLN','GBP','SGD','SEK','CHF','TWD','THB','USD');
 
-
-			if (!in_array($mycurrencycode,$currencycodeslist) || !in_array($displaycurrencycode,$currencycodeslist))
+			if (!in_array(strtoupper($mycurrencycode),$currencycodeslist) || !in_array(strtoupper($displaycurrencycode),$currencycodeslist))
 			{
-
 				$error=true;
 				$message="<div style=\"background-color:#eeeeee;border:1px solid #ff0000;padding:5px;\" id=\"message\" class=\"updated fade\">";
 				$message.= __("There is a problem with the currency code you have entered. It does not match any of the codes in the list of available currencies provided by PayPal.","AWPCP");
@@ -3160,7 +3151,11 @@ if (isset($_REQUEST['savesettings']) && !empty($_REQUEST['savesettings']))
 		if (!$error)
 		{
 			//Protect option data from having SQL injection attacks:
-			$v = add_slashes_recursive($v);
+			if (strcmp($k, 'awpcpshowtheadlayout') == 0 || strcmp($k, 'displayadlayoutcode') == 0) {
+				//Leave it be, this is HTML, the slashes mess with quotes we want
+			} else {
+				$v = add_slashes_recursive($v);
+			}
 			$query="UPDATE ".$tbl_ad_settings." SET config_value='$v' WHERE config_option='$k'";
 			if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 		}
@@ -4377,9 +4372,9 @@ function awpcpui_process_browsecats()
 
 
 //Function to replace addslashes_mq, which is causing major grief.  Stripping of undesireable characters now done
-// through above stripslashes_gpc.
+// through above strip_slashes_recursive_gpc.
 function clean_field($foo) {
-	return addslashes($foo);
+	return add_slashes_recursive($foo);
 }
 
 function awpcpui_process_placead()
@@ -5032,8 +5027,8 @@ function awpcp_menu_items()
 	$output .= "<ul id=\"postsearchads\">";
 
 	$isadmin=checkifisadmin();
-
-	if (!(get_awpcp_option('onlyadmincanplaceads')))
+	$adminplaceads = get_awpcp_option('onlyadmincanplaceads');
+	if (!($adminplaceads))
 	{
 		$output .= "$liplacead";
 		$output .= "$lieditad";
@@ -5041,7 +5036,7 @@ function awpcp_menu_items()
 		$output .= "<li class=\"searchcads\"><a href=\"$url_searchads\">$searchadspagenameunsani";
 		$output .= "</a></li>";
 	}
-	elseif (get_awpcp_option('onlyadmincanplaceads') && ($isadmin == 1))
+	elseif ($adminplaceads && ($isadmin == 1))
 	{
 		$output .= "$liplacead";
 		$output .= "$lieditad";
@@ -5817,7 +5812,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 			return false;
 			}";
 		}
-
+		
 		$adtitleerrortxt=__("You did not fill out an ad title. The information is required","AWPCP");
 		$adcategoryerrortxt=__("You did not select an ad category. The information is required","AWPCP");
 		$adcontactemailerrortxt=__("Either you did not enter your email address or the email address you entered is not valid","AWPCP");
@@ -6699,6 +6694,7 @@ function processadcontact($adid,$sendersname,$checkhuman,$numval1,$numval2,$send
 {
 	$output = '';
 	global $nameofsite,$siteurl,$thisadminemail;
+	$adminemailoverride=get_awpcp_option('awpcpadminemail');
 	if (isset($adminemailoverride) && !empty($adminemailoverride) && !(strcasecmp($thisadminemail, $adminemailoverride) == 0))
 	{
 		$thisadminemail=$adminemailoverride;
@@ -6731,7 +6727,6 @@ function processadcontact($adid,$sendersname,$checkhuman,$numval1,$numval2,$send
 
 	if (get_awpcp_option('contactformcheckhuman') == 1)
 	{
-
 		if (!isset($checkhuman) || empty($checkhuman))
 		{
 			$error=true;
@@ -6747,7 +6742,7 @@ function processadcontact($adid,$sendersname,$checkhuman,$numval1,$numval2,$send
 			$sumwrongmsg.="</li>";
 		}
 	}
-
+	
 	if (!isset($contactmessage) || empty($contactmessage))
 	{
 		$error=true;
@@ -6770,7 +6765,17 @@ function processadcontact($adid,$sendersname,$checkhuman,$numval1,$numval2,$send
 		$sendersemailwrongmsg.=__("The email address you entered was not a valid email address. Please check for errors and try again","AWPCP");
 		$sendersemailwrongmsg.="</li>";
 	}
-
+	if (get_awpcp_option('useakismet'))
+	{
+		if (awpcp_check_spam($sendersname, '', $sendersemail, $contactmessage)) {
+			//Spam detected!
+			$error=true;
+			$spammsg="<li>";
+			$spammsg.=__("Your contact was flagged as spam.  Please contact the administrator of this site.","AWPCP");
+			$spammsg.="</li>";
+		}
+	}
+	
 	if ($error)
 	{
 		$ermsg="<p>";
@@ -6779,7 +6784,7 @@ function processadcontact($adid,$sendersname,$checkhuman,$numval1,$numval2,$send
 		$ermsg.="<b>";
 		$ermsg.=__("The errors","AWPCP");
 		$ermsg.=":</b><br/>";
-		$ermsg.="<ul>$adidmsg $sendersnamemsg $checkhumanmsg $contactmessagemsg $sumwrongmsg $sendersemailmsg $sendersemailwrongmsg</ul>";
+		$ermsg.="<ul>$adidmsg $sendersnamemsg $checkhumanmsg $contactmessagemsg $sumwrongmsg $sendersemailmsg $sendersemailwrongmsg $spammsg</ul>";
 
 		$output .= load_ad_contact_form($adid,$sendersname,$checkhuman,$numval1,$numval2,$sendersemail,$contactmessage,$ermsg);
 	}
@@ -6787,6 +6792,7 @@ function processadcontact($adid,$sendersname,$checkhuman,$numval1,$numval2,$send
 	{
 		$sendersname=strip_html_tags($sendersname);
 		$contactmessage=strip_html_tags($contactmessage);
+		$contactmessage=strip_slashes_recursive($contactmessage);
 		$theadtitle=get_adtitle($adid);
 		$url_showad=url_showad($adid);
 		$adlink="$url_showad";
@@ -8023,7 +8029,6 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 	if ((get_awpcp_option('contactformcheckhuman') == 1) && !is_admin())
 	{
-
 		if (!isset($checkhuman) || empty($checkhuman))
 		{
 			$error=true;
@@ -8039,7 +8044,17 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 			$sumwrongmsg.="</li>";
 		}
 	}
-
+	if (get_awpcp_option('useakismet'))
+	{
+		if (awpcp_check_spam($adcontact_name, $websiteurl, $adcontact_email, $addetails)) {
+			//Spam detected!
+			$error=true;
+			$spammsg="<li>";
+			$spammsg.=__("Your ad was flagged as spam.  Please contact the administrator of this site.","AWPCP");
+			$spammsg.="</li>";
+		}
+	}
+	
 	if ($hasextrafieldsmodule == 1)
 	{
 		$x_field_errors_msg=validate_x_form();
@@ -8060,7 +8075,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 		$ermsg.="</p><b>";
 		$ermsg.=__("The errors","AWPCP");
 		$ermsg.=":</b><br/><ul>";
-		$ermsg.=__("$adtitlemsg $adcategorymsg $adcnamemsg $adcemailmsg1 $adcemailmsg2 $adcphonemsg $adcitymsg $adstatemsg $adcountrymsg $addetailsmsg $adpaymethodmsg $adtermidmsg $aditempricemsg1 $aditempricemsg2 $websiteurlmsg1 $websiteurlmsg2 $checkhumanmsg $sumwrongmsg $noadsinparentcatmsg $x_field_errors_msg","AWPCP");
+		$ermsg.=__("$adtitlemsg $adcategorymsg $adcnamemsg $adcemailmsg1 $adcemailmsg2 $adcphonemsg $adcitymsg $adstatemsg $adcountrymsg $addetailsmsg $adpaymethodmsg $adtermidmsg $aditempricemsg1 $aditempricemsg2 $websiteurlmsg1 $websiteurlmsg2 $checkhumanmsg $sumwrongmsg $noadsinparentcatmsg $x_field_errors_msg $spammsg","AWPCP");
 		$ermsg.="</ul>";
 
 		$output .= load_ad_post_form($adid,$action=$adaction,$awpcppagename,$adterm_id,$editemail,$adkey,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset,$results,$ermsg,$websiteurl,$checkhuman,$numval1,$numval2);
@@ -8226,7 +8241,6 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 			{
 				$update_x_fields=do_x_fields_update();
 			}
-
 			$query="INSERT INTO ".$tbl_ads." SET ad_category_id='$adcategory',ad_category_parent_id='$adcategory_parent_id',ad_title='$adtitle',ad_details='$addetails',ad_contact_phone='$adcontact_phone',ad_contact_name='$adcontact_name',ad_contact_email='$adcontact_email',ad_city='$adcontact_city',ad_state='$adcontact_state',ad_country='$adcontact_country',ad_county_village='$ad_county_village',ad_item_price='$itempriceincents',websiteurl='$websiteurl',";
 
 			if ( isset($adterm_id) && !empty($adterm_id) )
@@ -8238,7 +8252,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 				$query.="adterm_id='0',";
 			}
 
-			$query.="ad_startdate=CURDATE(),ad_enddate=CURDATE()+INTERVAL $adexpireafter DAY,disabled='$disabled',ad_key='$key',ad_transaction_id='',$update_x_fields ad_postdate=now()";
+			$query.="ad_startdate=CURDATE(),ad_enddate=CURDATE()+INTERVAL $adexpireafter DAY,disabled='$disabled',ad_key='$key',ad_transaction_id='',ad_fee_paid=0,$update_x_fields ad_postdate=now()";
 			if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
 			$ad_id=mysql_insert_id();
@@ -9649,6 +9663,7 @@ function abort_payment($message,$ad_id,$transactionid,$gateway)
 	//email the administrator and the user to notify that the payment process was aborted
 
 	global $nameofsite,$siteurl,$thisadminemail;
+	$adminemailoverride=get_awpcp_option('awpcpadminemail');
 	if (isset($adminemailoverride) && !empty($adminemailoverride) && !(strcasecmp($thisadminemail, $adminemailoverride) == 0))
 	{
 		$thisadminemail=$adminemailoverride;
@@ -9760,6 +9775,7 @@ function ad_paystatus_change_email($ad_id,$transactionid,$key,$message,$gateway)
 	//email the administrator and the user to notify that the payment process was aborted
 
 	global $nameofsite,$siteurl,$thisadminemail;
+	$adminemailoverride=get_awpcp_option('awpcpadminemail');
 	if (isset($adminemailoverride) && !empty($adminemailoverride) && !(strcasecmp($thisadminemail, $adminemailoverride) == 0))
 	{
 		$thisadminemail=$adminemailoverride;
@@ -9839,6 +9855,7 @@ function ad_success_email($ad_id,$transactionid,$key,$message,$gateway)
 {
 
 	global $nameofsite,$siteurl,$thisadminemail;
+	$adminemailoverride=get_awpcp_option('awpcpadminemail');
 	if (isset($adminemailoverride) && !empty($adminemailoverride) && !(strcasecmp($thisadminemail, $adminemailoverride) == 0))
 	{
 		$thisadminemail=$adminemailoverride;
@@ -10532,7 +10549,7 @@ function display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 				$modcatname=add_dashes($modcatname);
 				$category_id=$rsrow[1];
 				$category_name=get_adcatname($category_id);
-				$addetailssummary=awpcpLimitText($rsrow[8],10,100,"");
+				$addetailssummary=strip_slashes_recursive(awpcpLimitText($rsrow[8],10,100,""));
 				$awpcpadcity=get_adcityvalue($ad_id);
 				$awpcpadstate=get_adstatevalue($ad_id);
 				$awpcpadcountry=get_adcountryvalue($ad_id);
@@ -10885,8 +10902,8 @@ function showad($adid,$omitmenu)
 			// Step:2 Show a sample of how the ad is going to look
 			////////////////////////////////////////////////////////////////////////////////////
 
-			$ad_title=stripslashes($ad_title);
-			$addetails=stripslashes($addetails);
+			$ad_title=strip_slashes_recursive($ad_title);
+			$addetails=strip_slashes_recursive($addetails);
 
 			if (!isset($adcontact_name) || empty($adcontact_name)){$adcontact_name="";}
 			if (!isset($adcontact_phone) || empty($adcontact_phone))

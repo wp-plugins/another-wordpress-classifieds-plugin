@@ -3,7 +3,7 @@ Contributors: awpcp.com
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp
 Requires at least: 2.7
-Tested up to: 3.0
+Tested up to: 3.0.1
 Stable tag: tags/1.0.6.15
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog. 
@@ -166,6 +166,12 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about/)
 
 == Changelog ==
+ 
+ = 1.0.6.16 =
+ NEW: Added options to Latest Ads widget for image display
+ Bug: Fixed bug regarding category ordering in the drop-down list under Browse Ads
+ Bug: Fixed admin email override failure
+ Bug: Fixed issue with ad layout HTML codes and backslashing
  
  = 1.0.6.15 =
  NEW: Image thumbnails now display in Latest Ads widget

@@ -58,7 +58,6 @@ function sqlerrorhandler($ERROR, $QUERY, $PHPFILE, $LINE){
 }
 
 //Error handler installed in main awpcp.php file, after this file is included.
-
 function add_slashes_recursive( $variable )
 {
 	if ( is_string( $variable ) )
@@ -80,6 +79,58 @@ function strip_slashes_recursive( $variable )
 	$variable[ $i ] = strip_slashes_recursive( $value ) ;
 
 	return $variable ;
+}
+
+//Function to detect spammy posts.  Requires Akismet to be installed.
+function awpcp_check_spam($name, $website, $email, $details) {
+	$content = array();
+	//Construct an Akismet-like query:
+	$content['comment_author'] = $name;
+	$content['comment_author_email'] = $email;
+	$content['comment_author_url'] = $website;
+	$content['comment_content'] = $details;
+	
+	// innocent until proven guilty
+	$isSpam = FALSE;
+
+	if (function_exists('akismet_init')) {
+
+		$wpcom_api_key = get_option('wordpress_api_key');
+
+		if (!empty($wpcom_api_key)) {
+
+			global $akismet_api_host, $akismet_api_port;
+
+			// set remaining required values for akismet api
+			$content['user_ip'] = preg_replace( '/[^0-9., ]/', '', $_SERVER['REMOTE_ADDR'] );
+			$content['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+			$content['referrer'] = $_SERVER['HTTP_REFERER'];
+			$content['blog'] = get_option('home');
+
+			if (empty($content['referrer'])) {
+				$content['referrer'] = get_permalink();
+			}
+
+			$queryString = '';
+
+			foreach ($content as $key => $data) {
+				if (!empty($data)) {
+					$queryString .= $key . '=' . urlencode(stripslashes($data)) . '&';
+				}
+			}
+
+			$response = akismet_http_post($queryString, $akismet_api_host, '/1.1/comment-check', $akismet_api_port);
+
+			if ($response[1] == 'true') {
+				//update_option('akismet_spam_count', get_option('akismet_spam_count') + 1);
+				$isSpam = TRUE;
+			}
+
+		}
+
+	}
+	return $isSpam;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -777,7 +828,7 @@ function get_categorynameidall($cat_id = 0)
 
 	// Start with the main categories
 
-	$query="SELECT category_id,category_name FROM ".$tbl_categories." WHERE category_parent_id='0' and category_name <> '' ORDER BY category_name ASC";
+	$query="SELECT category_id,category_name FROM ".$tbl_categories." WHERE category_parent_id='0' and category_name <> '' ORDER BY category_order, category_name ASC";
 	if (!($res=@mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
 	while ($rsrow=mysql_fetch_row($res)) {
@@ -2109,12 +2160,14 @@ function init_awpcpsbarwidget() {
 		$limit=$args[0];
 		$title=$args[1];
 
-
-		if(!isset($limit) && !isset($title))
+		$options = get_option('widget_awpcplatestads');
+		if(!isset($limit))
 		{
-			$options = get_option('widget_awpcplatestads');
-			$title = htmlspecialchars(stripslashes($options['title']));
 			$limit = htmlspecialchars(stripslashes($options['hlimit']));
+		}
+		if(!isset($title))
+		{
+			$title = htmlspecialchars(stripslashes($options['title']));
 		}
 		if(ads_exist())
 		{
@@ -2157,7 +2210,7 @@ function init_awpcpsbarwidget() {
 			if (function_exists('awpcp_sidebar_headlines'))
 			{
 				$output .= '<ul>'."\n";
-				$output .= awpcp_sidebar_headlines($limit);
+				$output .= awpcp_sidebar_headlines($limit, $options['showimages'], $options['showblank']);
 				$output .= '</ul>'."\n";
 			}
 
@@ -2175,11 +2228,13 @@ function init_awpcpsbarwidget() {
 		$output = '';
 		$options = get_option('widget_awpcplatestads');
 		if (!is_array($options)) {
-			$options = array('hlimit' => '10', 'title' => __('Latest Classifieds', 'wp-awpcplatestads'));
+			$options = array('hlimit' => '10', 'title' => __('Latest Classifieds', 'wp-awpcplatestads'), 'showimages' => '1', 'showblank' => '1');
 		}
 		if ($_POST['awpcplatestads-submit']) {
 			$options['hlimit'] = intval($_POST['awpcpwid-limit']);
 			$options['title'] = strip_tags($_POST['awpcpwid-title']);
+			$options['showimages'] = $_POST['awpcpwid-showimages'] == '1' ? 1 : 0;
+			$options['showblank'] = $_POST['awpcpwid-showblank'] == '1' ? 1 : 0;
 			//$options['beforewidget'] = $_POST['awpcpwid-beforewidget'];
 			//$options['afterwidget'] = $_POST['awpcpwid-afterwidget'];
 			//$options['beforetitle'] = $_POST['awpcpwid-beforetitle'];
@@ -2187,7 +2242,9 @@ function init_awpcpsbarwidget() {
 			update_option('widget_awpcplatestads', $options);
 		}
 		$output .= '<p><label for="awpcpwid-title">'.__('Widget Title', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-title" size="35" name="awpcpwid-title" value="'.htmlspecialchars(stripslashes($options['title'])).'" />';
-		$output .= '<p><label for="awpcpwid-limit">'.__('Number of headlines to Show', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" size="5" id="awpcpwid-limit" name="awpcpwid-limit" value="'.htmlspecialchars(stripslashes($options['hlimit'])).'" />';
+		$output .= '<p><label for="awpcpwid-limit">'.__('Number of Items to Show', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" size="5" id="awpcpwid-limit" name="awpcpwid-limit" value="'.htmlspecialchars(stripslashes($options['hlimit'])).'" />';
+		$output .= '<p><label for="awpcpwid-showimages">'.__('Show Thumbnails in Widget?', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-showimages" name="awpcpwid-showimages" value="1" '. ($options['showimages'] == 1 ? 'checked=\"true\"' : '') .' />';
+		$output .= '<p><label for="awpcpwid-showblank">'.__('Show \"No Image\" PNG when ad has no picture (improves layout)?', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-showblank" name="awpcpwid-showblank" value="1" '. ($options['showblank'] == 1 ? 'checked=\"true\"' : '') .' />';
 		//$output .= '<p><label for="awpcpwid-beforewidget">'.__('Before Widget HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforewidget" size="35" name="awpcpwid-beforewidget" value="'.htmlspecialchars(stripslashes($options['beforewidget'])).'" />';
 		//$output .= '<p><label for="awpcpwid-afterwidget">'.__('After Widget HTML<br>Exclude all quotes<br>(<del>class="XYZ"</del> => class=XYZ)', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-afterwidget" size="35" name="awpcpwid-afterwidget" value="'.htmlspecialchars(stripslashes($options['afterwidget'])).'" />';
 		//$output .= '<p><label for="awpcpwid-beforetitle">'.__('Before title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforetitle" size="35" name="awpcpwid-beforetitle" value="'.htmlspecialchars(stripslashes($options['beforetitle'])).'" />';
@@ -2202,7 +2259,7 @@ function init_awpcpsbarwidget() {
 
 }
 
-function awpcp_sidebar_headlines($limit) {
+function awpcp_sidebar_headlines($limit, $showimages, $showblank) {
 	$output = '';
 	global $wpdb,$awpcp_imagesurl;
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
@@ -2224,40 +2281,50 @@ function awpcp_sidebar_headlines($limit) {
 		$ad_id=$rsrow[0];
 		$modtitle=cleanstring($rsrow[1]);
 		$modtitle=add_dashes($modtitle);
-
+		$hasNoImage = true;
 		$url_showad=url_showad($ad_id);
 		
 		$ad_title="<a href=\"$url_showad\">".stripslashes($rsrow[1])."</a>";
-		$awpcp_image_display="<a href=\"$url_showad\">";
-		if (get_awpcp_option('imagesallowdisallow'))
-		{
-			$totalimagesuploaded=get_total_imagesuploaded($ad_id);
-			if ($totalimagesuploaded >=1)
+		if (!$showimages) {
+			//Old style, list only:
+			$output .= "<li>$ad_title</li>";
+		} else {
+			//New style, with images and layout control:
+			$awpcp_image_display="<a href=\"$url_showad\">";
+			if (get_awpcp_option('imagesallowdisallow'))
 			{
-				$awpcp_image_name=get_a_random_image($ad_id);
-				if (isset($awpcp_image_name) && !empty($awpcp_image_name))
+				$totalimagesuploaded=get_total_imagesuploaded($ad_id);
+				if ($totalimagesuploaded >=1)
 				{
-					$awpcp_image_name_srccode="<img src=\"".AWPCPTHUMBSUPLOADURL."/$awpcp_image_name\" border=\"0\" width=\"$displayadthumbwidth\" alt=\"$modtitle\">";
+					$awpcp_image_name=get_a_random_image($ad_id);
+					if (isset($awpcp_image_name) && !empty($awpcp_image_name))
+					{
+						$awpcp_image_name_srccode="<img src=\"".AWPCPTHUMBSUPLOADURL."/$awpcp_image_name\" border=\"0\" width=\"$displayadthumbwidth\" alt=\"$modtitle\">";
+						$hasNoImage = false;
+					}
+					else
+					{
+						$awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\">";
+					}							
 				}
 				else
 				{
 					$awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\">";
-				}							
+				}
 			}
 			else
 			{
 				$awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\">";
 			}
+			$ad_teaser = substr($rsrow[2], 0, 50) . "...";
+			$read_more = "<a href=\"$url_showad\">[" . __("Read more", "AWPCP") . "]</a>";
+			$awpcp_image_display.="$awpcp_image_name_srccode</a>";
+			if (!$showblank && $hasNoImage) {
+				//Don't put anything there
+				$awpcp_image_display = '';
+			}
+			$output .= "<li><div class='awpcplatestbox'><div class='awpcplatestthumb'>$awpcp_image_display</div><p><h3>$ad_title</h3></p><p>$ad_teaser<br/>$read_more</p><div class='awpcplatestspacer'></div></div></li>";
 		}
-		else
-		{
-			$awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\">";
-		}
-		$ad_teaser = substr($rsrow[2], 0, 50) . "...";
-		$read_more = "<a href=\"$url_showad\">[" . __("Read more", "AWPCP") . "]</a>";
-		$awpcp_image_display.="$awpcp_image_name_srccode</a>";
-		
-		$output .= "<li><div class='awpcplatestbox'><div class='awpcplatestthumb'>$awpcp_image_display</div><p><h3>$ad_title</h3></p><p>$ad_teaser<br/>$read_more</p><div class='awpcplatestspacer'></div></div></li>";
 	}
 	return $output;
 }
@@ -2985,15 +3052,20 @@ function is_at_least_awpcp_version($version)
 	$bug = (int)strtok(".");
 	$patch = (int)strtok(".");
 	$splitstr = strtok($awpcp_plugin_data['Version'], ".");
-	$ok = false;
-	if ((int)$splitstr == $major) {
+	$ok = true;
+	if ((int)$splitstr < $major) {
+		$ok = false;
+	} else if ((int)$splitstr == $major) {
 		$splitstr = strtok(".");
-		if ((int)$splitstr == $minor) {
+		if ((int)$splitstr < $minor) {
+			$ok = false;
+		} else if ((int)$splitstr == $minor) {
 			$splitstr = strtok(".");
-			if ((int)$splitstr >= $bug) {
+			if ((int)$splitstr < $bug) {
+				$ok = false;
 				$splitstr = strtok(".");
-				if ((int)$splitstr >= $patch) {
-					$ok = true;
+				if ((int)$splitstr < $patch) {
+					$ok = false;
 				}
 			}
 		}
