@@ -3037,8 +3037,13 @@ if (isset($_REQUEST['savesettings']) && !empty($_REQUEST['savesettings']))
 		if (isset($_POST[$config_option]))
 		{
 			if (strcmp($config_option, 'awpcpshowtheadlayout') == 0 || 
+				strcmp($config_option, 'sidebarwidgetaftertitle') == 0 || 
+				strcmp($config_option, 'sidebarwidgetbeforetitle') == 0 || 
+				strcmp($config_option, 'sidebarwidgetaftercontent') == 0 || 
+				strcmp($config_option, 'sidebarwidgetbeforecontent') == 0 || 
+				strcmp($config_option, 'adsense') == 0 || 
 				strcmp($config_option, 'displayadlayoutcode') == 0) {
-				//Straight copy for these two options.
+				//Straight copy for these HTML related options.
 				$myoptions[$config_option]=$_POST[$config_option];
 			} else {
 				$myoptions[$config_option]=clean_field($_POST[$config_option]);
@@ -3150,10 +3155,17 @@ if (isset($_REQUEST['savesettings']) && !empty($_REQUEST['savesettings']))
 
 		if (!$error)
 		{
-			//Protect option data from having SQL injection attacks:
-			if (strcmp($k, 'awpcpshowtheadlayout') == 0 || strcmp($k, 'displayadlayoutcode') == 0) {
+			if (strcmp($k, 'awpcpshowtheadlayout') == 0 || 
+				strcmp($k, 'sidebarwidgetaftertitle') == 0 || 
+				strcmp($k, 'sidebarwidgetbeforetitle') == 0 || 
+				strcmp($k, 'sidebarwidgetaftercontent') == 0 || 
+				strcmp($k, 'sidebarwidgetbeforecontent') == 0 || 
+				strcmp($k, 'adsense') == 0 || 
+				strcmp($k, 'displayadlayoutcode') == 0) 
+			{
 				//Leave it be, this is HTML, the slashes mess with quotes we want
 			} else {
+				//Protect option data from having SQL injection attacks:
 				$v = add_slashes_recursive($v);
 			}
 			$query="UPDATE ".$tbl_ad_settings." SET config_value='$v' WHERE config_option='$k'";
@@ -8224,14 +8236,9 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 			if ($adexpireafter == 0)
 			{
+				//Randomly far into the future...
 				$adexpireafter=9125;
 			}
-			else
-			{
-				$adexpireafter=$adexpireafter;
-			}
-
-
 
 			$adcategory_parent_id=get_cat_parent_ID($adcategory);
 			$itempriceincents=($ad_item_price * 100);
@@ -8825,15 +8832,15 @@ function display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction,$nex
 
 	if (($nextstep == 'payment') || ($nextstep == 'paymentnoform'))
 	{
-		$clicktheword1=__("Go To Next Step");$clicktheword2=__("continue");
+		$clicktheword1=__("Go To Next Step", "AWPCP");$clicktheword2=__("continue", "AWPCP");
 	}
 	elseif (($nextstep == 'finish') || ($nextstep == 'finishnoform'))
 	{
-		$clicktheword1=__("Finish");$clicktheword2=__("complete");
+		$clicktheword1=__("Finish", "AWPCP");$clicktheword2=__("complete", "AWPCP");
 	}
 	else
 	{
-		$clicktheword1=__("Finish");$clicktheword2=__("complete");
+		$clicktheword1=__("Finish", "AWPCP");$clicktheword2=__("complete", "AWPCP");
 	}
 
 	if($nextstep == 'finishnoform')
@@ -10407,7 +10414,10 @@ function display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 	$browseadspageid=awpcp_get_page_id($browseadspagename);
 	$displayadthumbwidth=get_awpcp_option('displayadthumbwidth');
 	$url_browsecats='';
-
+	__("*** NOTE:  The next two strings are for currency formatting:  1,000.00 where comma is used for currency place holders and the period for decimal separation.  Change the next two strings for your preferred price formatting.  (this string is just a note)***","AWPCP");
+	$currencySep = __(".", "AWPCP");
+	$decimalPlace = __(",","AWPCP");
+	
 	if ( file_exists("$awpcp_plugin_path/awpcp_display_ads_my_layout.php")  && get_awpcp_option('activatemylayoutdisplayads') )
 	{
 		include("$awpcp_plugin_path/awpcp_display_ads_my_layout.php");
@@ -10651,14 +10661,13 @@ function display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 					$awpcp_display_adviews=__("Total views","AWPCP");
 					$awpcp_display_adviews.=": $rsrow[11]<br/>";
 				} else {$awpcp_display_adviews='';}
-
 				if ( get_awpcp_option('displaypricefield') )
 				{
 					if (isset($rsrow[14]) && !empty($rsrow[14]))
 					{
 						$awpcptheprice=$rsrow[14];
 						$itempricereconverted=($awpcptheprice/100);
-						$itempricereconverted=number_format($itempricereconverted, 2, '.', ',');
+						$itempricereconverted=number_format($itempricereconverted, 2, $decimalPlace, $currencySep);
 						if ($itempricereconverted >=1 )
 						{
 							$awpcpthecurrencysymbol=awpcp_get_currency_code();
@@ -10995,7 +11004,7 @@ function showad($adid,$omitmenu)
 				if ( !empty($ad_item_price) )
 				{
 					$itempricereconverted=($ad_item_price/100);
-					$itempricereconverted=number_format($itempricereconverted, 2, '.', ',');
+					$itempricereconverted=number_format($itempricereconverted, 2, $decimalPlace, $currencySep);
 					if ($itempricereconverted >=1 )
 					{
 						$awpcpthecurrencysymbol=awpcp_get_currency_code();

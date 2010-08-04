@@ -1919,16 +1919,21 @@ function doadexpirations(){
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 	$awpcp_from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
+	$adexpireafter=get_awpcp_option('addurationfreemode');
 
+	if ($adexpireafter == 0)
+	{
+		//Randomly far into the future...
+		$adexpireafter=9125;
+	}
+	
 	// Get the IDs of the ads to be deleted
-	$query="SELECT ad_id FROM ".$tbl_ads." WHERE ad_enddate < CURDATE()";
+	$query="SELECT ad_id FROM ".$tbl_ads." WHERE ad_enddate<CURDATE()+INTERVAL $adexpireafter DAY";
 	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
 	$expiredid=array();
-
 	if (mysql_num_rows($res))
 	{
-
 		while ($rsrow=mysql_fetch_row($res))
 		{
 			$expiredid[]=$rsrow[0];
@@ -1955,7 +1960,7 @@ function doadexpirations(){
 		$awpcpadexpiredsubject=get_awpcp_option('adexpiredsubjectline');
 		$awpcpadexpiredbody=get_awpcp_option('adexpiredbodymessage');
 		$awpcpadexpiredbody.="$awpcpbreak2";
-		$awpcpadexpiredbody.=__("Listing Details");
+		$awpcpadexpiredbody.=__("Listing Details", "AWPCP");
 		$awpcpadexpiredbody.="$awpcpbreak2";
 		$awpcpadexpiredbody.="$listingtitle";
 		$awpcpadexpiredbody.="$awpcpbreak2";
@@ -2228,7 +2233,7 @@ function init_awpcpsbarwidget() {
 		$output = '';
 		$options = get_option('widget_awpcplatestads');
 		if (!is_array($options)) {
-			$options = array('hlimit' => '10', 'title' => __('Latest Classifieds', 'wp-awpcplatestads'), 'showimages' => '1', 'showblank' => '1');
+			$options = array('hlimit' => '10', 'title' => __('Latest Classifieds', 'AWPCP'), 'showimages' => '1', 'showblank' => '1');
 		}
 		if ($_POST['awpcplatestads-submit']) {
 			$options['hlimit'] = intval($_POST['awpcpwid-limit']);
@@ -2241,14 +2246,14 @@ function init_awpcpsbarwidget() {
 			//$options['aftertitle'] = $_POST['awpcpwid-aftertitle'];
 			update_option('widget_awpcplatestads', $options);
 		}
-		$output .= '<p><label for="awpcpwid-title">'.__('Widget Title', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-title" size="35" name="awpcpwid-title" value="'.htmlspecialchars(stripslashes($options['title'])).'" />';
-		$output .= '<p><label for="awpcpwid-limit">'.__('Number of Items to Show', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" size="5" id="awpcpwid-limit" name="awpcpwid-limit" value="'.htmlspecialchars(stripslashes($options['hlimit'])).'" />';
-		$output .= '<p><label for="awpcpwid-showimages">'.__('Show Thumbnails in Widget?', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-showimages" name="awpcpwid-showimages" value="1" '. ($options['showimages'] == 1 ? 'checked=\"true\"' : '') .' />';
-		$output .= '<p><label for="awpcpwid-showblank">'.__('Show \"No Image\" PNG when ad has no picture (improves layout)?', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-showblank" name="awpcpwid-showblank" value="1" '. ($options['showblank'] == 1 ? 'checked=\"true\"' : '') .' />';
-		//$output .= '<p><label for="awpcpwid-beforewidget">'.__('Before Widget HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforewidget" size="35" name="awpcpwid-beforewidget" value="'.htmlspecialchars(stripslashes($options['beforewidget'])).'" />';
-		//$output .= '<p><label for="awpcpwid-afterwidget">'.__('After Widget HTML<br>Exclude all quotes<br>(<del>class="XYZ"</del> => class=XYZ)', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-afterwidget" size="35" name="awpcpwid-afterwidget" value="'.htmlspecialchars(stripslashes($options['afterwidget'])).'" />';
-		//$output .= '<p><label for="awpcpwid-beforetitle">'.__('Before title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforetitle" size="35" name="awpcpwid-beforetitle" value="'.htmlspecialchars(stripslashes($options['beforetitle'])).'" />';
-		//$output .= '<p><label for="awpcpwid-aftertitle">'.__('After title HTML', 'wp-awpcplatestads').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-aftertitle" size="35" name="awpcpwid-aftertitle" value="'.htmlspecialchars(stripslashes($options['aftertitle'])).'" />';
+		$output .= '<p><label for="awpcpwid-title">'.__('Widget Title', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-title" size="35" name="awpcpwid-title" value="'.htmlspecialchars(stripslashes($options['title'])).'" />';
+		$output .= '<p><label for="awpcpwid-limit">'.__('Number of Items to Show', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" size="5" id="awpcpwid-limit" name="awpcpwid-limit" value="'.htmlspecialchars(stripslashes($options['hlimit'])).'" />';
+		$output .= '<p><label for="awpcpwid-showimages">'.__('Show Thumbnails in Widget?', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-showimages" name="awpcpwid-showimages" value="1" '. ($options['showimages'] == 1 ? 'checked=\"true\"' : '') .' />';
+		$output .= '<p><label for="awpcpwid-showblank">'.__('Show \"No Image\" PNG when ad has no picture (improves layout)?', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-showblank" name="awpcpwid-showblank" value="1" '. ($options['showblank'] == 1 ? 'checked=\"true\"' : '') .' />';
+		//$output .= '<p><label for="awpcpwid-beforewidget">'.__('Before Widget HTML', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforewidget" size="35" name="awpcpwid-beforewidget" value="'.htmlspecialchars(stripslashes($options['beforewidget'])).'" />';
+		//$output .= '<p><label for="awpcpwid-afterwidget">'.__('After Widget HTML<br>Exclude all quotes<br>(<del>class="XYZ"</del> => class=XYZ)', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-afterwidget" size="35" name="awpcpwid-afterwidget" value="'.htmlspecialchars(stripslashes($options['afterwidget'])).'" />';
+		//$output .= '<p><label for="awpcpwid-beforetitle">'.__('Before title HTML', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforetitle" size="35" name="awpcpwid-beforetitle" value="'.htmlspecialchars(stripslashes($options['beforetitle'])).'" />';
+		//$output .= '<p><label for="awpcpwid-aftertitle">'.__('After title HTML', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-aftertitle" size="35" name="awpcpwid-aftertitle" value="'.htmlspecialchars(stripslashes($options['aftertitle'])).'" />';
 		$output .= '<input type="hidden" id="awpcplatestads-submit" name="awpcplatestads-submit" value="1" />'."\n";
 		//Echo ok here:
 		echo $output;
@@ -2979,13 +2984,13 @@ function awpcp_process_mail($awpcpsenderemail,$awpcpreceiveremail,$awpcpemailsub
 
 	$subject = $awpcpemailsubject;
 
-	$time = date_i18n( __('l F j, Y \a\t g:i a'), current_time( 'timestamp' ) );
+	$time = date_i18n( __('l F j, Y \a\t g:i a', "AWPCP"), current_time( 'timestamp' ) );
 
 	$message = "
 
 	$awpcpemailbody
 
-	Time: $time
+	".__('Time:', 'AWPCP')." $time
 
 	";
 	_log("Processing email");

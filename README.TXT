@@ -167,6 +167,11 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 
 == Changelog ==
  
+ = 1.0.6.17 =
+ Bug: Translation file string fixes
+ Bug: Backslash fixes for sidebar widget, AdSense
+ Bug: Fixed ad expirations when 0 is used ('never expire') to not expire ads
+ 
  = 1.0.6.16 =
  NEW: Added options to Latest Ads widget for image display
  Bug: Fixed bug regarding category ordering in the drop-down list under Browse Ads
