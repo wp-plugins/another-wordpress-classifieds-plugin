@@ -6,7 +6,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.0.6.16
+ Version: 1.0.6.17
  Author: A Lewis, D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
