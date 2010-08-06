@@ -1928,7 +1928,7 @@ function doadexpirations(){
 	}
 	
 	// Get the IDs of the ads to be deleted
-	$query="SELECT ad_id FROM ".$tbl_ads." WHERE ad_enddate<CURDATE()+INTERVAL $adexpireafter DAY";
+	$query="SELECT ad_id FROM ".$tbl_ads." WHERE ad_enddate < CURDATE()";
 	if (!($res=mysql_query($query))) {sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);}
 
 	$expiredid=array();

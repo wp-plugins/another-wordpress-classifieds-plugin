@@ -4,7 +4,7 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp
 Requires at least: 2.7
 Tested up to: 3.0.1
-Stable tag: tags/1.0.6.17
+Stable tag: tags/1.0.6.18
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog. 
 
@@ -167,10 +167,13 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 
 == Changelog ==
  
+ = 1.0.6.18 =
+ NEW: Added ability to approve/disable at all times
+ Bug: Reverted ad expiration changes from .17, re-enabled disabled ads
+ 
  = 1.0.6.17 =
  Bug: Translation file string fixes
  Bug: Backslash fixes for sidebar widget, AdSense
- Bug: Fixed ad expirations when 0 is used ('never expire') to not expire ads
  
  = 1.0.6.16 =
  NEW: Added options to Latest Ads widget for image display

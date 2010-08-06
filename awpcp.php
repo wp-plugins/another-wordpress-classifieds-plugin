@@ -6,7 +6,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.0.6.17
+ Version: 1.0.6.18
  Author: A Lewis, D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -565,6 +565,11 @@ function awpcp_install() {
 		$installed_ver = get_option( "awpcp_db_version" );
 
 		if ( $installed_ver != $awpcp_db_version ) {
+			if ($installed_ver == '1.0.6.17') {
+				//Try to enable the expired ads, bug in 1.0.6.17:
+				$query="UPDATE ".$tbl_ads." SET DISABLED='0' WHERE ad_enddate >= CURDATE()";
+				$wpdb->query($query);
+			}
 			_log("UPGRADE detected");
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Update category ordering
@@ -2418,8 +2423,8 @@ function awpcp_manage_viewlistings()
 				$output .= "</b>";
 				$output .= "$deletelink $editlink";
 
-				if (get_awpcp_option('adapprove') == 1 || get_awpcp_option('freepay')  == 1)
-				{
+				//if (get_awpcp_option('adapprove') == 1 || get_awpcp_option('freepay')  == 1)
+				//{
 					$adstatusdisabled=check_if_ad_is_disabled($actonid);
 
 					if ($adstatusdisabled)
@@ -2436,7 +2441,7 @@ function awpcp_manage_viewlistings()
 					}
 
 					$output .= "$approvelink";
-				}
+				//}
 
 				$output .= "</div>";
 
@@ -2609,9 +2614,9 @@ function awpcp_manage_viewlistings()
 				$handlelink.="</a>";
 
 				$approvelink='';
-
-				if (get_awpcp_option('adapprove') == 1 || get_awpcp_option('freepay')  == 1)
-				{
+				//Allow approval anytime
+				//if (get_awpcp_option('adapprove') == 1 || get_awpcp_option('freepay')  == 1)
+				//{
 					if ($disabled == 1)
 					{
 						$approvelink="<a href=\"?page=Manage1&action=approvead&id=$ad_id&offset=$offset&results=$results\">";
@@ -2624,7 +2629,7 @@ function awpcp_manage_viewlistings()
 						$approvelink.=__("Disable","AWPCP");
 						$approvelink.="</a> | ";
 					}
-				}
+				//}
 
 
 				if (get_awpcp_option('freepay') == 1)
