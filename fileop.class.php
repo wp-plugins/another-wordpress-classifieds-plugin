@@ -40,7 +40,6 @@ class fileop {
 		}
 	}
 
-
 	// $file should have a full basepath (for 'disk' op mode). In case we're using ftp it will be converted to ftp path
 	function set_permission($file,$mode) {
 		$myreturn='';
@@ -117,7 +116,6 @@ class fileop {
 		return $myreturn;
 	}
 
-
 	function file_put_contents($myfilename,&$mydata) {
 		$myreturn=false;
 		if ($this->op_mode=='disk') {
@@ -151,7 +149,6 @@ class fileop {
 		return $myreturn;
 	}
 
-
 	function file_get_contents($file) {
 		$myreturn='';
 		if (function_exists('file_get_contents')) {
@@ -162,7 +159,6 @@ class fileop {
 		}
 		return $myreturn;
 	}
-
 
 	function extract_zip($archive,$path='') {
 		$basename=false;
@@ -200,7 +196,6 @@ class fileop {
 		return $basename;
 	}
 
-
 	// a special way to mark the backup files. Why? because accessing file.php~ on the web would show the source code
 	// while file~.php wouldn't
 	// $myfilename should have a full basepath
@@ -213,7 +208,6 @@ class fileop {
 		}
 		$this->copy($myfilename,$backupfile);
 	}
-
 
 	function mkdir($fullpath) {
 		$myreturn=false;
@@ -253,7 +247,6 @@ class fileop {
 		return $myreturn;
 	}
 
-
 	// internal function, do not call from outside. Call fileop->copy() instead
 	// source must have a disk path and destination must have a ftp path
 	function _ftp_copy($source,$destination) {
@@ -277,7 +270,6 @@ class fileop {
 		return $myreturn;
 	}
 
-
 	// internal function, do not call from outside. Call fileop->delete() instead
 	// $source should have a full basepath
 	function _disk_delete($source) {
@@ -296,7 +288,6 @@ class fileop {
 		}
 		return $myreturn;
 	}
-
 
 	// internal function, do not call from outside. Call fileop->delete() instead
 	// $source should have a full ftppath
@@ -329,7 +320,6 @@ class fileop {
 		return $myreturn;
 	}
 
-
 	// must call this function to make sure we won't open several connections to the ftp server.
 	function finish() {
 		if ($this->op_mode=='ftp') {
@@ -340,3 +330,4 @@ class fileop {
 		}
 	}
 }
+?>

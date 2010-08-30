@@ -4,14 +4,14 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp
 Requires at least: 2.7
 Tested up to: 3.0.1
-Stable tag: tags/1.0.6.18
+Stable tag: tags/1.0.7
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog. 
 
 == Description ==
 Add a classified ads section to your Wordpress site, quickly and easily.  
 Lots of features, very configurable.  Easy to setup. 
-We're the #1 Classifieds Plugin for WordPress: over one year old and 36,000+ downloads!
+We're the #1 Wordpress Classified Ads Plugin: over one year old and 41,000+ downloads!
 
 Features:
 
@@ -74,27 +74,27 @@ Features:
 
 = Premium Module Links: =
 
-[Category Icons](http://awpcp.com/premium-modules/category-icons-module)
+[Category Icons](http://awpcp.com/premium-modules/category-icons-module?ref=wp)
 
-[Extra Fields](http://awpcp.com/premium-modules/extra-fields-module)
+[Extra Fields](http://awpcp.com/premium-modules/extra-fields-module?ref=wp)
 
-[Region Control](http://awpcp.com/premium-modules/regions-control-module)
+[Region Control](http://awpcp.com/premium-modules/regions-control-module?ref=wp)
 
-[Google Checkout](http://awpcp.com/premium-modules/google-checkout-module)
+[Google Checkout](http://awpcp.com/premium-modules/google-checkout-module?ref=wp)
 
-[RSS Feeds](http://awpcp.com/premium-modules/rss-module)
+[RSS Feeds](http://awpcp.com/premium-modules/rss-module?ref=wp)
 
-["Powered By" Link Removal](http://awpcp.com/donate)
+["Powered By" Link Removal](http://awpcp.com/donate?ref=wp)
 
 These are just some of the features of Another Wordpress Classifieds Plugin
 
 Note: This plugin has been developed by a hobbyist programmer who does not pretend to have the skill of a PHP expert, a MYSQL expert, or an expert wordpress developer.
 Use this plugin knowing it comes with no guarantee that the methods of coding used are up to PHP, MYSQL or wordpress plugin development expert standards. 
 
-For more information and support please visit [http://awpcp.com](http://awpcp.com)
+For more information and support please visit [http://awpcp.com](http://awpcp.com?ref=wp)
 For plugin support please visit [http://forum.awpcp.com](http://forum.awpcp.com)
 
-If you love the plugin, [please consider purchasing a Premium Module](http://awpcp.com/premium-modules/)!
+If you love the plugin, [please consider purchasing a Premium Module](http://awpcp.com/premium-modules/?ref=wp)!
 
 == Credits ==
 
@@ -163,9 +163,22 @@ Visit the support forum for [support, FAQs and docs](http://forum.awpcp.com)
 
 Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 
-[Plugin documentation](http://www.awpcp.com/about/)
+[Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ 
+ = 1.0.7 =
+ NEW: Added full Akismet integration for spam control
+ NEW: Added ad multiple spam submit in admin panel
+ Bug: Fixed ad expiration to go against the ad expire setting, instead of end date
+ Bug: Registered user name cleanup, added email hack for plugins that override get_currentuserinfo
+ Bug: Backslash addition removed for all admin-level settings fields (unnecessary)
+ Bug: Backslash encoding for single quotes added back for WP page inserts (required)
+ Bug: Fixed unclosed img, li, and option selected for XHTML compliance
+ Bug: Fixed bug with Checkhuman field not displaying (put 'inputboxmini' class on it)
+ Bug: Fixed issue with RSS module and URLs requiring trailing slash for SEO Friendly URLs
+ Bug: Removed dead functions to reduce size
+ Bug: Updated workflow to remove image step if imagesallowed == 0
  
  = 1.0.6.18 =
  NEW: Added ability to approve/disable at all times

@@ -324,7 +324,7 @@ img.awpcpbrowseadsimg  { width:60px; }
 .displayadscellviews { padding:5px; border-right:1px solid #eeeeee; border-top:1px solid #eeeeee;  border-bottom:1px solid #eeeeee;}
 .displayadscellposted { padding:5px;  border-bottom:1px solid #eeeeee; border-top:1px solid #eeeeee; font-size:x-small; }
 
-.changecategoryselect { padding:5px; float:right; margin-bottom:10px; }
+.changecategoryselect { padding:5px; float:left; margin-bottom:10px; }
 .changecategoryselect .button { }
 
 
@@ -386,5 +386,5 @@ label {font-weight:bold;}
 
 .dropdownparentcategory { background-color:#eeeeee;margin-bottom:3px; color:#000000;}
 
-#displayaditemsodd { background:#f2f2f2; width:100%; margin-bottom:10px; }
-#displayaditemseven { width:100%; margin-bottom:10px; }
+.displayaditemsodd { background:#f2f2f2; width:100%; margin-bottom:10px; }
+.displayaditemseven { width:100%; margin-bottom:10px; }

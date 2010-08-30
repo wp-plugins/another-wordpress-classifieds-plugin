@@ -29,17 +29,19 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
 
 function smart_table($array,$table_cols=1,$opentable,$closetable) {
 	$usingtable='';
+	if( (isset($opentable) && !empty($opentable)) && (isset($closetable) && !empty($closetable)) )
+	{
+		$usingtable=1;
+	}
+	return smart_table2($array,$table_cols,$opentable,$closetable,$usingtable);
+}
+
+function smart_table2($array,$table_cols=1,$opentable,$closetable,$usingtable) {
 	$myreturn="$opentable\n";
 	$row=0;
 	$total_vals=count($array);
 	$i=1;
 	$awpcpdisplayaditemclass='';
-
-
-	if( (isset($opentable) && !empty($opentable)) && (isset($closetable) && !empty($closetable)) )
-	{
-		$usingtable=1;
-	}
 
 	foreach ($array as $v) {
 			
@@ -50,7 +52,6 @@ function smart_table($array,$table_cols=1,$opentable,$closetable) {
 
 		if ((($i-1)%$table_cols)==0)
 		{
-				
 			if($usingtable)
 			{
 				$myreturn.="<tr>\n";
@@ -58,19 +59,15 @@ function smart_table($array,$table_cols=1,$opentable,$closetable) {
 
 			$row++;
 		}
-
 		if($usingtable)
 		{
 			$myreturn.="\t<td valign=\"top\">";
 		}
-			
 		$myreturn.="$v";
-			
 		if($usingtable)
 		{
 			$myreturn.="</td>\n";
 		}
-
 		if ($i%$table_cols==0)
 		{
 			if($usingtable)
@@ -78,7 +75,6 @@ function smart_table($array,$table_cols=1,$opentable,$closetable) {
 				$myreturn.="</tr>\n";
 			}
 		}
-			
 		$i++;
 	}
 	$rest=($i-1)%$table_cols;
@@ -86,34 +82,28 @@ function smart_table($array,$table_cols=1,$opentable,$closetable) {
 		$colspan=$table_cols-$rest;
 			
 		$myreturn.="\t<td".(($colspan==1) ? '' : " colspan=\"$colspan\"")."></td>\n</tr>\n";
-			
 	}
 	//}
 	$myreturn.="$closetable\n";
 	return $myreturn;
 }
 
-
-
 function create_awpcp_random_seed() {
 	list($usec, $sec) = explode(' ', microtime());
 	return (int)$sec+(int)($usec*100000);
 }
 
-
-
 function vector2table($vector) {
 	$afis="<table>\n";
 	$i=1;
-	$afis.="<tr>\n\t<td class=title colspan=2>Table</td>\n</tr>\n";
+	$afis.="<tr>\n\t<td class='title' colspan='2'>Table</td>\n</tr>\n";
 	while (list($k,$v) = each($vector)) {
-		$afis.="<tr class=".(($i%2) ? "trpar" : "trimpar").">\n\t<td>".htmlentities($k)."</td>\n\t<td>".htmlentities($v)."</td>\n</tr>\n";
+		$afis.="<tr class='".(($i%2) ? "trpar" : "trimpar")."'>\n\t<td>".htmlentities($k)."</td>\n\t<td>".htmlentities($v)."</td>\n</tr>\n";
 		$i++;
 	}
 	$afis.="</table>\n";
 	return $afis;
 }
-
 
 function vector2biditable($myarray,$rows,$cols) {
 	$myreturn="<table>\n";
@@ -128,21 +118,19 @@ function vector2biditable($myarray,$rows,$cols) {
 	return $myreturn;
 }
 
-
 function vector2options($show_vector,$selected_map_val,$exclusion_vector=array()) {
 	$myreturn='';
 	while (list($k,$v)=each($show_vector)) {
 		if (!in_array($k,$exclusion_vector)) {
 			$myreturn.="<option value=\"".$k."\"";
 			if ($k==$selected_map_val) {
-				$myreturn.=" selected";
+				$myreturn.=" selected='selected'";
 			}
 			$myreturn.=">".$v."</option>\n";
 		}
 	}
 	return $myreturn;
 }
-
 
 function vector2checkboxes($show_vector,$excluded_keys_vector,$checkname,$binvalue,$table_cols=1,$showlabel=true) {
 	$myreturn='<table>';
@@ -185,7 +173,6 @@ function vector2binvalues($myarray) {
 	return $myreturn;
 }
 
-
 function binvalue2index($binvalue) {
 	$myarray=array();
 	$i=0;
@@ -199,7 +186,6 @@ function binvalue2index($binvalue) {
 	return $myarray;
 }
 
-
 function array2string($myarray,$binvalue) {
 	$myreturn='';
 	while (list($k,$v)=each($myarray)) {
@@ -211,7 +197,6 @@ function array2string($myarray,$binvalue) {
 	return $myreturn;
 }
 
-
 function del_keys($myarray,$keys) {
 	$myreturn=array();
 	while (list($k,$v)=each($myarray)) {
@@ -221,7 +206,6 @@ function del_keys($myarray,$keys) {
 	}
 	return $myreturn;
 }
-
 
 function del_empty_vals($myarray) {
 	$myreturn=array();
@@ -319,16 +303,19 @@ if (!function_exists('file_get_contents')) {
 	}
 }
 
-
 function array2qs($myarray) {
 	$myreturn="";
+	$total = count($myarray);
+	$count = 1;
 	while (list($k,$v)=each($myarray)) {
-		$myreturn.="$k=$v&";
+		$myreturn.="$k=$v";
+		if ($count < $total) {
+			$myreturn .= "&";
+		}
+		$count++;
 	}
-	$myreturn=substr($myreturn,0,-1);
 	return $myreturn;
 }
-
 
 function create_pager($from,$where,$offset,$results,$tpname)
 {
@@ -364,7 +351,7 @@ function create_pager($from,$where,$offset,$results,$tpname)
 
 	$params=array();
 	$params=array_merge($_GET,$_POST);
-	unset($params['page_id'],$params['offset'],$params['results'],$params['PHPSESSID'],$params['aeaction'],$params['category_id'],$params['cat_ID'],$params['action'],$params['aeaction'],$params['category_name'],$params['category_parent_id'],$params['createeditadcategory'],$params['deletemultiplecategories'],$params['movedeleteads'],$params['moveadstocategory'],$params['category_to_delete'],$params['tpname'],$params['category_icon'],$params['sortby'],$params['adid'],$params['picid'],$params['adkey'],$params['editemail'],$params['adtermid']);
+	unset($params['page_id'],$params['offset'],$params['results'],$params['PHPSESSID'],$params['aeaction'],$params['category_id'],$params['cat_ID'],$params['action'],$params['aeaction'],$params['category_name'],$params['category_parent_id'],$params['createeditadcategory'],$params['deletemultiplecategories'],$params['movedeleteads'],$params['moveadstocategory'],$params['category_to_delete'],$params['tpname'],$params['category_icon'],$params['sortby'],$params['adid'],$params['picid'],$params['adkey'],$params['editemail'],$params['deletemultipleads'],$params['spammultipleads'],$params['awpcp_ads_to_action']);
 
 	$cid='';
 	if (isset($_REQUEST['category_id']) && !empty($_REQUEST['category_id'])) {
@@ -470,13 +457,11 @@ function _gdinfo() {
 	return $myreturn;
 }
 
-
 function unix2dos($mystring) {
 	$mystring=preg_replace("/\r/m",'',$mystring);
 	$mystring=preg_replace("/\n/m","\r\n",$mystring);
 	return $mystring;
 }
-
 
 function send_email($from,$to,$subject,$message,$html=false,$attachments=array(),$bcc='') {
 	$separator='Next.Part.331925654896717'.mktime();
@@ -524,9 +509,4 @@ function send_email($from,$to,$subject,$message,$html=false,$attachments=array()
 	$sentok=@mail($to,$subject,$message,$headers,"-f$from");
 	return $sentok;
 }
-
-
-
-//End Functions from Dan Caragea
-
 ?>
