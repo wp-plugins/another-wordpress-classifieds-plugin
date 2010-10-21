@@ -376,7 +376,7 @@ function create_pager($from,$where,$offset,$results,$tpname)
 			$awpcppage=get_currentpagename();
 			$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 			$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
-			$params['page_id']="$awpcpwppostpageid";
+			//$params['page_id']="$awpcpwppostpageid";
 		}
 	}
 
@@ -388,7 +388,7 @@ function create_pager($from,$where,$offset,$results,$tpname)
 
 		if( !get_awpcp_option('seofriendlyurls') )
 		{
-			$params['page_id']="$awpcpwppostpageid";
+			//$params['page_id']="$awpcpwppostpageid";
 		}
 	}
 
@@ -463,7 +463,7 @@ function unix2dos($mystring) {
 	return $mystring;
 }
 
-function send_email($from,$to,$subject,$message,$html=false,$attachments=array(),$bcc='') {
+function awpcp_send_email($from,$to,$subject,$message,$html=false,$attachments=array(),$bcc='') {
 	$separator='Next.Part.331925654896717'.mktime();
 	$att_separator='NextPart.is_a_file9817298743'.mktime();
 	$headers="From: $from\n";

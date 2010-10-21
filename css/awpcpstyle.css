@@ -144,10 +144,10 @@ padding:10px;
 margin-bottom:20px;
 }
 
-#showad {
+#showawpcpadpage {
 margin-top:10px;}
 
-#showad .adtitle {
+#showawpcpadpage .adtitle {
 background:#eeeeee;
 border-top:1px dotted #dddddd;
 border-bottom:1px dotted #dddddd;
@@ -157,50 +157,50 @@ font-size:medium;
 padding:10px;
 }
 
-#showad .adbyline {
+#showawpcpadpage .adbyline {
 margin-top:5px;
 padding:5px;
 
 }
 
-#showad .adbyline .adbylinelocation {
+#showawpcpadpage .adbyline .adbylinelocation {
 float:left;
 }
 
-#showad .adbyline .awpcpadviews {
+#showawpcpadpage .adbyline .awpcpadviews {
 }
 
-#showad .adbyline .awpcpadviews .views {
+#showawpcpadpage .adbyline .awpcpadviews .views {
 font-weight:bold;
 color:#ff0000;
 }
 
-#showad .addetails {
+#showawpcpadpage .addetails {
 padding:10px;
 margin-top:20px;
 }
 
-#showad .addetails .addetails_top {
+#showawpcpadpage .addetails .addetails_top {
 margin:10px 0px 0px 0px;
 width:95%;
 }
 
-#showad .addetails .addetails_top .addetails_top_items {
+#showawpcpadpage .addetails .addetails_top .addetails_top_items {
 float:left;
 width:195px;
 margin:0;
 }
 
-#showad .addetails .addetails_top .addetails_top_image {
+#showawpcpadpage .addetails .addetails_top .addetails_top_image {
 float:right;
 }
 
-#showad .addetails .addetails_top .addetails_top_image ul {
+#showawpcpadpage .addetails .addetails_top .addetails_top_image ul {
 margin:0;
 padding:0;
 }
 
-#showad .addetails .addetails_top .addetails_top_image img {
+#showawpcpadpage .addetails .addetails_top .addetails_top_image img {
 	margin: 0px 20px 0px 0px;
 	padding: 2px;
 	border: 1px solid #dddddd;
@@ -208,7 +208,7 @@ padding:0;
 }
 
 
-#showad p {
+#showawpcpadpage p {
 }
 
 

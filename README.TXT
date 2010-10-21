@@ -1,17 +1,17 @@
 === Another Wordpress Classifieds Plugin ===
 Contributors: awpcp.com
 Donate link: http://awpcp.com/donate
-Tags: classifieds,ads,classified ads,classified,awpcp
+Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme
 Requires at least: 2.7
 Tested up to: 3.0.1
-Stable tag: tags/1.0.7
+Stable tag: tags/1.8.0
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog. 
 
 == Description ==
 Add a classified ads section to your Wordpress site, quickly and easily.  
 Lots of features, very configurable.  Easy to setup. 
-We're the #1 Wordpress Classified Ads Plugin: over one year old and 41,000+ downloads!
+We're the #1 Wordpress Classified Ads Plugin: over one year old and 45,000+ downloads!
 
 Features:
 
@@ -48,6 +48,7 @@ Features:
        their own ads
     6. Allows for limiting image posting (by image size, height, 
        width and total count if desired)
+    7. Anti-spam checks for all ads posted via Akismet.
  = Image Features =
     1. Allow image posting or shut it off completely
     2. Control the number, filesize, height and width of images posted
@@ -60,6 +61,7 @@ Features:
     2. Extra Fields (allows you to add any custom fields for display.  
        For example, if you have a pet-related board, you might have 
        "Sex", "Breed", and "Dam/Sire" as additional fields you require for display)
+       Now supports search in extra fields, too.
     3. Regions Control (allows you to restrict viewing of ads based on 
        locale, so users don't see items they aren't physically near them, 
        also allows customization of the region types, such as 
@@ -166,6 +168,20 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ 
+ = 1.8.0 =
+ NEW: Normalized version numbering to remove superfluous 0 (1.0.8.0 is now 1.8.0)
+ NEW: Search widget
+ NEW: Search works with Extra Fields
+ NEW: Sitemap integration with Google Sitemap Generator (as separate plugin)
+ NEW: Admin panel upgrades
+ Bug: Fixed renewing ads failing to re-enable images
+ Bug: Fixed workflow issue with free ads that don't have images (missing Next button)
+ Bug: Changed showad id for div to showawpcpadpage to stop AdBlockPro/Plus from interfering with classifieds
+ Bug: String extraction for ad terms
+ Bug: Fixed widget backslash issue
+ Bug: Fixed checked='checked' for XHTML compliance
+ Bug: Fixed admin email spam for expiring ads, updated text for expiring ad emails
  
  = 1.0.7 =
  NEW: Added full Akismet integration for spam control
