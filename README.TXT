@@ -169,6 +169,9 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 
 == Changelog ==
  
+ = 1.8.1 =
+ Bug:  Display went crazy with Latest Classifieds widget on upgrade.  Removed unnecessary div.
+ 
  = 1.8.0 =
  NEW: Normalized version numbering to remove superfluous 0 (1.0.8.0 is now 1.8.0)
  NEW: Search widget
