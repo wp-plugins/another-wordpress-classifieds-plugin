@@ -179,7 +179,7 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 				{
 					$awpcpuploaderror=true;
 					$awpcpuerror[].="<p class=\"uploaderror\">";
-					$awpcpuerror[].=__("The size of %1$s was too small. The file was not uploaded. File size must be greater than %2$s bytes", $filename, $imgminsize, "AWPCP");
+					$awpcpuerror[].=sprintf(__("The size of %1$s was too small. The file was not uploaded. File size must be greater than %2$d bytes", "AWPCP"), $filename, $imgminsize);
 					$awpcpuerror[].="</p>";
 				}
 				elseif($imginfo[0]< $twidth)
@@ -187,7 +187,7 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 					// width is too short
 					$awpcpuploaderror=true;
 					$awpcpuerror[].="<p class=\"uploaderror\">[$filename]";
-					$awpcpuerror[].=__(" did not meet the minimum width of [%s] pixels. The file was not uploaded", $twidth,"AWPCP");
+					$awpcpuerror[].=sprintf(__(" did not meet the minimum width of [%s] pixels. The file was not uploaded", "AWPCP"), $twidth);
 					$awpcpuerror[].="</p>";
 				}
 				elseif ($imginfo[1]< $twidth)
@@ -195,7 +195,7 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 					// height is too short
 					$awpcpuploaderror=true;
 					$awpcpuerror[].="<p class=\"uploaderror\">[$filename]";
-					$awpcpuerror[].=__(" did not meet the minimum height of [%s] pixels. The file was not uploaded", $twidth,"AWPCP");
+					$awpcpuerror[].=sprintf(__(" did not meet the minimum height of [%s] pixels. The file was not uploaded", "AWPCP"), $twidth);
 					$awpcpuerror[].="</p>";
 				}
 				elseif(!isset($imginfo[0]) && !isset($imginfo[1]))
@@ -209,7 +209,7 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 				{
 					$awpcpuploaderror=true;
 					$awpcpuerror[].="<p class=\"uploaderror\">[$filename]";
-					$awpcpuerror[].=__(" was larger than the maximum allowed file size of [%s] bytes. The file was not uploaded", $imgmaxsize, "AWPCP");
+					$awpcpuerror[].=sprintf(__(" was larger than the maximum allowed file size of [%s] bytes. The file was not uploaded", "AWPCP"), $imgmaxsize);
 					$awpcpuerror[].="</p>";
 				}
 				elseif(!empty($desired_filename))
@@ -231,7 +231,7 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 						{
 							$awpcpuploaderror=true;
 							$awpcpuerror[].="<p class=\"uploaderror\">";
-							$awpcpuerror[].=__("Could not create thumbnail image of [ %s ]", $filename, "AWPCP");
+							$awpcpuerror[].=sprintf(__("Could not create thumbnail image of [ %s ]", "AWPCP"), $filename);
 							$awpcpuerror[].="</p>";
 						}
 
@@ -269,7 +269,7 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 						{
 							$awpcpuploaderror=true;
 							$awpcpuerror[].="<p class=\"uploaderror\">";
-							$awpcpuerror[].=__("Could not save the information to the database for [ %s ]", $filename, "AWPCP");
+							$awpcpuerror[].=sprintf(__("Could not save the information to the database for [ %s ]", "AWPCP"), $filename);
 							$awpcpuerror[].="</p>";
 						}
 					}

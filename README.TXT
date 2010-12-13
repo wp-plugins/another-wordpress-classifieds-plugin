@@ -3,15 +3,17 @@ Contributors: awpcp.com
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme
 Requires at least: 2.7
-Tested up to: 3.0.1
-Stable tag: tags/1.8.1
+Tested up to: 3.0.2
+Stable tag: tags/1.8.5
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog. 
 
 == Description ==
 Add a classified ads section to your Wordpress site, quickly and easily.  
-Lots of features, very configurable.  Easy to setup. 
-We're the #1 Wordpress Classified Ads Plugin: over one year old and 45,000+ downloads!
+Lots of features, very configurable.  Easy to setup.  Great support.
+We're the #1 Wordpress Classified Ads Plugin: almost two years old and 53,000+ downloads!
+
+Check out the **NEW** Featured Ads module below!
 
 Features:
 
@@ -25,6 +27,7 @@ Features:
     6. Allow or disallow image posting with ads
     7. Automatic expiration of ads (free or paid)
     8. Configurable ad display for AdSense placement
+    9. Ads can have a "Tweet This" button in their layout
  = Notification Features =
     1. Allow posters to be notified of expiring ads
     2. Allow admin to be notified when new ads are posted
@@ -73,6 +76,11 @@ Features:
        more often!)
     6. "Powered By" Link Removal (allows you to get rid of the 
        link at the bottom of all AWPCP pages)
+    7. **NEW** Featured Ads (allows you to promote certain ads over others by 
+       charging a fee for them, featured ads are displayed using CSS to
+       highlight them.  Featured ads are always returned first in a category,
+       the overall ad list, or in search results.  Also has a widget for 
+       placement anywhere on your site.  Full admin control of featured ads, too)
 
 = Premium Module Links: =
 
@@ -88,6 +96,8 @@ Features:
 
 ["Powered By" Link Removal](http://awpcp.com/donate?ref=wp)
 
+[Featured Ads](http://awpcp.com/premium-modules/featured-ads-module?ref=wp)
+
 These are just some of the features of Another Wordpress Classifieds Plugin
 
 Note: This plugin has been developed by a hobbyist programmer who does not pretend to have the skill of a PHP expert, a MYSQL expert, or an expert wordpress developer.
@@ -101,6 +111,9 @@ If you love the plugin, [please consider purchasing a Premium Module](http://awp
 == Credits ==
 
 Copyright 2009-10 awpcp.com
+
+Special thanks to Mark E of http://SimplerComputing.net for his contributions to the
+plugin!
 
 AWPCP Classifieds icons courtesy of http://www.famfamfam.com/lab/icons/silk/
 dcfunctions.php courtesy of Dan Caragea http://www.datemill.com
@@ -168,6 +181,16 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 1.8.5 = 
+ NEW: Tweet button for individual ad pages. To use it make sure you have $tweetbtn in your single ad template
+ NEW: Ability to use your own custom stylesheet ( found under wp-content/plugins/awpcp_custom_stylesheet.css ), which isn't overwritten on upgrade. 
+ NEW: Support added for Featured Ads premium module
+ NEW: Added field code $ad_categoryname for ad display listing
+ Bug: Fixed latest ads to display intra-day postings in descending order of ID after date
+ Bug: Fixed display of UI Welcome message (backslash problem)
+ Bug: Fixed city display in URL and page title (was missing even if city was valid)
+ Bug: Fixed failing ad expirations
+ Bug: Made the latest ads display consistent with the ad listing layout (thickbox around image)
  
  = 1.8.1 =
  Bug:  Display went crazy with Latest Classifieds widget on upgrade.  Removed unnecessary div.
