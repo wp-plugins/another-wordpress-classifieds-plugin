@@ -391,5 +391,18 @@ label {font-weight:bold;}
 
 .twitter-share-button {
 width:55px;height:22px; background:transparent url('../images/tweetn.png') no-repeat  0 0;
-text-align:left; text-indent:-9999px; display:block; margin-top: 10px;
+text-align:left; text-indent:-9999px; display:block; margin-top: 5px;
+}
+#js_error { 
+color:#cf0000; 
+border: 1px dotted #cc0000; 
+background-color: #fee; 
+text-align:center; 
+margin-bottom: 12px !important;
+padding-top: 5px !important;
+}
+.awpcp_facebook_btn_img {
+ border:none !important;
+ margin:0 !important;
+ padding:0 !important;
 }

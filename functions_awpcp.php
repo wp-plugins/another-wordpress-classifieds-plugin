@@ -26,12 +26,12 @@ function awpcpErrorHandler($errno, $errstr, $errfile, $errline){
 				// handling an sql error
 				$output .= "<b>AWPCP SQL Error</b> Errno: [$errno] SQLError:" . SQLMESSAGE . "<br />\n";
 				$output .= "Query : " . SQLQUERY . "<br />\n";
-				$output .= "Called by line " . SQLERRORLINE . " in file " . SQLERRORFILE . ", error in ".__FILE__." at line ".__LINE__;
+				$output .= "Called by line " . SQLERRORLINE . " in file " . SQLERRORFILE . ", error in ".$errfile." at line ".$errline;
 				$output .= ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
 				$output .= "Aborting...<br />\n";
 			} else {
 				$output .= "<b>AWPCP PHP Error</b> [$errno] $errstr<br />\n";
-				$output .= "  Fatal error called by line $errline in file $errfile, error in ".__FILE__." at line ".__LINE__;
+				$output .= "  Fatal error called by line $errline in file $errfile, error in ".$errfile." at line ".$errline;
 				$output .= ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
 				$output .= "Aborting...<br />\n";
 			}
@@ -87,6 +87,26 @@ function strip_slashes_recursive( $variable )
 	return $variable ;
 }
 
+function string_contains($haystack, $needle, $case = true, $pos = 0)
+{
+    if ($case) {
+        $result = (strpos($haystack, $needle, 0) === $pos);
+    } else {
+        $result = (stripos($haystack, $needle, 0) === $pos);
+    }
+    return $result;
+}
+
+function string_starts_with($haystack, $needle, $case = true)
+{
+    return string_contains($haystack, $needle, $case, 0);
+}
+
+function string_ends_with($haystack, $needle, $case = true)
+{
+    return string_contains($haystack, $needle, $case, (strlen($haystack) - strlen($needle)));
+}
+
 function awpcp_submit_spam($ad_id) {
 	if (function_exists('akismet_init')) {
 		$wpcom_api_key = get_option('wordpress_api_key');
@@ -107,6 +127,7 @@ function awpcp_submit_spam($ad_id) {
 				$content = array();
 				_log("Ad " . $ad_id . " constructing Akismet call");
 				//Construct an Akismet-like query:
+				$content['user_ip'] = $ad_record['posterip'];
 				$content['comment_author'] = $ad_record['ad_contact_name'];
 				$content['comment_author_email'] = $ad_record['ad_contact_email'];
 				$content['comment_author_url'] = $ad_record['websiteurl'];
@@ -172,7 +193,7 @@ function awpcp_check_spam($name, $website, $email, $details) {
 			global $akismet_api_host, $akismet_api_port;
 
 			// set remaining required values for akismet api
-			$content['user_ip'] = preg_replace( '/[^0-9., ]/', '', $_SERVER['REMOTE_ADDR'] );
+			$content['user_ip'] = preg_replace( '/[^0-9., ]/', '', awpcp_getip() );
 			$content['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
 			$content['referrer'] = $_SERVER['HTTP_REFERER'];
 			$content['blog'] = get_option('home');
@@ -488,6 +509,10 @@ function get_num_days_in_term($adtermid) {
 	while ($rsrow=mysql_fetch_row($res)) {
 		list($numdaysinterm)=$rsrow;
 	}
+
+	if ('' == $numdaysinterm || 0 == $numdaysinterm) 
+	    $numdaysinterm = 36500; // 100 years, equivalent of never expires
+
 	return $numdaysinterm;
 }
 // END FUNCTION
@@ -691,6 +716,61 @@ function get_categorynameidall($cat_id = 0)
 
 	return $optionitem;
 }
+
+function get_categorycheckboxes( $cats = array() ) {
+	global $wpdb;
+
+	$tbl_categories = $wpdb->prefix . "awpcp_categories";
+	$optionitem='';
+
+	// Start with the main categories
+
+	$query="SELECT category_id,category_name FROM ".$tbl_categories." WHERE category_parent_id='0' and category_name <> '' ORDER BY category_order, category_name ASC";
+	$res = awpcp_query($query, __LINE__);
+
+	while ($rsrow=mysql_fetch_row($res)) {
+
+		$cat_ID=$rsrow[0];
+		$cat_name=$rsrow[1];
+
+		$opstyle="class=\"checkboxparentcategory\"";
+
+		if( in_array($cat_ID, $cats) )
+		{
+			$maincatoptionitem = "<input name='fee_cats[]' type='checkbox' $opstyle checked='checked' value='$cat_ID'> $cat_name<br/>";
+		}
+		else {
+			$maincatoptionitem = "<input name='fee_cats[]' type='checkbox' $opstyle value='$cat_ID'> $cat_name<br/>";
+		}
+
+		$optionitem.="$maincatoptionitem";
+
+		// While still looping through main categories get any sub categories of the main category
+
+		$maincatid=$cat_ID;
+
+		$query="SELECT category_id,category_name FROM ".$tbl_categories." WHERE category_parent_id='$maincatid' ORDER BY category_order, category_name ASC";
+		$res2 = awpcp_query($query, __LINE__);
+
+		while ($rsrow2=mysql_fetch_row($res2)) {
+			$subcat_ID=$rsrow2[0];
+			$subcat_name=$rsrow2[1];
+
+			if( in_array($subcat_ID, $cats) )
+			{
+				$subcatoptionitem = " &nbsp; &nbsp; <input name='fee_cats[]' type='checkbox' checked='checked' value='$subcat_ID'>- $subcat_name</option><br/>";
+			}
+			else {
+				$subcatoptionitem = " &nbsp; &nbsp; <input name='fee_cats[]' type='checkbox' value='$subcat_ID'>- $subcat_name</option><br/>";
+			}
+
+			$optionitem.="$subcatoptionitem";
+		}
+	}
+
+	return $optionitem;
+}
+
 // END FUNCTION: create drop down list of categories for ad post form
 // START FUNCTION: Retrieve the category name
 function get_adcatname($cat_ID){
@@ -870,7 +950,8 @@ function total_ads_in_cat($catid) {
 		}
 	}
 
-	$query="SELECT count(*) FROM ".$tbl_ads." WHERE (ad_category_id='$catid' OR ad_category_parent_id='$catid') AND disabled = '0' $filter";
+	$query="SELECT count(*) FROM ".$tbl_ads." WHERE (ad_category_id='$catid' OR ad_category_parent_id='$catid') AND disabled = '0' AND (flagged IS NULL OR flagged =0) $filter";
+
 	$res = awpcp_query($query, __LINE__);
 	while ($rsrow=mysql_fetch_row($res)) {
 		list($totaladsincat)=$rsrow;
@@ -1069,6 +1150,46 @@ function url_showad($ad_id)
 	}
 	//_log("Returning URL: ".$url_showad);
 	return $url_showad;
+}
+
+function url_browsecategory($cat_id)
+{
+	$url_browsecats='';
+	$awpcppage=get_currentpagename();
+	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+	$quers=setup_url_structure($awpcppagename);
+	$permastruc=get_option('permalink_structure');
+	$browsecatspagename=sanitize_title(get_awpcp_option('browsecatspagename'), $post_ID='');
+	$awpcp_browsecats_pageid=awpcp_get_page_id($browsecatspagename);
+
+	$awpcpcatname=get_adcatname($cat_id);
+	$modcatname=cleanstring($awpcpcatname);
+	$modcatname=add_dashes($modcatname);
+	$seoFriendlyUrls = get_awpcp_option('seofriendlyurls');
+	if (get_awpcp_option('seofriendlyurls'))
+	{
+		if (isset($permastruc) && !empty($permastruc))
+		{
+			$url_browsecats="$quers/$browsecatspagename/$cat_id/$modcatname";
+		}
+		else
+		{
+			$url_browsecats="$quers/?page_id=$awpcp_browsecats_pageid&a=browsecat&category_id=$cat_id";
+		}
+	}
+	else
+	{
+		if (isset($permastruc) && !empty($permastruc))
+		{
+			$url_browsecats="$quers/$browsecatspagename?category_id=$cat_id/$modcatname";
+		}
+		else
+		{
+			$url_browsecats="$quers/?page_id=$awpcp_browsecats_pageid&a=browsecat&category_id=$cat_id";
+		}
+	}
+	//_log("Returning cat URL: ".$url_browsecats);
+	return $url_browsecats;
 }
 
 function url_placead()
@@ -1501,18 +1622,18 @@ function isValidEmailAddress($email) {
 
 
 /*
- * Function run once per month to cleanup disabled ads.
+ * Function run once per month to cleanup disabled / deleted ads.
  */
 function doadcleanup() {
 	global $wpdb;
-	//If they set the 'disable instead of delete' flag, we just ignore this call altogether:
-	if (get_awpcp_option('autoexpiredisabledelete') == 1) { return; }
+	//If they set the 'disable instead of delete' flag, we just return and don't do anything here.
+	if (get_awpcp_option('autoexpiredisabledelete') == 1) return;
 	
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 	
-	// Get the IDs of the ads to be deleted (those that are disabled now)
-	$query="SELECT ad_id FROM ".$tbl_ads." WHERE disabled='1'";
+	// Get the IDs of the ads to be deleted (those that are disabled more than 30 days ago)
+	$query="SELECT ad_id FROM ".$tbl_ads." WHERE disabled='1' and (disabled_date + INTERVAL 30 DAY) < CURDATE()";
 	$res = awpcp_query($query, __LINE__);
 
 	$expiredid=array();
@@ -1553,85 +1674,135 @@ function doadcleanup() {
 /*
  * Function to disable ads run hourly
  */
+
+// for testing purposes
+//add_action('init', 'doadexpirations');
+
 function doadexpirations() {
-
 	global $wpdb,$nameofsite,$siteurl,$thisadminemail;
-	$tbl_ads = $wpdb->prefix . "awpcp_ads";
-	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
-	$awpcp_from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
-	$adexpireafter=get_awpcp_option('addurationfreemode');
-	_log("Checking ad expirations");
-	if ($adexpireafter == 0)
-	{
-		//Randomly far into the future...
-		$adexpireafter=9125;
-	}
-	
-	// Get the IDs of the ads to be deleted.  In order to account for the dynamic nature of the user selection of
-	// expiration times, we need to look at the start date of the ad, ignore the end, and calculate the interval based
-	// on the current setting.  This has the unfortunate effect of expiring ads if they turn it down (to say 30 days) and
-	// then upping it to 90, the ads that would have been enabled will then be disabled (or deleted)
-	$query="SELECT ad_id FROM ".$tbl_ads." WHERE (ad_startdate + INTERVAL $adexpireafter DAY) < CURDATE() AND disabled='0'";
-	$res = awpcp_query($query, __LINE__);
 
-	$expiredid=array();
-	if (mysql_num_rows($res))
-	{
-		while ($rsrow=mysql_fetch_row($res))
-		{
-			$expiredid[]=$rsrow[0];
-		}
-		$adstodelete=join(",",$expiredid);
-		_log("Expiring ads: " . $adstodelete);
-					
-		if(get_awpcp_option('notifyofadexpiring') == '1')
-		{
-			$subject = get_awpcp_option('adexpiredsubjectline');
-			$bodybase=get_awpcp_option('adexpiredbodymessage');
-			foreach ($expiredid as $adid)
-			{
+
+	$tbl_ads = $wpdb->prefix . "awpcp_ads";
+
+	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
+
+	$awpcp_from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
+
+	$adexpireafter = get_awpcp_option('addurationfreemode');
+        $notify_admin = get_awpcp_option('notifyofadexpired');
+
+	_log("Checking ad expirations");
+
+	// disable the ads or delete the ads? 
+	$disable_ads = get_awpcp_option('autoexpiredisabledelete');
+	// 1 = disable, 0 = delete
+
+	$adstodelete = '';
+
+	$sql = 'select ad_id from '.$tbl_ads.' where ad_enddate <= NOW() and disabled != 1';
+        $ads = $wpdb->get_results($sql, ARRAY_A);
+
+	$expiredid = array();
+
+	$subject = get_awpcp_option('adexpiredsubjectline');
+	$bodybase = get_awpcp_option('adexpiredbodymessage');
+
+	_log("Expiring ads: " . $adstodelete);
+
+	if ($ads) {
+	    foreach ($ads as $ad) { 
+
+		$expiredid[] = $ad['ad_id'];
+
+		$adid = $ad['ad_id'];
+
+		if( get_awpcp_option('notifyofadexpiring') == '1' && $disable_ads ) {
+
 				_log("Processing Notification for ad: " . $adid);
+
 				$adcontact=get_adpostername($adid);
 				_log("Got poster name for ad: " . $adid);
+
 				$awpcpnotifyexpireemail=get_adposteremail($adid);
 				_log("Got poster email for ad: " . $adid);
+
+				if ('' == $awpcpnotifyexpireemail) continue; // no email addy, can't send a message without it.
+
 				$adtitle=get_adtitle($adid);
 				_log("Got title for ad: " . $adid);
-				$adstartdate=date("D M j Y G:i:s", get_adstartdate($adid));
+
+				$adstartdate = date("D M j Y G:i:s", strtotime( get_adstartdate($adid) ) );
 				_log("Formatted date for ad: " . $adid);
 				
-				$awpcpadexpiredsubject=$subject;
-				$awpcpadexpiredbody=$bodybase;
-				$awpcpadexpiredbody.="<br/><br/>";
+				$awpcpadexpiredsubject = $subject;
+				$awpcpadexpiredbody = $bodybase;
+				$awpcpadexpiredbody.="\n\n";
 				$awpcpadexpiredbody.=__("Listing Details", "AWPCP");
-				$awpcpadexpiredbody.="<br/><br/>";
+				$awpcpadexpiredbody.="\n\n";
 				$awpcpadexpiredbody.=__("Ad Title:", "AWPCP");
-				$awpcpadexpiredbody.=" $listingtitle";
-				$awpcpadexpiredbody.="<br/>";
+				$awpcpadexpiredbody.=" $adtitle";
+				$awpcpadexpiredbody.="\n\n";
 				$awpcpadexpiredbody.=__("Posted:", "AWPCP");
 				$awpcpadexpiredbody.=" $adstartdate";
-				$awpcpadexpiredbody.="<br/><br/>";
+				$awpcpadexpiredbody.="\n\n";
 				$awpcpadexpiredbody.=__("Renew your ad by visiting:", "AWPCP");
 				$awpcpadexpiredbody.=" $siteurl";
-				$awpcpadexpiredbody.="<br/><br/>";
-				//@awpcp_process_mail($awpcpsenderemail=$thisadminemail,$awpcpreceiveremail=$awpcpnotifyexpireemail,$awpcpemailsubject=$awpcpadexpiredsubject,$awpcpemailbody=$awpcpadexpiredbody,$awpcpsendername=$nameofsite,$awpcpreplytoemail=$thisadminemail);
+				$awpcpadexpiredbody.="\n\n";
+
+				awpcp_process_mail(
+					$thisadminemail,
+					$awpcpnotifyexpireemail,
+					$awpcpadexpiredsubject,
+					$awpcpadexpiredbody,
+					$nameofsite,
+					$thisadminemail
+					);
+
+				// SEND THE ADMIN A NOTICE TOO?
+			        if ( $notify_admin )
+				awpcp_process_mail(
+					$awpcpsenderemail=$thisadminemail,
+					$awpcpreceiveremail=$thisadminemail,
+					$awpcpemailsubject=$awpcpadexpiredsubject,
+					$awpcpemailbody=$awpcpadexpiredbody,
+					$awpcpsendername=$nameofsite,
+					$awpcpreplytoemail=$thisadminemail
+					);
+
 				_log("DONE Processing Notification for ad: " . $adid);
-			}
-			_log("Processing Notifications complete");
+
 		}
-		_log("Now doing expiration query");
-		// FOR NOW and because of the bug in 1.0.6.18, we disable ads by default.
-		//Disable the images
-		$query="UPDATE ".$tbl_ad_photos." set disabled='1' WHERE ad_id IN ($adstodelete)";
-		_log("Running query: " . $query);
-		$res = awpcp_query($query, __LINE__);
-		_log("Disabled photos result is " . $res);
-		
-		// Disable the ads
-		$query="UPDATE ".$tbl_ads." set disabled='1' WHERE ad_id IN ($adstodelete)";
-		_log("Running query: " . $query);
-		$res = awpcp_query($query, __LINE__);
-		_log("Disabled ads result is " . $res);
+
+		_log("Processing Notifications complete");
+
+	    }
+
+	    $adstodelete = join(',' , $expiredid);
+
+	} else { 
+		_log("No ads expiring now.");
+	}
+
+
+
+	if ( '' != $adstodelete ) { 
+
+	    _log("Now doing expiration query");
+
+	    // disable images
+	    $query = 'update '.$tbl_ad_photos." set disabled='1' WHERE ad_id IN ($adstodelete)";
+	    _log("Running query: " . $query);
+
+	    $res = awpcp_query($query, __LINE__);
+	    _log("Disabled photos result is " . $res);
+	    
+	    // Disable the ads
+	    $query="UPDATE ".$tbl_ads." set disabled='1', disabled_date = NOW() WHERE ad_id IN ($adstodelete)";
+	    _log("Running query: " . $query);
+
+	    $res = awpcp_query($query, __LINE__);
+	    _log("Disabled ads result is " . $res);
+
 	}
 }
 
@@ -1886,7 +2057,7 @@ function awpcp_sidebar_headlines($limit, $showimages, $showblank) {
 		$limit=10;
 	}
 
-	$query="SELECT ad_id,ad_title,ad_details FROM ".$tbl_ads." WHERE ad_title <> '' AND disabled = '0' ORDER BY ad_postdate DESC, ad_id DESC LIMIT ".$limit."";
+	$query="SELECT ad_id,ad_title,ad_details FROM ".$tbl_ads." WHERE ad_title <> '' AND disabled = '0' AND (flagged IS NULL OR flagged = 0) ORDER BY ad_postdate DESC, ad_id DESC LIMIT ".$limit."";
 	$res = awpcp_query($query, __LINE__);
 
 	while ($rsrow=mysql_fetch_row($res)) {
@@ -1902,7 +2073,7 @@ function awpcp_sidebar_headlines($limit, $showimages, $showblank) {
 			$output .= "<li>$ad_title</li>";
 		} else {
 			//New style, with images and layout control:
-			$awpcp_image_display="<a class=\"thickbox\" href=\"$url_showad\">";
+			$awpcp_image_display="<a class=\"self\" href=\"$url_showad\">";
 			if (get_awpcp_option('imagesallowdisallow'))
 			{
 				$totalimagesuploaded=get_total_imagesuploaded($ad_id);
@@ -2449,7 +2620,7 @@ function strip_html_tags( $text )
 	return strip_tags( $text );
 }
 // END FUNCTION
-function awpcp_process_mail($awpcpsenderemail,$awpcpreceiveremail,$awpcpemailsubject,$awpcpemailbody,$awpcpsendername,$awpcpreplytoemail)
+function awpcp_process_mail($awpcpsenderemail='',$awpcpreceiveremail='',$awpcpemailsubject='',$awpcpemailbody='',$awpcpsendername='',$awpcpreplytoemail='')
 {
 	$headers =	"MIME-Version: 1.0\n" .
 	"From: $awpcpsendername <$awpcpsenderemail>\n" .
@@ -2525,6 +2696,65 @@ function awpcp_process_mail($awpcpsenderemail,$awpcpreceiveremail,$awpcpemailsub
 
 }
 
+// make sure the IP isn't a reserved IP address
+function awpcp_validip($ip) {
+ 
+	if (!empty($ip) && ip2long($ip)!=-1) {
+	
+		$reserved_ips = array (
+		    array('0.0.0.0','2.255.255.255'),
+		    array('10.0.0.0','10.255.255.255'),
+		    array('127.0.0.0','127.255.255.255'),
+		    array('169.254.0.0','169.254.255.255'),
+		    array('172.16.0.0','172.31.255.255'),
+		    array('192.0.2.0','192.0.2.255'),
+		    array('192.168.0.0','192.168.255.255'),
+		    array('255.255.255.0','255.255.255.255')
+		);
+	
+		foreach ($reserved_ips as $r) {
+		    $min = ip2long($r[0]);
+		    $max = ip2long($r[1]);
+		    if ((ip2long($ip) >= $min) && (ip2long($ip) <= $max)) 
+			return false;
+		}
+		
+		return true;
+		
+	} else {
+		
+		return false;
+		
+	}
+}
+
+// retrieve the ad poster's IP if possible
+function awpcp_getip() {
+ 
+	if ( awpcp_validip($_SERVER["HTTP_CLIENT_IP"]) ) {
+		return $_SERVER["HTTP_CLIENT_IP"];
+	}
+ 
+	foreach ( explode(",",$_SERVER["HTTP_X_FORWARDED_FOR"]) as $ip ) {
+		if ( awpcp_validip(trim($ip) ) ) {
+			return $ip;
+		}
+	}
+	
+	if (awpcp_validip($_SERVER["HTTP_X_FORWARDED"])) {
+		return $_SERVER["HTTP_X_FORWARDED"];
+	} elseif (awpcp_validip($_SERVER["HTTP_FORWARDED_FOR"])) {
+		return $_SERVER["HTTP_FORWARDED_FOR"];
+	} elseif (awpcp_validip($_SERVER["HTTP_FORWARDED"])) {
+		return $_SERVER["HTTP_FORWARDED"];
+	} elseif (awpcp_validip($_SERVER["HTTP_X_FORWARDED"])) {
+		return $_SERVER["HTTP_X_FORWARDED"];
+	} else {
+		return $_SERVER["REMOTE_ADDR"];
+	}
+ }
+
+
 function is_at_least_awpcp_version($version)
 {
 	global $awpcp_plugin_data;
@@ -2538,8 +2768,8 @@ function is_at_least_awpcp_version($version)
 	return $ok;
 }
 
-add_filter('awpcp_single_ad_layout', 'awpcp_insert_tweet_button', 1, 2);
-function awpcp_insert_tweet_button($layout, $adid) { 
+add_filter('awpcp_single_ad_layout', 'awpcp_insert_tweet_button', 1, 3);
+function awpcp_insert_tweet_button($layout, $adid, $title) { 
 	$adurl = url_showad($adid);
 	$button = 	'<div class="tw_button awpcp_tweet_button_div">';
 	$button .= 	'<a href="http://twitter.com/share?url='.$adurl.'" rel="nofollow" ' .
@@ -2552,6 +2782,17 @@ function awpcp_insert_tweet_button($layout, $adid) {
 	return $layout;
 }
 
+add_filter('awpcp_single_ad_layout', 'awpcp_insert_share_button', 2, 3);
+function awpcp_insert_share_button($layout, $adid, $title) { 
+	global $awpcp_plugin_url;
+	$adurl = url_showad($adid);
+	$button = 	'<div class="tw_button awpcp_tweet_button_div">';
+	$button .= '<a href="http://www.facebook.com/sharer.php?u='.urlencode($adurl).'&t='.urlencode($title).'" target="_blank"><img class="awpcp_facebook_btn_img" src="'.$awpcp_plugin_url.'images/fbshare.png" alt="Share on Facebook"></a>';
+	//$button .= '<div id="fb_share_1" style="facebook_like_button"><a name="fb_share" type="" share_url="'.$adurl.'" href="http://www.facebook.com/sharer.php">Share</a></div><div><script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script></div>';
+	$button .= 	'</div>';
+	$layout = str_replace('$sharebtn', $button, $layout);
+	return $layout;
+}
 
 function awpcp_admin_sidebar($float) {
 $apath = get_option('siteurl').'/wp-admin/images';
@@ -2597,6 +2838,7 @@ $out = <<< AWPCP
 		    <h3 class="hndle1" style="color:#145200;"><span class="red"><strong>Get a Premium Module!</strong></span></h3>
 		    <div class="inside" style="background-color:#FFFFCF">
 			<ul>
+			<li  class="li_link"><a style="color:#145200;" href="http://www.awpcp.com/premium-modules/fee-per-category-module/?ref=panel" target="_blank">Fee Per Category Module</a></li>
 			<li  class="li_link"><a style="color:#145200;" href="http://www.awpcp.com/premium-modules/featured-ads-module/?ref=panel" target="_blank">Featured Ads Module</a></li>
 			<li  class="li_link"><a style="color:#145200;" href="http://www.awpcp.com/premium-modules/extra-fields-module/?ref=panel" target="_blank">Extra 
 Fields Module</a></li>

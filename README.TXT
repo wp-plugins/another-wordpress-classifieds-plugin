@@ -3,8 +3,8 @@ Contributors: awpcp.com
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme
 Requires at least: 2.7
-Tested up to: 3.0.2
-Stable tag: tags/1.8.5
+Tested up to: 3.1
+Stable tag: tags/1.8.6
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog. 
 
@@ -28,11 +28,14 @@ Features:
     7. Automatic expiration of ads (free or paid)
     8. Configurable ad display for AdSense placement
     9. Ads can have a "Tweet This" button in their layout
+    10. Ads can have a "Share on Facebook" button in their layout
+    11. Ads can be flagged by community for bad/offensive content
  = Notification Features =
     1. Allow posters to be notified of expiring ads
     2. Allow admin to be notified when new ads are posted
     3. Classified ad users can contact the ad poster without exposing 
        the poster's email (blind email system, similar to Craigslist)
+    4. Admin can (optionally) be notified of expiring ads
  = Payment Features =
     1. Allows for paid or free ads
     2. Supports PayPal and 2Checkout for paid ads
@@ -52,6 +55,8 @@ Features:
     6. Allows for limiting image posting (by image size, height, 
        width and total count if desired)
     7. Anti-spam checks for all ads posted via Akismet.
+    8. Flagged ads can be viewed separately to determine violations, and
+       then deleted or unflagged.
  = Image Features =
     1. Allow image posting or shut it off completely
     2. Control the number, filesize, height and width of images posted
@@ -181,6 +186,21 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 1.8.6 = 
+ NEW: Facebook share button for individual ad pages.  To use it, make sure you have $sharebtn in your single ad template
+ NEW: Added field codes for single ad display: $ad_postdate, $ad_startdate, $ad_categoryurl
+ NEW: Added ability to hide/show "Posted By" on search form
+ NEW: Flag Ad link for individual ad pages.  To use it, make sure you have $flagad in your single ad template
+ NEW: Terms of Service displayed for ads (optionally), if displayed, user must select accept.
+ NEW: Admin can be notified of ads that expire (optionally).
+ NEW: Admin panel now displays start/end date for ads, payment plan (if applicable)
+ NEW: Admin panel has separate category for notification email templates (subject and body)
+ NEW: Added IP address tracking for ad posters to improve Akismet spam detection when spam is marked later
+ Bug: Fixed search form to hide private extra fields
+ Bug: Fixed conflicting function name display_ads to be awpcp_display_ads
+ Bug: Fixed ad expiration bug
+ Bug: Fixed expired ads did not delete automatically (30 day delay now)
+
  = 1.8.5 = 
  NEW: Tweet button for individual ad pages. To use it make sure you have $tweetbtn in your single ad template
  NEW: Ability to use your own custom stylesheet ( found under wp-content/plugins/awpcp_custom_stylesheet.css ), which isn't overwritten on upgrade. 

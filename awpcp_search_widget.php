@@ -8,7 +8,7 @@ class AWPCP_Search_Widget extends WP_Widget {
 
 	function ads_sel($by,$field,$search_field)
 	{
-		$field_rec=mysql_query("SELECT DISTINCT ".$field." FROM ".TBLPFX."awpcp_ads WHERE disabled='0' ORDER BY ".$field." ASC");
+		$field_rec=mysql_query("SELECT DISTINCT ".$field." FROM ".TBLPFX."awpcp_ads WHERE disabled='0' AND (flagged IS NULL OR flagged = 0) ORDER BY ".$field." ASC");
 		if($detail=mysql_fetch_assoc($field_rec)) {
 			echo $by.'<br/><select name='.$search_field.'><option></option>';
 			do {
