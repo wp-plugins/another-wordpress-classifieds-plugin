@@ -1016,27 +1016,27 @@ function get_group_orderby()
 		{
 			if($getgrouporderby == 1)
 			{
-				$grouporderby="ORDER BY ad_key DESC";
+				$grouporderby="ORDER BY ad_id DESC";
 			}
 			elseif($getgrouporderby == 2)
 			{
-				$grouporderby="ORDER BY ad_title DESC";
+				$grouporderby="ORDER BY ad_title ASC, ad_id DESC";
 			}
 			elseif($getgrouporderby == 3)
 			{
-				$grouporderby="ORDER BY ad_is_paid DESC, ad_postdate DESC, ad_title ASC";
+				$grouporderby="ORDER BY ad_is_paid DESC, ad_startdate DESC, ad_title ASC, ad_id DESC";
 			}
 			elseif($getgrouporderby == 4)
 			{
-				$grouporderby="ORDER BY ad_is_paid DESC, ad_title ASC";
+				$grouporderby="ORDER BY ad_is_paid DESC, ad_title ASC, ad_id DESC";
 			}
 			elseif($getgrouporderby == 5)
 			{
-				$grouporderby="ORDER BY ad_views DESC, ad_title ASC";
+				$grouporderby="ORDER BY ad_views DESC, ad_title ASC, ad_id DESC";
 			}
 			elseif($getgrouporderby == 6)
 			{
-				$grouporderby="ORDER BY ad_views DESC, ad_key DESC";
+				$grouporderby="ORDER BY ad_views DESC, ad_id DESC";
 			}
 		}
 	}

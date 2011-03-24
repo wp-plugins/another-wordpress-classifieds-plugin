@@ -9,7 +9,7 @@ if(!isset($_SESSION)) {
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.8.6
+ Version: 1.8.6.1
  Author: D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -208,7 +208,7 @@ function awpcp_insert_thickbox() {
 }
 
 // Add actions and filters etc
-add_action('init', 'awpcp_install');
+add_action('init', 'awpcp_install', 1);
 add_action ('wp_print_scripts', 'awpcpjs',1);
 add_action('wp_head', 'awpcp_addcss');
 if ( !get_awpcp_option('awpcp_thickbox_disabled') )
@@ -491,22 +491,28 @@ function awpcp_install() {
 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 	$tbl_pagename = $wpdb->prefix . "awpcp_pagename";
 
+	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
 	if ($wpdb->get_var("show tables like '$tbl_ad_categories'") != $tbl_ad_categories) {
 		_log("Fresh install detected");
 			
-		$sql = "CREATE TABLE " . $tbl_ad_categories . " (
+
+	$sql = "CREATE TABLE " . $tbl_ad_categories . " (
 	  `category_id` int(10) NOT NULL AUTO_INCREMENT,
 	  `category_parent_id` int(10) NOT NULL,
 	  `category_name` varchar(255) NOT NULL DEFAULT '',
 	  `category_order` int(10) NULL DEFAULT '0',
 	  PRIMARY KEY (`category_id`)
-	) ENGINE=MyISAM;
+	) ENGINE=MyISAM;";
 
-	INSERT INTO " . $tbl_ad_categories . " (`category_id`, `category_parent_id`, `category_name`, `category_order`) VALUES
-	(1, 0, 'General', 0);
+	dbDelta($sql);
 
+	$sql = "INSERT INTO " . $tbl_ad_categories . " (`category_id`, `category_parent_id`, `category_name`, `category_order`) VALUES
+	(1, 0, 'General', 0);";
 
-	CREATE TABLE " . $tbl_ad_fees . " (
+	dbDelta($sql);
+
+	$sql = "CREATE TABLE " . $tbl_ad_fees . " (
 	  `adterm_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 	  `adterm_name` varchar(100) NOT NULL DEFAULT '',
 	  `amount` float(6,2) unsigned NOT NULL DEFAULT '0.00',
@@ -517,13 +523,20 @@ function awpcp_install() {
 	  `imagesallowed` int(5) unsigned NOT NULL DEFAULT '0',
 	  `is_featured_ad_pricing` tinyint(1) DEFAULT NULL,
 	  PRIMARY KEY (`adterm_id`)
-	) ENGINE=MyISAM;
+	) ENGINE=MyISAM;";
 
-	INSERT INTO " . $tbl_ad_fees . " (`adterm_id`, `adterm_name`, `amount`, `recurring`, `rec_period`, `rec_increment`, `buys`, `imagesallowed`) VALUES
-	(1, '30 Day Listing', 9.99, 1, 31, 'D', 0, 6);
+	dbDelta($sql);
 
+	$sql = "INSERT INTO " . $tbl_ad_fees . " (`adterm_id`, `adterm_name`, `amount`, `recurring`, `rec_period`, `rec_increment`, `buys`, `imagesallowed`) VALUES
+	(1, '30 Day Listing', 9.99, 1, 31, 'D', 0, 6);";
 
-	CREATE TABLE " . $tbl_ads . " (
+	dbDelta($sql);
+
+	$sql = "ALTER TABLE " . $tbl_ad_fees . "  ADD `categories` text DEFAULT NULL";
+
+	$wpdb->query($sql);
+
+	$sql = "CREATE TABLE " . $tbl_ads . " (
 	  `ad_id` int(10) NOT NULL AUTO_INCREMENT,
 	  `adterm_id` int(10) NOT NULL DEFAULT '0',
 	  `ad_fee_paid` float(7,2) NOT NULL,
@@ -553,43 +566,44 @@ function awpcp_install() {
 	  `payment_status` varchar(255) NOT NULL DEFAULT '',
 	  `is_featured_ad` tinyint(1) DEFAULT NULL,
 	  `posterip` varchar(15) NOT NULL DEFAULT '',
-	  `flagged` tinyint(1) NOT NULL DEFAULT '',
+	  `flagged` tinyint(1) NOT NULL DEFAULT 0,
 	  FULLTEXT KEY `titdes` (`ad_title`,`ad_details`),
 	  PRIMARY KEY (`ad_id`)
-	) ENGINE=MyISAM;
+	) ENGINE=MyISAM;";
 
+	dbDelta($sql);
 
-
-	CREATE TABLE " . $tbl_ad_settings . " (
+	$sql = "CREATE TABLE " . $tbl_ad_settings . " (
 	  `config_option` varchar(50) NOT NULL DEFAULT '',
 	  `config_value` text NOT NULL,
 	  `config_diz` text NOT NULL,
 	  `config_group_id` tinyint(1) unsigned NOT NULL DEFAULT '1',
 	  `option_type` tinyint(1) unsigned NOT NULL DEFAULT '0',
 	  PRIMARY KEY (`config_option`)
-	) ENGINE=MyISAM COMMENT='0-checkbox, 1-text,2-textarea';
+	) ENGINE=MyISAM COMMENT='0-checkbox, 1-text,2-textarea';";
 
+	dbDelta($sql);
 
-	CREATE TABLE " . $tbl_ad_photos . " (
+	$sql = "CREATE TABLE " . $tbl_ad_photos . " (
 	  `key_id` int(10) NOT NULL AUTO_INCREMENT,
 	  `ad_id` int(10) unsigned NOT NULL DEFAULT '0',
 	  `image_name` varchar(100) NOT NULL DEFAULT '',
 	  `disabled` tinyint(1) NOT NULL,
 	  PRIMARY KEY (`key_id`)
-	) ENGINE=MyISAM;
+	) ENGINE=MyISAM;";
 
+	dbDelta($sql);
 
-	CREATE TABLE " . $tbl_pagename . " (
+	$sql = "CREATE TABLE " . $tbl_pagename . " (
 	  `key_id` int(10) NOT NULL AUTO_INCREMENT,
 	  `userpagename` varchar(100) NOT NULL DEFAULT '',
 	  PRIMARY KEY (`key_id`)
-	) ENGINE=MyISAM;
+	) ENGINE=MyISAM;";
 
+	dbDelta($sql);
 
-	";
-		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-		dbDelta($sql);
-		add_option("awpcp_db_version", $awpcp_db_version);
+	add_option("awpcp_db_version", $awpcp_db_version);
+
 	} else {
 		global $wpdb,$awpcp_db_version;
 
@@ -643,14 +657,6 @@ function awpcp_install() {
 			if (mysql_errno())
 			{
 				$wpdb->query("ALTER TABLE " . $tbl_ad_fees . "  ADD `is_featured_ad_pricing` tinyint(1) DEFAULT NULL");
-			}
-
-			// price per category
-			$column="categories";
-			$column_exists = mysql_query("SELECT $column FROM $tbl_ad_fees;");
-			if (mysql_errno())
-			{
-				$wpdb->query("ALTER TABLE " . $tbl_ad_fees . "  ADD `categories` text DEFAULT NULL");
 			}
 			
 			////
@@ -11800,7 +11806,7 @@ function showad($adid,$omitmenu)
 
 				// generic filter to add content into the body of add content (e.g. "Tweet This" button, etc)
 				if (has_filter('awpcp_single_ad_layout')) {
-				    $awpcpshowtheadlayout = apply_filters('awpcp_single_ad_layout', $awpcpshowtheadlayout, $adid);
+				    $awpcpshowtheadlayout = apply_filters('awpcp_single_ad_layout', $awpcpshowtheadlayout, $adid, $ad_title);
 				}
 
 				$awpcpshowthead=$flag_script.$awpcpshowtheadlayout;

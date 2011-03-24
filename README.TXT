@@ -4,14 +4,14 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme
 Requires at least: 2.7
 Tested up to: 3.1
-Stable tag: tags/1.8.6
+Stable tag: tags/1.8.6.1
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog. 
 
 == Description ==
 Add a classified ads section to your Wordpress site, quickly and easily.  
 Lots of features, very configurable.  Easy to setup.  Great support.
-We're the #1 Wordpress Classified Ads Plugin: almost two years old and 53,000+ downloads!
+We're the #1 Wordpress Classified Ads Plugin: two years old and 64,000+ downloads!
 
 Check out the **NEW** Featured Ads module below!
 
@@ -186,6 +186,11 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 1.8.6.1 =
+ Bug: Fixed install problems with categories tables, flagged column, etc.
+ Bug: Fixed sort order of ads for all types
+ Bug: Fixed Facebook share button title to use actual ad title
+  
  = 1.8.6 = 
  NEW: Facebook share button for individual ad pages.  To use it, make sure you have $sharebtn in your single ad template
  NEW: Added field codes for single ad display: $ad_postdate, $ad_startdate, $ad_categoryurl
