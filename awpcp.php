@@ -9,7 +9,7 @@ if(!isset($_SESSION)) {
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.8.6.1
+ Version: 1.8.6.2
  Author: D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -1716,7 +1716,7 @@ function awpcp_opsconfig_fees()
 			/////
 	 	$output .= "<ul style='width: 80%'>";
 
-	 	$query="SELECT adterm_id,adterm_name,amount,rec_period,rec_increment,imagesallowed,is_featured_ad_pricing, categories FROM ".$tbl_ad_fees."";
+	 	$query="SELECT adterm_id,adterm_name,amount,rec_period,rec_increment,imagesallowed,is_featured_ad_pricing FROM ".$tbl_ad_fees."";
 	 	$res = awpcp_query($query, __LINE__);
 
 	 	$plans=array();
@@ -3728,7 +3728,7 @@ function awpcp_savefees() {
 	    } else {
 		    $is_featured_ad_pricing = 0;
 	    }
-	    $query="UPDATE ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed', is_featured_ad_pricing='$is_featured_ad_pricing', categories='$fee_cats' WHERE adterm_id='$adterm_id'";
+	    $query="UPDATE ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed', is_featured_ad_pricing='$is_featured_ad_pricing' WHERE adterm_id='$adterm_id'";
 	    $res = awpcp_query($query, __LINE__);
 	    $message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
 	    $message.=__("The item has been updated","AWPCP");
