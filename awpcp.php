@@ -2552,7 +2552,7 @@ function awpcp_manage_viewlistings()
 					//free mode - reset to ad duration for free mode
 					$unit = 'DAY';
 					$length = get_awpcp_option('addurationfreemode');
-					if ($length == 0) {
+					if ('' == $length || $length == 0) {
 						$length = '3650';	//10 years, effectively forever
 					}
 				}
