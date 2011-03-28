@@ -4,7 +4,7 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme
 Requires at least: 2.7
 Tested up to: 3.1
-Stable tag: tags/1.8.6.1
+Stable tag: tags/1.8.6.3
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog. 
 
@@ -186,6 +186,13 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 1.8.6.3 =
+ Bug: Fixed ad edit for admin panel (category error)
+ Bug: Fixed free ad end date bug (Jan 1, 1970), added mechanism to update end date in free mode
+
+ = 1.8.6.2 =
+ Bug: Fixed bad column names in functions_awpcp.php
+ 
  = 1.8.6.1 =
  Bug: Fixed install problems with categories tables, flagged column, etc.
  Bug: Fixed sort order of ads for all types

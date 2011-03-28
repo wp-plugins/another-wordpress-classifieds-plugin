@@ -9,7 +9,7 @@ if(!isset($_SESSION)) {
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.8.6.2
+ Version: 1.8.6.3
  Author: D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -2530,24 +2530,31 @@ function awpcp_manage_viewlistings()
 		}
 		elseif ($laction == 'approvead')
 		{
-
 			// is the ad expired? If so then reset based on the Fee Plan assigned to it
 			$sql = 'select adterm_id, ad_enddate from '.$wpdb->prefix.'awpcp_ads where ad_id = '.$actonid;
 			$ad_info = $wpdb->get_results($sql, ARRAY_A);
 			$ad_expires = $ad_info[0]['ad_enddate'];
 			$ad_expires = strtotime($ad_expires);
 			if ( $ad_expires < time() ) { 
-
-			    $sql = 'select rec_increment, rec_period from '.$wpdb->prefix.'awpcp_adfees where adterm_id = '.$ad_info[0]['adterm_id'] ;
-			    $period = $wpdb->get_results($sql, ARRAY_A);
-			    switch ( $period[0]['rec_increment'] ) { 
-				case 'D': $unit = 'DAY'; break;
-				case 'W': $unit = 'WEEK'; break;
-				case 'M': $unit = 'MONTH'; break;
-				case 'Y': $unit = 'YEAR'; break;
-			    }
+				$freepaymode = get_awpcp_option('freepay');
+				if($freepaymode == 1) { 
+					//pay mode - use the plan term to reset:
+				    $sql = 'select rec_increment, rec_period from '.$wpdb->prefix.'awpcp_adfees where adterm_id = '.$ad_info[0]['adterm_id'] ;
+				    $period = $wpdb->get_results($sql, ARRAY_A);
+				    switch ( $period[0]['rec_increment'] ) { 
+						case 'D': $unit = 'DAY'; break;
+						case 'W': $unit = 'WEEK'; break;
+						case 'M': $unit = 'MONTH'; break;
+						case 'Y': $unit = 'YEAR'; break;
+				    }
+				    $length = $period[0]['rec_period'];
+				} else {
+					//free mode - reset to ad duration for free mode
+					$unit = 'DAY';
+					$length = get_awpcp_option('addurationfreemode');
+				}
 			    $start = date( 'Y-m-d H:i:s', time() ); 
-			    $end = strtotime('+'.$period[0]['rec_period'].' '.$unit , strtotime( $start ) );
+			    $end = strtotime('+'.$length.' '.$unit , strtotime( $start ) );
 
 			    $end = date( 'Y-m-d H:i:s', $end );
 
@@ -6295,6 +6302,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 
 		if ( 1 == get_awpcp_option('freepay') ) { 
+			if (!is_admin() ) 
 			$checktheform .= "
 			    if ( !jQuery('.adtermids').is(':checked') ) { 
 				    alert('$adtermerrortxt');
@@ -6318,6 +6326,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 		}
 
 		if ( get_awpcp_option('requiredtos') ) { 
+			if (!is_admin())
 			$checktheform .= "
 			    if (!the.tos.checked) {
 				    alert('$toserrortxt');
@@ -6610,7 +6619,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 			$theformbody.="</h2><p>";
 			$theformbody.=__("Ad Title","AWPCP");
 			$theformbody.="<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"adtitle\" value=\"$adtitle\" /></p>";
-			if ('editad' != $action) { 
+			if ('editad' != $action || is_admin() ) { 
 			    $theformbody.="<p>";
 			    $theformbody.=__("Ad Category","AWPCP");
 			    $theformbody.="<br/><select name=\"adcategory\" id='add_new_ad_cat'><option value=\"\">";
@@ -8500,7 +8509,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 
 	// Terms of service required and accepted?
-	if ( get_awpcp_option('requiredtos') && !isset( $_REQUEST['tos'] ) ) {
+	if ( get_awpcp_option('requiredtos') && !isset( $_REQUEST['tos'] ) && !is_admin() ) {
 		$error=true;
 		$tosmsg="<li class=\"erroralert\">";
 		$tosmsg.=__("You did not accept the terms of service","AWPCP");
@@ -8797,20 +8806,20 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 
 			$adexpireafter = '';
 			$adstartdate=mktime();
-
-// if "Charge Listing Fee" is checked then don't use the expiration duration for Free Mode
-if (get_awpcp_option('freepay') != 1)
-			$adexpireafter=get_awpcp_option('addurationfreemode');
+			$freepaymode = get_awpcp_option('freepay');
+			// if "Charge Listing Fee" is checked then don't use the expiration duration for Free Mode
+			if ($freepaymode != 1) // flag isn't set? Site is in free ad mode
+				$adexpireafter=get_awpcp_option('addurationfreemode');
 
 			$interval = 'DAY';
 
-			if ( $adexpireafter == 0 || '' == $adexpireafter )
+			// not in free mode
+			if ($freepaymode == 1)
 			{
 
 				// Set the correct expiration date: 
 
 				$sql = 'select rec_increment, rec_period from '.$wpdb->prefix.'awpcp_adfees where adterm_id = '.$adterm_id ;
-
 				$period = $wpdb->get_results($sql, ARRAY_A);
 
 				switch ( $period[0]['rec_increment'] ) { 
@@ -8824,9 +8833,14 @@ if (get_awpcp_option('freepay') != 1)
 
 			}
 
+
 			if ('' == $adexpireafter || 0 == $adexpireafter) {
-			    $adexpireafter = 36500; // 100 years, which is "never expires"
-			}
+			    $adexpireafter = '3650'; // 10 years, which is about the same as "never expires"
+			    $interval = 'DAY';
+			} 
+
+//echo get_awpcp_option('freepay'). ' - '. $adexpireafter. ' ' .$interval; die;
+
 			$adcategory_parent_id=get_cat_parent_ID($adcategory);
 			$itempriceincents=($ad_item_price * 100);
 
