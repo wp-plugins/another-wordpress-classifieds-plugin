@@ -99,14 +99,11 @@ Features:
 
 [RSS Feeds](http://awpcp.com/premium-modules/rss-module?ref=wp)
 
-["Powered By" Link Removal](http://awpcp.com/donate?ref=wp)
-
 [Featured Ads](http://awpcp.com/premium-modules/featured-ads-module?ref=wp)
 
-These are just some of the features of Another Wordpress Classifieds Plugin
+Or, just [Donate to AWPCP to Support further development](http://awpcp.com/donate?ref=wp)
 
-Note: This plugin has been developed by a hobbyist programmer who does not pretend to have the skill of a PHP expert, a MYSQL expert, or an expert wordpress developer.
-Use this plugin knowing it comes with no guarantee that the methods of coding used are up to PHP, MYSQL or wordpress plugin development expert standards. 
+These are just some of the features of Another Wordpress Classifieds Plugin
 
 For more information and support please visit [http://awpcp.com](http://awpcp.com?ref=wp)
 For plugin support please visit [http://forum.awpcp.com](http://forum.awpcp.com)
