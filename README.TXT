@@ -79,9 +79,7 @@ Features:
     5. RSS Feeds (allows you syndicate your classifieds for your users to
        download in their favorite RSS reader and come back to your site
        more often!)
-    6. "Powered By" Link Removal (allows you to get rid of the 
-       link at the bottom of all AWPCP pages)
-    7. **NEW** Featured Ads (allows you to promote certain ads over others by 
+    6. **NEW** Featured Ads (allows you to promote certain ads over others by 
        charging a fee for them, featured ads are displayed using CSS to
        highlight them.  Featured ads are always returned first in a category,
        the overall ad list, or in search results.  Also has a widget for 
