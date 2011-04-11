@@ -9,7 +9,7 @@ if(!isset($_SESSION)) {
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.8.6.3
+ Version: 1.8.6.4
  Author: D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -30,9 +30,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-dcfunctions.php courtesy of Dan Caragea http://www.datemill.com (contains its own copyright notice. Please read and adhere to the terms outlined in dcfunctions.php)
-fileop.class.php courtesy of Dan Caragea http://www.datemill.com
-AWPCP Classifieds icon courtesy of http://www.famfamfam.com/lab/icons/silk/
+AWPCP Classifieds icon set courtesy of http://www.famfamfam.com/lab/icons/silk/
 Additional Development by Mark Edwards:  http://simplercomputing.net
 
 */
@@ -621,40 +619,40 @@ function awpcp_install() {
 
 			//Upgrade featured ad columns for module
 			$column="is_featured_ad";
-			$column_exists = mysql_query("SELECT $column FROM $tbl_ads;");
-			if (mysql_errno())
+			$column_exists = mysql_query("SELECT $column FROM $tbl_ads");
+			if (mysql_errno() || !$column_exists)
 			{
 				$wpdb->query("ALTER TABLE " . $tbl_ads . "  ADD `is_featured_ad` tinyint(1) DEFAULT NULL");
 			}
 
 			//Upgrade for tracking poster's IP address
 			$column="posterip";
-			$column_exists = mysql_query("SELECT $column FROM $tbl_ads;");
-			if (mysql_errno())
+			$column_exists = mysql_query("SELECT $column FROM $tbl_ads");
+			if (mysql_errno() || !$column_exists)
 			{
 				$wpdb->query("ALTER TABLE " . $tbl_ads . "  ADD `posterip` varchar(15) DEFAULT NULL");
 			}
 
 			//Upgrade for tracking poster's IP address
 			$column="flagged";
-			$column_exists = mysql_query("SELECT $column FROM $tbl_ads;");
-			if (mysql_errno())
+			$column_exists = mysql_query("SELECT $column FROM $tbl_ads");
+			if (mysql_errno() || !$column_exists)
 			{
 				$wpdb->query("ALTER TABLE " . $tbl_ads . "  ADD `flagged` tinyint(1) DEFAULT NULL");
 			}
 
 			//Upgrade for deleting ads that are marked as disabled or deleted
 			$column="disabled_date";
-			$column_exists = mysql_query("SELECT $column FROM $tbl_ads;");
-			if (mysql_errno())
+			$column_exists = mysql_query("SELECT $column FROM $tbl_ads");
+			if (mysql_errno() || !$column_exists)
 			{
 				$wpdb->query("ALTER TABLE " . $tbl_ads . "  ADD `disabled_date` datetime DEFAULT NULL");
 			}
 
 			$column="is_featured_ad_pricing";
 
-			$column_exists = mysql_query("SELECT $column FROM $tbl_ad_fees;");
-			if (mysql_errno())
+			$column_exists = mysql_query("SELECT $column FROM $tbl_ad_fees");
+			if (mysql_errno() || !$column_exists)
 			{
 				$wpdb->query("ALTER TABLE " . $tbl_ad_fees . "  ADD `is_featured_ad_pricing` tinyint(1) DEFAULT NULL");
 			}
@@ -663,9 +661,9 @@ function awpcp_install() {
 			// Update category ordering
 			////
 			$column="category_order";
-			$cat_order_column_exists = mysql_query("SELECT $column FROM $tbl_ad_categories;");
+			$cat_order_column_exists = mysql_query("SELECT $column FROM $tbl_ad_categories");
 
-			if (mysql_errno())
+			if (mysql_errno() || !$cat_order_column_exists)
 			{
 				//Add the category order column:
 				$wpdb->query("ALTER TABLE " . $tbl_ad_categories . "  ADD `category_order` int(10) NULL DEFAULT '0' AFTER category_name");
@@ -675,30 +673,29 @@ function awpcp_install() {
 			////
 			// Fix the shortcode issue if present in installed version
 			////
-
 			$wpdb->query("UPDATE " .$wpdb->prefix . "posts set post_content='[AWPCPCLASSIFIEDSUI]' WHERE post_content='[[AWPCPCLASSIFIEDSUI]]'");
 
 			$tos_column_name="tos";
-			$tos_column_name_exists = 	mysql_query("SELECT $tos_column_name FROM $tbl_ad_settings;");
+			$tos_column_name_exists = 	mysql_query("SELECT $tos_column_name FROM $tbl_ad_settings");
 
-			if (mysql_errno())
+			if (mysql_errno() || !$tos_column_name_exists)
 			{
-			// add terms of service field
-			$sql = 'insert into '.$tbl_ad_settings.'(`config_option`,`config_value`,`config_diz`,`config_group_id`,`option_type`) 
-				values ("tos","Terms of service go here...","Terms of Service for posting an ad - modify this to fit your needs:","1","2")';
-
-			$wpdb->query($sql);
-
-			$sql = 'insert into '.$tbl_ad_settings.'(`config_option`,`config_value`,`config_diz`,`config_group_id`,`option_type`) 
-				values ("requiredtos", "Display and require Terms of Service","Display and require Terms of Service","1","0")';
-
-			$wpdb->query($sql);
-                        }
+				// add terms of service field
+				$sql = 'insert into '.$tbl_ad_settings.'(`config_option`,`config_value`,`config_diz`,`config_group_id`,`option_type`) 
+					values ("tos","Terms of service go here...","Terms of Service for posting an ad - modify this to fit your needs:","1","2")';
+	
+				$wpdb->query($sql);
+	
+				$sql = 'insert into '.$tbl_ad_settings.'(`config_option`,`config_value`,`config_diz`,`config_group_id`,`option_type`) 
+					values ("requiredtos", "Display and require Terms of Service","Display and require Terms of Service","1","0")';
+	
+				$wpdb->query($sql);
+            }
 
 			$ads_column_name="notifyofadexpired";
-			$ads_column_name_exists = 	mysql_query("SELECT $tos_column_name FROM $tbl_ad_settings;");
+			$ads_column_name_exists = mysql_query("SELECT $ads_column_name FROM $tbl_ad_settings");
 
-			if (mysql_errno())
+			if (mysql_errno() || !$ads_column_name_exists)
 			{
 			    // add terms of service field
 			    $sql = 'insert into '.$tbl_ad_settings.'(`config_option`,`config_value`,`config_diz`,`config_group_id`,`option_type`) 
@@ -712,9 +709,9 @@ function awpcp_install() {
 			// Update ad_settings table to ad field config groud ID if field does not exist in installed version
 			////
 			$cgid_column_name="config_group_id";
-			$cgid_column_name_exists=mysql_query("SELECT $cgid_column_name FROM $tbl_ad_settings;");
+			$cgid_column_name_exists=mysql_query("SELECT $cgid_column_name FROM $tbl_ad_settings");
 
-			if (mysql_errno())
+			if (mysql_errno() || !$cgid_column_name_exists)
 			{
 				$query=("ALTER TABLE " . $tbl_ad_settings . "  ADD `config_group_id` tinyint(1) unsigned NOT NULL DEFAULT '1' AFTER config_diz");
 				awpcp_query($query, __LINE__);
@@ -1380,9 +1377,9 @@ $output .= awpcp_admin_sidebar('null');
 				{
 					if ( ($haspoweredbyremovalmodule == 1) )
 					{
-						$output .= "<li>"; 
-						$output .= __("Powered-By Link Removal Module","AWPCP"); 
-						$output .= "</li>";
+//						$output .= "<li>"; 
+//						$output .= __("Powered By Link Removal Module","AWPCP"); 
+//						$output .= "</li>";
 					}
 				}
 
@@ -1390,9 +1387,9 @@ $output .= awpcp_admin_sidebar('null');
 
 				if ( ($haspoweredbyremovalmodule != 1) )
 				{
-					$output .= "<li><a href=\"http://www.awpcp.com/premium-modules/powered-by-link-removal-module/\">"; 
-					$output .= __("Powered-By Link Removal Module","AWPCP"); 
-					$output .= "</a></li>";
+//					$output .= "<li><a href=\"http://www.awpcp.com/premium-modules/powered-by-link-removal-module/\">"; 
+//					$output .= __("Powered By Link Removal Module","AWPCP"); 
+//					$output .= "</a></li>";
 				}
 				else
 				{
@@ -2553,6 +2550,7 @@ function awpcp_manage_viewlistings()
 					$unit = 'DAY';
 					$length = get_awpcp_option('addurationfreemode');
 					if ('' == $length || $length == 0) {
+						//No expiration...make up an end date
 						$length = '3650';	//10 years, effectively forever
 					}
 				}
@@ -3703,7 +3701,7 @@ function awpcp_addfees() {
 	    $rec_period=clean_field($_REQUEST['rec_period']);
 	    $rec_increment=clean_field($_REQUEST['rec_increment']);
 	    $imagesallowed=clean_field($_REQUEST['imagesallowed']);
-	    $query="INSERT INTO ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed',categories='$fee_cats'";
+	    $query="INSERT INTO ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed'";
 	    $res = awpcp_query($query, __LINE__);
 	    $message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
 	    $message.=__("The item has been added","AWPCP");
@@ -5549,9 +5547,9 @@ function awpcp_display_the_classifieds_page_body($awpcppagename)
 	}
 	else
 	{
-		$output .= "<p><font style=\"font-size:smaller\">";
-		$output .= __("Powered by ","AWPCP");
-		$output .= "<a href=\"http://www.awpcp.com\">Another Wordpress Classifieds Plugin</a> </font></p>";
+//		$output .= "<p><font style=\"font-size:smaller\">";
+//		$output .= __("Powered by ","AWPCP");
+//		$output .= "<a href=\"http://www.awpcp.com\">Another Wordpress Classifieds Plugin</a> </font></p>";
 	}
 	$output .= "</div>";
 	return $output;
@@ -11426,9 +11424,9 @@ function awpcp_display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 			}
 			else
 			{
-				$output .= "<p><font style=\"font-size:smaller\">";
-				$output .= __("Powered by ","AWPCP");
-				$output .= "<a href=\"http://www.awpcp.com\">Another Wordpress Classifieds Plugin</a> </font></p>";
+//				$output .= "<p><font style=\"font-size:smaller\">";
+//				$output .= __("Powered by ","AWPCP");
+//				$output .= "<a href=\"http://www.awpcp.com\">Another Wordpress Classifieds Plugin</a> </font></p>";
 			}
 		}
 		$output .= "</div>";

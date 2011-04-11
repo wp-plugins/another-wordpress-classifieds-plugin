@@ -2850,8 +2850,8 @@ Control Module</a></li>
 Checkout Payment Module</a></li>
 			<li  class="li_link"><a style="color:#145200;" href="http://www.awpcp.com/premium-modules/rss-module/?ref=panel" target="_blank">RSS 
 Module</a></li>
-			<li  class="li_link"><a style="color:#145200;" href="http://www.awpcp.com/premium-modules/powered-by-link-removal-module/?ref=panel" 
-target="_blank">Powered By Link Removal Module</a></li>
+			<li  class="li_link"><a style="color:#145200;" href="http://www.awpcp.com/donate/?ref=panel" 
+target="_blank">Donate to Support AWPCP</a></li>
 			</ul>
 		    </div>
 	    </div>

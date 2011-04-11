@@ -1,32 +1,6 @@
 <?php
 if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You are not allowed to call this page directly.'); }
 
-//Start functions from dan caragea
-//---------------------------------------------------------------------------//
-// author: Dan Caragea <dan@rdsct.ro>
-// info:   general purpose functions
-//---------------------------------------------------------------------------//
-// copyright license
-//
-// permission is granted to anyone to use the functions listed in dcfunctions.php
-// for any purpose,
-// including commercial applications and to redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. the origin of this software must not be misrepresented;
-//    you must not claim that you wrote the original software.
-//    if you use this software in a product, an acknowledgment
-//    in the product documentation is required.
-//
-// 2. you must not alter the source code without prior consent from the author.
-//
-// 3. mail about the fact of using this class in production
-//    would be very appreciated.
-//
-// 4. this notice may not be removed or altered from any source distribution.
-//
-//---------------------------------------------------------------------------//
-
 function smart_table($array,$table_cols=1,$opentable,$closetable) {
 	$usingtable='';
 	if( (isset($opentable) && !empty($opentable)) && (isset($closetable) && !empty($closetable)) )

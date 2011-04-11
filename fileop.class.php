@@ -1,15 +1,4 @@
 <?php
-/******************************************************************************
- Etano
- ===============================================================================
- File:                       includes/classes/fileop.class.php
- $Revision: 321 $
- Software by:                DateMill (http://www.datemill.com)
- Copyright by:               DateMill (http://www.datemill.com)
- Support at:                 http://www.datemill.com/forum
- *******************************************************************************
- * See the "docs/licenses/etano.txt" file for license.                         *
- *******************************************************************************/
 
 class fileop {
 
