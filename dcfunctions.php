@@ -1,5 +1,12 @@
 <?php
 if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You are not allowed to call this page directly.'); }
+/**
+ * Originally developed by Dan Caragea.  
+ * Permission is hereby granted to AWPCP to release this code 
+ * under the license terms of GPL2
+ * @author Dan Caragea
+ *
+ */
 
 function smart_table($array,$table_cols=1,$opentable,$closetable) {
 	$usingtable='';

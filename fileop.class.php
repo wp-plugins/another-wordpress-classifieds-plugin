@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * Originally developed by Dan Caragea.  
+ * Permission is hereby granted to AWPCP to release this code 
+ * under the license terms of GPL2
+ * @author Dan Caragea
+ * http://datemill.com
+ */
 class fileop {
 
 	var $op_mode='disk';	// 'disk' or 'ftp'
