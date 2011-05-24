@@ -189,6 +189,7 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
  Bug: Fixed field escaping for category names
  Bug: Fixed Notify admin of Ads textbox problem
  Bug: Fixed issue where disabled ads could be accessed via URL directly
+ Bug: Fixed problem with 1-character domain emails (e.g. q.com)
 
  = 1.8.6.4 =
  Bug: Fixed column issue for fee plans

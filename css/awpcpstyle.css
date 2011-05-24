@@ -8,6 +8,7 @@ width:400px;
 
 .fixfloat {
 clear:both;
+display:block;
 overflow:hidden;
 }
 
