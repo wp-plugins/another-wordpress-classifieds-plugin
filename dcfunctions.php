@@ -5,7 +5,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
  * Permission is hereby granted to AWPCP to release this code 
  * under the license terms of GPL2
  * @author Dan Caragea
- *
+ * http://datemill.com
  */
 
 function smart_table($array,$table_cols=1,$opentable,$closetable) {
@@ -289,7 +289,7 @@ function array2qs($myarray) {
 	$total = count($myarray);
 	$count = 1;
 	while (list($k,$v)=each($myarray)) {
-		$myreturn.="$k=$v";
+		$myreturn.= "$k=" . urlencode($v);
 		if ($count < $total) {
 			$myreturn .= "&";
 		}

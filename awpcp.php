@@ -9,7 +9,7 @@ if(!isset($_SESSION)) {
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.8.6.4
+ Version: 1.8.7
  Author: D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -30,6 +30,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+dcfunctions.php and filop.class.php used with permission of Dan Caragea, http://datemill.com
 AWPCP Classifieds icon set courtesy of http://www.famfamfam.com/lab/icons/silk/
 Additional Development by Mark Edwards:  http://simplercomputing.net
 
@@ -676,13 +677,13 @@ function awpcp_install() {
 			$wpdb->query("UPDATE " .$wpdb->prefix . "posts set post_content='[AWPCPCLASSIFIEDSUI]' WHERE post_content='[[AWPCPCLASSIFIEDSUI]]'");
 
 			$tos_column_name="tos";
-			$tos_column_name_exists = 	mysql_query("SELECT $tos_column_name FROM $tbl_ad_settings");
+			$tos_column_name_exists = mysql_query("SELECT config_option from $tbl_ad_settings where config_option='$tos_column_name'");
 
 			if (mysql_errno() || !$tos_column_name_exists)
 			{
 				// add terms of service field
 				$sql = 'insert into '.$tbl_ad_settings.'(`config_option`,`config_value`,`config_diz`,`config_group_id`,`option_type`) 
-					values ("tos","Terms of service go here...","Terms of Service for posting an ad - modify this to fit your needs:","1","2")';
+					values ("tos","Terms of service go here...","Terms of Service for posting an ad - modify this to fit your needs:","1","0")';
 	
 				$wpdb->query($sql);
 	
@@ -693,18 +694,19 @@ function awpcp_install() {
             }
 
 			$ads_column_name="notifyofadexpired";
-			$ads_column_name_exists = mysql_query("SELECT $ads_column_name FROM $tbl_ad_settings");
-
+			$ads_column_name_exists = mysql_query("SELECT config_option from $tbl_ad_settings where config_option='$ads_column_name'");
+            
 			if (mysql_errno() || !$ads_column_name_exists)
 			{
-			    // add terms of service field
+			    //add notify of an expired ad field
 			    $sql = 'insert into '.$tbl_ad_settings.'(`config_option`,`config_value`,`config_diz`,`config_group_id`,`option_type`) 
-				    values ("notifyofadexpired","Notify admin of expired ads.","Notify admin of expired ads.","1","2")';
+				    values ("notifyofadexpired","Notify admin of expired ads.","Notify admin of expired ads.","1","0")';
 
 			    $wpdb->query($sql);
 
 			}
-
+			//Fix bug from 1.8.6.4:
+			$wpdb->query("UPDATE $tbl_ad_settings SET option_type ='0' where config_option='notifyofadexpired'");
 			////
 			// Update ad_settings table to ad field config groud ID if field does not exist in installed version
 			////
@@ -2198,11 +2200,11 @@ function awpcp_opsconfig_categories()
 				}
 
 				$thecategory_id=$rsrow[0];
-				$thecategory_name="$thecategoryicon<a href=\"?page=Manage1&showadsfromcat_id=".$rsrow[0]."\">".$rsrow[1]."</a>";
+				$thecategory_name="$thecategoryicon<a href=\"?page=Manage1&showadsfromcat_id=".$rsrow[0]."\">".stripslashes($rsrow[1])."</a>";
 				$thecategory_parent_id=$rsrow[2];
 				$thecategory_order=($rsrow[3] != '' ? $rsrow[3] : '0');
 				
-				$thecategory_parent_name=get_adparentcatname($thecategory_parent_id);
+				$thecategory_parent_name=stripslashes(get_adparentcatname($thecategory_parent_id));
 				$totaladsincat=total_ads_in_cat($thecategory_id);
 
 				if ($hascaticonsmodule == 1 )
@@ -2845,6 +2847,8 @@ function awpcp_manage_viewlistings()
 
 			while ($rsrow=mysql_fetch_row($res))
 			{
+
+				if ( is_array( $rsrow ) ) for( $i=0; $i < count($rsrow); $i++ ) $rsrow[$i] = stripslashes( $rsrow[$i] ); 
 
 				$ad_id=$rsrow[0];
 				$awpcppage=get_currentpagename();
@@ -3886,6 +3890,7 @@ if (isset($_REQUEST['createeditadcategory']) && !empty($_REQUEST['createeditadca
 	if ($aeaction == 'newcategory')
 	{
 		$category_name=stripslashes(clean_field($_REQUEST['category_name']));
+		$category_name=addslashes(clean_field($_REQUEST['category_name']));
 		$category_parent_id=clean_field($_REQUEST['category_parent_id']);
 		$category_order=clean_field($_REQUEST['category_order']);
 		//Ensure we have something like a number:
@@ -5946,6 +5951,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 				while ($rsrow=mysql_fetch_row($res))
 				{
+					if ( is_array($rsrow) ) for($i=0; $i < count($rsrow); $i++) $rsrow[$i] = stripslashes($rsrow[$i]); 
 					list($adtitle,$adcontact_name,$adcontact_email,$adcategory,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adaccesskey,$websiteurl,$x_fields_list)=$rsrow;
 				}
 				$adtitle = strip_slashes_recursive($adtitle);
@@ -6284,11 +6290,18 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 				    the.adtitle.focus();
 				    return false;
 			    }
+		";
+
+		if ( 'editad' != $action )
+		$checktheform .= "
 			    if (the.adcategory.value==='') {
 				    alert('$adcategoryerrortxt');
 				    the.adcategory.focus();
 				    return false;
 			    }
+		";
+
+		$checktheform .= "
 			    if (the.adcontact_name.value==='') {
 				    alert('$adcontactnameerrortxt');
 				    the.adcontact_name.focus();
@@ -6302,7 +6315,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 		";
 
 
-		if ( 1 == get_awpcp_option('freepay') ) { 
+		if ( 1 == get_awpcp_option('freepay') && 'editad' != $action) { 
 			if (!is_admin() ) 
 			$checktheform .= "
 			    if ( !jQuery('.adtermids').is(':checked') ) { 
@@ -7028,6 +7041,7 @@ function resendadaccesskeyform($editemail,$awpcppagename)
 
 		while ($rsrow=mysql_fetch_row($res))
 		{
+			if ( is_array($rsrow) ) for($i=0; $i < count($rsrow); $i++) $rsrow[$i] = stripslashes($rsrow[$i]); 
 			list($adtitle,$adkey,$adpostername)=$rsrow;
 
 			$adtitlekeys[]="$adtitle: $adkey";
@@ -8098,7 +8112,7 @@ function dosearch() {
 	global $wpdb,$hasextrafieldsmodule;
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-	$keywordphrase=clean_field($_REQUEST['keywordphrase']);
+	$keywordphrase=clean_field( urldecode( $_REQUEST['keywordphrase'] ) );
 	$searchname=clean_field($_REQUEST['searchname']);
 	$searchcity=clean_field($_REQUEST['searchcity']);
 	$searchstate=clean_field($_REQUEST['searchstate']);
@@ -8375,6 +8389,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 	$noadsinparentcatmsg='';
 
 	$error=false;
+	if (!isset($is_featured_ad)) { $is_featured_ad = 0; }
 	// Check for ad title
 	if (!isset($adtitle) || empty($adtitle))
 	{
@@ -8867,7 +8882,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 				$query.="adterm_id='0',";
 			}
 
-			$query.="ad_startdate=NOW(),ad_enddate=NOW()+INTERVAL $adexpireafter $interval,disabled='$disabled',ad_key='$key',ad_transaction_id='',ad_fee_paid=0,$update_x_fields ad_postdate=now()";
+			$query.="ad_startdate=NOW(),ad_enddate=NOW()+INTERVAL $adexpireafter $interval,disabled='$disabled',ad_key='$key',ad_transaction_id='',ad_fee_paid=0,ad_last_updated=now(),$update_x_fields ad_postdate=now()";
 
 			$res = awpcp_query($query, __LINE__);
 
@@ -9655,7 +9670,7 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 							$awpcpquerymark="&";
 						}
 
-						$dellink="<a href=\"$url_editpage".$awpcpquerymark."a=dp&k=$ikey\">";
+						$dellink="<a href=\"$url_editpage".$awpcpquerymark."a=dp&k=".str_replace('@','-',$ikey)."\">";
 						$dellink.=__("Delete","AWPCP");
 						$dellink.="</a>";
 						$theimage.="<li><a class=\"thickbox\" href=\"".AWPCPUPLOADURL."/$image_name\"><img $transval src=\"".AWPCPTHUMBSUPLOADURL."/$image_name\"/></a><br/>$dellink $imgstat</li>";
@@ -9705,7 +9720,7 @@ function deletepic($picid,$adid,$adtermid,$adkey,$editemail)
 	$output = '';
 	$isadmin=checkifisadmin();
 	$savedemail=get_adposteremail($adid);
-
+	$editemail = str_replace('-', '@', $editemail);
 	if ((strcasecmp($editemail, $savedemail) == 0) || ($isadmin == 1 ))
 	{
 		global $wpdb;
@@ -10009,7 +10024,14 @@ function do_paypal($payment_status,$item_name,$item_number,$receiver_email,$quan
 		do_action('awpcp_edit_ad');
 
 	}
-	elseif (strcasecmp($payment_status, "Refunded") == 0 || strcasecmp($payment_status, "Reversed") == 0 || strcasecmp ($payment_status, "Partially-Refunded") == 0)
+	elseif (strcasecmp($payment_status, "Refunded") == 0 || 
+		strcasecmp($payment_status, "Reversed") == 0 || 
+		strcasecmp($payment_status, "Partially-Refunded") == 0 || 
+		strcasecmp($payment_status, "Canceled_Reversal") == 0 || 
+		strcasecmp($payment_status, "Denied") == 0 || 
+		strcasecmp($payment_status, "Expired") == 0 || 
+		strcasecmp($payment_status, "Failed") == 0 || 
+		strcasecmp($payment_status, "Voided") == 0 )
 	{
 		///////////
 		// Disable the ad since the payment has been refunded
@@ -10830,29 +10852,26 @@ function paymentthankyou()
 		$req = 'cmd=_notify-validate';
 
 		$payment_verified=false;
-		strip_slashes_recursive($_POST);
-		foreach ($_POST as $key => $value)
-		{
-			$value = urlencode($value);
+
+		foreach ($_POST as $key => $value) {
+		$value = urlencode(stripslashes($value));
+		if ('cmd' != $key) 
 			$req .= "&$key=$value";
 		}
 
 		if (get_awpcp_option('paylivetestmode') == 1)
 		{
-			$paypallink="www.sandbox.paypal.com";
+			$paypallink="ssl://www.sandbox.paypal.com";
 		}
 		else
 		{
-			$paypallink="www.paypal.com";
+			$paypallink="ssl://www.paypal.com";
 		}
 		// post back to PayPal system to validate
 		$header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
-		$header .= "Host: $paypallink\r\n";
 		$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
-		$header .= "Content-Length: " . strlen($req) . "\r\n";
-		$header.="Connection: close\r\n\r\n";
-		$fp = fsockopen($paypallink, 80, $errno, $errstr, 30);
-
+		$header .= "Content-Length: " . strlen($req) . "\r\n\r\n";
+		$fp = fsockopen($paypallink, 443, $errno, $errstr, 30);
 
 		// assign posted variables to local variables
 		if (isset($_POST['item_name']) && !empty($_POST['item_name'])){$item_name = $_POST['item_name'];} else {$item_name='';};
@@ -10886,7 +10905,7 @@ function paymentthankyou()
 		// Handle the postback and verification
 		if ($fp)
 		{
-			fputs ($fp, $header . $req."\r\n\r\n");
+			fputs ($fp, $header . $req);
 			$reply='';
 			$headerdone=false;
 			while(!feof($fp))
@@ -10921,7 +10940,11 @@ function paymentthankyou()
 		}
 		else
 		{
-			$message=__("There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment via PayPal. If you have not tried to make a payment and you are viewing this message, it means this message is being shown in error and can be disregarded.","AWPCP");
+			$message = __("PayPal returned the following status from your payment:",'AWPCP');
+			$message .= '<p>'.$reply.'</p>';
+			$message .= '<p>'.__("If this status is not Completed or Verified, then you may need to wait a bit before your payment is approved, or contact PayPal directly as to the reason the payment is having a problem.",'AWPCP').'</p>';
+			$message .= '<p>'.__("If you have any further questions, contact this site administrator.",'AWPCP').'</p>';
+
 			$output .= abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
 		}
 	}
@@ -10998,7 +11021,7 @@ function paymentthankyou()
 function awpcp_display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 {
 	$output = '';
-	global $wpdb,$awpcp_imagesurl,$hasregionsmodule,$awpcp_plugin_path;
+	global $wpdb,$awpcp_imagesurl,$hasregionsmodule,$awpcp_plugin_path,$hasextrafieldsmodule;
 	$awpcppage=get_currentpagename();
 	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 	$quers=setup_url_structure($awpcppagename);
@@ -11167,6 +11190,8 @@ function awpcp_display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 
 				if ($rsrow[15]) continue; // do not display flagged ads
 
+				if ( is_array($rsrow) ) for($i=0; $i < count($rsrow); $i++) $rsrow[$i] = stripslashes($rsrow[$i]); 
+
 				$ad_id=$rsrow[0];
 				$awpcppage=get_currentpagename();
 				$awpcppagename = sanitize_title($awpcppage, $post_ID='');
@@ -11298,6 +11323,12 @@ function awpcp_display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 				} 
 				else { $awpcp_display_price='';}
 
+				$awpcpextrafields='';
+				if ($hasextrafieldsmodule == 1)
+				{
+					$awpcpextrafields=display_x_fields_data($adid, false);
+				} 
+
 				$awpcpdateformat=__("m/d/Y","AWPCP");
 				$awpcpadpostdate=date($awpcpdateformat, strtotime($rsrow[9]))."<br/>";
 
@@ -11319,11 +11350,14 @@ function awpcp_display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 					$awpcpdisplaylayoutcode=str_replace("\$awpcp_display_adviews",$awpcp_display_adviews,$awpcpdisplaylayoutcode);
 					$awpcpdisplaylayoutcode=str_replace("\$awpcp_city_display",$awpcp_city_display,$awpcpdisplaylayoutcode);
 					$awpcpdisplaylayoutcode=str_replace("\$awpcp_display_price",$awpcp_display_price,$awpcpdisplaylayoutcode);
+					$awpcpdisplaylayoutcode=str_replace("\$awpcpextrafields","$awpcpextrafields",$awpcpdisplaylayoutcode);
+
 					if (function_exists('awpcp_featured_ads')) { 
 					    $awpcpdisplaylayoutcode = awpcp_featured_ad_class($ad_id, $awpcpdisplaylayoutcode);
 					}
 
 					$items[]="$awpcpdisplaylayoutcode";
+
 				}
 				else
 				{
@@ -11331,7 +11365,7 @@ function awpcp_display_ads($where,$byl,$hidepager,$grouporderby,$adorcat)
 							<div class=\"\$awpcpdisplayaditems awpcp_featured_ad_wrapper\">
 							<div style=\"width:$imgblockwidth;padding:5px;float:left;margin-right:20px;\">$awpcp_image_name_srccode</div>
 							<div style=\"width:50%;padding:5px;float:left;\"><h4>$ad_title </h4> $addetailssummary...</div>
-							<div style=\"padding:5px;float:left;\"> $awpcpadpostdate $awpcp_city_display $awpcp_state_display $awpcp_display_adviews $awpcp_display_price </div>
+							<div style=\"padding:5px;float:left;\"> $awpcpadpostdate $awpcp_city_display $awpcp_state_display $awpcp_display_adviews $awpcp_display_price $awpcpextrafields</div>
 							<span class=\"fixfloat\">$tweetbtn $sharebtn $flagad</span>
 							</div>	
 							<div class=\"fixfloat\"></div>				
@@ -11554,17 +11588,22 @@ function showad($adid,$omitmenu)
 				$adsensecode=get_awpcp_option('adsense');
 				$showadsense="<div class=\"cl-adsense\">$adsensecode</div>";
 			}
-
-			$query="SELECT ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_county_village,ad_item_price,ad_details,websiteurl,ad_postdate,ad_startdate from ".$tbl_ads." WHERE ad_id='$adid'";
+			//Only display ads that aren't disabled, unless you're the admin:
+			$display_disabled = " and disabled='0'";
+			if ($isadmin) {
+				$display_disabled = '';
+			}
+			$query="SELECT ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_county_village,ad_item_price,ad_details,websiteurl,ad_postdate,ad_startdate from ".$tbl_ads." WHERE ad_id='$adid' $display_disabled";
 			$res = awpcp_query($query, __LINE__);
-		    if( mysql_num_rows($res) == 0 )
-         	{
-            	$output .= __("Sorry, that ad is no longer valid.  Try browsing ads or searching for one instead.", "AWPCP");
-            	$output .= "</div><!--close classiwrapper-->";
-            	return $output;
-         	}
+			if( mysql_num_rows($res) == 0 )
+			{
+				$output .= __("Sorry, that ad is no longer valid.  Try browsing ads or searching for one instead.", "AWPCP");
+				$output .= "</div><!--close classiwrapper-->";
+				return $output;
+			}
 			while ($rsrow=mysql_fetch_row($res))
 			{
+				if ( is_array($rsrow) ) for($i=0; $i < count($rsrow); $i++) $rsrow[$i] = stripslashes($rsrow[$i]); 
 				list($ad_title,$adcontact_name,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$websiteurl,$ad_postdate,$ad_startdate)=$rsrow;
 			}
 

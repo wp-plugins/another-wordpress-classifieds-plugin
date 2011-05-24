@@ -1,17 +1,17 @@
 === Another Wordpress Classifieds Plugin ===
 Contributors: awpcp.com
 Donate link: http://awpcp.com/donate
-Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme
+Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme
 Requires at least: 2.7
-Tested up to: 3.1
-Stable tag: tags/1.8.6.3
+Tested up to: 3.1.2
+Stable tag: tags/1.8.7
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog. 
 
 == Description ==
 Add a classified ads section to your Wordpress site, quickly and easily.  
 Lots of features, very configurable.  Easy to setup.  Great support.
-We're the #1 Wordpress Classified Ads Plugin: two years old and 64,000+ downloads!
+We're the #1 Wordpress Classified Ads Plugin: two years old and 72,000+ downloads!
 
 Check out the **NEW** Featured Ads module below!
 
@@ -181,6 +181,19 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 1.8.7 =
+ Bug: Fixed PayPal bogus error message on successful payment issue
+ Bug: Fixed category problem when editing ads
+ Bug: Fixed problem with error on deleting ad images
+ Bug: Fixed pagination issues
+ Bug: Fixed field escaping for category names
+ Bug: Fixed Notify admin of Ads textbox problem
+ Bug: Fixed issue where disabled ads could be accessed via URL directly
+
+ = 1.8.6.4 =
+ Bug: Fixed column issue for fee plans
+ Bug: Updated license terms for all files according to WP terms of service requirements
+
  = 1.8.6.3 =
  Bug: Fixed ad edit for admin panel (category error)
  Bug: Fixed free ad end date bug (Jan 1, 1970), added mechanism to update end date in free mode

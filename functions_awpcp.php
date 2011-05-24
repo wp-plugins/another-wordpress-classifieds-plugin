@@ -89,22 +89,22 @@ function strip_slashes_recursive( $variable )
 
 function string_contains($haystack, $needle, $case = true, $pos = 0)
 {
-    if ($case) {
-        $result = (strpos($haystack, $needle, 0) === $pos);
-    } else {
-        $result = (stripos($haystack, $needle, 0) === $pos);
-    }
-    return $result;
+	if ($case) {
+		$result = (strpos($haystack, $needle, 0) === $pos);
+	} else {
+		$result = (stripos($haystack, $needle, 0) === $pos);
+	}
+	return $result;
 }
 
 function string_starts_with($haystack, $needle, $case = true)
 {
-    return string_contains($haystack, $needle, $case, 0);
+	return string_contains($haystack, $needle, $case, 0);
 }
 
 function string_ends_with($haystack, $needle, $case = true)
 {
-    return string_contains($haystack, $needle, $case, (strlen($haystack) - strlen($needle)));
+	return string_contains($haystack, $needle, $case, (strlen($haystack) - strlen($needle)));
 }
 
 function awpcp_submit_spam($ad_id) {
@@ -138,7 +138,7 @@ function awpcp_submit_spam($ad_id) {
 				$content['permalink'] = '';
 				get_currentuserinfo();
 				if ( is_object($current_user) ) {
-				    $content['reporter'] = $current_user->user_login;
+					$content['reporter'] = $current_user->user_login;
 				}
 				if ( is_object($current_site) ) {
 					$content['site_domain'] = $current_site->domain;
@@ -180,7 +180,7 @@ function awpcp_check_spam($name, $website, $email, $details) {
 	$content['comment_author_email'] = $email;
 	$content['comment_author_url'] = $website;
 	$content['comment_content'] = $details;
-		
+
 	// innocent until proven guilty
 	$isSpam = FALSE;
 
@@ -215,7 +215,7 @@ function awpcp_check_spam($name, $website, $email, $details) {
 			foreach ($response as $key => $value) {
 				_log($key." - ".$value."");
 			}
-						
+
 			if ($response[1] == 'true') {
 				//update_option('akismet_spam_count', get_option('akismet_spam_count') + 1);
 				$isSpam = TRUE;
@@ -510,8 +510,8 @@ function get_num_days_in_term($adtermid) {
 		list($numdaysinterm)=$rsrow;
 	}
 
-	if ('' == $numdaysinterm || 0 == $numdaysinterm) 
-	    $numdaysinterm = 36500; // 100 years, equivalent of never expires
+	if ('' == $numdaysinterm || 0 == $numdaysinterm)
+	$numdaysinterm = 36500; // 100 years, equivalent of never expires
 
 	return $numdaysinterm;
 }
@@ -782,7 +782,7 @@ function get_adcatname($cat_ID){
 	if(isset($cat_ID) && (!empty($cat_ID))){
 		$query="SELECT category_name from ".$tbl_categories." WHERE category_id='$cat_ID'";
 		$cname = $wpdb->get_results($query, ARRAY_A);
-		foreach($cname as $cn) { 
+		foreach($cname as $cn) {
 			$cname = $cn['category_name'];
 		}
 	}
@@ -1582,33 +1582,73 @@ function isValidURL($url)
 	return preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $url);
 }
 
+//function isValidEmailAddress($email) {
+//	if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $email)) {
+//		return false;
+//	}
+//
+//	$email_array = explode("@", $email);
+//	$local_array = explode(".", $email_array[0]);
+//	for ($i = 0; $i < sizeof($local_array); $i++) {
+//		if
+//		(!ereg("^(([A-Za-z0-9!#$%&'*+/=?^_`{|}~-][A-Za-z0-9!#$%&
+//?'*+/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$",
+//		$local_array[$i])) {
+//			return false;
+//		}
+//	}
+//
+//	if (!ereg("^\[?[0-9\.]+\]?$", $email_array[1])) {
+//		$domain_array = explode(".", $email_array[1]);
+//		if (sizeof($domain_array) < 2) {
+//			return false; // Not enough parts to domain
+//		}
+//		for ($i = 0; $i < sizeof($domain_array); $i++) {
+//			if
+//			(!ereg("^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|
+//?([A-Za-z0-9]+))$",
+//			$domain_array[$i])) {
+//				return false;
+//			}
+//		}
+//	}
+//	return true;
+//}
 
 function isValidEmailAddress($email) {
-	if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $email)) {
+	// First, we check that there's one @ symbol,
+	// and that the lengths are right.
+	if (!preg_match("/^[^@]{1,64}@[^@]{1,255}$/", $email)) {
+		// Email invalid because wrong number of characters
+		// in one section or wrong number of @ symbols.
 		return false;
 	}
-
+	// Split it into sections to make life easier
 	$email_array = explode("@", $email);
 	$local_array = explode(".", $email_array[0]);
 	for ($i = 0; $i < sizeof($local_array); $i++) {
-		if
-		(!ereg("^(([A-Za-z0-9!#$%&'*+/=?^_`{|}~-][A-Za-z0-9!#$%&
-?'*+/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$",
-		$local_array[$i])) {
+		//Special handling for 1-character domains:  (e.g. q.com):
+		if (i == 1 && strlen($local_array[$i]) == 1 && 
+			preg_match("/[A-Za-z0-9]/", $local_array[$i])) {
+			//single character domain is valid
+			continue;
+		}
+		if (!ereg("^(([A-Za-z0-9!#$%&'*+/=?^_`{|}~-][A-Za-z0-9!#$%&'*+/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$",
+			$local_array[$i])) {
 			return false;
 		}
 	}
-
-	if (!ereg("^\[?[0-9\.]+\]?$", $email_array[1])) {
+	// Check if domain is IP. If not,
+	// it should be valid domain name
+	if (!preg_match("/^\[?[0-9\.]+\]?$/", $email_array[1])) {
 		$domain_array = explode(".", $email_array[1]);
 		if (sizeof($domain_array) < 2) {
 			return false; // Not enough parts to domain
 		}
 		for ($i = 0; $i < sizeof($domain_array); $i++) {
 			if
-			(!ereg("^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|
-?([A-Za-z0-9]+))$",
-			$domain_array[$i])) {
+			(!preg_match("/^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|([A-Za-z0-9]+))$/",
+				$domain_array[$i])) {
 				return false;
 			}
 		}
@@ -1628,10 +1668,10 @@ function doadcleanup() {
 	global $wpdb;
 	//If they set the 'disable instead of delete' flag, we just return and don't do anything here.
 	if (get_awpcp_option('autoexpiredisabledelete') == 1) return;
-	
+
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
-	
+
 	// Get the IDs of the ads to be deleted (those that are disabled more than 30 days ago)
 	$query="SELECT ad_id FROM ".$tbl_ads." WHERE disabled='1' and (disabled_date + INTERVAL 30 DAY) < CURDATE()";
 	$res = awpcp_query($query, __LINE__);
@@ -1689,18 +1729,18 @@ function doadexpirations() {
 	$awpcp_from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
 
 	$adexpireafter = get_awpcp_option('addurationfreemode');
-        $notify_admin = get_awpcp_option('notifyofadexpired');
+	$notify_admin = get_awpcp_option('notifyofadexpired');
 
 	_log("Checking ad expirations");
 
-	// disable the ads or delete the ads? 
+	// disable the ads or delete the ads?
 	$disable_ads = get_awpcp_option('autoexpiredisabledelete');
 	// 1 = disable, 0 = delete
 
 	$adstodelete = '';
 
 	$sql = 'select ad_id from '.$tbl_ads.' where ad_enddate <= NOW() and disabled != 1';
-        $ads = $wpdb->get_results($sql, ARRAY_A);
+	$ads = $wpdb->get_results($sql, ARRAY_A);
 
 	$expiredid = array();
 
@@ -1710,13 +1750,13 @@ function doadexpirations() {
 	_log("Expiring ads: " . $adstodelete);
 
 	if ($ads) {
-	    foreach ($ads as $ad) { 
+		foreach ($ads as $ad) {
 
-		$expiredid[] = $ad['ad_id'];
+			$expiredid[] = $ad['ad_id'];
 
-		$adid = $ad['ad_id'];
+			$adid = $ad['ad_id'];
 
-		if( get_awpcp_option('notifyofadexpiring') == '1' && $disable_ads ) {
+			if( get_awpcp_option('notifyofadexpiring') == '1' && $disable_ads ) {
 
 				_log("Processing Notification for ad: " . $adid);
 
@@ -1733,7 +1773,7 @@ function doadexpirations() {
 
 				$adstartdate = date("D M j Y G:i:s", strtotime( get_adstartdate($adid) ) );
 				_log("Formatted date for ad: " . $adid);
-				
+
 				$awpcpadexpiredsubject = $subject;
 				$awpcpadexpiredbody = $bodybase;
 				$awpcpadexpiredbody.="\n\n";
@@ -1750,58 +1790,58 @@ function doadexpirations() {
 				$awpcpadexpiredbody.="\n\n";
 
 				awpcp_process_mail(
-					$thisadminemail,
-					$awpcpnotifyexpireemail,
-					$awpcpadexpiredsubject,
-					$awpcpadexpiredbody,
-					$nameofsite,
-					$thisadminemail
-					);
+				$thisadminemail,
+				$awpcpnotifyexpireemail,
+				$awpcpadexpiredsubject,
+				$awpcpadexpiredbody,
+				$nameofsite,
+				$thisadminemail
+				);
 
 				// SEND THE ADMIN A NOTICE TOO?
-			        if ( $notify_admin )
+				if ( $notify_admin )
 				awpcp_process_mail(
-					$awpcpsenderemail=$thisadminemail,
-					$awpcpreceiveremail=$thisadminemail,
-					$awpcpemailsubject=$awpcpadexpiredsubject,
-					$awpcpemailbody=$awpcpadexpiredbody,
-					$awpcpsendername=$nameofsite,
-					$awpcpreplytoemail=$thisadminemail
-					);
+				$awpcpsenderemail=$thisadminemail,
+				$awpcpreceiveremail=$thisadminemail,
+				$awpcpemailsubject=$awpcpadexpiredsubject,
+				$awpcpemailbody=$awpcpadexpiredbody,
+				$awpcpsendername=$nameofsite,
+				$awpcpreplytoemail=$thisadminemail
+				);
 
 				_log("DONE Processing Notification for ad: " . $adid);
 
+			}
+
+			_log("Processing Notifications complete");
+
 		}
 
-		_log("Processing Notifications complete");
+		$adstodelete = join(',' , $expiredid);
 
-	    }
-
-	    $adstodelete = join(',' , $expiredid);
-
-	} else { 
+	} else {
 		_log("No ads expiring now.");
 	}
 
 
 
-	if ( '' != $adstodelete ) { 
+	if ( '' != $adstodelete ) {
 
-	    _log("Now doing expiration query");
+		_log("Now doing expiration query");
 
-	    // disable images
-	    $query = 'update '.$tbl_ad_photos." set disabled='1' WHERE ad_id IN ($adstodelete)";
-	    _log("Running query: " . $query);
+		// disable images
+		$query = 'update '.$tbl_ad_photos." set disabled='1' WHERE ad_id IN ($adstodelete)";
+		_log("Running query: " . $query);
 
-	    $res = awpcp_query($query, __LINE__);
-	    _log("Disabled photos result is " . $res);
-	    
-	    // Disable the ads
-	    $query="UPDATE ".$tbl_ads." set disabled='1', disabled_date = NOW() WHERE ad_id IN ($adstodelete)";
-	    _log("Running query: " . $query);
+		$res = awpcp_query($query, __LINE__);
+		_log("Disabled photos result is " . $res);
+	  
+		// Disable the ads
+		$query="UPDATE ".$tbl_ads." set disabled='1', disabled_date = NOW() WHERE ad_id IN ($adstodelete)";
+		_log("Running query: " . $query);
 
-	    $res = awpcp_query($query, __LINE__);
-	    _log("Disabled ads result is " . $res);
+		$res = awpcp_query($query, __LINE__);
+		_log("Disabled ads result is " . $res);
 
 	}
 }
@@ -2052,7 +2092,7 @@ function awpcp_sidebar_headlines($limit, $showimages, $showblank) {
 	$permastruc=get_option('permalink_structure');
 	$quers=setup_url_structure($awpcppagename);
 	$displayadthumbwidth=get_awpcp_option('displayadthumbwidth');
-	
+
 	if(!isset($limit) || empty ($limit)){
 		$limit=10;
 	}
@@ -2066,7 +2106,7 @@ function awpcp_sidebar_headlines($limit, $showimages, $showblank) {
 		$modtitle=add_dashes($modtitle);
 		$hasNoImage = true;
 		$url_showad=url_showad($ad_id);
-		
+
 		$ad_title="<a href=\"$url_showad\">".stripslashes($rsrow[1])."</a>";
 		if (!$showimages) {
 			//Old style, list only:
@@ -2088,7 +2128,7 @@ function awpcp_sidebar_headlines($limit, $showimages, $showblank) {
 					else
 					{
 						$awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\"/>";
-					}							
+					}
 				}
 				else
 				{
@@ -2662,9 +2702,9 @@ function awpcp_process_mail($awpcpsenderemail='',$awpcpreceiveremail='',$awpcpem
 		$awpcp_smtp_username = get_awpcp_option('smtpusername');
 		$awpcp_smtp_password = get_awpcp_option('smtppassword');
 			
-		if( isset($awpcp_smtp_username) && !empty($awpcp_smtp_username) 
-			&& isset($awpcp_smtp_password) && !empty($awpcp_smtp_password) 
-			&& isset($awpcp_smtp_hostname) && !empty($awpcp_smtp_hostname))
+		if( isset($awpcp_smtp_username) && !empty($awpcp_smtp_username)
+		&& isset($awpcp_smtp_password) && !empty($awpcp_smtp_password)
+		&& isset($awpcp_smtp_hostname) && !empty($awpcp_smtp_hostname))
 		{
 			include("Mail.php");
 			$recipients = $awpcpreceiveremail;
@@ -2698,49 +2738,49 @@ function awpcp_process_mail($awpcpsenderemail='',$awpcpreceiveremail='',$awpcpem
 
 // make sure the IP isn't a reserved IP address
 function awpcp_validip($ip) {
- 
+
 	if (!empty($ip) && ip2long($ip)!=-1) {
-	
+
 		$reserved_ips = array (
-		    array('0.0.0.0','2.255.255.255'),
-		    array('10.0.0.0','10.255.255.255'),
-		    array('127.0.0.0','127.255.255.255'),
-		    array('169.254.0.0','169.254.255.255'),
-		    array('172.16.0.0','172.31.255.255'),
-		    array('192.0.2.0','192.0.2.255'),
-		    array('192.168.0.0','192.168.255.255'),
-		    array('255.255.255.0','255.255.255.255')
+		array('0.0.0.0','2.255.255.255'),
+		array('10.0.0.0','10.255.255.255'),
+		array('127.0.0.0','127.255.255.255'),
+		array('169.254.0.0','169.254.255.255'),
+		array('172.16.0.0','172.31.255.255'),
+		array('192.0.2.0','192.0.2.255'),
+		array('192.168.0.0','192.168.255.255'),
+		array('255.255.255.0','255.255.255.255')
 		);
-	
+
 		foreach ($reserved_ips as $r) {
-		    $min = ip2long($r[0]);
-		    $max = ip2long($r[1]);
-		    if ((ip2long($ip) >= $min) && (ip2long($ip) <= $max)) 
+			$min = ip2long($r[0]);
+			$max = ip2long($r[1]);
+			if ((ip2long($ip) >= $min) && (ip2long($ip) <= $max))
 			return false;
 		}
-		
+
 		return true;
-		
+
 	} else {
-		
+
 		return false;
-		
+
 	}
 }
 
 // retrieve the ad poster's IP if possible
 function awpcp_getip() {
- 
+
 	if ( awpcp_validip($_SERVER["HTTP_CLIENT_IP"]) ) {
 		return $_SERVER["HTTP_CLIENT_IP"];
 	}
- 
+
 	foreach ( explode(",",$_SERVER["HTTP_X_FORWARDED_FOR"]) as $ip ) {
 		if ( awpcp_validip(trim($ip) ) ) {
 			return $ip;
 		}
 	}
-	
+
 	if (awpcp_validip($_SERVER["HTTP_X_FORWARDED"])) {
 		return $_SERVER["HTTP_X_FORWARDED"];
 	} elseif (awpcp_validip($_SERVER["HTTP_FORWARDED_FOR"])) {
@@ -2752,7 +2792,7 @@ function awpcp_getip() {
 	} else {
 		return $_SERVER["REMOTE_ADDR"];
 	}
- }
+}
 
 
 function is_at_least_awpcp_version($version)
@@ -2769,7 +2809,7 @@ function is_at_least_awpcp_version($version)
 }
 
 add_filter('awpcp_single_ad_layout', 'awpcp_insert_tweet_button', 1, 3);
-function awpcp_insert_tweet_button($layout, $adid, $title) { 
+function awpcp_insert_tweet_button($layout, $adid, $title) {
 	$adurl = url_showad($adid);
 	$button = 	'<div class="tw_button awpcp_tweet_button_div">';
 	$button .= 	'<a href="http://twitter.com/share?url='.$adurl.'" rel="nofollow" ' .
@@ -2783,7 +2823,7 @@ function awpcp_insert_tweet_button($layout, $adid, $title) {
 }
 
 add_filter('awpcp_single_ad_layout', 'awpcp_insert_share_button', 2, 3);
-function awpcp_insert_share_button($layout, $adid, $title) { 
+function awpcp_insert_share_button($layout, $adid, $title) {
 	global $awpcp_plugin_url;
 	$adurl = url_showad($adid);
 	$button = 	'<div class="tw_button awpcp_tweet_button_div">';
@@ -2795,9 +2835,9 @@ function awpcp_insert_share_button($layout, $adid, $title) {
 }
 
 function awpcp_admin_sidebar($float) {
-$apath = get_option('siteurl').'/wp-admin/images';
-if ('' == $float) $float = 'float:right !important';
-$out = <<< AWPCP
+	$apath = get_option('siteurl').'/wp-admin/images';
+	if ('' == $float) $float = 'float:right !important';
+	$out = <<< AWPCP
 <style>
 .li_link { margin-left: 10px }
 .inside { padding: 5px 10px !important; }
@@ -2867,6 +2907,6 @@ target="_blank">Donate to Support AWPCP</a></li>
     </div>
 </div>
 AWPCP;
-return $out;
+	return $out;
 }
 ?>
