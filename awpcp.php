@@ -9,7 +9,7 @@ if(!isset($_SESSION)) {
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.8.7
+ Version: 1.8.7.1
  Author: D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -88,6 +88,7 @@ $wpinc=WPINC;
 
 $awpcp_plugin_path = WP_CONTENT_DIR.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
 $awpcp_plugin_url = WP_CONTENT_URL.'/plugins/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
+define('AWPCPURL', $awpcp_plugin_url );
 global $wpdb;
 
 require_once("$awpcp_plugin_path"."dcfunctions.php");
@@ -131,7 +132,6 @@ define('AWPCPUPLOADURL', $wpcontenturl .'/' .$uploadfoldername .'/awpcp');
 define('AWPCPUPLOADDIR', $wpcontentdir .'/' .$uploadfoldername .'/awpcp/');
 define('AWPCPTHUMBSUPLOADURL', $wpcontenturl .'/' .$uploadfoldername .'/awpcp/thumbs');
 define('AWPCPTHUMBSUPLOADDIR', $wpcontentdir .'/' .$uploadfoldername .'/awpcp/thumbs/');
-define('AWPCPURL', $awpcp_plugin_url );
 define('MENUICO', $awpcp_imagesurl .'/menuico.png');
 $awpcpthumbsurl=AWPCPTHUMBSUPLOADURL;
 $hascaticonsmodule = 0;
@@ -257,6 +257,7 @@ if (get_awpcp_option('awpcppagefilterswitch') == 1)
 add_action('plugins_loaded', 'maybe_redirect_new_ad', 1); 
 function maybe_redirect_new_ad() { 
     if ( ('loadpaymentpage' == $_POST['a'] && current_user_can('administrator') && '' != $_POST['adid'] ) || 
+	 ( $_POST["nextstep"] == "payment" && current_user_can('administrator') ) ||
 	 ( 'adpostfinish' == $_POST['a'] && '' != $_POST['adid'] ) )  { 
 	wp_redirect( url_showad( intval( $_POST['adid'] ) ).'&adstatus=preview');
 	die;
@@ -558,7 +559,7 @@ function awpcp_install() {
 	  `ad_startdate` datetime NOT NULL,
 	  `ad_enddate` datetime NOT NULL,
 	  `disabled` tinyint(1) NOT NULL DEFAULT '0',
-	  `disabled_date` datetime NOT NULL,
+	  `disabled_date` datetime,
 	  `ad_key` varchar(255) NOT NULL DEFAULT '',
 	  `ad_transaction_id` varchar(255) NOT NULL DEFAULT '',
 	  `payment_gateway` varchar(255) NOT NULL DEFAULT '',
@@ -614,6 +615,11 @@ function awpcp_install() {
 			if ($installed_ver == '1.0.6.17') {
 				//Try to enable the expired ads, bug in 1.0.6.17:
 				$query="UPDATE ".$tbl_ads." SET DISABLED='0' WHERE ad_enddate >= NOW()";
+				$wpdb->query($query);
+			}
+			if (!is_at_least_awpcp_version('1.8.7.1')) {
+				//Fix the problem with disabled_date not being nullable from 1.8.7
+				$query="ALTER TABLE ".$tbl_ads." MODIFY disabled_date datetime";
 				$wpdb->query($query);
 			}
 			_log("UPGRADE detected");
@@ -1658,6 +1664,12 @@ function awpcp_opsconfig_fees()
 	 $output .= __("Below you can add and edit your listing fees. As an example you can add an entry set at $9.99 for a 30 day listing, then another entry set at $17.99 for a 60 day listing. For each entry you can set a specific number of images a user can upload. If you have allow images turned off in your main configuration settings the value you add here will not matter as an upload option will not be included in the ad post form. You can also set a text limit for the ads. The value is in words.","AWPCP");
 	 $output .= "</p>";
 
+	if (function_exists('fpc_check_awpcp_ver'))
+		$output .= '<div style="background-color: #FFFBCC;  color: #555555; background-color: #FFFBCC; border: 1px solid #E6DB55; margin: 0 20px 20px 0; font-size: 12px; padding: 10px;">' . 
+			    __("You're using the Fee Per Category Module. Be sure to either assign all categories to a fee plan, or create at least one or more plans with no categories assigned.",'AWPCP') . 
+			    '</div>';
+
+
 	 ///////
 	 // Handle case of adding new settings
 
@@ -1672,19 +1684,19 @@ function awpcp_opsconfig_fees()
 	 	$awpcpfeeform.="<p>";
 	 	$awpcpfeeform.=__("Plan Name [eg; 30 day Listing]","AWPCP");
 	 	$awpcpfeeform.="<br/>";
-	 	$awpcpfeeform.="<input class=\"regular-text\" size=\"30\" type=\"text\" class=\"inputbox\" name=\"adterm_name\" value=\"$adterm_name\" /></p>";
+	 	$awpcpfeeform.="<input class=\"regular-text1\" size=\"30\" type=\"text\" class=\"inputbox\" name=\"adterm_name\" value=\"$adterm_name\" /></p>";
 	 	$awpcpfeeform.="<p>";
 	 	$awpcpfeeform.=__("Price [x.xx format]","AWPCP");
 	 	$awpcpfeeform.="<br/>";
-	 	$awpcpfeeform.="<input class=\"regular-text\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"amount\" value=\"$amount\" /></p>";
+	 	$awpcpfeeform.="<input class=\"regular-text1\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"amount\" value=\"$amount\" /></p>";
 	 	$awpcpfeeform.="<p>";
 	 	$awpcpfeeform.=__("Term Duration","AWPCP");
 	 	$awpcpfeeform.="<br/>";
-	 	$awpcpfeeform.="<input class=\"regular-text\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"rec_period\" value=\"$rec_period\" /></p>";
+	 	$awpcpfeeform.="<input class=\"regular-text1\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"rec_period\" value=\"$rec_period\" /></p>";
 	 	$awpcpfeeform.="<p>";
 	 	$awpcpfeeform.=__("Images Allowed","AWPCP");
 	 	$awpcpfeeform.="<br/>";
-	 	$awpcpfeeform.="<input class=\"regular-text\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"imagesallowed\" value=\"$imagesallowed\" /></p>";
+	 	$awpcpfeeform.="<input class=\"regular-text1\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"imagesallowed\" value=\"$imagesallowed\" /></p>";
 	 	$awpcpfeeform.="<p>";
 	 	$awpcpfeeform.=__("Term Increment","AWPCP");
 	 	$awpcpfeeform.="<br/>";
@@ -1736,19 +1748,19 @@ function awpcp_opsconfig_fees()
 	 			$awpcpfeeform.="<p>";
 	 			$awpcpfeeform.=__("Plan Name [eg; 30 day Listing]","AWPCP");
 	 			$awpcpfeeform.="<br/>";
-	 			$awpcpfeeform.="<input class=\"regular-text\" size=\"30\" type=\"text\" class=\"inputbox\" name=\"adterm_name\" value=\"$adterm_name\" /></p>";
+	 			$awpcpfeeform.="<input class=\"regular-text1\" size=\"30\" type=\"text\" class=\"inputbox\" name=\"adterm_name\" value=\"$adterm_name\" /></p>";
 	 			$awpcpfeeform.="<p>";
 	 			$awpcpfeeform.=__("Price [x.xx format]","AWPCP");
 	 			$awpcpfeeform.="<br/>";
-	 			$awpcpfeeform.="<input class=\"regular-text\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"amount\" value=\"$amount\" /></p>";
+	 			$awpcpfeeform.="<input class=\"regular-text1\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"amount\" value=\"$amount\" /></p>";
 	 			$awpcpfeeform.="<p>";
 	 			$awpcpfeeform.=__("Term Duration","AWPCP");
 	 			$awpcpfeeform.="<br/>";
-	 			$awpcpfeeform.="<input class=\"regular-text\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"rec_period\" value=\"$rec_period\" /></p>";
+	 			$awpcpfeeform.="<input class=\"regular-text1\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"rec_period\" value=\"$rec_period\" /></p>";
 	 			$awpcpfeeform.="<p>";
 	 			$awpcpfeeform.=__("Images Allowed","AWPCP");
 	 			$awpcpfeeform.="<br/>";
-	 			$awpcpfeeform.="<input class=\"regular-text\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"imagesallowed\" value=\"$imagesallowed\" /></p>";
+	 			$awpcpfeeform.="<input class=\"regular-text1\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"imagesallowed\" value=\"$imagesallowed\" /></p>";
 	 			$awpcpfeeform.="<p>";
 	 			$awpcpfeeform.=__("Term Increment","AWPCP");
 	 			$awpcpfeeform.="<br/>";
@@ -1757,7 +1769,7 @@ function awpcp_opsconfig_fees()
 				    $awpcpfeeform.= awpcp_featured_ads_price_config($is_featured_ad_pricing);
 				}
 				if ( function_exists('awpcp_price_cats') ) {
-				    $awpcpfeeform .= awpcp_price_cats($categories);
+				    $awpcpfeeform .= awpcp_price_cats($categories, $adterm_id);
 				}
 				$awpcpfeeform.="<input class=\"button\" type=\"submit\" name=\"savefeesetting\" value=\"";
 	 			$awpcpfeeform.=__("Update Plan","AWPCP");
@@ -3705,7 +3717,12 @@ function awpcp_addfees() {
 	    $rec_period=clean_field($_REQUEST['rec_period']);
 	    $rec_increment=clean_field($_REQUEST['rec_increment']);
 	    $imagesallowed=clean_field($_REQUEST['imagesallowed']);
-	    $query="INSERT INTO ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed'";
+	    if (function_exists('awpcp_price_cats')) {
+		$query="INSERT INTO ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed', categories='$fee_cats'";
+	    } else { 
+		$query="INSERT INTO ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed'";
+	    }
+
 	    $res = awpcp_query($query, __LINE__);
 	    $message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
 	    $message.=__("The item has been added","AWPCP");
@@ -3740,7 +3757,12 @@ function awpcp_savefees() {
 	    } else {
 		    $is_featured_ad_pricing = 0;
 	    }
-	    $query="UPDATE ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed', is_featured_ad_pricing='$is_featured_ad_pricing' WHERE adterm_id='$adterm_id'";
+	    if (function_exists('awpcp_price_cats')) {
+		$query="UPDATE ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed', is_featured_ad_pricing='$is_featured_ad_pricing', categories='$fee_cats' WHERE adterm_id='$adterm_id'";
+	    } else { 
+		$query="UPDATE ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed', is_featured_ad_pricing='$is_featured_ad_pricing' WHERE adterm_id='$adterm_id'";
+	    }
+
 	    $res = awpcp_query($query, __LINE__);
 	    $message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
 	    $message.=__("The item has been updated","AWPCP");
@@ -6088,6 +6110,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 					if (mysql_num_rows($res))
 					{
 
+						$zz = 1;
 						while ($rsrow=mysql_fetch_row($res))
 						{
 							list($savedadtermid,$adterm_name,$amount,$recurring,$rec_period,$rec_increment)=$rsrow;
@@ -6103,10 +6126,16 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 							{
 								$ischecked="checked='checked'";
 							}
+							elseif (1 == $zz) 
+							{ 
+								$ischecked="checked='checked'";
+							}
 							else
 							{
 								$ischecked='';
 							}
+
+							$zz++;
 
 							$awpcpthecurrencysymbol=awpcp_get_currency_code();
 
@@ -6115,7 +6144,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 							else 
 							    $rel_amt = 0;
 
-							$adtermscode.="<input type=\"radio\" name=\"adtermid\" class=\"adtermids\" rel=\"".$rel_amt."\" ";
+							$adtermscode.="<input type=\"radio\" name=\"adtermid\" class=\"adtermids\" rel=\"".$rel_amt."\" ".$ischecked;
 
 							if ($amount > 0) {
 								$adtermscode.=" onclick=\"awpcp_toggle_visibility('showhidepaybutton', this);\"";
@@ -8517,7 +8546,7 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 			$awpcpcatname=get_adcatname($adcategory);
 			$error=true;
 			$noadsinparentcatmsg="<li class=\"erroralert\">";
-			$noadsinparentcatmsg.=__("You can not list your ad in top level categories. You need to select a sub category of $awpcpcatname to list your ad under","AWPCP");
+			$noadsinparentcatmsg.=sprintf(__("You cannot list your ad in top level categories. You need to select a sub category of %s to list your ad under","AWPCP"), $awpcpcatname);
 			$noadsinparentcatmsg.="</li>";
 		}
 
@@ -11738,7 +11767,7 @@ function showad($adid,$omitmenu)
 			$awpcpvisitwebsite='';
 			if (isset($websiteurl) && !empty($websiteurl))
 			{
-				$awpcpvisitwebsite="<br/><a $awpcprelnofollow href=\"$websiteurl\">";
+				$awpcpvisitwebsite="<br/><a $awpcprelnofollow href=\"$websiteurl\" target='_blank'>";
 				$awpcpvisitwebsite.=__("Visit Website","AWPCP");
 				$awpcpvisitwebsite.="</a>";
 			} 

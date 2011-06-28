@@ -717,11 +717,21 @@ function get_categorynameidall($cat_id = 0)
 	return $optionitem;
 }
 
-function get_categorycheckboxes( $cats = array() ) {
+function get_categorycheckboxes( $cats = array(), $adterm_id ) {
 	global $wpdb;
 
 	$tbl_categories = $wpdb->prefix . "awpcp_categories";
+	$tbl_fees = $wpdb->prefix . "awpcp_adfees";
+
 	$optionitem='';
+	$sql = 'select categories from '.$tbl_fees.' where adterm_id = '.$adterm_id;
+	$catswithfees = $wpdb->get_var($sql);
+
+	if ('' != $catswithfees)
+		$catswithfees = explode(',', $catswithfees);
+	else
+		$catswithfees = array();
+
 
 	// Start with the main categories
 
@@ -735,7 +745,7 @@ function get_categorycheckboxes( $cats = array() ) {
 
 		$opstyle="class=\"checkboxparentcategory\"";
 
-		if( in_array($cat_ID, $cats) )
+		if( in_array($cat_ID, $catswithfees) )
 		{
 			$maincatoptionitem = "<input name='fee_cats[]' type='checkbox' $opstyle checked='checked' value='$cat_ID'> $cat_name<br/>";
 		}
@@ -756,7 +766,7 @@ function get_categorycheckboxes( $cats = array() ) {
 			$subcat_ID=$rsrow2[0];
 			$subcat_name=$rsrow2[1];
 
-			if( in_array($subcat_ID, $cats) )
+			if( in_array($subcat_ID, $catswithfees) )
 			{
 				$subcatoptionitem = " &nbsp; &nbsp; <input name='fee_cats[]' type='checkbox' checked='checked' value='$subcat_ID'>- $subcat_name</option><br/>";
 			}
@@ -1790,24 +1800,25 @@ function doadexpirations() {
 				$awpcpadexpiredbody.="\n\n";
 
 				awpcp_process_mail(
-				$thisadminemail,
-				$awpcpnotifyexpireemail,
-				$awpcpadexpiredsubject,
-				$awpcpadexpiredbody,
-				$nameofsite,
-				$thisadminemail
-				);
+					$thisadminemail,
+					$awpcpnotifyexpireemail,
+					$awpcpadexpiredsubject,
+					$awpcpadexpiredbody,
+					$nameofsite,
+					$thisadminemail
+					);
 
 				// SEND THE ADMIN A NOTICE TOO?
-				if ( $notify_admin )
-				awpcp_process_mail(
-				$awpcpsenderemail=$thisadminemail,
-				$awpcpreceiveremail=$thisadminemail,
-				$awpcpemailsubject=$awpcpadexpiredsubject,
-				$awpcpemailbody=$awpcpadexpiredbody,
-				$awpcpsendername=$nameofsite,
-				$awpcpreplytoemail=$thisadminemail
-				);
+				if ( $notify_admin ) {
+					awpcp_process_mail(
+					$awpcpsenderemail=$thisadminemail,
+					$awpcpreceiveremail=$thisadminemail,
+					$awpcpemailsubject=$awpcpadexpiredsubject,
+					$awpcpemailbody=$awpcpadexpiredbody,
+					$awpcpsendername=$nameofsite,
+					$awpcpreplytoemail=$thisadminemail
+					);
+				}
 
 				_log("DONE Processing Notification for ad: " . $adid);
 
@@ -2702,9 +2713,9 @@ function awpcp_process_mail($awpcpsenderemail='',$awpcpreceiveremail='',$awpcpem
 		$awpcp_smtp_username = get_awpcp_option('smtpusername');
 		$awpcp_smtp_password = get_awpcp_option('smtppassword');
 			
-		if( isset($awpcp_smtp_username) && !empty($awpcp_smtp_username)
-		&& isset($awpcp_smtp_password) && !empty($awpcp_smtp_password)
-		&& isset($awpcp_smtp_hostname) && !empty($awpcp_smtp_hostname))
+		if( isset($awpcp_smtp_username) && !empty($awpcp_smtp_username) 
+			&& isset($awpcp_smtp_password) && !empty($awpcp_smtp_password) 
+			&& isset($awpcp_smtp_hostname) && !empty($awpcp_smtp_hostname))
 		{
 			include("Mail.php");
 			$recipients = $awpcpreceiveremail;
@@ -2837,6 +2848,7 @@ function awpcp_insert_share_button($layout, $adid, $title) {
 function awpcp_admin_sidebar($float) {
 	$apath = get_option('siteurl').'/wp-admin/images';
 	if ('' == $float) $float = 'float:right !important';
+	$url = AWPCPURL;
 	$out = <<< AWPCP
 <style>
 .li_link { margin-left: 10px }
@@ -2874,11 +2886,11 @@ function awpcp_admin_sidebar($float) {
 		    </div>
 	    </div>
 
-	    <div class="apostboxes" style="border-color:#26E600; border-width:3px;">
+	    <div class="apostboxes" style="border-color:#FF6600; border-width:3px;">
 		    <h3 class="hndle1" style="color:#145200;"><span class="red"><strong>Get a Premium Module!</strong></span></h3>
 		    <div class="inside" style="background-color:#FFFFCF">
 			<ul>
-			<li  class="li_link"><a style="color:#145200;" href="http://www.awpcp.com/premium-modules/fee-per-category-module/?ref=panel" target="_blank">Fee Per Category Module</a></li>
+			<li  class="li_link"><img style="align:left" src="$url/images/new.gif"/><a style="color:#145200;" href="http://www.awpcp.com/premium-modules/fee-per-category-module/?ref=panel" target="_blank">Fee Per Category Module</a></li>
 			<li  class="li_link"><a style="color:#145200;" href="http://www.awpcp.com/premium-modules/featured-ads-module/?ref=panel" target="_blank">Featured Ads Module</a></li>
 			<li  class="li_link"><a style="color:#145200;" href="http://www.awpcp.com/premium-modules/extra-fields-module/?ref=panel" target="_blank">Extra 
 Fields Module</a></li>

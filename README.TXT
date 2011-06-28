@@ -3,17 +3,18 @@ Contributors: awpcp.com
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme
 Requires at least: 2.7
-Tested up to: 3.1.2
-Stable tag: tags/1.8.7
+Tested up to: 3.1.3
+Stable tag: tags/1.8.7.1
 
-Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog. 
+Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog.  
+Great for increasing retention to your site, adding revenue for your business, and increasing customer interaction.
 
 == Description ==
 Add a classified ads section to your Wordpress site, quickly and easily.  
 Lots of features, very configurable.  Easy to setup.  Great support.
-We're the #1 Wordpress Classified Ads Plugin: two years old and 72,000+ downloads!
+We're the #1 Wordpress Classified Ads Plugin: two years old and 80,000+ downloads!
 
-Check out the **NEW** Featured Ads module below!
+Fee Per Category NOW AVAILABLE (see below)!  Don't miss Featured Ads, too!
 
 Features:
 
@@ -79,11 +80,15 @@ Features:
     5. RSS Feeds (allows you syndicate your classifieds for your users to
        download in their favorite RSS reader and come back to your site
        more often!)
-    6. **NEW** Featured Ads (allows you to promote certain ads over others by 
+    6. Featured Ads (allows you to promote certain ads over others by 
        charging a fee for them, featured ads are displayed using CSS to
        highlight them.  Featured ads are always returned first in a category,
        the overall ad list, or in search results.  Also has a widget for 
        placement anywhere on your site.  Full admin control of featured ads, too)
+    7. **NEW** Fee Per Category (allows you to charge for certain categories
+       and not others, giving you more freedom on how to configure your classified
+       section.  Allows for multiple fee plans per category, as well as a default
+       plan to cover "all other unspecified" categories)
 
 = Premium Module Links: =
 
@@ -99,6 +104,8 @@ Features:
 
 [Featured Ads](http://awpcp.com/premium-modules/featured-ads-module?ref=wp)
 
+[Fee per Category](http://www.awpcp.com/premium-modules/fee-per-category-module?ref=wp)
+
 Or, just [Donate to AWPCP to Support further development](http://awpcp.com/donate?ref=wp)
 
 These are just some of the features of Another Wordpress Classifieds Plugin
@@ -110,14 +117,14 @@ If you love the plugin, [please consider purchasing a Premium Module](http://awp
 
 == Credits ==
 
-Copyright 2009-10 awpcp.com
+Copyright 2009-11 awpcp.com
 
 Special thanks to Mark E of http://SimplerComputing.net for his contributions to the
 plugin!
 
 AWPCP Classifieds icons courtesy of http://www.famfamfam.com/lab/icons/silk/
-dcfunctions.php courtesy of Dan Caragea http://www.datemill.com
-fileop.class.php courtesy of Dan Caragea http://www.datemill.com
+dcfunctions.php used with permission under GPL by Dan Caragea http://www.datemill.com
+fileop.class.php used with permission under GPL by Dan Caragea http://www.datemill.com
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -181,8 +188,14 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
- = 1.8.7 =
+ = 1.8.7.1 =
+ NEW: Support for Fee Per Category plugin added
  Bug: Fixed PayPal bogus error message on successful payment issue
+ Bug: Fixed Place Ad issue where the first fee plan isn't selected
+ Bug: Fixed website link to open in a new page
+ Bug: Fixed Windows bugs for uninitialized variables
+
+ = 1.8.7 =
  Bug: Fixed category problem when editing ads
  Bug: Fixed problem with error on deleting ad images
  Bug: Fixed pagination issues
