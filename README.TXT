@@ -90,25 +90,11 @@ Features:
        section.  Allows for multiple fee plans per category, as well as a default
        plan to cover "all other unspecified" categories)
 
-= Premium Module Links: =
-
-[Category Icons](http://awpcp.com/premium-modules/category-icons-module?ref=wp)
-
-[Extra Fields](http://awpcp.com/premium-modules/extra-fields-module?ref=wp)
-
-[Region Control](http://awpcp.com/premium-modules/regions-control-module?ref=wp)
-
-[Google Checkout](http://awpcp.com/premium-modules/google-checkout-module?ref=wp)
-
-[RSS Feeds](http://awpcp.com/premium-modules/rss-module?ref=wp)
-
-[Featured Ads](http://awpcp.com/premium-modules/featured-ads-module?ref=wp)
-
-[Fee per Category](http://www.awpcp.com/premium-modules/fee-per-category-module?ref=wp)
-
-Or, just [Donate to AWPCP to Support further development](http://awpcp.com/donate?ref=wp)
-
 These are just some of the features of Another Wordpress Classifieds Plugin
+
+= Site, Support and Other Links: =
+
+[Donate to AWPCP to Support further development](http://awpcp.com/donate?ref=wp)
 
 For more information and support please visit [http://awpcp.com](http://awpcp.com?ref=wp)
 For plugin support please visit [http://forum.awpcp.com](http://forum.awpcp.com)
