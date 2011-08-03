@@ -143,7 +143,7 @@ function awpcp_submit_spam($ad_id) {
 				if ( is_object($current_site) ) {
 					$content['site_domain'] = $current_site->domain;
 				}
-				$content['user_role'] = 'Subscriber';	//always
+				$content['user_role'] = 'Editor'; // probably best to present the user with some level of authority
 				$query_string = '';
 				foreach ( $content as $key => $data ) {
 					$query_string .= $key . '=' . urlencode( stripslashes($data) ) . '&';
@@ -174,11 +174,12 @@ function awpcp_submit_spam($ad_id) {
 //Function to detect spammy posts.  Requires Akismet to be installed.
 function awpcp_check_spam($name, $website, $email, $details) {
 	$content = array();
+
 	//Construct an Akismet-like query:
 	$content['comment_type'] = 'comment';
-	$content['comment_author'] = $name;
+	//$content['comment_author'] = $name; // don't send this, it reduces accuracy
 	$content['comment_author_email'] = $email;
-	$content['comment_author_url'] = $website;
+	//$content['comment_author_url'] = $website; // don't send this, it reduces accuracy
 	$content['comment_content'] = $details;
 
 	// innocent until proven guilty
@@ -195,12 +196,12 @@ function awpcp_check_spam($name, $website, $email, $details) {
 			// set remaining required values for akismet api
 			$content['user_ip'] = preg_replace( '/[^0-9., ]/', '', awpcp_getip() );
 			$content['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
-			$content['referrer'] = $_SERVER['HTTP_REFERER'];
+			$content['referrer'] = get_option('home'); // use site home page instead of $_SERVER['HTTP_REFERER']; seems to work better
 			$content['blog'] = get_option('home');
-
-			if (empty($content['referrer'])) {
-				$content['referrer'] = get_permalink();
-			}
+			
+			//if (empty($content['referrer'])) {
+			//	$content['referrer'] = get_permalink();
+			//}
 
 			$queryString = '';
 
@@ -233,10 +234,54 @@ function awpcp_check_spam($name, $website, $email, $details) {
 		$message.=__("Please disable spam control on your AWPCP settings because you do not have Akismet installed","AWPCP");
 		$message.="</div>";
 	}
+
+	// Akismet says it's not spam or Akismet disabled? Check using the blacklisted words configured in WP, if any:
+	if ( !$isSpam)
+	    $isSpam = wp_blacklist_check($name, $email, $website, $details, preg_replace( '/[^0-9., ]/', '', awpcp_getip() ), $_SERVER['HTTP_USER_AGENT']);
+
+
 	_log("Ad spam check final answer: " . $isSpam);
 	return $isSpam;
 
 }
+
+function awpcp_blacklist_check($author, $email, $url, $comment, $user_ip, $user_agent) {
+
+	// hook similar the related WP hook, lets people develop their own ad scanning filters
+        do_action('awpcp_blacklist_check', $author, $email, $url, $comment, $user_ip, $user_agent);
+
+        $mod_keys = trim( get_option('blacklist_keys') );
+
+        if ( '' == $mod_keys )
+                return false; // If no blacklist words are set then there's nothing to do here
+
+        $words = explode("\n", $mod_keys );
+
+        foreach ( (array) $words as $word ) {
+
+                $word = trim($word);
+
+                // Skip empty lines
+                if ( empty($word) ) { continue; }
+
+                // Do some escaping magic so that '#' chars in the spam words don't break things:
+                $word = preg_quote($word, '#');
+
+                $pattern = "#$word#i";
+                if (
+                           preg_match($pattern, $author)
+                        || preg_match($pattern, $email)
+                        || preg_match($pattern, $url)
+                        || preg_match($pattern, $comment)
+                        || preg_match($pattern, $user_ip)
+                        || preg_match($pattern, $user_agent)
+                 )
+                        return true;
+        }
+        return false;
+}
+
+
 // START FUNCTION: retrieve individual options from settings table
 function get_awpcp_setting($column, $option) {
 	global $wpdb;
@@ -2671,6 +2716,44 @@ function strip_html_tags( $text )
 	return strip_tags( $text );
 }
 // END FUNCTION
+
+
+// Override the SMTP settings built into WP if the admin has enabled that feature 
+add_action('phpmailer_init','awpcp_phpmailer_init_smtp');
+function awpcp_phpmailer_init_smtp( $phpmailer ) { 
+
+	// smtp not enabled? 
+	$enabled = get_awpcp_option('usesmtp');
+	if ( !$enabled || '0' == $enabled ) return; 
+
+	$host = get_awpcp_option('smtphost');
+	$port = get_awpcp_option('smtpport');
+	$username = get_awpcp_option('smtpusername');
+	$password = get_awpcp_option('smtppassword');
+
+	// host and port not set? gotta have both. 
+	if ( '' == trim( $hostname ) || '' == trim( $port ) )
+	    return;
+
+	// still got defaults set? can't use those. 
+	if ( 'mail.example.com' == trim( $hostname ) ) return;
+	if ( 'smtp_username' == trim( $username ) ) return;
+
+	$phpmailer->Mailer = 'smtp';
+	$phpmailer->Host = $host;
+	$phpmailer->Port = $port;
+
+	// If there's a username and password then assume SMTP Auth is necessary and set the vars: 
+	if ( '' != trim( $username )  && '' != trim( $password ) ) { 
+		$phpmailer->SMTPAuth = true;
+		$phpmailer->Username = $username;
+		$phpmailer->Password = $password;
+	}
+
+	// that's it! 
+}
+
+
 function awpcp_process_mail($awpcpsenderemail='',$awpcpreceiveremail='',$awpcpemailsubject='',$awpcpemailbody='',$awpcpsendername='',$awpcpreplytoemail='')
 {
 	$headers =	"MIME-Version: 1.0\n" .
@@ -2690,6 +2773,7 @@ function awpcp_process_mail($awpcpsenderemail='',$awpcpreceiveremail='',$awpcpem
 
 	";
 	_log("Processing email");
+
 	if(wp_mail( $awpcpreceiveremail, $subject, $message, $headers ))
 	{
 		_log("Sent via WP");
@@ -2707,42 +2791,8 @@ function awpcp_process_mail($awpcpsenderemail='',$awpcpreceiveremail='',$awpcpem
 	}
 	else
 	{
-		_log("Attempting by SMTP, all others failed");
-		// None of the other email methods have worked so try the SMTP
-		$awpcp_smtp_host = get_awpcp_option('smtphost');
-		$awpcp_smtp_username = get_awpcp_option('smtpusername');
-		$awpcp_smtp_password = get_awpcp_option('smtppassword');
-			
-		if( isset($awpcp_smtp_username) && !empty($awpcp_smtp_username) 
-			&& isset($awpcp_smtp_password) && !empty($awpcp_smtp_password) 
-			&& isset($awpcp_smtp_hostname) && !empty($awpcp_smtp_hostname))
-		{
-			include("Mail.php");
-			$recipients = $awpcpreceiveremail;
-			$mailmsg = $awpcpemailbody;
-			$smtpinfo["host"] = $awpcp_smtp_host;
-			$smtpinfo["port"] = "25";
-			$smtpinfo["auth"] = true;
-			$smtpinfo["username"] = $awpcp_smtp_username;
-			$smtpinfo["password"] = $awpcp_smtp_password;
-			$mail_object =& Mail::factory("smtp", $smtpinfo);
-
-			if($mail_object->send($recipients, $headers, $mailmsg))
-			{
-				_log("SMTP succeeded");
-				return 1;
-			}
-			else
-			{
-				_log("SMTP failed during send");
-				return 0;
-			}
-		}
-		else
-		{
-			_log("SMTP not configured properly, all attempts failed");
-			return 0;
-		}
+	    _log("SMTP not configured properly, all attempts failed");
+	    return 0;
 	}
 
 }
@@ -2794,12 +2844,13 @@ function awpcp_getip() {
 
 	if (awpcp_validip($_SERVER["HTTP_X_FORWARDED"])) {
 		return $_SERVER["HTTP_X_FORWARDED"];
+
 	} elseif (awpcp_validip($_SERVER["HTTP_FORWARDED_FOR"])) {
 		return $_SERVER["HTTP_FORWARDED_FOR"];
+
 	} elseif (awpcp_validip($_SERVER["HTTP_FORWARDED"])) {
 		return $_SERVER["HTTP_FORWARDED"];
-	} elseif (awpcp_validip($_SERVER["HTTP_X_FORWARDED"])) {
-		return $_SERVER["HTTP_X_FORWARDED"];
+
 	} else {
 		return $_SERVER["REMOTE_ADDR"];
 	}

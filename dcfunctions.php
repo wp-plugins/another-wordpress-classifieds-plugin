@@ -324,9 +324,13 @@ function create_pager($from,$where,$offset,$results,$tpname)
 
 	$accepted_results_per_page=array("5"=>5,"10"=>10,"20"=>20,"30"=>30,"40"=>40,"50"=>50,"60"=>60,"70"=>70,"80"=>80,"90"=>90,"100"=>100);
 
-	if(!isset($tpname) || empty($tpname))
-	{
-		$tpname="$PHP_SELF";
+	if ( get_awpcp_option('seofriendlyurls') ) { 
+
+		$tpname = $_SERVER['REQUEST_URI'];
+		$tpparts = explode('?', $tpname);
+		if ( is_array( $tpparts ) ) 
+			$tpname = $tpparts[0];
+
 	}
 
 
@@ -374,20 +378,21 @@ function create_pager($from,$where,$offset,$results,$tpname)
 	}
 
 	$myrand=mt_rand(1000,2000);
-	$myreturn="<form id=\"pagerform$myrand\" name=\"pagerform$myrand\" action=\"\" method=\"get\">\n";
-	$myreturn.="<table>\n";
-	$myreturn.="<tr>\n";
-	$myreturn.="\t<td>\n";
+	$form="<form id=\"pagerform$myrand\" name=\"pagerform$myrand\" action=\"\" method=\"get\">\n";
+	$form.="<table>\n";
+	$form.="<tr>\n";
+	$form.="\t<td>\n";
 	$query="SELECT count(*) FROM $from WHERE $where";
 	if (!($res=@mysql_query($query))) {die(mysql_error().' on line: '.__LINE__);}
 	$totalrows=mysql_result($res,0,0);
 	$total_pages=ceil($totalrows/$results);
-	$myreturn.="\t\t<a href=\"$tpname".$awpcpoffset_set."0&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
 	$dotsbefore=false;
 	$dotsafter=false;
+	$current_page = 0;
 	for ($i=1;$i<=$total_pages;$i++) {
 		if (((($i-1)*$results)<=$offset) && ($offset<$i*$results)) {
 			$myreturn.="$i&nbsp;";
+			$current_page = $i; 
 		} elseif (($i-1+$radius)*$results<$offset) {
 			if (!$dotsbefore) {
 				$myreturn.="...";
@@ -402,21 +407,35 @@ function create_pager($from,$where,$offset,$results,$tpname)
 			$myreturn.="<a href=\"$tpname$awpcpoffset_set".(($i-1)*$results)."&results=$results&".array2qs($params)."\">$i</a>&nbsp;";
 		}
 	}
-	$myreturn.="<a href=\"$tpname$awpcpoffset_set".(($total_pages-1)*$results)."&results=$results&".array2qs($params)."\">&raquo;</a>&nbsp;\n";
-	$myreturn.="\t</td>\n";
-	$myreturn.="\t<td>\n";
-	$myreturn.="\t\t<input type=\"hidden\" name=\"offset\" value=\"$offset\" />\n";
-	while (list($k,$v)=each($params)) {
-		$myreturn.="\t\t<input type=\"hidden\" name=\"$k\" value=\"$v\" />\n";
+
+	if ( $offset != 0 ) {
+		//Subtract 2, page is 1-based index, results is 0-based, must compensate for 2 pages here
+		if ( (($current_page-2) * $results) < $results) {
+			$prev.="\t\t<a href=\"$tpname".$awpcpoffset_set."0&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
+		} else {
+			$prev.="\t\t<a href=\"$tpname".$awpcpoffset_set.(($current_page-2) * $results)."&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
+		}
 	}
-	$myreturn.="\t\t<select name=\"results\" onchange=\"document.pagerform$myrand.submit()\">\n";
-	$myreturn.=vector2options($accepted_results_per_page,$results);
-	$myreturn.="\t\t</select>\n";
-	$myreturn.="\t</td>\n";
-	$myreturn.="</tr>\n";
-	$myreturn.="</table>\n";
-	$myreturn.="</form>\n";
-	return $myreturn;
+
+	if ( $offset != (($total_pages-1)*$results) ) { 
+		$next.="<a href=\"$tpname$awpcpoffset_set".($current_page * $results)."&results=$results&".array2qs($params)."\">&raquo;</a>&nbsp;\n";
+	}
+
+	$form = $form . $prev . $myreturn . $next; 
+	$form.="\t</td>\n";
+	$form.="\t<td>\n";
+	$form.="\t\t<input type=\"hidden\" name=\"offset\" value=\"$offset\" />\n";
+	while (list($k,$v)=each($params)) {
+		$form.="\t\t<input type=\"hidden\" name=\"$k\" value=\"$v\" />\n";
+	}
+	$form.="\t\t<select name=\"results\" onchange=\"document.pagerform$myrand.submit()\">\n";
+	$form.=vector2options($accepted_results_per_page,$results);
+	$form.="\t\t</select>\n";
+	$form.="\t</td>\n";
+	$form.="</tr>\n";
+	$form.="</table>\n";
+	$form.="</form>\n";
+	return $form;
 }
 
 function _gdinfo() {

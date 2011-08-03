@@ -1,8 +1,123 @@
 <?php
+
+// Used in the admin panels to add images to existing ads
+function admin_handleimagesupload( $adid ) {
+
+	global $wpdb, $wpcontentdir,$awpcp_plugin_path;
+
+	$tbl_ad_photos = $wpdb->prefix . 'awpcp_adphotos';
+
+	$twidth = get_awpcp_option( 'imgthumbwidth' );
+
+	$filename = addslashes( $_FILES['awpcp_add_file']['name'] );
+
+	$parts = pathinfo( $filename );
+
+	$ext = $parts['extension'];
+
+	if ( '' == $filename || !isset( $_FILES['awpcp_add_file']['tmp_name'] ) || !is_uploaded_file( $_FILES['awpcp_add_file']['tmp_name'] ) ) 
+		return '<p class="error">'.__( 'No uploaded file was detected', 'AWPCP' ).'</p>';
+
+	$imginfo = getimagesize( $_FILES['awpcp_add_file']['tmp_name'] );
+	$imgfilesizeval = filesize( $_FILES['awpcp_add_file']['tmp_name'] );
+
+	$new_filename = str_replace('.' , '', microtime( true ) );
+
+	$filename = $new_filename . '.' . $ext;
+
+	$uploaddir = get_awpcp_option('uploadfoldername');
+	if ( '' == trim( $uploaddir ) ) 
+		$uploaddir = 'uploads';
+
+	$uploaddir = WP_CONTENT_DIR . '/' . $uploaddir . '/awpcp/';
+
+	if ( !is_dir( $uploaddir ) ) {
+		umask( 0 );
+		mkdir( $uploaddir, 0755 );
+	}
+
+	if ( !move_uploaded_file( $_FILES['awpcp_add_file']['tmp_name'], $uploaddir . '/' . $filename ) )
+		return '<p class="error">'.__( 'Error moving uploaded file.', 'AWPCP' ).'</p>';
+
+	awpcp_resizer( $filename, $uploaddir );
+
+	if ( !awpcpcreatethumb( $filename, $uploaddir , $twidth ) )
+		return '<p class="error">'.__( 'Error creating thumbnail file.', 'AWPCP' ).'</p>';
+
+	@chmod( $uploaddir . '/' . $filename, 0644 );
+
+	$sql = 'insert into ' . $tbl_ad_photos . " set image_name = '%s', ad_id = '$adid', disabled = 0";
+	$sql = $wpdb->prepare( $sql, $filename );
+
+	$wpdb->query( $sql ) ;
+
+	return true;
+}
+
+// Resize images if they're too wide or too tall based on admin's Image Settings.
+// Requires both max width and max height to be set otherwise no resizing takes place.
+// If the image exceeds either max width or max height then the image is resized proportionally.
+function awpcp_resizer( $filename, $dir ) { 
+
+	$maxwidth = get_awpcp_option('imgmaxwidth');
+	$maxheight = get_awpcp_option('imgmaxheight');
+
+	if ( '' == trim( $maxheight ) || '' == trim ( $maxwidth ) )
+		return false;
+
+	$parts = pathinfo( $filename );
+
+	if( 'jpg' == $parts['extension'] || 'jpeg' == $parts['extension'] )
+		$src = imagecreatefromjpeg( $dir . $filename );
+	else if ( 'png' == $parts['extension'] )
+		$src = imagecreatefrompng( $dir . $filename );
+	else
+		$src = imagecreatefromgif( $dir . $filename );
+
+
+	list( $width, $height ) = getimagesize( $dir . $filename);
+
+	if ( $width < $maxwidth && $height < $maxheight ) 
+		return true;
+     
+	$newwidth = '';
+	$newheight = '';
+
+        $aspect_ratio = (float) $height / $width;
+
+        $newheight = $maxheight;
+        $newwidth = round($newheight / $aspect_ratio);
+
+        if ( $newwidth > $maxwidth) {
+            $newwidth    = $maxwidth;
+            $newheight   = round( $newwidth * $aspect_ratio );
+        }
+
+	$tmp = imagecreatetruecolor( $newwidth, $newheight );
+
+	imagecopyresampled( $tmp, $src, 0, 0, 0, 0, $newwidth, $newheight, $width, $height );
+
+	$newname = $dir . $filename;
+
+        switch ( $parts['extension'] ) {
+            case 'gif': @imagegif( $tmp, $newname ); break;
+            case 'png': @imagepng( $tmp, $newname, 0 ); break;
+	    case 'jpg': 
+            case 'jpeg': @imagejpeg( $tmp, $newname, 100 );  break;
+        }
+
+	imagedestroy($src);
+	imagedestroy($tmp);
+
+	return true;
+
+}
+
 function handleimagesupload($adid,$adtermid,$nextstep,$adpaymethod,$adaction,$adkey)
 {
 	$output = '';
 	global $wpdb, $wpcontentdir,$awpcp_plugin_path;
+
 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 
 	if(field_exists($field='uploadfoldername'))
@@ -13,7 +128,7 @@ function handleimagesupload($adid,$adtermid,$nextstep,$adpaymethod,$adaction,$ad
 	{
 		$theuploadfoldername="uploads";
 	}
-	$uploaddir=$wpcontentdir.'/' .$theuploadfoldername .'/';
+	$uploaddir = $wpcontentdir.'/' .$theuploadfoldername .'/';
 
 	//Set permission on main upload directory
 	require_once $awpcp_plugin_path.'fileop.class.php';
@@ -227,6 +342,9 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 					}
 					else
 					{
+
+						awpcp_resizer($filename, $destdir); 
+
 						if(!awpcpcreatethumb($filename,$destdir,$twidth))
 						{
 							$awpcpuploaderror=true;

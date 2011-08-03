@@ -4,7 +4,7 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme
 Requires at least: 2.7
 Tested up to: 3.1.3
-Stable tag: tags/1.8.7.1
+Stable tag: tags/1.8.8
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog.  
 Great for increasing retention to your site, adding revenue for your business, and increasing customer interaction.
@@ -90,11 +90,25 @@ Features:
        section.  Allows for multiple fee plans per category, as well as a default
        plan to cover "all other unspecified" categories)
 
+= Premium Module Links: =
+
+[Category Icons](http://awpcp.com/premium-modules/category-icons-module?ref=wp)
+
+[Extra Fields](http://awpcp.com/premium-modules/extra-fields-module?ref=wp)
+
+[Region Control](http://awpcp.com/premium-modules/regions-control-module?ref=wp)
+
+[Google Checkout](http://awpcp.com/premium-modules/google-checkout-module?ref=wp)
+
+[RSS Feeds](http://awpcp.com/premium-modules/rss-module?ref=wp)
+
+[Featured Ads](http://awpcp.com/premium-modules/featured-ads-module?ref=wp)
+
+[Fee per Category](http://www.awpcp.com/premium-modules/fee-per-category-module?ref=wp)
+
+Or, just [Donate to AWPCP to Support further development](http://awpcp.com/donate?ref=wp)
+
 These are just some of the features of Another Wordpress Classifieds Plugin
-
-= Site, Support and Other Links: =
-
-[Donate to AWPCP to Support further development](http://awpcp.com/donate?ref=wp)
 
 For more information and support please visit [http://awpcp.com](http://awpcp.com?ref=wp)
 For plugin support please visit [http://forum.awpcp.com](http://forum.awpcp.com)
@@ -174,6 +188,26 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 1.8.8 =
+ NEW: Integrated changes for Extra Fields to support ad listing display, search field hiding, category-specific fields
+ NEW: Added support to auto-resize regular images (instead of just thumbnails) on upload
+ NEW: Added support for category editing (admin only)
+ Bug: Fixed pagination problems with browse ads
+ Bug: Fixed issue with disabled ads being reachable via URL directly
+ Bug: Fixed ad email issue (editing caused email resend)
+ Bug: Fixed category delete SQL error
+ Bug: Fixed Akismet integration to catch more spam
+ Bug: Fixed image editing for admin, improved admin panel functionality for images
+ Bug: Fixed SMTP to support port designation, fixed SMTP usage
+ Bug: Fixed Akismet integration to detect if it's missing (prevents the "setting save" problem when Akismet not active)
+ Bug: Fixed ad editing with images in top level categories
+ Bug: Fixed place ad/display ad form spacing (reduced white space)
+ 
+ = 1.8.7.2 =
+ Bug: Fixed unclosed ul and li items for empty categories
+ Bug: Fixed CSS spacing issues with certain themes that put huge margins in the categories
+ Bug: Fixed CSS spacing issues with Place Ad/Search Ad form (cut down on spacing between fields)
+ 
  = 1.8.7.1 =
  NEW: Support for Fee Per Category plugin added
  Bug: Fixed PayPal bogus error message on successful payment issue
