@@ -3,8 +3,9 @@ Contributors: awpcp.com
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme
 Requires at least: 2.7
-Tested up to: 3.1.3
-Stable tag: tags/1.8.8
+Tested up to: 3.2.1
+Last Updated: 2011-Aug-03
+Stable tag: tags/1.8.8.1
 
 Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog.  
 Great for increasing retention to your site, adding revenue for your business, and increasing customer interaction.
@@ -188,6 +189,9 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 1.8.8.1 =
+ Bug: Fixed function name for old Extra Fields module validation.
+ 
  = 1.8.8 =
  NEW: Integrated changes for Extra Fields to support ad listing display, search field hiding, category-specific fields
  NEW: Added support to auto-resize regular images (instead of just thumbnails) on upload

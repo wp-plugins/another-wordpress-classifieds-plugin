@@ -9,7 +9,7 @@ if(!isset($_SESSION)) {
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.8.8
+ Version: 1.8.8.1
  Author: D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -8992,8 +8992,8 @@ function processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_n
 		//Allow backward compatibility with old extra fields, if they didn't upgrade:
 		if (function_exists('validate_extra_fields_form')) {
 			$x_field_errors_msg=validate_extra_fields_form($adcategory);
-		} else {
-			$x_field_errors_msg=validate_x_fields();
+		} else if (function_exists('validate_x_form')) {
+			$x_field_errors_msg=validate_x_form();
 		}
 
 		if (isset($x_field_errors_msg) && !empty($x_field_errors_msg))
