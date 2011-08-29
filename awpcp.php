@@ -9,7 +9,7 @@ if(!isset($_SESSION)) {
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.8.9
+ Version: 1.8.9.1
  Author: D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -6756,50 +6756,12 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 				}
 			$cat_var = substr($cat_var,0,-1); 
 			$output .="<script type='text/javascript'>
-			function cat_toggle_visibility(selectedcat)
-			{
-				var Obj;
-				var Cat = new Array($cat_var);
-				for ( var i=0; i < $higher_id; i++)
-					{
-					if (selectedcat == i)
-						{
-						Obj = document.getElementById('category-' + i);
-						if( Obj)
-							{
-							Obj.style.display = 'block';
-							}
-						}
-					else
-						{
-						Obj = document.getElementById('category-' + i);
-						if( Obj)
-							{
-							Obj.style.display = 'none';
-							}
-						}
+				function cat_toggle_visibility(selectedcat) {
+					for ( var i=0; i <= 6; i++) {
+						jQuery('#category-' + i).hide();
 					}
-				for ( var i=0; i<$count_cat*2; i=i+2)
-					{
-					if (selectedcat == Cat[i])
-							{
-							Obj = document.getElementById('category-' + Cat[i+1]);
-							if( Obj)
-								{
-								Obj.style.display = 'block';
-								}
-							}
-					}
-			}
-			function next_toggle_visibility(id)
-			{
-				Obj = document.getElementById('category-' + id);
-				if( Obj)
-					{
-					Obj.style.display = 'block';
-					}
-			}
-
+					jQuery('#category-' + selectedcat).show();
+				}
 			</script>";
 
 
