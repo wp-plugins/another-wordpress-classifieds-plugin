@@ -1560,6 +1560,21 @@ function deleteuserpageentry() {
 
 // START FUNCTION: check if the classifieds page exists in the wp posts table
 
+function findpagebyname($pagename) {
+
+	global $wpdb,$table_prefix;
+	$myreturn=false;
+
+	$query="SELECT post_title FROM {$table_prefix}posts WHERE post_title='$pagename'";
+	$res = awpcp_query($query, __LINE__);
+	if (mysql_num_rows($res) && mysql_result($res,0,0)) {
+		$myreturn=true;
+	}
+	return $myreturn;
+
+}
+
+
 
 function findpage($pagename,$shortcode) {
 

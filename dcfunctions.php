@@ -421,6 +421,10 @@ function create_pager($from,$where,$offset,$results,$tpname)
 		$next.="<a href=\"$tpname$awpcpoffset_set".($current_page * $results)."&results=$results&".array2qs($params)."\">&raquo;</a>&nbsp;\n";
 	}
 
+	if ( '' != $_REQUEST['page_id'] ) 
+		$form.="\t\t<input type=\"hidden\" name=\"page_id\" value='".$_REQUEST['page_id']."' />\n";
+		
+
 	$form = $form . $prev . $myreturn . $next; 
 	$form.="\t</td>\n";
 	$form.="\t<td>\n";

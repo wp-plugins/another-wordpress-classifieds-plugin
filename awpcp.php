@@ -9,7 +9,7 @@ if(!isset($_SESSION)) {
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.8.9.1
+ Version: 1.8.9.2
  Author: D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -506,6 +506,24 @@ function do_settings_insert()
 	$wpdb->query($query);
 }
 
+
+// if there's a page name collision remove AWPCP menus so that nothing can be accessed
+add_action('init', 'awpcp_pagename_warning_check', -1);
+function awpcp_pagename_warning_check() { 
+	if ( !get_option('awpcp_pagename_warning', false) ) return;
+        remove_action('admin_menu', 'awpcp_launch');
+}
+
+// display a warning if necessary
+add_action('admin_notices', 'awpcp_pagename_warning', 10);
+function awpcp_pagename_warning() { 
+	if ( !get_option('awpcp_pagename_warning', false) ) return;
+	echo '<div id="message" class="error"><p><strong>';	
+	echo 'WARNING: </strong>A page named AWPCP already exists. You must either delete that page and its subpages, or rename them before continuing with the plugin configuration.';
+	echo '</p></div>';
+}
+
+
 function awpcp_install() {
 	global $wpdb,$awpcp_db_version,$awpcp_plugin_path;
 
@@ -521,9 +539,18 @@ function awpcp_install() {
 
 	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
+	// if tables don't exist then this is a clean install
 	if ($wpdb->get_var("show tables like '$tbl_ad_categories'") != $tbl_ad_categories) {
 		_log("Fresh install detected");
 			
+		// Ooops - page already exists - abort this function and queue an admin warning message
+		if (findpagebyname('AWPCP')) {
+			update_option('awpcp_pagename_warning', 1);
+		 	return;
+		} else { 
+			delete_option('awpcp_pagename_warning');
+		}
+
 
 	$sql = "CREATE TABLE " . $tbl_ad_categories . " (
 	  `category_id` int(10) NOT NULL AUTO_INCREMENT,
@@ -634,6 +661,8 @@ function awpcp_install() {
 
 	} else {
 		global $wpdb,$awpcp_db_version;
+
+		delete_option('awpcp_pagename_warning');
 
 		
 		//	Update the database tables in the event of a new version of plugin
@@ -1492,6 +1521,31 @@ function awpcp_config_page_save( $nullvar = '' ) {
 }
 
 
+function awpcp_config_page_save_collision( $nullvar = '' ) {
+
+	echo awpcp_admin_config_header();
+
+	?>
+
+	<div class="wrap">
+	    <h2><?php __("AWPCP Classifieds Management System Settings Configuration","AWPCP");?></h2>
+
+	    <?php awpcp_admin_sidebar(); ?>
+
+	    <div style="width:515px; margin: 0 auto; background-color: #FFFFE0; border-color: #E6DB55; border-radius: 3px 3px 3px 3px; border-style: solid; border-width: 1px; padding: 0 0.6em;" >
+		    <p style="padding:10px;"><?php _e("WARNING: A page named ".$_POST['userpagename']." already exists. Rename the existing page (or delete the page and empty the Trash) before attempting to change the page name in AWPCP. ","AWPCP"); ?></p>
+	    </div>
+	</div>
+
+	<?php
+
+	return true;
+
+}
+
+
+
+
 function awpcp_check_for_new_page_names( $send_changes = false ) { 
 	global $wpdb;
 
@@ -1611,8 +1665,12 @@ function awpcp_opsconfig_settings()
 	global $message;
 
 
-	if ( apply_filters( 'awpcp_confirm_new_page_save', $nullvar ) )
+	if ( apply_filters( 'awpcp_confirm_new_page_save', $nullvar ) ) {
 		return;
+	}
+	if ( apply_filters( 'awpcp_confirm_new_page_save_collision', $nullvar ) ) {
+		return;
+	}
 
 	if (isset($_REQUEST['mspgs']) && !empty($_REQUEST['mspgs']) )
 	{
@@ -3572,6 +3630,11 @@ function awpcp_init_stuff() {
 		} else if ( '1' == $_POST['confirmsave'] ) { 
 
 			 // admin is renaming existing classified pages
+
+			if ( findpagebyname( trim( $_POST['userpagename'] ) ) ) {
+				add_filter( 'awpcp_confirm_new_page_save_collision', 'awpcp_config_page_save_collision', 1, 1);
+				return; 
+			}
 
 			$changed_pages = awpcp_check_for_new_page_names( true );
 
@@ -5906,10 +5969,9 @@ function awpcp_display_the_classifieds_category($awpcppagename)
 		{
 			$myreturn.="$awpcpregions_sidepanel<div class=\"awpcpcatlayoutleft\">";
 		}
-
 		while ($rsrow=mysql_fetch_row($res))
 		{
-			$myreturn.="<div id=\"showcategoriesmainlist\"><ul>";
+			$myreturn.="<div class=\"showcategoriesmainlist\"><ul>";
 
 			if (get_awpcp_option('showadcount') == 1)
 			{
@@ -6758,7 +6820,8 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 			$output .="<script type='text/javascript'>
 				function cat_toggle_visibility(selectedcat) {
 					for ( var i=0; i <= 6; i++) {
-						jQuery('#category-' + i).hide();
+						//jQuery('#category-' + i).hide();
+						jQuery('.awpcp-extra-field-wrapper').hide();
 					}
 					jQuery('#category-' + selectedcat).show();
 				}
@@ -6881,7 +6944,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 			{
 				$editorposttext='';
                 if (current_user_can('administrator')) {
-					$editorposttext.=__("<p id='awpcp-form-spacer' style='font-weight:bold'><em>You are logged in as an administrator. Any payment steps will be skipped.</em></p> ","AWPCP");
+					$editorposttext.=__("<p class='awpcp-form-spacer' style='font-weight:bold'><em>You are logged in as an administrator. Any payment steps will be skipped.</em></p> ","AWPCP");
 				}
 				$editorposttext.=__("Fill out the form below to post your classified ad. ","AWPCP");
 			}
@@ -6963,11 +7026,11 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 			$theformbody.="<br/>";
 			$theformbody.="<h3>";
 			$theformbody.=__("Ad Details and Contact Information","AWPCP");
-			$theformbody.="</h3><p id='awpcp-form-spacer'>";
+			$theformbody.="</h3><p class='awpcp-form-spacer'>";
 			$theformbody.=__("Ad Title","AWPCP");
 			$theformbody.="<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"adtitle\" value=\"$adtitle\" /></p>";
 			if ('editad' != $action || is_admin() ) { 
-			    $theformbody.="<p id='awpcp-form-spacer'>";
+			    $theformbody.="<p class='awpcp-form-spacer'>";
 			    $theformbody.=__("Ad Category","AWPCP");
 			    $theformbody.="<br/><select onchange=\"cat_toggle_visibility(this.value)\" name=\"adcategory\" id='add_new_ad_cat'><option value=\"\">";
 			    $theformbody.=__("Select your ad category","AWPCP");
@@ -6976,25 +7039,25 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 			
 			if (get_awpcp_option('displaywebsitefield') == 1)
 			{
-				$theformbody.="<p id='awpcp-form-spacer'>Website URL<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"websiteurl\" value=\"$websiteurl\" /></select></p>";
+				$theformbody.="<p class='awpcp-form-spacer'>Website URL<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"websiteurl\" value=\"$websiteurl\" /></select></p>";
 			}
 
-			$theformbody.="<p id='awpcp-form-spacer'>";
+			$theformbody.="<p class='awpcp-form-spacer'>";
 			$theformbody.=__("Name of person to contact","AWPCP");
 			$theformbody.="<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_name\" value=\"$adcontact_name\" $readonlyacname /></p>";
-			$theformbody.="<p id='awpcp-form-spacer'>";
+			$theformbody.="<p class='awpcp-form-spacer'>";
 			$theformbody.=__("Contact Person's Email [Please enter a valid email. The codes needed to edit your ad will be sent to your email address]","AWPCP");
 			$theformbody.="<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_email\" value=\"$adcontact_email\" $readonlyacem /></p>";
 
 			if (get_awpcp_option('displayphonefield') == 1)
 			{
-				$theformbody.="<p id='awpcp-form-spacer'>";
+				$theformbody.="<p class='awpcp-form-spacer'>";
 				$theformbody.=__("Contact Person's Phone Number","AWPCP");
 				$theformbody.="<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_phone\" value=\"$adcontact_phone\" /></p>";
 			}
 			if (get_awpcp_option('displaycountryfield') )
 			{
-				$theformbody.="<p id='awpcp-form-spacer'>";
+				$theformbody.="<p class='awpcp-form-spacer'>";
 				$theformbody.=__("Country","AWPCP");
 				$theformbody.="<br/>";
 
@@ -7022,7 +7085,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 			}
 			if (get_awpcp_option('displaystatefield') )
 			{
-				$theformbody.="<p id='awpcp-form-spacer'>";
+				$theformbody.="<p class='awpcp-form-spacer'>";
 				$theformbody.=__("State/Province","AWPCP");
 				$theformbody.="<br/>";
 
@@ -7057,7 +7120,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 			}
 			if (get_awpcp_option('displaycityfield') )
 			{
-				$theformbody.="<p id='awpcp-form-spacer'>";
+				$theformbody.="<p class='awpcp-form-spacer'>";
 				$theformbody.=__("City","AWPCP");
 				$theformbody.="<br/>";
 
@@ -7086,7 +7149,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 			if (get_awpcp_option('displaycountyvillagefield') )
 			{
-				$theformbody.="<p id='awpcp-form-spacer'>";
+				$theformbody.="<p class='awpcp-form-spacer'>";
 				$theformbody.=__("County/Village/Other","AWPCP");
 				$theformbody.="<br/>";
 
@@ -7115,11 +7178,11 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 			if (get_awpcp_option('displaypricefield') == 1)
 			{
-				$theformbody.="<p id='awpcp-form-spacer'>";
+				$theformbody.="<p class='awpcp-form-spacer'>";
 				$theformbody.=__("Item Price","AWPCP");
 				$theformbody.="<br/><input size=\"10\" type=\"text\" class=\"inputboxprice\" maxlength=\"10\" name=\"ad_item_price\" value=\"$ad_item_price\" /></p>";
 			}
-			$theformbody.="<p id='awpcp-form-spacer'>";
+			$theformbody.="<p class='awpcp-form-spacer'>";
 			$theformbody.=__("Ad Details","AWPCP");
 			$theformbody.="<br/><input readonly type=\"text\" name=\"remLen\" size=\"10\" maxlength=\"5\" class=\"inputboxmini\" value=\"$addetailsmaxlength\" />";
 			$theformbody.=__("characters left","AWPCP");
@@ -7173,7 +7236,7 @@ function load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail,$ad
 
 			if ((get_awpcp_option('contactformcheckhuman') == 1) && !is_admin())
 			{
-				$output .= "<p id='awpcp-form-spacer'>";
+				$output .= "<p class='awpcp-form-spacer'>";
 				$output .= __("Enter the value of the following sum","AWPCP");
 				$output .= ": <b>$numval1 + $numval2</b>";
 				$output .= "<br/>";
@@ -7935,16 +7998,16 @@ function load_ad_search_form($keywordphrase,$searchname,$searchcity,$searchstate
 	$output .= $checktheform;
 	$output .= "<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">";
 	$output .= "<input type=\"hidden\" name=\"a\" value=\"dosearch\" />";
-	$output .= "<p id='awpcp-form-spacer'>";
+	$output .= "<p class='awpcp-form-spacer'>";
 	$output .= __("Search for ads containing this word or phrase","AWPCP");
 	$output .= ":<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"keywordphrase\" value=\"$keywordphrase\" /></p>";
-	$output .= "<p id='awpcp-form-spacer'>";
+	$output .= "<p class='awpcp-form-spacer'>";
 	$output .= __("Search in Category","AWPCP");
 	$output .= "<br><select name=\"searchcategory\"><option value=\"\">";
 	$output .= __("Select Option","AWPCP");
 	$output .= "</option>$allcategories</select></p>";
 	if (get_awpcp_option('displaypostedbyfield') == 1) {
-		$output .= "<p id='awpcp-form-spacer'>";
+		$output .= "<p class='awpcp-form-spacer'>";
 		$output .= __("For Ads Posted By","AWPCP");
 		$output .= "<br/><select name=\"searchname\"><option value=\"\">";
 		$output .= __("Select Option","AWPCP");
@@ -7957,7 +8020,7 @@ function load_ad_search_form($keywordphrase,$searchname,$searchcity,$searchstate
 	{
 		if ( price_field_has_values() )
 		{
-			$output .= "<p id='awpcp-form-spacer'>";
+			$output .= "<p class='awpcp-form-spacer'>";
 			$output .= __("Min Price","AWPCP");
 			$output .= "&nbsp;<select name=\"searchpricemin\"><option value=\"\">";
 			$output .= __("Select","AWPCP");
@@ -7980,7 +8043,7 @@ function load_ad_search_form($keywordphrase,$searchname,$searchcity,$searchstate
 
 	if (get_awpcp_option('displaycountryfield') == 1){
 
-		$output .= "<p id='awpcp-form-spacer'>";
+		$output .= "<p class='awpcp-form-spacer'>";
 		$output .= __("Refine to Country","AWPCP");
 		$output .= "<br>";
 
@@ -8091,7 +8154,7 @@ function load_ad_search_form($keywordphrase,$searchname,$searchcity,$searchstate
 	if (get_awpcp_option('displaystatefield') == 1)
 	{
 
-		$output .= "<p id='awpcp-form-spacer'>";
+		$output .= "<p class='awpcp-form-spacer'>";
 		$output .= __("Refine to State/Province","AWPCP");
 		$output .= "<br>";
 
@@ -8207,7 +8270,7 @@ function load_ad_search_form($keywordphrase,$searchname,$searchcity,$searchstate
 
 	if (get_awpcp_option('displaycityfield') == 1)
 	{
-		$output .= "<p id='awpcp-form-spacer'>";
+		$output .= "<p class='awpcp-form-spacer'>";
 		$output .= __("Refine to City","AWPCP");
 		$output .= "<br>";
 
@@ -8324,7 +8387,7 @@ function load_ad_search_form($keywordphrase,$searchname,$searchcity,$searchstate
 
 	if (get_awpcp_option('displaycountyvillagefield') == 1)
 	{
-		$output .= "<p id='awpcp-form-spacer'>";
+		$output .= "<p class='awpcp-form-spacer'>";
 		$output .= __("Refine to County/Village/Other","AWPCP");
 		$output .= "<br>";
 
@@ -12227,6 +12290,10 @@ function showad($adid,$omitmenu)
 				$awpcpshowtheadlayout=str_replace("\$codecontact","$codecontact",$awpcpshowtheadlayout);
 				$awpcpshowtheadlayout=str_replace("\$adcontact_name","$adcontact_name",$awpcpshowtheadlayout);
 				$awpcpshowtheadlayout=str_replace("\$adcontactphone","$adcontactphone",$awpcpshowtheadlayout);
+				$awpcpshowtheadlayout=str_replace("\$city","$adcontact_city",$awpcpshowtheadlayout);
+				$awpcpshowtheadlayout=str_replace("\$state","$adcontact_state",$awpcpshowtheadlayout);
+				$awpcpshowtheadlayout=str_replace("\$village","$adcontact_village",$awpcpshowtheadlayout);
+				$awpcpshowtheadlayout=str_replace("\$country","$adcontact_country",$awpcpshowtheadlayout);
 				$awpcpshowtheadlayout=str_replace("\$location","$location",$awpcpshowtheadlayout);
 				$awpcpshowtheadlayout=str_replace("\$aditemprice","$aditemprice",$awpcpshowtheadlayout);
 				$awpcpshowtheadlayout=str_replace("\$awpcpextrafields","$awpcpextrafields",$awpcpshowtheadlayout);

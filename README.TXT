@@ -189,6 +189,13 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 1.8.9.2 =
+ Bug: Fixed pagination issue with category pages.
+ Bug: Fixed critical bug where install caused WSOD with conflicting page names.
+ Bug: Fixed layout issue with categories not aligning correctly.
+ Bug: Fixed Extra Fields category problem for root fields
+ Bug: Fixed so city/state are displayable in the listing AND details of ads
+ 
  = 1.8.9.1 =
  Bug: Fixed extra fields category problem in main plugin.
  
