@@ -349,6 +349,7 @@ img.awpcpbrowseadsimg  { width:60px; }
 div.showcategoriesmainlist:nth-child(odd) { clear: both; float: left; margin: 0 10px 10px 0; }
 div.showcategoriesmainlist:nth-child(even) { float: left; margin: 0 0 10px 0;}
                                  
+.showcategoriesmainlist {  display: inline-block; }
 .showcategoriesmainlist ul {  list-style:none; }
 .showcategoriesmainlist ul li { width:210px; list-style:none; padding:0; margin:3px 10px 5px 0px; }
 .showcategoriesmainlist ul li a { text-decoration:none; }
