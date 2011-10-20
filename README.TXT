@@ -1,19 +1,18 @@
 === Another Wordpress Classifieds Plugin ===
 Contributors: awpcp.com
 Donate link: http://awpcp.com/donate
-Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme
+Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
 Tested up to: 3.2.1
-Last Updated: 2011-Aug-19
-Stable tag: tags/1.8.9.1
+Last Updated: 2011-Oct-20
+Stable tag: tags/1.8.9.3
 
-Another Wordpress Classifieds Plugin provides the ability for you to add classified ads to your Wordpress blog.  
-Great for increasing retention to your site, adding revenue for your business, and increasing customer interaction.
+AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
 == Description ==
 Add a classified ads section to your Wordpress site, quickly and easily.  
 Lots of features, very configurable.  Easy to setup.  Great support.
-We're the #1 Wordpress Classified Ads Plugin: two years old and 80,000+ downloads!
+We're the #1 Wordpress Classified Ads Plugin: two-and-a-half years old and 100,000+ downloads!
 
 Fee Per Category NOW AVAILABLE (see below)!  Don't miss Featured Ads, too!
 
@@ -120,9 +119,6 @@ If you love the plugin, [please consider purchasing a Premium Module](http://awp
 
 Copyright 2009-11 awpcp.com
 
-Special thanks to Mark E of http://SimplerComputing.net for his contributions to the
-plugin!
-
 AWPCP Classifieds icons courtesy of http://www.famfamfam.com/lab/icons/silk/
 dcfunctions.php used with permission under GPL by Dan Caragea http://www.datemill.com
 fileop.class.php used with permission under GPL by Dan Caragea http://www.datemill.com
@@ -189,6 +185,10 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 1.8.9.3 =
+ Bug: Fixed Facebook sharing metadata page injection
+ Bug: Fixed install page renaming crash bug for some webhosts (Bluehost, GoDaddy)
+ 
  = 1.8.9.2 =
  Bug: Fixed pagination issue with category pages.
  Bug: Fixed critical bug where install caused WSOD with conflicting page names.

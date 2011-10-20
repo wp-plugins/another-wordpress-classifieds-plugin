@@ -1498,9 +1498,28 @@ function display_setup_text()
 	$awpcpsetuptext.="</p>";
 	$awpcpsetuptext.="<p>";
 	$awpcpsetuptext.=__("Please begin by setting up the options for your site. The system needs to know a number of things about how you want to run your classifieds.","AWPCP");
-	$awpcpsetuptext.="</p><a href=\"?page=Configure1&mspgs=1\">";
-	$awpcpsetuptext.=__("Click here to setup your site options","AWPCP");
-	$awpcpsetuptext.="</a></p>";
+	$awpcpsetuptext.='
+		<p>
+		    <form action="?page=Configure1&mspgs=1" method="post">
+			    <input type="hidden" name="userpagename" value="AWPCP" >
+				<input type="hidden" name="showadspagename" value="Show Ad" >
+				<input type="hidden" name="placeadpagename" value="Place Ad" >
+				<input type="hidden" name="browseadspagename" value="Browse Ads" >
+				<input type="hidden" name="replytoadpagename" value="Reply To Ad" >
+				<input type="hidden" name="paymentthankyoupagename" value="Payment Thank You" >
+				<input type="hidden" name="paymentcancelpagename" value="Cancel Payment" >
+				<input type="hidden" name="searchadspagename" value="Search Ads" >
+				<input type="hidden" name="browsecatspagename" value="Browse Categories" >
+				<input type="hidden" name="editadpagename" value="Edit Ad" >
+				<input type="hidden" name="categoriesviewpagename" value="View Categories" >
+				<input type="hidden" name="cgid" value="10" >
+				<input type="hidden" name="makesubpagesa" value="" >
+				<input type="hidden" name="confirmsave" value="1">
+				<input type="hidden" name="awpcp_installationcomplete" value="1">
+				<input type="submit" name="savesettings" class="button" value="Click here to complete setup" style="width: 375px;font: 22px Georgia; margin:20px auto;padding: 10px"> 
+			</form>
+		</p>';
+
 
 	return $awpcpsetuptext;
 }

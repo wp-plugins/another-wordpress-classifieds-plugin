@@ -9,7 +9,7 @@ if(!isset($_SESSION)) {
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.8.9.2
+ Version: 1.8.9.3
  Author: D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -1117,26 +1117,60 @@ function checkifclassifiedpage($pagename){
 
 
 
+function installtablecheck() {
+	$awpcp_installationcomplete = get_option('awpcp_installationcomplete');
+	if ($awpcp_installationcomplete == '1' ){
+		return 1;
+	}else{
+		global $hasextrafieldsmodule, $wpdb;
+		$cpagename_awpcp=get_awpcp_option('userpagename');
+		$awpcppagename = sanitize_title($cpagename_awpcp, $post_ID='');
+		$laction='';
+		$isclassifiedpage = checkifclassifiedpage($cpagename_awpcp);
+		
+		if ($isclassifiedpage == false)
+		{
+			return 0;
+		}else{
+			update_option('awpcp_installationcomplete','1');
+			return 1;
+		}
+	}
+}
+
 //	START FUNCTION: Launch the main classifieds screen and add the menu items
 
 
 function awpcp_launch(){
 	global $awpcp_plugin_path;
-	add_menu_page('AWPCP Classifieds Management System', 'Classifieds', '7', 'awpcp.php', 'awpcp_home_screen', MENUICO);
-	add_submenu_page('awpcp.php', 'Configure General Options ', 'Settings', '7', 'Configure1', 'awpcp_opsconfig_settings');
-	add_submenu_page('awpcp.php', 'Listing Fees Setup', 'Fees', '7', 'Configure2', 'awpcp_opsconfig_fees');
-	add_submenu_page('awpcp.php', 'Add/Edit Categories', 'Categories', '7', 'Configure3', 'awpcp_opsconfig_categories');
-	add_submenu_page('awpcp.php', 'View Ad Listings', 'Listings', '7', 'Manage1', 'awpcp_manage_viewlistings');
-	add_submenu_page('awpcp.php', 'View Ad Images', 'Images', '7', 'Manage2', 'awpcp_manage_viewimages');
-	if ( file_exists("$awpcp_plugin_path/awpcp_region_control_module.php") )
+	//show settings only if installation is complete
+	if (isset($_REQUEST['awpcp_installationcomplete']) && $_REQUEST['awpcp_installationcomplete'] == '1' )
 	{
-		add_submenu_page('awpcp.php', 'Manage Regions', 'Regions', '7', 'Configure4', 'awpcp_opsconfig_regions');
+		update_option('awpcp_installationcomplete','1');
 	}
-	if ( file_exists("$awpcp_plugin_path/awpcp_extra_fields_module.php") )
+
+	if (installtablecheck() == '1')
 	{
-		add_submenu_page('awpcp.php', 'Manage Extra Fields', 'Extra Fields', '7', 'Configure5', 'awpcp_add_new_field');
+		add_menu_page('AWPCP Classifieds Management System', 'Classifieds', '7', 'awpcp.php', 'awpcp_home_screen', MENUICO);
+		add_submenu_page('awpcp.php', 'Configure General Options ', 'Settings', '7', 'Configure1', 'awpcp_opsconfig_settings');
+		add_submenu_page('awpcp.php', 'Listing Fees Setup', 'Fees', '7', 'Configure2', 'awpcp_opsconfig_fees');
+		add_submenu_page('awpcp.php', 'Add/Edit Categories', 'Categories', '7', 'Configure3', 'awpcp_opsconfig_categories');
+		add_submenu_page('awpcp.php', 'View Ad Listings', 'Listings', '7', 'Manage1', 'awpcp_manage_viewlistings');
+		add_submenu_page('awpcp.php', 'View Ad Images', 'Images', '7', 'Manage2', 'awpcp_manage_viewimages');
+		if ( file_exists("$awpcp_plugin_path/awpcp_region_control_module.php") )
+		{
+			add_submenu_page('awpcp.php', 'Manage Regions', 'Regions', '7', 'Configure4', 'awpcp_opsconfig_regions');
+		}
+		if ( file_exists("$awpcp_plugin_path/awpcp_extra_fields_module.php") )
+		{
+			add_submenu_page('awpcp.php', 'Manage Extra Fields', 'Extra Fields', '7', 'Configure5', 'awpcp_add_new_field');
+		}
+		add_submenu_page('awpcp.php', 'Uninstall AWPCP', 'Uninstall', '7', 'Manage3', 'awpcp_uninstall');
+	}else{
+		add_menu_page('AWPCP Classifieds Management System', 'Classifieds', '7', 'awpcp.php', 'awpcp_home_screen', MENUICO);
+		add_submenu_page( 'awpcp.php', 'Finish Installation', 'Finish Install', '7', 'awpcp.php', '');
+		add_submenu_page('awpcp.php', 'Uninstall AWPCP', 'Uninstall', '7', 'Manage3', 'awpcp_uninstall');
 	}
-	add_submenu_page('awpcp.php', 'Uninstall AWPCP', 'Uninstall', '7', 'Manage3', 'awpcp_uninstall');
 }
 
 
@@ -1874,7 +1908,7 @@ function awpcp_opsconfig_fees()
 			$output .= $message;
 		}
 		$output .= "<p style=\"padding:10px;\">";
-	 $output .= __("Below you can add and edit your listing fees. As an example you can add an entry set at $9.99 for a 30 day listing, then another entry set at $17.99 for a 60 day listing. For each entry you can set a specific number of images a user can upload. If you have allow images turned off in your main configuration settings the value you add here will not matter as an upload option will not be included in the ad post form. You can also set a text limit for the ads. The value is in words.","AWPCP");
+	 $output .= __("Below you can add and edit your listing fees. As an example you can add an entry set at $9.99 for a 30 day listing, then another entry set at $17.99 for a 60 day listing. For each entry you can set a specific number of images a user can upload. If you have allow images turned off in your main configuration settings the value you add here will not matter as an upload option will not be included in the ad post form. You can also set a text limit for all ads. The value is in characters.","AWPCP");
 	 $output .= "</p>";
 
 	if (function_exists('fpc_check_awpcp_ver'))
@@ -12599,8 +12633,71 @@ function douninstall()
 	$output .= "</a></h1></div>";
 	//Echo ok here:
 	echo $output;
+	delete_option('awpcp_installationcomplete');
 	die;
 
+}
+// Add actions and filters etc
+add_action('wp_head', 'awpcp_insert_facebook_meta');
+
+// The function to add the page meta and Facebook meta to the header of the index page
+function awpcp_insert_facebook_meta() {
+	$output = '';
+	if ( $_REQUEST['id'] != '' || get_query_var('id') != '' ) {
+
+		$ad_id = $_REQUEST['id'];
+		if ( $ad_id == '' ) {
+			$ad_id = get_query_var('id');
+		}
+		global $wpdb;
+
+		$tbl_ads = $wpdb->prefix . "awpcp_ads";
+		
+		$ads = $wpdb->get_row('SELECT * FROM ' . $tbl_ads . ' WHERE ad_id = ' . $ad_id, ARRAY_A);
+
+		if ( !empty($ads) ) {
+
+			$charset = get_bloginfo('charset');
+
+			$ads_url = url_showad($ads['ad_id']);
+			$ads_title = stripslashes($ads['ad_title']);
+			$ads_description = strip_tags(stripslashes($ads['ad_details']));
+			$ads_description = str_replace("\n", " ", $ads_description);
+			if ( strlen($ads_description) > 300 ) {
+				$ads_description = substr($ads_description, 0, 300) . '...';
+			}
+			$output .= '<title>' . $ads_title . '</title>' . PHP_EOL;
+			$output .= '<meta name="title" content="' . $ads_title . '" />' . PHP_EOL;
+			$output .= '<meta name="description" content="' . htmlspecialchars($ads_description, ENT_QUOTES, $charset) . '" />' . PHP_EOL;
+			$output .= '<meta property="og:type" content="ads" />' . PHP_EOL;
+			$output .= '<meta property="og:url" content="' . $ads_url . '" />' . PHP_EOL;
+			$output .= '<meta property="og:title" content="' . $ads_title . '" />' . PHP_EOL;
+			$output .= '<meta property="og:description" content="' . htmlspecialchars($ads_description, ENT_QUOTES, $charset) . '" />' . PHP_EOL;
+
+			//$adpic = get_a_random_image($ads['ad_id']);
+			$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
+
+			$img_query = "SELECT image_name FROM ".$tbl_ad_photos." WHERE ad_id='$ad_id' AND disabled='0'";
+			$ad_images = $wpdb->get_results($img_query, ARRAY_A);
+
+			if ( !empty($ad_images) ) {
+
+				if ( field_exists( $field = 'uploadfoldername' ) ) {
+					$uploadfoldername = get_awpcp_option('uploadfoldername');
+				} else {
+					$uploadfoldername = 'uploads';
+				}
+				$blog = get_blog_details(1);
+
+				foreach ($ad_images as $ad_image) {
+					$image_url = $blog->siteurl . '/wp-content/' . $uploadfoldername . '/awpcp/' . $ad_image['image_name'];
+					$output .=  '<meta property="og:image" content="' . $image_url . '" />' . PHP_EOL;
+					$output .=  '<link rel="image_src" href="' . $image_url . '" />' . PHP_EOL;
+				}
+			}
+		}
+	}
+	return $output;
 }
 
 //	END FUNCTION
