@@ -346,9 +346,7 @@ img.awpcpbrowseadsimg  { width:60px; }
 #awpcpcatlayout .awpcpcatlayoutright ul li ul li { margin:3px 0 3px 0; padding-right:5px; }
 #awpcpcatlayout .awpcpcatlayoutright span { font-weight:bold; }
 
-div.showcategoriesmainlist:nth-child(odd) { clear: both; float: left; margin: 0 10px 10px 0; }
-div.showcategoriesmainlist:nth-child(even) { float: left; margin: 0 0 10px 0;}
-                                 
+#showcategoriesmainlist {  display: inline-block; }
 .showcategoriesmainlist {  display: inline-block; }
 .showcategoriesmainlist ul {  list-style:none; }
 .showcategoriesmainlist ul li { width:210px; list-style:none; padding:0; margin:3px 10px 5px 0px; }

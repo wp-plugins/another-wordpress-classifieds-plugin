@@ -185,6 +185,10 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 1.8.9.4 =
+ Bug: Disabled Facebook meta fix, caused problems on some themes
+ Bug: Chnaged CSS to support category display on IE correctly
+ 
  = 1.8.9.3 =
  Bug: Fixed Facebook sharing metadata page injection
  Bug: Fixed install page renaming crash bug for some webhosts (Bluehost, GoDaddy)

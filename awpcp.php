@@ -9,7 +9,7 @@ if(!isset($_SESSION)) {
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. !!!IMPORTANT!!! Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 1.8.9.3
+ Version: 1.8.9.4
  Author: D. Rodenbaugh
  Author URI: http://www.skylineconsult.com
  */
@@ -32,7 +32,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 dcfunctions.php and filop.class.php used with permission of Dan Caragea, http://datemill.com
 AWPCP Classifieds icon set courtesy of http://www.famfamfam.com/lab/icons/silk/
-Additional Development by Mark Edwards:  http://simplercomputing.net
 
 */
 
@@ -12638,7 +12637,8 @@ function douninstall()
 
 }
 // Add actions and filters etc
-add_action('wp_head', 'awpcp_insert_facebook_meta');
+//COMMENTED OUT--causes ad display problem.
+//add_action('wp_head', 'awpcp_insert_facebook_meta');
 
 // The function to add the page meta and Facebook meta to the header of the index page
 function awpcp_insert_facebook_meta() {
