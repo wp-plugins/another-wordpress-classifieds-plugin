@@ -4,8 +4,8 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
 Tested up to: 3.2.1
-Last Updated: 2011-Oct-20
-Stable tag: tags/1.8.9.3
+Last Updated: 2011-Oct-28
+Stable tag: tags/1.8.9.4
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
