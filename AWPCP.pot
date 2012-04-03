@@ -1,0 +1,3927 @@
+# Copyright (C) 2012 
+# This file is distributed under the same license as the  package.
+msgid ""
+msgstr ""
+"Project-Id-Version:  \n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/another-wordpress-classifieds-"
+"plugin\n"
+"POT-Creation-Date: 2012-03-29 17:06:14+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2012-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: admin/admin-panel-csv-importer.php:51
+msgid "Please select the CSV file to import."
+msgstr ""
+
+#: admin/admin-panel-csv-importer.php:55
+msgid "Please upload a valid csv file."
+msgstr ""
+
+#: admin/admin-panel-csv-importer.php:61
+msgid "Please upload a valid zip file."
+msgstr ""
+
+#: admin/admin-panel-csv-importer.php:70
+msgid "Invalid Start Date."
+msgstr ""
+
+#: admin/admin-panel-csv-importer.php:72
+msgid "Invalid Start Date -- Year Must be of Four Digit."
+msgstr ""
+
+#: admin/admin-panel-csv-importer.php:79
+msgid "Invalid End Date."
+msgstr ""
+
+#: admin/admin-panel-csv-importer.php:81
+msgid "Invalid End Date -- Year Must be of Four Digit."
+msgstr ""
+
+#: admin/admin-panel.php:16
+msgid "Classifieds"
+msgstr ""
+
+#: admin/admin-panel.php:179
+msgid "AWPCP Classifieds Management System"
+msgstr ""
+
+#: admin/admin-panel.php:181
+msgid "You are using version"
+msgstr ""
+
+#: admin/admin-panel.php:183
+msgid ""
+"Thank you for using Another Wordpress Classifieds Plugin, the #1 Wordpress "
+"Classifieds Plugin.  Please direct support requests, enhancement ideas and "
+"bug reports to the "
+msgstr ""
+
+#: admin/admin-panel.php:185
+msgid "AWPCP support website"
+msgstr ""
+
+#: admin/admin-panel.php:194
+msgid ""
+"The version of the extra fields module that you are using is not compatible "
+"with this version of Another Wordpress Classifieds Plugin. Please request "
+"the updated files for the extra fields module"
+msgstr ""
+
+#: admin/admin-panel.php:196
+msgid "Request Updated Extra Fields Module files"
+msgstr ""
+
+#: admin/admin-panel.php:231
+msgid ""
+"It appears you have a potential problem that could result in the "
+"malfunctioning of Another Wordpress Classifieds plugin. A check of your "
+"database was performed and duplicate entries were found that share the same "
+"post_name value as your classifieds page. If for some reason you uninstall "
+"and then reinstall this plugin and the duplicate pages remain in your "
+"database, it could break the plugin and prevent it from working. To fix this "
+"problem you can manually delete the duplicate pages and leave only the page "
+"with the ID of your real classifieds page, or you can use the link below to "
+"rebuild your classifieds page. The process will include first deleting all "
+"existing pages with a post name value identical to your classifieds page. "
+"Note that if you recreate the page, it will be assigned a new page ID so if "
+"you are referencing the classifieds page ID anywhere outside of the "
+"classifieds program you will need to adjust the old ID to the new ID."
+msgstr ""
+
+#: admin/admin-panel.php:233
+msgid "Number of duplicate pages"
+msgstr ""
+
+#: admin/admin-panel.php:236
+msgid "Duplicated post name"
+msgstr ""
+
+#: admin/admin-panel.php:239
+msgid "Recreate the classifieds page to fix the conflict"
+msgstr ""
+
+#: admin/admin-panel.php:252
+msgid "Another Wordpress Classifieds Plugin Stats"
+msgstr ""
+
+#: admin/admin-panel.php:257
+msgid "Number of active listings currently in the system"
+msgstr ""
+
+#: admin/admin-panel.php:262
+msgid "Number of inactive/expired/disabled listings currently in the system"
+msgstr ""
+
+#: admin/admin-panel.php:272
+msgid ""
+"You have setup your listing fees. To edit your fees use the 'Manage Listing "
+"Fees' option."
+msgstr ""
+
+#: admin/admin-panel.php:278
+msgid ""
+"You have not configured your Listing fees. Use the 'Manage Listing Fees' "
+"option to set up your listing fees. Once that is completed, if you are "
+"running in pay mode, the options will automatically appear on the listing "
+"form for users to fill out."
+msgstr ""
+
+#: admin/admin-panel.php:285
+msgid ""
+"You currently have your system configured to run in free mode. To change to "
+"'pay' mode go to 'Manage General Options' and Check the box labeled 'Charge "
+"listing fee? (Pay Mode)'"
+msgstr ""
+
+#: admin/admin-panel.php:296
+msgid "Total number of categories in the system"
+msgstr ""
+
+#: admin/admin-panel.php:299
+msgid "Number of Top Level parent categories"
+msgstr ""
+
+#: admin/admin-panel.php:302
+msgid "Number of sub level children categories"
+msgstr ""
+
+#: admin/admin-panel.php:305
+msgid ""
+"Use the 'Manage Categories' option to edit/delete current categories or add "
+"new categories."
+msgstr ""
+
+#: admin/admin-panel.php:311
+msgid ""
+"You have not setup any categories. Use the 'Manage Categories' option to set "
+"up your categories."
+msgstr ""
+
+#: admin/admin-panel.php:318
+msgid ""
+"You currently have your system configured to run in pay mode. To change to "
+"'free' mode go to 'Manage General Options' and check the box that "
+"accompanies the text 'Charge listing fee?'"
+msgstr ""
+
+#: admin/admin-panel.php:323
+msgid "Use the buttons on the right to configure your various options"
+msgstr ""
+
+#: admin/admin-panel.php:357
+msgid "Latest News About Another Wordpress Classifieds Plugin"
+msgstr ""
+
+#: admin/admin-panel.php:367
+msgid "<strong>RSS Error</strong>: %s"
+msgstr ""
+
+#: admin/admin-panel.php:528
+msgid "AWPCP Classifieds Management System: Listing Fees Management"
+msgstr ""
+
+#: admin/admin-panel.php:540
+msgid ""
+"Below you can add and edit your listing fees. As an example you can add an "
+"entry set at $9.99 for a 30 day listing, then another entry set at $17.99 "
+"for a 60 day listing. For each entry you can set a specific number of images "
+"a user can upload. If you have allow images turned off in your main "
+"configuration settings the value you add here will not matter as an upload "
+"option will not be included in the ad post form. You can also set a text "
+"limit for all ads. The value is in characters."
+msgstr ""
+
+#: admin/admin-panel.php:545
+msgid ""
+"You're using the Fee Per Category Module. Be sure to either assign all "
+"categories to a fee plan, or create at least one or more plans with no "
+"categories assigned."
+msgstr ""
+
+#: admin/admin-panel.php:553
+msgid "Days"
+msgstr ""
+
+#: admin/admin-panel.php:561 admin/admin-panel.php:625
+msgid "Plan Name [eg; 30 day Listing]"
+msgstr ""
+
+#: admin/admin-panel.php:565 admin/admin-panel.php:629
+msgid "Price [x.xx format]"
+msgstr ""
+
+#: admin/admin-panel.php:569 admin/admin-panel.php:633
+msgid "Term Duration"
+msgstr ""
+
+#: admin/admin-panel.php:573 admin/admin-panel.php:637
+msgid "Images Allowed"
+msgstr ""
+
+#: admin/admin-panel.php:577 admin/admin-panel.php:641
+msgid "Term Increment"
+msgstr ""
+
+#: admin/admin-panel.php:587
+msgid "Add New Plan"
+msgstr ""
+
+#: admin/admin-panel.php:594
+msgid "The new plan has been added!"
+msgstr ""
+
+#: admin/admin-panel.php:651
+msgid "Update Plan"
+msgstr ""
+
+#: admin/admin-panel.php:655
+msgid "Delete Plan"
+msgstr ""
+
+#: admin/admin-panel.php:669
+msgid "Add a new listing fee plan"
+msgstr ""
+
+#: admin/admin-panel.php:763 admin/admin-panel.php:972
+msgid "AWPCP Classifieds Management System Categories Management"
+msgstr ""
+
+#: admin/admin-panel.php:832
+msgid "You are currently editing the category shown below"
+msgstr ""
+
+#: admin/admin-panel.php:833
+msgid "Save Category Changes"
+msgstr ""
+
+#: admin/admin-panel.php:834 admin/admin-panel.php:846
+msgid "Parent Category"
+msgstr ""
+
+#: admin/admin-panel.php:835 admin/admin-panel.php:921
+msgid "Category List Order"
+msgstr ""
+
+#: admin/admin-panel.php:837 admin/admin-panel.php:849
+#: admin/admin-panel.php:907
+msgid "Add A New Category"
+msgstr ""
+
+#: admin/admin-panel.php:844
+msgid ""
+"If you're sure that you want to delete this category please press the delete "
+"button"
+msgstr ""
+
+#: admin/admin-panel.php:845 admin/admin-panel.php:998
+#: admin/admin-panel.php:1000 admin/admin-panel.php:1126
+msgid "Delete Category"
+msgstr ""
+
+#: admin/admin-panel.php:865 admin/admin-panel.php:876
+msgid "Untitled"
+msgstr ""
+
+#: admin/admin-panel.php:869
+msgid ""
+"The category contains ads. If you do not select a category to move them to "
+"the ads will be moved to:"
+msgstr ""
+
+#: admin/admin-panel.php:882
+msgid ""
+"The category also has children. If you do not specify a move-to category the "
+"children will be adopted by"
+msgstr ""
+
+#: admin/admin-panel.php:884
+msgid "Note"
+msgstr ""
+
+#: admin/admin-panel.php:886
+msgid "The move-to category specified applies to both ads and categories"
+msgstr ""
+
+#: admin/admin-panel.php:890
+msgid "Please select a Move-To category"
+msgstr ""
+
+#: admin/admin-panel.php:900
+msgid "Sorry but you cannot delete "
+msgstr ""
+
+#: admin/admin-panel.php:902
+msgid " It is the default category. The default category cannot be deleted"
+msgstr ""
+
+#: admin/admin-panel.php:918
+msgid "Enter the category name"
+msgstr ""
+
+#: admin/admin-panel.php:919
+msgid "Add New Category"
+msgstr ""
+
+#: admin/admin-panel.php:920
+msgid "List Category Under"
+msgstr ""
+
+#: admin/admin-panel.php:935
+msgid "Category to Delete"
+msgstr ""
+
+#: admin/admin-panel.php:944
+msgid "Category to Edit"
+msgstr ""
+
+#: admin/admin-panel.php:948 admin/admin-panel.php:961
+msgid "Make This a Top Level Category"
+msgstr ""
+
+#: admin/admin-panel.php:958
+msgid "Add a New Category"
+msgstr ""
+
+#: admin/admin-panel.php:988
+msgid ""
+"Below you can add and edit your categories. For more information about "
+"managing your categories visit the link below."
+msgstr ""
+
+#: admin/admin-panel.php:990
+msgid "Useful Information for Classifieds Categories Management"
+msgstr ""
+
+#: admin/admin-panel.php:992
+msgid "Icon Meanings"
+msgstr ""
+
+#: admin/admin-panel.php:994 admin/admin-panel.php:996
+#: admin/admin-panel.php:1125
+msgid "Edit Category"
+msgstr ""
+
+#: admin/admin-panel.php:1007 admin/admin-panel.php:1121
+msgid "Manage Category Icon"
+msgstr ""
+
+#: admin/admin-panel.php:1009
+msgid "Manage Category icon"
+msgstr ""
+
+#: admin/admin-panel.php:1013
+msgid ""
+"There is a premium module available that allows you to add icons to your "
+"categories. If you are interested in adding icons to your categories "
+msgstr ""
+
+#: admin/admin-panel.php:1015
+msgid "Click here to find out about purchasing the Category Icons Module"
+msgstr ""
+
+#: admin/admin-panel.php:1071
+msgid "Delete Selected Categories"
+msgstr ""
+
+#: admin/admin-panel.php:1074
+msgid "Move Selected Categories"
+msgstr ""
+
+#: admin/admin-panel.php:1077
+msgid "Select Move-To category"
+msgstr ""
+
+#: admin/admin-panel.php:1082
+msgid "If deleting categories"
+msgstr ""
+
+#: admin/admin-panel.php:1084
+msgid "Move Ads if any"
+msgstr ""
+
+#: admin/admin-panel.php:1086
+msgid "Delete Ads if any"
+msgstr ""
+
+#: admin/admin-panel.php:1135 admin/admin-panel.php:1144
+msgid "Category Name (Total Ads)"
+msgstr ""
+
+#: admin/admin-panel.php:1137 admin/admin-panel.php:1146
+msgid "Parent"
+msgstr ""
+
+#: admin/admin-panel.php:1139 admin/admin-panel.php:1148
+msgid "Order"
+msgstr ""
+
+#: admin/admin-panel.php:1141 admin/admin-panel.php:1150
+#: awpcp_extra_fields_module.php:465 awpcp_extra_fields_module.php:500
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:465
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:500
+msgid "Action"
+msgstr ""
+
+#: admin/admin-panel.php:1331
+msgid "AWPCP Classifieds Management System Manage Ad Listings"
+msgstr ""
+
+#: admin/admin-panel.php:1494
+msgid "The ad has been approved"
+msgstr ""
+
+#: admin/admin-panel.php:1505
+msgid "The ad has been disabled"
+msgstr ""
+
+#: admin/admin-panel.php:1515 admin/admin-panel.php:1525
+msgid "The ad has been marked as Featured"
+msgstr ""
+
+#: admin/admin-panel.php:1536
+msgid "The ad has been marked as SPAM and removed"
+msgstr ""
+
+#: admin/admin-panel.php:1551
+msgid "The ad payment status has been changed"
+msgstr ""
+
+#: admin/admin-panel.php:1570 admin/admin-panel.php:1841
+#: admin/admin-panel.php:2237 admin/templates/user-panel-listings.tpl.php:131
+#: awpcp_extra_fields_module.php:532 frontend/shortcode.php:1015
+#: premium-modules/awpcp-coupons/admin/templates/coupons-entry.tpl.php:7
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:532
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:9
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-entry.tpl.php:7
+msgid "Delete"
+msgstr ""
+
+#: admin/admin-panel.php:1573 admin/admin-panel.php:1843
+#: admin/templates/user-panel-listings.tpl.php:129
+#: awpcp_extra_fields_module.php:530
+#: premium-modules/awpcp-coupons/admin/templates/coupons-entry.tpl.php:6
+#: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:5
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:530
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:8
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-entry.tpl.php:6
+msgid "Edit"
+msgstr ""
+
+#: admin/admin-panel.php:1578
+msgid "Manage Listing: "
+msgstr ""
+
+#: admin/admin-panel.php:1589 admin/admin-panel.php:1857
+#: admin/admin-panel.php:2257
+msgid "Approve"
+msgstr ""
+
+#: admin/admin-panel.php:1595 admin/admin-panel.php:1863
+#: admin/admin-panel.php:2269
+msgid "Disable"
+msgstr ""
+
+#: admin/admin-panel.php:1602 admin/admin-panel.php:1869
+msgid "Mark as SPAM"
+msgstr ""
+
+#: admin/admin-panel.php:1620
+msgid "No ad ID was supplied"
+msgstr ""
+
+#: admin/admin-panel.php:1642
+msgid "The image has been disabled and can no longer be viewed"
+msgstr ""
+
+#: admin/admin-panel.php:1650
+msgid "The image has been enabled and can now be viewed"
+msgstr ""
+
+#: admin/admin-panel.php:1675
+msgid ""
+"You need to check whether you want to look up the ad by title id or keyword"
+msgstr ""
+
+#: admin/admin-panel.php:1727 frontend/ad-functions.php:4606
+msgid "There are currently no ads in the system"
+msgstr ""
+
+#: admin/admin-panel.php:1878
+msgid "Pay Status"
+msgstr ""
+
+#: admin/admin-panel.php:1886
+msgid "Complete"
+msgstr ""
+
+#: admin/admin-panel.php:1910
+msgid "View Images"
+msgstr ""
+
+#: admin/admin-panel.php:1915
+msgid "No Images"
+msgstr ""
+
+#: admin/admin-panel.php:1916
+#: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:5
+msgid "Add"
+msgstr ""
+
+#: admin/admin-panel.php:1946 admin/templates/user-panel-listings.tpl.php:99
+msgid "Ad Headline"
+msgstr ""
+
+#: admin/admin-panel.php:1948 admin/templates/user-panel-listings.tpl.php:100
+msgid "Manage Ad"
+msgstr ""
+
+#: admin/admin-panel.php:1956
+msgid "Delete Checked Ads"
+msgstr ""
+
+#: admin/admin-panel.php:1958
+msgid "Mark Checked Ads as SPAM"
+msgstr ""
+
+#: admin/admin-panel.php:1965 frontend/ad-functions.php:4847
+msgid "There were no ads found"
+msgstr ""
+
+#: admin/admin-panel.php:2003 admin/templates/user-panel-listings.tpl.php:16
+msgid "Look Up Ad By"
+msgstr ""
+
+#: admin/admin-panel.php:2024 admin/templates/user-panel-listings.tpl.php:35
+msgid "Sort Ads By"
+msgstr ""
+
+#: admin/admin-panel.php:2030 admin/admin-panel.php:2036
+#: admin/user-panel.php:209 classes/settings-api.php:240
+msgid "Newest"
+msgstr ""
+
+#: admin/admin-panel.php:2042 admin/admin-panel.php:2048
+#: admin/user-panel.php:210
+msgid "Oldest"
+msgstr ""
+
+#: admin/admin-panel.php:2055 admin/admin-panel.php:2061
+#: admin/user-panel.php:212
+msgid "Title Z-A"
+msgstr ""
+
+#: admin/admin-panel.php:2068 admin/admin-panel.php:2074
+#: admin/user-panel.php:211
+msgid "Title A-Z"
+msgstr ""
+
+#: admin/admin-panel.php:2083 admin/admin-panel.php:2089
+#: admin/user-panel.php:213
+msgid "Awaiting Approval"
+msgstr ""
+
+#: admin/admin-panel.php:2099 admin/admin-panel.php:2105
+msgid "Paid Ads First"
+msgstr ""
+
+#: admin/admin-panel.php:2114 admin/admin-panel.php:2121
+#: admin/user-panel.php:214
+msgid "Flagged Ads"
+msgstr ""
+
+#: admin/admin-panel.php:2197
+msgid ""
+"You are not currently allowing users to upload images with their ad. To "
+"allow users to upload images please change the related setting in your "
+"general options configuration"
+msgstr ""
+
+#: admin/admin-panel.php:2199
+msgid "Click here to change allowed images status"
+msgstr ""
+
+#: admin/admin-panel.php:2204
+msgid "There are currently no images in the system"
+msgstr ""
+
+#: admin/admin-panel.php:2295
+msgid "There were no images found"
+msgstr ""
+
+#: admin/admin-panel.php:2626
+msgid "The item has been added"
+msgstr ""
+
+#: admin/admin-panel.php:2666
+msgid "The item has been updated"
+msgstr ""
+
+#: admin/admin-panel.php:2703 admin/admin-panel.php:2778
+msgid "No plan ID was provided therefore no action has been taken"
+msgstr ""
+
+#: admin/admin-panel.php:2712
+msgid ""
+"The plan could not be deleted because there are active ads in the system "
+"that are associated with the plan ID. You need to switch the ads to a new "
+"plan ID before you can delete the plan."
+msgstr ""
+
+#: admin/admin-panel.php:2735
+msgid "Submit"
+msgstr ""
+
+#: admin/admin-panel.php:2749
+msgid "The data has been deleted"
+msgstr ""
+
+#: admin/admin-panel.php:2830
+msgid "The new category has been successfully added"
+msgstr ""
+
+#: admin/admin-panel.php:2846
+msgid ""
+"Sorry but you cannot delete the default category. The default category can "
+"only be renamed"
+msgstr ""
+
+#: admin/admin-panel.php:2906
+msgid "The category has been deleted"
+msgstr ""
+
+#: admin/admin-panel.php:2930
+msgid "Your category changes have been saved."
+msgstr ""
+
+#: admin/admin-panel.php:2934
+msgid "No changes made to categories."
+msgstr ""
+
+#: admin/admin-panel.php:2977
+msgid ""
+"With the exception of any category that was being moved to itself, the "
+"categories have been moved"
+msgstr ""
+
+#: admin/admin-panel.php:2981
+msgid ""
+"The categories have not been moved because you did not indicate where you "
+"want the categories to be moved to"
+msgstr ""
+
+#: admin/admin-panel.php:3081
+msgid "The categories have been deleted"
+msgstr ""
+
+#: admin/admin-panel.php:3109 admin/admin-panel.php:3170
+msgid "No ads have been selected, you must select one or more ads first."
+msgstr ""
+
+#: admin/admin-panel.php:3145
+msgid "The ads have been deleted"
+msgstr ""
+
+#: admin/admin-panel.php:3185
+msgid "The selected ads have been marked as SPAM and removed"
+msgstr ""
+
+#: admin/admin-panel.php:3409
+msgid "Plugin Support Site"
+msgstr ""
+
+#: admin/admin-panel.php:3412
+msgid "Premium Modules"
+msgstr ""
+
+#: admin/admin-panel.php:3414 admin/admin-panel.php:3490
+msgid "Installed"
+msgstr ""
+
+#: admin/admin-panel.php:3420
+msgid "No premium modules installed"
+msgstr ""
+
+#: admin/admin-panel.php:3423 admin/admin-panel.php:3455
+msgid "Regions Control Module"
+msgstr ""
+
+#: admin/admin-panel.php:3427 admin/admin-panel.php:3459
+msgid "Category Icons Module"
+msgstr ""
+
+#: admin/admin-panel.php:3431 admin/admin-panel.php:3463
+msgid "Google Checkout Module"
+msgstr ""
+
+#: admin/admin-panel.php:3435 admin/admin-panel.php:3467
+msgid "Extra Fields Module"
+msgstr ""
+
+#: admin/admin-panel.php:3439 admin/admin-panel.php:3471
+msgid "RSS Module"
+msgstr ""
+
+#: admin/admin-panel.php:3443 admin/admin-panel.php:3475
+msgid "Featured Ads Module"
+msgstr ""
+
+#: admin/admin-panel.php:3447 admin/admin-panel.php:3479
+msgid "Fee per Category Module"
+msgstr ""
+
+#: admin/admin-panel.php:3452 admin/admin-panel.php:3505
+msgid "Uninstalled"
+msgstr ""
+
+#: admin/admin-panel.php:3484
+msgid "All premium modules installed!"
+msgstr ""
+
+#: admin/admin-panel.php:3488
+msgid "Other Modules"
+msgstr ""
+
+#: admin/admin-panel.php:3495
+msgid "No [Other] modules installed"
+msgstr ""
+
+#: admin/admin-panel.php:3512
+msgid "All [Other] modules installed"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:2
+msgid "AWPCP Classifieds Management System: Import Ad"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:8
+msgid "Import Testing Results"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:10
+msgid "Final Import Results"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:14
+msgid "Imported rows:"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:15
+msgid "Imported Picture count:"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:16
+msgid "Rejected rows:"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:66
+msgid "CSV file"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:75
+msgid "Zip file containing images"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:83
+msgid "You can configure default dates for imported Ads"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:86
+msgid "Start Date (mm/dd/yyyy)"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:95
+msgid "End Date (mm/dd/yyyy)"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:104
+msgid "Date Format"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:111
+msgid "US Date Only (mm/dd/year)"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:117
+msgid "UK Date Only (dd/mm/year)"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:123
+msgid "US Date and Time (mm/dd/year hh:mm:ss)"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:129
+msgid "UK Date and Time (dd/mm/year hh:mm:ss)"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:134
+msgid "Separators Used in CSV"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:137
+msgid "Date Separator"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:142
+msgid "Time Separator"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:150
+msgid "Category Handling on Import"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:154
+msgid "Auto create categories"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:160
+#: admin/templates/admin-panel-csv-importer.tpl.php:165
+msgid "Assign Ads to an user?"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:166
+msgid "If unchecked, Ads won't be associated to an user."
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:172
+msgid "Default user"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:176
+msgid "use spreadsheet information"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:183
+msgid ""
+"Ads will be associated to this user if the username column is not present in "
+"the CSV file, there is no user with that username and we couldn't find an "
+"user with the contact_email address specified in the CSV file."
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:191
+msgid "Test Import"
+msgstr ""
+
+#: admin/templates/admin-panel-csv-importer.tpl.php:192
+msgid "Import"
+msgstr ""
+
+#: admin/templates/admin-panel-settings.tpl.php:2
+msgid "AWPCP %s Settings"
+msgstr ""
+
+#: admin/templates/admin-panel-uninstall.tpl.php:2
+msgid "AWPCP Classifieds Management System Uninstall Plugin"
+msgstr ""
+
+#: admin/templates/admin-panel-uninstall.tpl.php:11
+msgid ""
+"Thank you for using AWPCP. You have arrived at this page by clicking the "
+"Uninstall link. If you are certain you wish to uninstall the plugin, please "
+"click the link below to proceed. Please note that all your data related to "
+"the plugin, your ads, images and everything else created by the plugin will "
+"be destroyed"
+msgstr ""
+
+#: admin/templates/admin-panel-uninstall.tpl.php:12
+msgid "Important Information"
+msgstr ""
+
+#: admin/templates/admin-panel-uninstall.tpl.php:14
+msgid ""
+"If you plan to use the data created by the plugin please export the data "
+"from your mysql database before clicking the uninstall link"
+msgstr ""
+
+#: admin/templates/admin-panel-uninstall.tpl.php:19
+msgid "Proceed with Uninstalling Another Wordpress Classifieds Plugin"
+msgstr ""
+
+#: admin/templates/admin-panel-uninstall.tpl.php:25
+msgid "Almost done..."
+msgstr ""
+
+#: admin/templates/admin-panel-uninstall.tpl.php:27
+msgid "One More Step"
+msgstr ""
+
+#: admin/templates/admin-panel-uninstall.tpl.php:30
+msgid "Please click here to complete the uninstallation process"
+msgstr ""
+
+#: admin/templates/profile-fields.tpl.php:1
+msgid "AWPCP Profile Info"
+msgstr ""
+
+#: admin/templates/profile-fields.tpl.php:24
+#: admin/templates/user-panel-profile.tpl.php:30
+msgid "Address"
+msgstr ""
+
+#: admin/templates/profile-fields.tpl.php:33
+#: admin/templates/user-panel-profile.tpl.php:48
+msgid "State"
+msgstr ""
+
+#: admin/templates/profile-fields.tpl.php:42
+#: admin/templates/user-panel-profile.tpl.php:39 functions.php:136
+msgid "City"
+msgstr ""
+
+#: admin/templates/user-panel-listings.tpl.php:104
+msgid "Fee Plan"
+msgstr ""
+
+#: admin/templates/user-panel-listings.tpl.php:105
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-form.tpl.php:8
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:401
+msgid "Start Date"
+msgstr ""
+
+#: admin/templates/user-panel-listings.tpl.php:106
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-form.tpl.php:13
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:402
+msgid "End Date"
+msgstr ""
+
+#: admin/templates/user-panel-listings.tpl.php:108
+msgid "Status"
+msgstr ""
+
+#: admin/templates/user-panel-listings.tpl.php:109
+#: awpcp_google_checkout_module.php:210 frontend/payment-functions.php:1016
+#: premium-modules/awpcp-google-checkout/awpcp_google_checkout_module.php:210
+msgid "Payment Status"
+msgstr ""
+
+#: admin/templates/user-panel-listings.tpl.php:111
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:410
+msgid "Owner"
+msgstr ""
+
+#: admin/templates/user-panel-listings.tpl.php:127
+msgid "View"
+msgstr ""
+
+#: admin/templates/user-panel-listings.tpl.php:135
+#: frontend/templates/page-renew-ad.tpl.php:3
+msgid "Renew Ad"
+msgstr ""
+
+#: admin/templates/user-panel-listings.tpl.php:140
+msgid "Add Image"
+msgstr ""
+
+#: admin/templates/user-panel-listings.tpl.php:143
+msgid "Manage Images"
+msgstr ""
+
+#: admin/templates/user-panel-listings.tpl.php:161
+msgid "Enabled"
+msgstr ""
+
+#: admin/templates/user-panel-listings.tpl.php:161 frontend/shortcode.php:1000
+msgid "Disabled"
+msgstr ""
+
+#: admin/templates/user-panel-listings.tpl.php:166
+msgid "N/A"
+msgstr ""
+
+#: admin/templates/user-panel-profile.tpl.php:4
+msgid "Default Profile Data"
+msgstr ""
+
+#: admin/templates/user-panel-profile.tpl.php:12
+#: frontend/templates/login_form.tpl.php:8
+#: frontend/templates/user-login-form.tpl.php:8
+msgid "Username"
+msgstr ""
+
+#: admin/templates/user-panel-profile.tpl.php:16
+msgid "If not empty will override your WordPress username."
+msgstr ""
+
+#: admin/templates/user-panel-profile.tpl.php:21
+msgid "Email Adress"
+msgstr ""
+
+#: admin/templates/user-panel-profile.tpl.php:25
+msgid "If not empty will override your WordPress email address."
+msgstr ""
+
+#: admin/user-panel.php:39
+msgid "AWPCP User Ad Management Panel - Listings"
+msgstr ""
+
+#: admin/user-panel.php:154
+msgid "You need enter either an Ad title or an Ad id to look up."
+msgstr ""
+
+#: admin/user-panel.php:163
+msgid ""
+"You indicated you wanted to look up the ad by ID but you entered an invalid "
+"ID. Please try again."
+msgstr ""
+
+#: admin/user-panel.php:197
+msgid "Ad ID"
+msgstr ""
+
+#: admin/user-panel.php:198 frontend/ad-functions.php:2514
+msgid "Ad Title"
+msgstr ""
+
+#: admin/user-panel.php:199
+msgid "Keyword"
+msgstr ""
+
+#: admin/user-panel.php:200
+msgid "Location"
+msgstr ""
+
+#: admin/user-panel.php:223 frontend/ad-functions.php:2530
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-create-form.tpl.php:21
+msgid "User"
+msgstr ""
+
+#: admin/user-panel.php:261
+msgid "%d Ads were deleted."
+msgstr ""
+
+#: admin/user-panel.php:374
+msgid "AWPCP User Ad Management Panel - Manage Images"
+msgstr ""
+
+#: awpcp.php:279
+msgid "AWPCP"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:161
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:161
+msgid "There was no ID supplied for the field you would like to edit"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:202
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:202
+msgid "There was no ID supplied for the field you would like to delete"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:229
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:229
+msgid "The field has been successfully deleted"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:263
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:263
+msgid "You did not provide a name for the field."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:268
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:268
+msgid "You did not provide a post form label for the field."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:273
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:273
+msgid "You did not provide an ad view label for the field."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:278
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:278
+msgid "You did not indicate the input element type for the field."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:290
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:290
+msgid ""
+"You have indicated the field input type is either a checkbox, radio button "
+"or drop down element, however you did not provide any options for the field. "
+"You either need to change the input type to input box or textarea input or "
+"provide some options."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:296
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:296
+msgid "You did not indicate the field MYSQL data type."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:306
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:306
+msgid ""
+"Duplicate field name. You cannot use the same field name more than once."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:367
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:367
+msgid "The new field has been added successfully"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:430 awpcp_extra_fields_module.php:567
+#: awpcp_extra_fields_module.php:833
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:430
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:567
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:833
+msgid "Add New Field"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:438 awpcp_extra_fields_module.php:473
+#: frontend/ad-functions.php:3187
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:438
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:473
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-form.tpl.php:8
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:291
+msgid "Name"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:441 awpcp_extra_fields_module.php:476
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:441
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:476
+msgid "Post Label"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:444 awpcp_extra_fields_module.php:479
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:444
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:479
+msgid "View Label"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:447 awpcp_extra_fields_module.php:482
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:447
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:482
+msgid "Input Type"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:450 awpcp_extra_fields_module.php:485
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:450
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:485
+msgid "Data Type"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:453 awpcp_extra_fields_module.php:488
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:453
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:488
+msgid "Options"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:456 awpcp_extra_fields_module.php:491
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:456
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:491
+msgid "Validation"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:459 awpcp_extra_fields_module.php:494
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:459
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:494
+msgid "Privacy"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:462 awpcp_extra_fields_module.php:497
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:462
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:497
+msgid "Category"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:565
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:565
+msgid ""
+"It appears you have not added any extra fields yet. Start adding extra "
+"fields using the link below"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:634
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:634
+msgid "View Current Fields"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:639
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:639
+msgid "Field Name"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:641
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:641
+msgid "A short name for the form field. This is not visible to user"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:647
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:647
+msgid "Field Post Label"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:649
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:649
+msgid "Text that tells the user what they need to enter or select in the form."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:655
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:655
+msgid "Field View Label"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:657
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:657
+msgid "Text to use when displaying the field data on the ad view page."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:663
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:663
+msgid "Field Input Element Type"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:665
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:665
+msgid "What input element type should be used to collect the data from user?"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:670
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:670
+msgid "Select Field Input Type"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:682
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:682
+msgid "Input Text Box"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:685
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:685
+msgid "Select List"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:688
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:688
+msgid "Multiple Select List"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:691
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:691
+msgid "Radio Button"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:694
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:694
+msgid "Checkbox"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:697
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:697
+msgid "Textarea"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:701
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:701
+msgid "Field MYSQL Data Type"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:703
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:703
+msgid ""
+"Select Number for values that must save as numbers, money for money values, "
+"short text for string values under 300 characters and long text for string "
+"values over 300 characters"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:708
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:708
+msgid "Select Field MYSQL Data Type"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:717
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:717
+msgid "Whole Number"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:720
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:720
+msgid "Decimal (Money and other floating values. Uses FLOAT)"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:723
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:723
+msgid "Short Text"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:726
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:726
+msgid "Long Text"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:730
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:730
+msgid "Field Options"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:731
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:731
+msgid " for drop down lists, radio buttons, checkboxes "
+msgstr ""
+
+#: awpcp_extra_fields_module.php:733
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:733
+msgid "type an option in each line"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:739
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:739
+msgid "Validate Against"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:741
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:741
+msgid "If field is optional do not select a validation option."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:746 awpcp_extra_fields_module.php:793
+#: awpcp_region_control_module.php:3376 frontend/page-search-ads.php:128
+#: frontend/templates/page-search-ads.tpl.php:40
+#: frontend/templates/page-search-ads.tpl.php:50
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:746
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:793
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:3376
+msgid "Select Option"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:756
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:756
+msgid "Email Format"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:759
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:759
+msgid "URL format"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:762
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:762
+msgid "Missing Value"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:765
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:765
+msgid "Numeric decimal allowed"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:768
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:768
+msgid "Numeric no decimal allowed"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:772
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:772
+msgid "Public or private?"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:774
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:774
+msgid ""
+"If you only want to collect the field from users, but not display it "
+"publicly, set to private. Defaults to public if private not set."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:779
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:779
+msgid "Public"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:782
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:782
+msgid "Private"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:786
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:786
+msgid "Category of this extra field"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:788
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:788
+msgid ""
+"This field will appear only in the selected category. If no category is "
+"selected, then the field will appear everywhere."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:802
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:802
+msgid "Do not show this field on the search form"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:806
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:806
+msgid "Show this field to the user on"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:810
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:810
+msgid "Ad Listing Display"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:814
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:814
+msgid "Single Ad Display"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:818
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:818
+msgid "Both"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:829
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:829
+msgid "Update Field"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:936
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:936
+msgid "Select One"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:1141
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1141
+msgid "is required"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:1150
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1150
+msgid "is badly formatted. Valid URL format required. Include http://"
+msgstr ""
+
+#: awpcp_extra_fields_module.php:1159
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1159
+msgid "is badly formatted. Valid Email format required."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:1168
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1168
+msgid "must be a number."
+msgstr ""
+
+#: awpcp_extra_fields_module.php:1177
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1177
+msgid "must be a number. Decimal values not allowed."
+msgstr ""
+
+#: awpcp_google_checkout_module.php:26
+#: premium-modules/awpcp-google-checkout/awpcp_google_checkout_module.php:26
+msgid "Google Checkout Settings"
+msgstr ""
+
+#: awpcp_google_checkout_module.php:30
+#: premium-modules/awpcp-google-checkout/awpcp_google_checkout_module.php:30
+msgid "Activate Google Checkout"
+msgstr ""
+
+#: awpcp_google_checkout_module.php:32
+#: premium-modules/awpcp-google-checkout/awpcp_google_checkout_module.php:32
+msgid "Merchant ID"
+msgstr ""
+
+#: awpcp_google_checkout_module.php:34
+#: premium-modules/awpcp-google-checkout/awpcp_google_checkout_module.php:34
+msgid "Sandbox Seller URL"
+msgstr ""
+
+#: awpcp_google_checkout_module.php:36
+#: premium-modules/awpcp-google-checkout/awpcp_google_checkout_module.php:36
+msgid "Button URL"
+msgstr ""
+
+#: awpcp_google_checkout_module.php:36
+#: premium-modules/awpcp-google-checkout/awpcp_google_checkout_module.php:36
+msgid "URL for your Google Checkout button"
+msgstr ""
+
+#: awpcp_google_checkout_module.php:72 frontend/payment-functions.php:55
+#: frontend/payment-functions.php:91
+#: premium-modules/awpcp-google-checkout/awpcp_google_checkout_module.php:72
+msgid "There was an error processing your payment."
+msgstr ""
+
+#: awpcp_google_checkout_module.php:212 frontend/payment-functions.php:1018
+#: premium-modules/awpcp-google-checkout/awpcp_google_checkout_module.php:212
+msgid "Completed"
+msgstr ""
+
+#: awpcp_google_checkout_module.php:224 frontend/ad-functions.php:1107
+#: frontend/ad-functions.php:1433 frontend/ad-functions.php:3918
+#: frontend/payment-functions.php:1030
+#: premium-modules/awpcp-google-checkout/awpcp_google_checkout_module.php:224
+#: upload_awpcp.php:588
+msgid "Your Ad is posted"
+msgstr ""
+
+#: awpcp_region_control_module.php:77
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:77
+msgid "Region Control Settings"
+msgstr ""
+
+#: awpcp_region_control_module.php:79
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:79
+msgid "Show the regions sidelist"
+msgstr ""
+
+#: awpcp_search_widget.php:34
+msgid "Search by keyword"
+msgstr ""
+
+#: awpcp_search_widget.php:37
+msgid "Find ads by "
+msgstr ""
+
+#: awpcp_search_widget.php:40
+msgid "Search by City "
+msgstr ""
+
+#: awpcp_search_widget.php:43
+msgid "Search by State "
+msgstr ""
+
+#: awpcp_search_widget.php:46
+msgid "Search by Country "
+msgstr ""
+
+#: awpcp_search_widget.php:74
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:173
+msgid "Title:"
+msgstr ""
+
+#: awpcp_search_widget.php:79
+msgid "Subtitle:"
+msgstr ""
+
+#: awpcp_search_widget.php:85
+msgid "Show keyword field?"
+msgstr ""
+
+#: awpcp_search_widget.php:92
+msgid "Show Posted By field?"
+msgstr ""
+
+#: awpcp_search_widget.php:99
+msgid "Show City field?"
+msgstr ""
+
+#: awpcp_search_widget.php:106
+msgid "Show State field?"
+msgstr ""
+
+#: awpcp_search_widget.php:113
+msgid "Show Country field?"
+msgstr ""
+
+#: classes/settings-api.php:130
+msgid "SEO Settings"
+msgstr ""
+
+#: classes/settings-api.php:147 classes/settings-api.php:151
+msgid "Classifieds Pages"
+msgstr ""
+
+#: classes/settings-api.php:181
+msgid "Ad/Listings"
+msgstr ""
+
+#: classes/settings-api.php:185
+msgid "Notifications"
+msgstr ""
+
+#: classes/settings-api.php:201
+msgid "Moderation"
+msgstr ""
+
+#: classes/settings-api.php:222
+msgid "Layout and Presentation"
+msgstr ""
+
+#: classes/settings-api.php:241 cron.php:258
+msgid "Title"
+msgstr ""
+
+#: classes/settings-api.php:242
+msgid "Paid first then most recent"
+msgstr ""
+
+#: classes/settings-api.php:243
+msgid "Paid first then title"
+msgstr ""
+
+#: classes/settings-api.php:244
+msgid "Most viewed then title"
+msgstr ""
+
+#: classes/settings-api.php:245
+msgid "Most viewed then most recent"
+msgstr ""
+
+#: classes/settings-api.php:265
+msgid "Menu Items"
+msgstr ""
+
+#: classes/settings-api.php:283
+msgid "Payment Settings"
+msgstr ""
+
+#: classes/settings-api.php:295
+msgid "PayPal Settings"
+msgstr ""
+
+#: classes/settings-api.php:310
+msgid "2Checkout Settings"
+msgstr ""
+
+#: classes/settings-api.php:328
+msgid "Image Settings"
+msgstr ""
+
+#: classes/settings-api.php:366
+msgid "AdSense Settings"
+msgstr ""
+
+#: classes/settings-api.php:384
+msgid "Phone Field"
+msgstr ""
+
+#: classes/settings-api.php:393
+msgid "City Field"
+msgstr ""
+
+#: classes/settings-api.php:401
+msgid "State Field"
+msgstr ""
+
+#: classes/settings-api.php:409
+msgid "Country Field"
+msgstr ""
+
+#: classes/settings-api.php:417
+msgid "County Field"
+msgstr ""
+
+#: classes/settings-api.php:425
+msgid "Price Field"
+msgstr ""
+
+#: classes/settings-api.php:433
+msgid "Website Field"
+msgstr ""
+
+#: classes/settings-api.php:441
+msgid "Posted By Field"
+msgstr ""
+
+#: classes/settings-api.php:452
+msgid "Registration Settings"
+msgstr ""
+
+#: classes/settings-api.php:472
+msgid "General Email Settings"
+msgstr ""
+
+#: classes/settings-api.php:484
+msgid "Ad Posted Message"
+msgstr ""
+
+#: classes/settings-api.php:495
+msgid "Reply to Ad Message"
+msgstr ""
+
+#: classes/settings-api.php:506
+msgid "Request Ad Message"
+msgstr ""
+
+#: classes/settings-api.php:517
+msgid "Incomplete Payment Message"
+msgstr ""
+
+#: classes/settings-api.php:528
+msgid "Ad Expired Message"
+msgstr ""
+
+#: classes/settings-api.php:539
+msgid "Renew Ad Message"
+msgstr ""
+
+#: classes/settings-api.php:550
+msgid "Advanced Email Configuration"
+msgstr ""
+
+#: classes/settings-api.php:815
+msgid ""
+"You cannot enable Akismet SPAM control because you do not have Akismet "
+"installed/activated"
+msgstr ""
+
+#: classes/settings-api.php:820
+msgid ""
+"You cannot enable Akismet SPAM control because you have not configured "
+"Akismet properly"
+msgstr ""
+
+#: classes/settings-api.php:865 classes/settings-api.php:880
+msgid ""
+"There is a problem with the currency code you have entered. It does not "
+"match any of the codes in the list of available currencies provided by "
+"PayPal."
+msgstr ""
+
+#: classes/settings-api.php:867 classes/settings-api.php:882
+msgid "The available currency codes are"
+msgstr ""
+
+#: cron.php:7
+msgid "Once Every 30 Days"
+msgstr ""
+
+#: cron.php:103
+msgid "Listing Details"
+msgstr ""
+
+#: cron.php:105
+msgid "Ad Title:"
+msgstr ""
+
+#: cron.php:108
+msgid "Posted:"
+msgstr ""
+
+#: cron.php:111
+msgid "Renew your ad by visiting:"
+msgstr ""
+
+#: cron.php:257
+msgid "Listing Details are below:"
+msgstr ""
+
+#: cron.php:259
+msgid "Posted on"
+msgstr ""
+
+#: cron.php:260
+msgid "Expires on"
+msgstr ""
+
+#: cron.php:261
+msgid "You can renew your Ad visiting this link:"
+msgstr ""
+
+#: frontend/ad-functions.php:12 frontend/ad-functions.php:1748
+#: frontend/ad-functions.php:2682 frontend/ad-functions.php:4157
+msgid ""
+"You do not have permission to perform the function you are trying to "
+"perform. Access to this page has been denied"
+msgstr ""
+
+#: frontend/ad-functions.php:19 frontend/ad-functions.php:1753
+msgid ""
+"Hi, You need to be a registered user to post Ads in this website. Please use "
+"the form below to login or register."
+msgstr ""
+
+#: frontend/ad-functions.php:33
+msgid "<strong>Ad Fees</strong> - Pay for a single Ad"
+msgstr ""
+
+#: frontend/ad-functions.php:231
+msgid "An unexpected error ocurred. No Ad was specified."
+msgstr ""
+
+#: frontend/ad-functions.php:254
+msgid "You did not enter a title for your ad"
+msgstr ""
+
+#: frontend/ad-functions.php:263
+msgid ""
+"You did not enter any text for your ad. Please enter some text for your ad"
+msgstr ""
+
+#: frontend/ad-functions.php:268
+msgid ""
+"You did not select a category for your ad. Please select a category for your "
+"ad"
+msgstr ""
+
+#: frontend/ad-functions.php:273
+msgid "You did not enter your name. Your name is required"
+msgstr ""
+
+#: frontend/ad-functions.php:279
+msgid "You did not enter your email. Your email is required"
+msgstr ""
+
+#: frontend/ad-functions.php:284 frontend/ad-functions.php:3104
+msgid ""
+"The email address you entered was not a valid email address. Please check "
+"for errors and try again"
+msgstr ""
+
+#: frontend/ad-functions.php:292
+msgid "You did not enter your phone number. Your phone number is required"
+msgstr ""
+
+#: frontend/ad-functions.php:301
+msgid "You did not enter your city. Your city is required"
+msgstr ""
+
+#: frontend/ad-functions.php:310
+msgid "You did not enter your state. Your state is required"
+msgstr ""
+
+#: frontend/ad-functions.php:319
+msgid "You did not enter your country. Your country is required"
+msgstr ""
+
+#: frontend/ad-functions.php:328
+msgid "You did not enter your county/village. Your county/village is required"
+msgstr ""
+
+#: frontend/ad-functions.php:335
+msgid ""
+"You cannot list your ad in top level categories. You need to select a sub "
+"category of %s to list your ad under"
+msgstr ""
+
+#: frontend/ad-functions.php:341
+msgid "You did not accept the terms of service"
+msgstr ""
+
+#: frontend/ad-functions.php:349
+msgid "You did not enter the price of your item. The item price is required."
+msgstr ""
+
+#: frontend/ad-functions.php:358
+msgid ""
+"You have entered an invalid item price. Make sure your price contains "
+"numbers only. Please do not include currency symbols."
+msgstr ""
+
+#: frontend/ad-functions.php:367
+msgid ""
+"You did not enter your website address. Your website address is required."
+msgstr ""
+
+#: frontend/ad-functions.php:374
+msgid ""
+"Your website address is not properly formatted. Please make sure you have "
+"included the http:// part of your website address"
+msgstr ""
+
+#: frontend/ad-functions.php:382 frontend/ad-functions.php:2131
+msgid ""
+"You did not solve the math problem. Please solve the math problem to proceed."
+msgstr ""
+
+#: frontend/ad-functions.php:384
+msgid "Your solution to the math problem was incorrect. Please try again"
+msgstr ""
+
+#: frontend/ad-functions.php:392
+msgid ""
+"Your ad was flagged as spam.  Please contact the administrator of this site."
+msgstr ""
+
+#: frontend/ad-functions.php:490
+msgid ""
+"There was an error processing your Payment Request. Please try again or "
+"contact and Administrator."
+msgstr ""
+
+#: frontend/ad-functions.php:494
+msgid "Ad Category field is required"
+msgstr ""
+
+#: frontend/ad-functions.php:500
+msgid ""
+"You cannot list your Ad in top level categories. You need to select a sub "
+"category of %s to list your Ad under"
+msgstr ""
+
+#: frontend/ad-functions.php:510
+msgid "You should choose one of the available Payment Terms"
+msgstr ""
+
+#: frontend/ad-functions.php:514
+msgid "The Payment Term you selected is no valid for the category %s"
+msgstr ""
+
+#: frontend/ad-functions.php:519
+msgid "You should choose one of the available Payment Methods"
+msgstr ""
+
+#: frontend/ad-functions.php:578 frontend/ad-functions.php:624
+msgid ""
+"Hi, Payment is required for posting Ads in this website and we can't find a "
+"Payment transaction asssigned you. You can't post Ads this time. If you "
+"think this is an error please contact the website Administrator."
+msgstr ""
+
+#: frontend/ad-functions.php:773 frontend/ad-functions.php:3890
+#: upload_awpcp.php:528 upload_awpcp.php:569
+msgid ""
+"If you have uploaded images your images will not show up until an admin has "
+"approved them."
+msgstr ""
+
+#: frontend/ad-functions.php:857
+#: frontend/templates/page-place-ad-upload-images-step.tpl.php:13
+msgid "Image slots available"
+msgstr ""
+
+#: frontend/ad-functions.php:861
+#: frontend/templates/page-place-ad-upload-images-step.tpl.php:15
+msgid "Max image size"
+msgstr ""
+
+#: frontend/ad-functions.php:870 frontend/shortcode.php:967
+#: frontend/templates/page-place-ad-upload-images-step.tpl.php:21
+msgid ""
+"Image approval is in effect so any new images you upload will not be visible "
+"to viewers until an admin has approved it"
+msgstr ""
+
+#: frontend/ad-functions.php:903
+#: frontend/templates/page-place-ad-upload-images-step.tpl.php:26
+msgid "If adding images to your ad, select your image from your local computer"
+msgstr ""
+
+#: frontend/ad-functions.php:914
+msgid "Upload Selected Files"
+msgstr ""
+
+#: frontend/ad-functions.php:929
+msgid "Go To Next Step"
+msgstr ""
+
+#: frontend/ad-functions.php:930
+msgid "continue"
+msgstr ""
+
+#: frontend/ad-functions.php:932 frontend/ad-functions.php:935
+msgid "Post Ad Without Images"
+msgstr ""
+
+#: frontend/ad-functions.php:933 frontend/ad-functions.php:936
+msgid "complete"
+msgstr ""
+
+#: frontend/ad-functions.php:940
+msgid " <p>Please click the %1$s button to <b>%2$s</b> this process.</p>"
+msgstr ""
+
+#: frontend/ad-functions.php:942
+msgid ""
+" <p>If you prefer not to upload any images please click the <b>%1$s</b> "
+"button to %2$s this process.</p>"
+msgstr ""
+
+#: frontend/ad-functions.php:1493 frontend/ad-functions.php:1557
+#: frontend/ad-functions.php:1601 frontend/ad-functions.php:1605
+#: frontend/templates/renew_ad_page.tpl.php:3
+#: frontend/templates/renew_ad_page.tpl.php:17
+msgid "The Ad has been successfully renewed. New expiration date is %s"
+msgstr ""
+
+#: frontend/ad-functions.php:1530
+msgid "The specified Ad doesn't exist."
+msgstr ""
+
+#: frontend/ad-functions.php:1542 frontend/ad-functions.php:1611
+msgid "An error ocurred trying to process your payment request."
+msgstr ""
+
+#: frontend/ad-functions.php:1616
+msgid "Ad Renew is disabled at this moment."
+msgstr ""
+
+#: frontend/ad-functions.php:1826
+msgid "Delete Ad"
+msgstr ""
+
+#: frontend/ad-functions.php:2016
+msgid ""
+"You did not fill out a phone number for the ad contact person. The "
+"information is required"
+msgstr ""
+
+#: frontend/ad-functions.php:2028
+msgid "You did not fill out your city. The information is required"
+msgstr ""
+
+#: frontend/ad-functions.php:2040
+msgid "You did not fill out your state. The information is required"
+msgstr ""
+
+#: frontend/ad-functions.php:2052
+msgid ""
+"You did not fill out your county/village/other. The information is required"
+msgstr ""
+
+#: frontend/ad-functions.php:2064
+msgid "You did not fill out your country. The information is required"
+msgstr ""
+
+#: frontend/ad-functions.php:2076
+msgid "You did not fill out your website address. The information is required"
+msgstr ""
+
+#: frontend/ad-functions.php:2088
+msgid ""
+"You did not enter a value for the item price. The information is required"
+msgstr ""
+
+#: frontend/ad-functions.php:2100
+msgid "You did not select your payment method. The information is required"
+msgstr ""
+
+#: frontend/ad-functions.php:2112
+msgid "You did not select your ad term choice. The information is required"
+msgstr ""
+
+#: frontend/ad-functions.php:2132
+msgid "Your answer to the math problem was not correct. Please try again."
+msgstr ""
+
+#: frontend/ad-functions.php:2147
+msgid "You did not fill out an ad title. The information is required"
+msgstr ""
+
+#: frontend/ad-functions.php:2148
+msgid "You did not select an ad category. The information is required"
+msgstr ""
+
+#: frontend/ad-functions.php:2149 frontend/ad-functions.php:2781
+#: frontend/ad-functions.php:2937
+msgid ""
+"Either you did not enter your email address or the email address you entered "
+"is not valid"
+msgstr ""
+
+#: frontend/ad-functions.php:2150
+msgid ""
+"You did not fill in the name of the ad contact person. The information is "
+"required"
+msgstr ""
+
+#: frontend/ad-functions.php:2151
+msgid ""
+"You did not fill in any details for your ad. The information is required"
+msgstr ""
+
+#: frontend/ad-functions.php:2152
+msgid "You must accept the terms of service"
+msgstr ""
+
+#: frontend/ad-functions.php:2153
+msgid "You did not select a payment method"
+msgstr ""
+
+#: frontend/ad-functions.php:2154
+msgid "You did not select an ad term"
+msgstr ""
+
+#: frontend/ad-functions.php:2433
+msgid ""
+"Your ad details have been filled out in the form below. Make any changes "
+"needed then resubmit the ad to update it"
+msgstr ""
+
+#: frontend/ad-functions.php:2437
+msgid ""
+"<p class='awpcp-form-spacer' style='font-weight:bold'><em>You are logged in "
+"as an administrator. Any payment steps will be skipped.</em></p> "
+msgstr ""
+
+#: frontend/ad-functions.php:2439
+msgid "Fill out the form below to post your classified ad. "
+msgstr ""
+
+#: frontend/ad-functions.php:2473
+msgid "Step 3 of 4 - Ad Details"
+msgstr ""
+
+#: frontend/ad-functions.php:2512
+msgid "Ad Details and Contact Information"
+msgstr ""
+
+#: frontend/ad-functions.php:2519
+msgid "Ad Category"
+msgstr ""
+
+#: frontend/ad-functions.php:2521
+msgid "Select your ad category"
+msgstr ""
+
+#: frontend/ad-functions.php:2548
+msgid "Name of person to contact"
+msgstr ""
+
+#: frontend/ad-functions.php:2551
+msgid ""
+"Contact Person's Email [Please enter a valid email. The codes needed to edit "
+"your ad will be sent to your email address]"
+msgstr ""
+
+#: frontend/ad-functions.php:2556
+msgid "Contact Person's Phone Number"
+msgstr ""
+
+#: frontend/ad-functions.php:2576
+msgid "Item Price"
+msgstr ""
+
+#: frontend/ad-functions.php:2581
+msgid "Ad Details"
+msgstr ""
+
+#: frontend/ad-functions.php:2583
+msgid "characters left"
+msgstr ""
+
+#: frontend/ad-functions.php:2611
+msgid "Read our Terms of Service"
+msgstr ""
+
+#: frontend/ad-functions.php:2616
+msgid "Terms of service:"
+msgstr ""
+
+#: frontend/ad-functions.php:2623
+msgid "I agree to the terms of service"
+msgstr ""
+
+#: frontend/ad-functions.php:2628 frontend/ad-functions.php:3011
+msgid "Enter the value of the following sum"
+msgstr ""
+
+#: frontend/ad-functions.php:2636 frontend/ad-functions.php:2737
+#: frontend/ad-functions.php:2879 frontend/ad-functions.php:3017
+#: frontend/templates/page-cancel-payment.tpl.php:15
+#: frontend/templates/page-payment-thank-you.tpl.php:17
+#: frontend/templates/page-place-ad-payment-step.tpl.php:104
+#: frontend/templates/page-renew-ad-payment-form.tpl.php:16
+msgid "Continue"
+msgstr ""
+
+#: frontend/ad-functions.php:2713
+msgid ""
+"Please enter the email address you used when you created your ad in addition "
+"to the ad access key that was emailed to you after your ad was submitted"
+msgstr ""
+
+#: frontend/ad-functions.php:2729 frontend/ad-functions.php:2875
+#: frontend/ad-functions.php:3000
+msgid "Enter your Email address"
+msgstr ""
+
+#: frontend/ad-functions.php:2733
+msgid "Enter your ad access key"
+msgstr ""
+
+#: frontend/ad-functions.php:2739
+msgid "Resend Ad Access Key"
+msgstr ""
+
+#: frontend/ad-functions.php:2802
+msgid ""
+"Please enter the email address you used when you created your ad. Your "
+"access key will be sent to that email account. The email address you enter "
+"must match up with the email address we have on file"
+msgstr ""
+
+#: frontend/ad-functions.php:2823
+msgid "Total ads found sharing your email address"
+msgstr ""
+
+#: frontend/ad-functions.php:2854
+msgid "Your access key has been emailed to"
+msgstr ""
+
+#: frontend/ad-functions.php:2859
+msgid ""
+"There was a problem encountered during the attempt to resend your access "
+"key. We apologize. Please try again and if the problem persists, please "
+"contact the system administrator"
+msgstr ""
+
+#: frontend/ad-functions.php:2864
+msgid "There were no ads found registered with the email address provided"
+msgstr ""
+
+#: frontend/ad-functions.php:2913
+msgid "You did not enter the solution to the Math problem"
+msgstr ""
+
+#: frontend/ad-functions.php:2914
+msgid "The solution you submitted for the Math problem was not correct"
+msgstr ""
+
+#: frontend/ad-functions.php:2936
+msgid "You did not enter your name. Please enter your name"
+msgstr ""
+
+#: frontend/ad-functions.php:2938
+msgid "You did not enter any message. Please enter a message"
+msgstr ""
+
+#: frontend/ad-functions.php:2983
+msgid "You are responding to "
+msgstr ""
+
+#: frontend/ad-functions.php:2996
+msgid "Your Name"
+msgstr ""
+
+#: frontend/ad-functions.php:3004
+msgid "Enter your message below"
+msgstr ""
+
+#: frontend/ad-functions.php:3056
+msgid ""
+"The ad could not be identified due to a missing ad identification number"
+msgstr ""
+
+#: frontend/ad-functions.php:3063 frontend/ad-functions.php:3097
+msgid ""
+"You did not enter your name. You must include a name for this message to be "
+"relayed on your behalf"
+msgstr ""
+
+#: frontend/ad-functions.php:3073
+msgid "You did not solve the Math Problem"
+msgstr ""
+
+#: frontend/ad-functions.php:3080
+msgid "Your solution to the Math problem was incorrect"
+msgstr ""
+
+#: frontend/ad-functions.php:3089
+msgid "There was no text entered for your message"
+msgstr ""
+
+#: frontend/ad-functions.php:3113
+msgid ""
+"Your contact was flagged as spam.  Please contact the administrator of this "
+"site."
+msgstr ""
+
+#: frontend/ad-functions.php:3121
+msgid ""
+"There has been an error found. Your message has not been sent. Please review "
+"the list of problems, correct them then try to send your message again"
+msgstr ""
+
+#: frontend/ad-functions.php:3124 frontend/ad-functions.php:3565
+msgid "The errors"
+msgstr ""
+
+#: frontend/ad-functions.php:3143 frontend/ad-functions.php:3148
+msgid "Regarding"
+msgstr ""
+
+#: frontend/ad-functions.php:3160
+msgid "Message"
+msgstr ""
+
+#: frontend/ad-functions.php:3170
+msgid "Contacting About:"
+msgstr ""
+
+#: frontend/ad-functions.php:3180
+msgid "Reply To"
+msgstr ""
+
+#: frontend/ad-functions.php:3195
+msgid "Email"
+msgstr ""
+
+#: frontend/ad-functions.php:3217
+msgid "Your message has been sent"
+msgstr ""
+
+#: frontend/ad-functions.php:3221
+msgid ""
+"There was a problem encountered during the attempt to send your message. "
+"Please try again and if the problem persists, please contact the system "
+"administrator"
+msgstr ""
+
+#: frontend/ad-functions.php:3266
+msgid "Cannot process your request due to the following error"
+msgstr ""
+
+#: frontend/ad-functions.php:3279
+#: frontend/templates/page-search-ads.tpl.php:12
+msgid ""
+"You did not enter a keyword or phrase to search for. You must at the very "
+"least provide a keyword or phrase to search for"
+msgstr ""
+
+#: frontend/ad-functions.php:3289
+msgid ""
+"You have entered an invalid minimum price. Make sure your price contains "
+"numbers only. Please do not include currency symbols"
+msgstr ""
+
+#: frontend/ad-functions.php:3300
+msgid ""
+"You have entered an invalid maximum price. Make sure your price contains "
+"numbers only. Please do not include currency symbols"
+msgstr ""
+
+#: frontend/ad-functions.php:3313
+msgid ""
+"You have entered a keyword that is too short to search on.  Search keywords "
+"must be at least 4 letters in length.  Please try another term"
+msgstr ""
+
+#: frontend/ad-functions.php:3478
+msgid ""
+"The information you have entered does not match the information on file. "
+"Please make sure you are using the same email address you used to post your "
+"ad and the exact access key that was emailed to you when you posted your ad"
+msgstr ""
+
+#: frontend/ad-functions.php:3563
+msgid ""
+"There has been an error found. Please review the list of problems, correct "
+"them then try again"
+msgstr ""
+
+#: frontend/ad-functions.php:3619
+msgid "The ad has been edited successfully."
+msgstr ""
+
+#: frontend/ad-functions.php:3621
+msgid "Back to view listings"
+msgstr ""
+
+#: frontend/ad-functions.php:3807
+msgid "Step 2 Finalize"
+msgstr ""
+
+#: frontend/ad-functions.php:3811 frontend/ad-functions.php:3860
+msgid "Step 2 Upload Images"
+msgstr ""
+
+#: frontend/ad-functions.php:3879 upload_awpcp.php:517 upload_awpcp.php:558
+msgid "Your ad has been submitted"
+msgstr ""
+
+#: frontend/ad-functions.php:3939 frontend/ad-functions.php:4006
+msgid "Step 3 Payment"
+msgstr ""
+
+#: frontend/ad-functions.php:3940
+msgid "You're logged in as an adminstrator, so there's no payment required."
+msgstr ""
+
+#: frontend/ad-functions.php:3941
+msgid "Click here to preview your ad"
+msgstr ""
+
+#: frontend/ad-functions.php:4011
+msgid ""
+"Please click the button below to submit payment for your ad listing. You'll "
+"be asked to pay <b>%0.2f</b>."
+msgstr ""
+
+#: frontend/ad-functions.php:4049
+msgid ""
+"Please click the finish button to complete the process of submitting your "
+"listing"
+msgstr ""
+
+#: frontend/ad-functions.php:4057
+#: frontend/templates/page-place-ad-upload-images-step.tpl.php:53
+msgid "Finish"
+msgstr ""
+
+#: frontend/ad-functions.php:4124
+msgid "The image has been deleted"
+msgstr ""
+
+#: frontend/ad-functions.php:4136
+msgid "Unable to delete you image, please contact the administrator."
+msgstr ""
+
+#: frontend/ad-functions.php:4196
+msgid "The ad has been deleted"
+msgstr ""
+
+#: frontend/ad-functions.php:4202
+msgid ""
+"Your ad details and any photos you have uploaded have been deleted from the "
+"system"
+msgstr ""
+
+#: frontend/ad-functions.php:4208
+msgid "Problem encountered. Cannot complete  request"
+msgstr ""
+
+#: frontend/ad-functions.php:4253
+msgid "Listing payment status change notification"
+msgstr ""
+
+#: frontend/ad-functions.php:4254 frontend/payment-functions.php:1070
+#: frontend/templates/email-place-ad-success-user.tpl.php:16
+#: frontend/templates/email-place-ad-success-user.tpl.php:19
+msgid "Additional Details"
+msgstr ""
+
+#: frontend/ad-functions.php:4255 frontend/payment-functions.php:1071
+msgid "Transaction ID"
+msgstr ""
+
+#: frontend/ad-functions.php:4259 frontend/payment-functions.php:1096
+msgid "Dear Administrator"
+msgstr ""
+
+#: frontend/ad-functions.php:4260
+msgid "A listing in the system has been updated with a payment status change"
+msgstr ""
+
+#: frontend/ad-functions.php:4275 frontend/payment-functions.php:1112
+#: frontend/templates/email-place-ad-success-user.tpl.php:5
+msgid "Listing Title"
+msgstr ""
+
+#: frontend/ad-functions.php:4279 frontend/payment-functions.php:1116
+#: frontend/templates/email-place-ad-success-user.tpl.php:9
+msgid "Listing ID"
+msgstr ""
+
+#: frontend/ad-functions.php:4283 frontend/payment-functions.php:1120
+#: frontend/templates/email-place-ad-success-user.tpl.php:7
+msgid "Listing URL"
+msgstr ""
+
+#: frontend/ad-functions.php:4289 frontend/payment-functions.php:1126
+msgid "Payment transaction ID"
+msgstr ""
+
+#: frontend/ad-functions.php:4322
+msgid ""
+"An un expected error occurred while trying to send a notification email "
+"about your Ad being posted. Please contact an Administrator if your Ad is "
+"not being properly listed."
+msgstr ""
+
+#: frontend/ad-functions.php:4336
+msgid "New classified ad listing posted"
+msgstr ""
+
+#: frontend/ad-functions.php:4353
+msgid ""
+"Your ad has been submitted and an email has been sent to the email address "
+"you provided with information you will need to edit your listing."
+msgstr ""
+
+#: frontend/ad-functions.php:4359
+msgid "Your ad has been submitted."
+msgstr ""
+
+#: frontend/ad-functions.php:4378
+msgid ""
+"Although your ad has been submitted, there was a problem encountered while "
+"attempting to email your ad details to the email address you provided."
+msgstr ""
+
+#: frontend/ad-functions.php:4516 frontend/ad-functions.php:4987
+msgid ""
+"*** NOTE:  The next two strings are for currency formatting:  1,000.00 where "
+"comma is used for currency place holders and the period for decimal "
+"separation.  Change the next two strings for your preferred price "
+"formatting.  (this string is just a note)***"
+msgstr ""
+
+#: frontend/ad-functions.php:4517 frontend/ad-functions.php:4988
+msgid ","
+msgstr ""
+
+#: frontend/ad-functions.php:4518 frontend/ad-functions.php:4989
+msgid "."
+msgstr ""
+
+#: frontend/ad-functions.php:4765
+msgid "Total views"
+msgstr ""
+
+#: frontend/ad-functions.php:4779 frontend/ad-functions.php:5161
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-form.tpl.php:16
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:293
+msgid "Price"
+msgstr ""
+
+#: frontend/ad-functions.php:4794 frontend/ad-functions.php:5293
+msgid "m/d/Y"
+msgstr ""
+
+#: frontend/ad-functions.php:4871
+msgid "Select Category"
+msgstr ""
+
+#: frontend/ad-functions.php:4876
+msgid "Change Category"
+msgstr ""
+
+#: frontend/ad-functions.php:4879
+msgid "Category: "
+msgstr ""
+
+#: frontend/ad-functions.php:4894 frontend/shortcode.php:480
+msgid "Powered by "
+msgstr ""
+
+#: frontend/ad-functions.php:5051 frontend/ad-functions.php:5064
+msgid ""
+"Sorry, that ad is no longer valid.  Try browsing ads or searching for one "
+"instead."
+msgstr ""
+
+#: frontend/ad-functions.php:5084
+msgid "Phone"
+msgstr ""
+
+#: frontend/ad-functions.php:5095
+msgid "Location "
+msgstr ""
+
+#: frontend/ad-functions.php:5173
+msgid "This ad has been viewed "
+msgstr ""
+
+#: frontend/ad-functions.php:5175
+msgid " times"
+msgstr ""
+
+#: frontend/ad-functions.php:5190
+msgid "Visit Website"
+msgstr ""
+
+#: frontend/ad-functions.php:5257
+msgid "Flag ad"
+msgstr ""
+
+#: frontend/ad-functions.php:5262
+msgid "Are you sure you want to flag this ad?"
+msgstr ""
+
+#: frontend/ad-functions.php:5274
+msgid "This ad has been flagged"
+msgstr ""
+
+#: frontend/ad-functions.php:5276
+msgid "An error occurred while trying to flag the ad"
+msgstr ""
+
+#: frontend/ad-functions.php:5292
+msgid ""
+"*** NOTE the next string is the date format used for the field codes "
+"displayed in the ad.  Change to your local format."
+msgstr ""
+
+#: frontend/ad-functions.php:5335
+msgid "Contact Information"
+msgstr ""
+
+#: frontend/ad-functions.php:5338
+msgid "Contact"
+msgstr ""
+
+#: frontend/ad-functions.php:5349
+msgid "More Information"
+msgstr ""
+
+#: frontend/page-cancel-payment.php:33 frontend/page-cancel-payment.php:61
+#: frontend/page-payment-thank-you.php:32
+msgid "Your Transaction ID is %s."
+msgstr ""
+
+#: frontend/page-cancel-payment.php:36 frontend/page-cancel-payment.php:65
+#: frontend/page-payment-thank-you.php:36
+msgid ""
+"An error ocurred while processing your Payment Transaction. Please contact "
+"the administrator about this error."
+msgstr ""
+
+#: frontend/page-cancel-payment.php:43
+msgid "Payment Cancelled"
+msgstr ""
+
+#: frontend/page-cancel-payment.php:44
+msgid ""
+"You have chosen to cancel the payment process. You can click the button "
+"below to go the checkout page again and make your payment now."
+msgstr ""
+
+#: frontend/page-cancel-payment.php:74 frontend/page-payment-thank-you.php:45
+#: frontend/payment-functions.php:260 frontend/payment-functions.php:852
+#: frontend/payment-functions.php:1613
+msgid ""
+"There appears to be a problem. Please contact customer service if you are "
+"viewing this message after having made a payment. If you have not tried to "
+"make a payment and you are viewing this message, it means this message is "
+"being shown in error and can be disregarded."
+msgstr ""
+
+#: frontend/page-cancel-payment.php:90 frontend/page-payment-thank-you.php:61
+#: frontend/templates/page-place-ad-checkout-step.tpl.php:6
+msgid "Step 2 of 4 - Checkout"
+msgstr ""
+
+#: frontend/page-cancel-payment.php:91 frontend/page-payment-thank-you.php:62
+msgid "Congratulations"
+msgstr ""
+
+#: frontend/page-cancel-payment.php:92 frontend/page-payment-thank-you.php:63
+msgid ""
+"Your Payment has been processed succesfully. Please press the button below "
+"to continue with the process."
+msgstr ""
+
+#: frontend/page-search-ads.php:85
+msgid ""
+"Use the form below to conduct a broad or narrow search. For a broader search "
+"enter fewer parameters. For a narrower search enter as many parameters as "
+"needed to limit your search to a specific criteria"
+msgstr ""
+
+#: frontend/payment-functions.php:7
+#: premium-modules/awpcp-fee-per-category/get_cat_pricing.php:54
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-form.tpl.php:32
+msgid "Day"
+msgid_plural "Days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: frontend/payment-functions.php:9
+#: premium-modules/awpcp-fee-per-category/get_cat_pricing.php:55
+msgid "Week"
+msgid_plural "Weeks"
+msgstr[0] ""
+msgstr[1] ""
+
+#: frontend/payment-functions.php:11
+#: premium-modules/awpcp-fee-per-category/get_cat_pricing.php:53
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-form.tpl.php:32
+msgid "Month"
+msgid_plural "Months"
+msgstr[0] ""
+msgstr[1] ""
+
+#: frontend/payment-functions.php:13
+msgid "Years"
+msgid_plural "Year"
+msgstr[0] ""
+msgstr[1] ""
+
+#: frontend/payment-functions.php:139
+msgid "PayPal returned the following status from your payment: %s"
+msgstr ""
+
+#: frontend/payment-functions.php:141
+msgid ""
+"If this status is not COMPLETED or VERIFIED, then you may need to wait a bit "
+"before your payment is approved, or contact PayPal directly as to the reason "
+"the payment is having a problem."
+msgstr ""
+
+#: frontend/payment-functions.php:142 frontend/payment-functions.php:1534
+msgid "If you have any further questions, contact this site administrator."
+msgstr ""
+
+#: frontend/payment-functions.php:166 frontend/payment-functions.php:1592
+msgid ""
+"There appears to be a problem. Please contact customer service if you are "
+"viewing this message after having made a payment via 2Checkout. If you have "
+"not tried to make a payment and you are viewing this message, it means this "
+"message has been sent in error and can be disregarded."
+msgstr ""
+
+#: frontend/payment-functions.php:223 frontend/payment-functions.php:299
+msgid ""
+"The amount you have paid does not match any of our Payment Terms amounts. "
+"Please contact us to clarify the problem."
+msgstr ""
+
+#: frontend/payment-functions.php:229 frontend/payment-functions.php:305
+#: frontend/payment-functions.php:697
+msgid ""
+"There was an error processing your transaction. If funds have been deducted "
+"from your account they have not been processed to our account. You will need "
+"to contact PayPal about the matter."
+msgstr ""
+
+#: frontend/payment-functions.php:237 frontend/payment-functions.php:313
+#: frontend/payment-functions.php:716
+msgid ""
+"It appears this transaction has already been processed. If you do not see "
+"your ad in the system please contact the site adminstrator for assistance."
+msgstr ""
+
+#: frontend/payment-functions.php:522
+#: frontend/templates/checkout-form-paypal.tpl.php:34
+msgid "Make payments with PayPal - it's fast, free and secure!"
+msgstr ""
+
+#: frontend/payment-functions.php:597
+#: frontend/templates/checkout-form-2checkout.tpl.php:28
+msgid "Pay With 2Checkout"
+msgstr ""
+
+#: frontend/payment-functions.php:681
+msgid ""
+"The amount you have paid does not match any of our listing fee amounts. "
+"Please contact us to clarify the problem."
+msgstr ""
+
+#: frontend/payment-functions.php:767
+msgid "Payment status has been changed to cancelled"
+msgstr ""
+
+#: frontend/payment-functions.php:773
+msgid "Payment has been completed"
+msgstr ""
+
+#: frontend/payment-functions.php:805
+msgid "Payment status has been changed to refunded"
+msgstr ""
+
+#: frontend/payment-functions.php:844
+msgid "Payment is pending"
+msgstr ""
+
+#: frontend/payment-functions.php:867 upload_awpcp.php:547
+msgid "You Ad is posted"
+msgstr ""
+
+#: frontend/payment-functions.php:931
+msgid ""
+"The amount you have paid does not match any of our listing fee amounts. "
+"Please contact us to clarify the problem"
+msgstr ""
+
+#: frontend/payment-functions.php:951
+msgid ""
+"There was an error process your transaction. If funds have been deducted "
+"from your account they have not been processed to our account. You will need "
+"to contact 2Checkout about the matter"
+msgstr ""
+
+#: frontend/payment-functions.php:970
+msgid ""
+"It appears this transaction has already been processed. If you do not see "
+"your ad in the system please contact the site adminstrator for assistance"
+msgstr ""
+
+#: frontend/payment-functions.php:1068
+msgid "Customer attempt to pay for classified ad listing has failed"
+msgstr ""
+
+#: frontend/payment-functions.php:1097
+msgid ""
+"There was a problem encountered during a customer's attempt to submit "
+"payment for a classified ad listing"
+msgstr ""
+
+#: frontend/payment-functions.php:1258
+msgid ""
+"You have chosen to cancel the payment process. Your ad cannot be activated "
+"until you pay the listing fee. You can click the link below to delete your "
+"ad information, or you can click the button to make your payment now"
+msgstr ""
+
+#: frontend/payment-functions.php:1272
+msgid "Delete Ad Details"
+msgstr ""
+
+#: frontend/payment-functions.php:1278
+msgid "Buy With PayPal"
+msgstr ""
+
+#: frontend/payment-functions.php:1286
+msgid "Buy With 2Checkout"
+msgstr ""
+
+#: frontend/payment-functions.php:1294
+msgid "Buy With Google Checkout"
+msgstr ""
+
+#: frontend/payment-functions.php:1531
+msgid "PayPal returned the following status from your payment:"
+msgstr ""
+
+#: frontend/payment-functions.php:1533
+msgid ""
+"If this status is not Completed or Verified, then you may need to wait a bit "
+"before your payment is approved, or contact PayPal directly as to the reason "
+"the payment is having a problem."
+msgstr ""
+
+#: frontend/shortcode.php:261
+msgid "You currently have no classifieds"
+msgstr ""
+
+#: frontend/shortcode.php:268
+msgid "Hi admin, you need to go to your dashboard and setup your classifieds."
+msgstr ""
+
+#: frontend/shortcode.php:329
+msgid ""
+"Only register users can reply to Ads. If you are already registered, please "
+"login below in order to reply to the Ad."
+msgstr ""
+
+#: frontend/shortcode.php:402
+msgid ""
+"No specific category was selected for browsing so you are viewing listings "
+"from all categories"
+msgstr ""
+
+#: frontend/shortcode.php:546
+msgid "RSS Feed for Classifieds"
+msgstr ""
+
+#: frontend/shortcode.php:579
+msgid " Step 1"
+msgstr ""
+
+#: frontend/shortcode.php:588
+msgid " Step 2"
+msgstr ""
+
+#: frontend/shortcode.php:913
+msgid "Manage your ad images"
+msgstr ""
+
+#: frontend/shortcode.php:918
+msgid ""
+"There has been a problem encountered. The system is unable to continue "
+"processing the task in progress. Please start over and if you encounter the "
+"problem again, please contact a system administrator."
+msgstr ""
+
+#: frontend/shortcode.php:954
+msgid ""
+"Your images are displayed below. The total number of images you are allowed "
+"is"
+msgstr ""
+
+#: frontend/shortcode.php:960
+msgid ""
+"If you want to change your images you will first need to delete the current "
+"images"
+msgstr ""
+
+#: frontend/shortcode.php:1027
+msgid ""
+"You do not currently have any images uploaded. Use the upload form below to "
+"upload your images. If you do not wish to upload any images simply click the "
+"finish button. If uploading images, be careful not to click the finish "
+"button until after you've uploaded all your images"
+msgstr ""
+
+#: frontend/templates/checkout-form-google-checkout.tpl.php:8
+msgid ""
+"Your listing has not been fully submitted yet. To complete the process you "
+"need to click the link below."
+msgstr ""
+
+#: frontend/templates/checkout-form-google-checkout.tpl.php:14
+msgid "Pay With Google Checkout"
+msgstr ""
+
+#: frontend/templates/email-place-ad-success-admin.tpl.php:2
+msgid ""
+"A new classifieds listing has been submitted. A copy of the details sent to "
+"the customer can be found below:"
+msgstr ""
+
+#: frontend/templates/email-place-ad-success-user.tpl.php:11
+msgid "Listing Edit Email"
+msgstr ""
+
+#: frontend/templates/email-place-ad-success-user.tpl.php:13
+msgid "Listing Edit Key"
+msgstr ""
+
+#: frontend/templates/email-place-ad-success-user.tpl.php:25
+msgid "If you have questions about your listing contact"
+msgstr ""
+
+#: frontend/templates/email-place-ad-success-user.tpl.php:28
+msgid "Thank you for your business"
+msgstr ""
+
+#: frontend/templates/login_form.tpl.php:4
+#: frontend/templates/user-login-form.tpl.php:4
+msgid "Login"
+msgstr ""
+
+#: frontend/templates/login_form.tpl.php:12
+#: frontend/templates/user-login-form.tpl.php:12
+msgid "Password"
+msgstr ""
+
+#: frontend/templates/login_form.tpl.php:25
+#: frontend/templates/user-login-form.tpl.php:23
+msgid "Remember Me"
+msgstr ""
+
+#: frontend/templates/login_form.tpl.php:29
+#: frontend/templates/user-login-form.tpl.php:27
+msgid "Log In"
+msgstr ""
+
+#: frontend/templates/login_form.tpl.php:36
+#: frontend/templates/user-login-form.tpl.php:36
+msgid "Register"
+msgstr ""
+
+#: frontend/templates/page-payment-thank-you.tpl.php:27
+msgid ""
+"Your payment was rejected. If you think this is an error please contact the "
+"website Administrator."
+msgstr ""
+
+#: frontend/templates/page-place-ad-checkout-step.tpl.php:12
+msgid ""
+"Please click the button below to submit payment. You'll be asked to pay "
+"<strong>%0.2f</strong>"
+msgstr ""
+
+#: frontend/templates/page-place-ad-finish.tpl.php:7
+msgid "Your changes have been saved"
+msgstr ""
+
+#: frontend/templates/page-place-ad-finish.tpl.php:9
+msgid "Your Ad has been submitted"
+msgstr ""
+
+#: frontend/templates/page-place-ad-payment-step.tpl.php:6
+msgid "Step 1 of 4 - Payment Information"
+msgstr ""
+
+#: frontend/templates/page-place-ad-payment-step.tpl.php:14
+msgid "Please select a Category for your Ad"
+msgstr ""
+
+#: frontend/templates/page-place-ad-payment-step.tpl.php:18
+msgid "Select a Category"
+msgstr ""
+
+#: frontend/templates/page-place-ad-payment-step.tpl.php:25
+msgid "Please select a payment term for your Ad"
+msgstr ""
+
+#: frontend/templates/page-place-ad-payment-step.tpl.php:75
+msgid "Please select a payment method"
+msgstr ""
+
+#: frontend/templates/page-place-ad-upload-images-step.tpl.php:6
+msgid "Step 4 of 4 - Upload Images"
+msgstr ""
+
+#: frontend/templates/page-place-ad-upload-images-step.tpl.php:51
+msgid "Place Ad without Images"
+msgstr ""
+
+#: frontend/templates/page-place-ad-upload-images-step.tpl.php:56
+msgid "Upload Images"
+msgstr ""
+
+#: frontend/templates/page-renew-ad-payment-form.tpl.php:1
+#: frontend/templates/renew_ad_page.tpl.php:22
+msgid ""
+"You're about to renew your Ad. Please select a payment method below and "
+"click Continue."
+msgstr ""
+
+#: frontend/templates/page-renew-ad.tpl.php:15
+msgid ""
+"Please click the payment button below to proceed with Payment for your Ad "
+"renewal. You will be asked to pay %s."
+msgstr ""
+
+#: frontend/templates/page-search-ads.tpl.php:34
+msgid "Search for ads containing this word or phrase"
+msgstr ""
+
+#: frontend/templates/page-search-ads.tpl.php:38
+msgid "Search in Category"
+msgstr ""
+
+#: frontend/templates/page-search-ads.tpl.php:48
+msgid "For Ads Posted By"
+msgstr ""
+
+#: frontend/templates/page-search-ads.tpl.php:61
+msgid "Min Price"
+msgstr ""
+
+#: frontend/templates/page-search-ads.tpl.php:64
+#: frontend/templates/page-search-ads.tpl.php:71
+msgid "Select"
+msgstr ""
+
+#: frontend/templates/page-search-ads.tpl.php:68
+msgid "Max Price"
+msgstr ""
+
+#: frontend/templates/page-search-ads.tpl.php:93
+msgid "Start Search"
+msgstr ""
+
+#: frontend/templates/region-control-form.tpl.php:4
+msgid "Current Location:"
+msgstr ""
+
+#: frontend/templates/region-control-form.tpl.php:11
+msgid ""
+"You can use the fields below to refine or clear your current location. Start "
+"by selecting a Country, other fields will be automatically updated to show "
+"available locations.<br/>Use the <em>Clear Location</em> button if you want "
+"to start over."
+msgstr ""
+
+#: frontend/templates/renew_ad_page.tpl.php:8
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:907
+msgid ""
+"This Ad was placed under a Subscription that has expired. Use the following "
+"link to renew your Subscription and then try to renew your Ad again."
+msgstr ""
+
+#: frontend/templates/renew_ad_page.tpl.php:13
+msgid ""
+"This Ad was placed under a Subscription that has expired. Unfortunately "
+"Subscriptions are no longer available. Please contact the admin about this "
+"issue."
+msgstr ""
+
+#: frontend/templates/renew_ad_page.tpl.php:26
+#: premium-modules/awpcp-subscriptions/frontend/templates/buy-subscription.tpl.php:68
+msgid "Payment Method"
+msgstr ""
+
+#: frontend/templates/renew_ad_page.tpl.php:39
+msgid ""
+"You're close. Click Continue in order to repeat the step 3 of the Place Ad "
+"process to renew your Ad."
+msgstr ""
+
+#: functions.php:122
+msgid "Country"
+msgstr ""
+
+#: functions.php:123
+msgid "separate countries by commas"
+msgstr ""
+
+#: functions.php:129
+msgid "State/Province"
+msgstr ""
+
+#: functions.php:130
+msgid "separate states by commas"
+msgstr ""
+
+#: functions.php:137
+msgid "separate cities by commas"
+msgstr ""
+
+#: functions.php:143
+msgid "County/Village/Other"
+msgstr ""
+
+#: functions.php:144
+msgid "separate counties by commas"
+msgstr ""
+
+#: functions.php:342
+msgid ""
+"Only registered users can post ads. If you are already registered, please "
+"login below in order to post your ad."
+msgstr ""
+
+#: functions_awpcp.php:138 functions_awpcp.php:203
+msgid ""
+"Please disable spam control on your AWPCP settings because you do not have "
+"Akismet properly configured (missing API key)"
+msgstr ""
+
+#: functions_awpcp.php:144 functions_awpcp.php:209
+msgid ""
+"Please disable spam control on your AWPCP settings because you do not have "
+"Akismet installed"
+msgstr ""
+
+#: functions_awpcp.php:1508
+msgid "Setup Process"
+msgstr ""
+
+#: functions_awpcp.php:1511
+msgid ""
+"It looks like you have not yet told the system how you want your classifieds "
+"to operate."
+msgstr ""
+
+#: functions_awpcp.php:1514
+msgid ""
+"Please begin by setting up the options for your site. The system needs to "
+"know a number of things about how you want to run your classifieds."
+msgstr ""
+
+#: functions_awpcp.php:2432
+msgid "l F j, Y \\a\\t g:i a"
+msgstr ""
+
+#: functions_awpcp.php:2435
+msgid "Email sent on:"
+msgstr ""
+
+#: import.php:640 upload_awpcp.php:403
+msgid " had an invalid file extension and was not uploaded"
+msgstr ""
+
+#: import.php:672 upload_awpcp.php:451
+msgid " could not be moved to the destination directory"
+msgstr ""
+
+#: import.php:680 upload_awpcp.php:459
+msgid "Could not create thumbnail image of [ %s ]"
+msgstr ""
+
+#: import.php:724 upload_awpcp.php:493
+msgid "Unknown error encountered uploading image"
+msgstr ""
+
+#: import.php:858
+msgid "No file was selected"
+msgstr ""
+
+#: import.php:1083
+msgid "Username is required in row %s."
+msgstr ""
+
+#: import.php:1086
+msgid "Contact email is required in row %s."
+msgstr ""
+
+#: import.php:1104
+msgid ""
+"A new user '%s' with email address '%s' and password '%s' was created for "
+"row %d."
+msgstr ""
+
+#: install.php:186
+msgid "General"
+msgstr ""
+
+#: install.php:192
+msgid "30 Day Listing"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-entries.tpl.php:2
+msgid "AWPCP Coupons/Discounts"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-entries.tpl.php:22
+msgid ""
+"When checked your customers will be able to enter a coupon code in the "
+"shopping cart before checkout"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-entries.tpl.php:24
+msgid "Update"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-entries.tpl.php:30
+msgid "Coupons"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-entries.tpl.php:52
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entries.tpl.php:34
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-entries.tpl.php:26
+msgid "No entries found"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-entry.tpl.php:6
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:8
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-entry.tpl.php:6
+msgid "Edit this item"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-entry.tpl.php:7
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:9
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-entry.tpl.php:7
+msgid "Delete this item"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-entry.tpl.php:18
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:267
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:24
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:25
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-entry.tpl.php:14
+msgid "Yes"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-entry.tpl.php:18
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:269
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:24
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:25
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-entry.tpl.php:14
+msgid "No"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:8
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:232
+#: premium-modules/awpcp-coupons/frontend/templates/coupons-form.tpl.php:13
+msgid "Coupon Code"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:13
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:233
+msgid "Discount Value"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:23
+msgid "Amount"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:33
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:234
+msgid "Redemption Limit"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:35
+msgid "0 means no limit."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:39
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:236
+msgid "Expire Date"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:47
+msgid "is Coupon active?"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:77
+msgid "AWPCP Coupons requires AWPCP to be installed."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:119
+msgid "Use Coupon System"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:136
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:342
+msgid "The element couldn't be deleted."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:163
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:370
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:540
+msgid "The form has errors"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:189
+msgid "Manage Coupons/Discounts"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:190
+msgid "Coupons/Discounts"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:231
+msgid "Coupon ID"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:235
+msgid "Redemption Count"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:237
+msgid "Active"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/classes/coupon.php:75
+msgid "The Coupon doesn't exist."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/classes/coupon.php:93
+msgid "Coupon Code can't be empty."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/classes/coupon.php:98
+msgid "Discount type must be Amount or Percent."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/classes/coupon.php:103
+msgid "Discount value can't be empty."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/classes/coupon.php:107
+msgid "Discount must be greater than 0.00."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/classes/coupon.php:111
+msgid "Discount must be greater than 0%%."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/classes/coupon.php:115
+msgid "Discount must be greater less or equal than 100%%."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/classes/coupon.php:119
+msgid "Allowed Ad Count must be greater or equal than 0."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/classes/coupon.php:127
+msgid "Expire Date can't be empty."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/frontend/templates/coupons-form.tpl.php:2
+msgid ""
+"If you have a coupon code please enter it below and click the Apply Coupon "
+"button."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/frontend/templates/coupons-form.tpl.php:4
+msgid "NOTE:  You are already applying the following coupon:"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/frontend/templates/coupons-form.tpl.php:15
+msgid "Apply Coupon"
+msgstr ""
+
+#: premium-modules/awpcp-coupons/frontend/templates/coupons-subscription-payment-form.tpl.php:1
+msgid ""
+"If you have a Coupon code please enter it below and click the Use Coupon "
+"button."
+msgstr ""
+
+#: premium-modules/awpcp-coupons/frontend/templates/coupons-subscription-payment-form.tpl.php:3
+msgid "Please be aware that you are already using the following Coupon:"
+msgstr ""
+
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:92
+msgid "No featured ads yet!"
+msgstr ""
+
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:116
+#: widget-latest-ads.php:175
+msgid "Read more"
+msgstr ""
+
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:136
+msgid "AWPCP Featured Ads"
+msgstr ""
+
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:178
+msgid "Number of Items to Show:"
+msgstr ""
+
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:183
+msgid "Show Thumbnails in Widget?:"
+msgstr ""
+
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:188
+msgid "Show \"No Image\" PNG when ad has no picture (improves layout)?:"
+msgstr ""
+
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:204
+msgid "Featured Ad Pricing"
+msgstr ""
+
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:251
+msgid "Remove Featured"
+msgstr ""
+
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:255
+msgid "Make Featured"
+msgstr ""
+
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:262
+msgid "Featured Ad"
+msgstr ""
+
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:276
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:282
+msgid "Featured Ads First"
+msgstr ""
+
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:297
+msgid "Make this ad a Featured Ad"
+msgstr ""
+
+#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:43
+msgid ""
+"Warning: The AWPCP Fee Per Category plugin requires AWPCP version 2.0.0 or "
+"newer!"
+msgstr ""
+
+#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:110
+msgid "Warning: You have fee categories not assigned to fee plans"
+msgstr ""
+
+#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:116
+msgid ""
+"Either assign the categories to fee plans, or define at least one fee plan "
+"with no categories selected."
+msgstr ""
+
+#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:117
+msgid "Click here to configure AWPCP fees"
+msgstr ""
+
+#: premium-modules/awpcp-fee-per-category/get_cat_pricing.php:56
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-form.tpl.php:32
+msgid "Year"
+msgstr ""
+
+#: premium-modules/awpcp-fee-per-category/get_cat_pricing.php:86
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-form.tpl.php:26
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:295
+msgid "Duration"
+msgstr ""
+
+#: premium-modules/awpcp-remove-powered-by/awpcp_remove_powered_by_module.php:20
+msgid "Powered By Settings"
+msgstr ""
+
+#: premium-modules/awpcp-remove-powered-by/awpcp_remove_powered_by_module.php:23
+msgid "Remove Powered by"
+msgstr ""
+
+#: premium-modules/awpcp-rss-module/awpcp_rss_module.php:60
+msgid "RSS Settings"
+msgstr ""
+
+#: premium-modules/awpcp-rss-module/awpcp_rss_module.php:62
+msgid "Number of items to show in RSS feed"
+msgstr ""
+
+#: premium-modules/awpcp-rss-module/awpcp_rss_module.php:64
+msgid "Show images in feeds?"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/dashboard-widget.php:21
+msgid "Subscriptions Report"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/dashboard-widget.php:42
+msgid "Hi %s, you don't have a Subscription yet."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/dashboard-widget.php:43
+msgid "Click here"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/dashboard-widget.php:44
+msgid "to purchase a Subscription."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-create-form.tpl.php:8
+msgid "Subscription Plan"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-create-form.tpl.php:12
+msgid "Select a Subscription Plan"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-create-form.tpl.php:25
+msgid "Select an User"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entries.tpl.php:3
+msgid "Subscriptions"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:15
+msgid "Renew"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-form.tpl.php:18
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-form.tpl.php:21
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:294
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:404
+msgid "Allowed Ad Count"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-form.tpl.php:23
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:296
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:405
+msgid "Featured Ads"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-form.tpl.php:26
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-form.tpl.php:44
+msgid "Support featured Ads?"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-entries.tpl.php:2
+msgid "AWPCP Subscription Plans"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-entries.tpl.php:2
+msgid "Add New Subscription Plan"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-form.tpl.php:12
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:292
+msgid "Description"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:102
+msgid "AWPCP Subscriptions module requires AWPCP plugin to be installed."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:112
+msgid ""
+"AWPCP Subscriptions module requieres AWPCP to be installed and activated."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:195
+msgid "Subscriptions Settings"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:199
+msgid "Allow Ad Subscriptions"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:202
+msgid "Buy Subscriptions page"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:203
+msgid "Name for Buy Subscriptions page."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:205
+msgid "Show Buy Subscription menu item"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:400
+msgid "Plan Name"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:403
+msgid "Current Ad Count"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:406
+msgid "Payment Completed"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:466
+msgid "The Subscription coudln't be deleted"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:470
+msgid ""
+"Do you whish to delete them?. If the answer is No, the Subscription will be "
+"deleted and the Ads will be converted to normal Ads, that can be renewed "
+"later."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:502
+msgid "The selected Subscription Plan doesn't exists."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:507
+msgid "The selected user already has a Subscription."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:718
+msgid ""
+"An error has ocurred. It seems like a different user attempted to purchase a "
+"Subscription Plan on this computer but his session already expired or he/she "
+"logged off before completing the payment."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:722
+msgid "Your session has expired. Please log in."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:728
+msgid "Your payment has been cancelled. Thank you for visiting us."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:731
+msgid ""
+"You have decided to cancel the payment transaction. If you want to complete "
+"the purchase of the following Subscription Plan please click the button "
+"below."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:798
+msgid "Subscription Checkout"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:899
+msgid ""
+"The Ad has been successfully renewed. New expiration date was set to the "
+"Subscription expiration date: %s"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:908
+msgid "Renew Subscription"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:912
+msgid ""
+"This Ad was placed under a Subscription that has expired. Unfortunately "
+"Subscriptions are disabled. Please contact the admin about this issue."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:989
+msgid "Ad Management"
+msgstr ""
+
+#. translators: the first placeholder is for the allowed Ad count, the second
+#. one is for a link to the Ad Management panel
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:991
+msgid ""
+"Your Subscription is full. You already placed the %d Ads that your "
+"Subscription Plan allowed you to place. Please delete one of the existing "
+"Ads or consider upgrading your Subscription Plan. Go to the %s panel to "
+"remove Ads."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:994
+msgid "You can also choose a different Payment Term to pay for the current Ad."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:1001
+msgid ""
+"Your Subscription Plan expired on %s. Please renew the subscription or "
+"choose different Payment Term for this Ad."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:1004
+msgid ""
+"To renew your Subscription Plan choose %s as the Payment Term and proceed "
+"with Payment."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:1055
+msgid "Subscription Plans"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:1055
+msgid "Pay for several Ads"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/page-buy-subscription.php:28
+msgid "Admin users can't purchase Subscription Plans."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/page-buy-subscription.php:32
+msgid "You already have a Subscription Plan. See details below."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/page-buy-subscription.php:84
+msgid ""
+"Only registered users can purchase Subscription Plans. If you are already "
+"registered, please login below in order to buy a Subscription."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/page-buy-subscription.php:88
+msgid "Subscriptions are disabled."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:69
+msgid "The Subscription Plan doesn't exist."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:74
+msgid ""
+"The Subscription Plan can't be deleted because there are %d Susbcriptions "
+"using that plan."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:93
+msgid "Subscription Plan can't be empty."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:97
+msgid "Description can't be empty."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:101
+msgid "Price must be greater than 0.0."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:105
+msgid "Allowed Ad Count must be greater than 0."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:110
+msgid "Duration unit must be one of Day, Month or Year."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:113
+msgid "Duration amount must be greater than 0."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription.php:121
+msgid "A Subscription Plan is required."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription.php:125
+msgid "An User is required."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription.php:129
+msgid "The start date is required."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription.php:133
+msgid "The end date is required."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription.php:140
+msgid "The start date must be set before the end date."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription.php:144
+msgid "Current Ad count must be equal or greater than zero."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription.php:148
+msgid "Allowed Ad count must be equal or greater than zero."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription.php:152
+msgid "Current Ad count can't be greater than the Allowed Ad count"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription.php:191
+msgid "The Subscription doesn't exist."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/classes/subscription.php:197
+msgid "User %s has %d Ads still active for this Subscription."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/frontend/templates/buy-subscription.tpl.php:10
+#: premium-modules/awpcp-subscriptions/frontend/templates/buy-subscription.tpl.php:98
+msgid "1 Ad"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/frontend/templates/buy-subscription.tpl.php:10
+#: premium-modules/awpcp-subscriptions/frontend/templates/buy-subscription.tpl.php:98
+msgid "%s Ads"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/frontend/templates/buy-subscription.tpl.php:15
+msgid "You have posted %d of %d possible Ads."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/frontend/templates/buy-subscription.tpl.php:27
+msgid "Please select a Subscription Plan to purchase."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/frontend/templates/buy-subscription.tpl.php:56
+msgid "You're about to renew your Subscription Plan: <strong>%s</strong>"
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/frontend/templates/buy-subscription.tpl.php:64
+msgid "Please select a payment method below."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/frontend/templates/buy-subscription.tpl.php:85
+msgid "Sorry, there are no Subscription Plans available at this time."
+msgstr ""
+
+#: premium-modules/awpcp-subscriptions/frontend/templates/buy-subscription.tpl.php:107
+msgid ""
+"Click the button below to checkout your Subscription Plan. You'll be asked "
+"to pay <strong>%0.2f</strong>."
+msgstr ""
+
+#: premium-modules/awpcp-xml-sitemap/awpcp-xml-sitemap.php:162
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+#: upload_awpcp.php:5
+msgid ""
+"AWPCP requires the graphics processing library GD and it is not installed.  "
+"Contact your web host to fix this."
+msgstr ""
+
+#: upload_awpcp.php:28
+msgid "No file was selected."
+msgstr ""
+
+#: upload_awpcp.php:32
+msgid "Unknown error encountered while uploading the image."
+msgstr ""
+
+#: upload_awpcp.php:36
+msgid "The file has an invalid extension and was rejected."
+msgstr ""
+
+#: upload_awpcp.php:43
+msgid ""
+"The file [ %s ] was larger than the maximum allowed file size of [%s] bytes. "
+"The file was not uploaded."
+msgstr ""
+
+#: upload_awpcp.php:47
+msgid "The file does not appear to be a valid image file"
+msgstr ""
+
+#: upload_awpcp.php:50
+msgid ""
+"The image did not meet the minimum width of [%s] pixels. The file was not "
+"uploaded"
+msgstr ""
+
+#: upload_awpcp.php:54
+msgid ""
+"The image did not meet the minimum height of [%s] pixels. The file was not "
+"uploaded"
+msgstr ""
+
+#: upload_awpcp.php:59
+msgid "The file [ %s ] could not be moved to the destination directory"
+msgstr ""
+
+#: upload_awpcp.php:64
+msgid "Could not create thumbnail image of [%s]"
+msgstr ""
+
+#: upload_awpcp.php:97
+msgid ""
+"No more images can be added to this Ad. The Ad already have %d of %d images "
+"allowed."
+msgstr ""
+
+#: upload_awpcp.php:101
+msgid "The Ad doesn't exists. All uploaded files were rejected."
+msgstr ""
+
+#: upload_awpcp.php:241
+msgid ""
+"You can't add more images to this Ad. There are not remaining images slots."
+msgstr ""
+
+#: upload_awpcp.php:263
+msgid "Could not save the information to the database for [%s]"
+msgstr ""
+
+#: upload_awpcp.php:272
+msgid "No image files were uploaded"
+msgstr ""
+
+#: upload_awpcp.php:418
+msgid ""
+" did not meet the minimum width of [%s] pixels. The file was not uploaded"
+msgstr ""
+
+#: upload_awpcp.php:426
+msgid ""
+" did not meet the minimum height of [%s] pixels. The file was not uploaded"
+msgstr ""
+
+#: upload_awpcp.php:433
+msgid " does not appear to be a valid image file"
+msgstr ""
+
+#: upload_awpcp.php:440
+msgid ""
+" was larger than the maximum allowed file size of [%s] bytes. The file was "
+"not uploaded"
+msgstr ""
+
+#: upload_awpcp.php:485
+msgid "Could not save the information to the database for [ %s ]"
+msgstr ""
+
+#: upload_awpcp.php:509
+msgid "One or more images failed to be uploaded"
+msgstr ""
+
+#: widget-latest-ads.php:83
+msgid "Latest Classifieds"
+msgstr ""
+
+#: widget-latest-ads.php:96
+msgid "Widget Title"
+msgstr ""
+
+#: widget-latest-ads.php:97
+msgid "Number of Items to Show"
+msgstr ""
+
+#: widget-latest-ads.php:98
+msgid "Show Thumbnails in Widget?"
+msgstr ""
+
+#: widget-latest-ads.php:99
+msgid "Show \\\"No Image\\\" PNG when ad has no picture (improves layout)?"
+msgstr ""

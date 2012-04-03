@@ -1,0 +1,124 @@
+.clearfix:after {
+	visibility: hidden;
+	display: block;
+	font-size: 0;
+	content: " ";
+	clear: both;
+	height: 0;
+	}
+.clearfix { display: inline-table; }
+/* Hides from IE-mac \*/
+* html .clearfix { height: 1%; }
+.clearfix { display: block; }
+/* End hide from IE-mac */
+
+
+
+/* Layout
+ --------------------------------------------------------------------------- */
+
+#wpbody-content .metabox-holder {
+	padding-top: 0;
+}
+
+.wrap .awpcp-page-header {
+	padding-bottom: 12px;
+}
+
+.wrap .awpcp-main-content {
+	float: left;
+	width: 78%;
+}
+.wrap .awpcp-main-content.without-sidebar {
+	float: none;
+	width: auto;
+}
+
+
+/* Common
+ --------------------------------------------------------------------------- */
+
+.row {
+	margin-bottom: 10px;
+}
+.row .legend, .row .form {
+	float: left;
+}
+.row .legend {
+	margin-right: 20px;
+	width: 130px;
+}
+
+.tabs {
+	background: #EEE;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	padding: 4px 4px 0;
+}
+.tabs li {
+	float: left;
+	margin: 0 4px 0 0;
+}
+.tabs li a {
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	display: block;
+	font-size: 1.1em;
+	padding: 10px;
+	text-decoration: none;
+}
+.tabs li a:hover, .tabs li a.active {
+	background: #FFF;
+}
+
+p.uploaderror {
+    background: none repeat scroll 0 0 #FFEBE8;
+    border: 1px solid #CC0000;
+    color: #000000;
+    padding: 5px;
+}
+
+
+/* Admin Panel
+ ---------------------------------------------------------------------------- */
+
+#awpcp-admin-settings form textarea {
+	width: 600px;
+	height: 120px;
+}
+
+
+/* User Ad Management Panel
+ ---------------------------------------------------------------------------- */
+
+/* Listings */
+
+#awpcp-ad-management-panel {
+	/*padding-top: 30px;*/
+}
+
+#awpcp-ad-management-panel #lookup-ads-by .legend {
+	margin-top: 4px;
+}
+
+#awpcp-ad-management-panel #pagination .pages {
+	float: left;
+	margin: 4px 10px 0 0;
+}
+
+#awpcp-ad-management-panel .pager {
+    float: left;
+    margin: 0px 15px 2px 0;
+}
+
+#awpcp-ad-management-panel .awpcp-main-content {
+	width: 99%;
+}
+
+/* Manage Images */
+
+.listcatsh {
+	border: 1px solid #DDD !important;
+}

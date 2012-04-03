@@ -1,18 +1,18 @@
 === Another Wordpress Classifieds Plugin ===
-Contributors: awpcp.com
+Contributors: http://awpcp.com
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
-Tested up to: 3.2.1
-Last Updated: 2011-Oct-28
-Stable tag: tags/1.8.9.4
+Tested up to: 3.3.1
+Last Updated: 2012-Apr-2
+Stable tag: tags/2.0
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
 == Description ==
 Add a classified ads section to your Wordpress site, quickly and easily.  
 Lots of features, very configurable.  Easy to setup.  Great support.
-We're the #1 Wordpress Classified Ads Plugin: two-and-a-half years old and 100,000+ downloads!
+We're the #1 Wordpress Classified Ads Plugin: three years old and 110,000+ downloads!
 
 Fee Per Category NOW AVAILABLE (see below)!  Don't miss Featured Ads, too!
 
@@ -31,6 +31,7 @@ Features:
     9. Ads can have a "Tweet This" button in their layout
     10. Ads can have a "Share on Facebook" button in their layout
     11. Ads can be flagged by community for bad/offensive content
+    12. Ads can imported via CSV files
  = Notification Features =
     1. Allow posters to be notified of expiring ads
     2. Allow admin to be notified when new ads are posted
@@ -58,6 +59,8 @@ Features:
     7. Anti-spam checks for all ads posted via Akismet.
     8. Flagged ads can be viewed separately to determine violations, and
        then deleted or unflagged.
+    9. **New Ad Management panel, visible by users and admins for easier
+       ad creation/editing/delete.
  = Image Features =
     1. Allow image posting or shut it off completely
     2. Control the number, filesize, height and width of images posted
@@ -117,7 +120,7 @@ If you love the plugin, [please consider purchasing a Premium Module](http://awp
 
 == Credits ==
 
-Copyright 2009-11 awpcp.com
+Copyright 2009-12 awpcp.com
 
 AWPCP Classifieds icons courtesy of http://www.famfamfam.com/lab/icons/silk/
 dcfunctions.php used with permission under GPL by Dan Caragea http://www.datemill.com
@@ -169,8 +172,11 @@ Your classifieds should now be ready and working. If you are having problems ple
 == Frequently Asked Questions ==
 
 Question: Will this plugin work with versions of WordPress earlier than 2.7?
-Answer: The plugin has only been tested with version 2.7 and above. If you wish 
-	to test it on earlier versions you are free to do so. If you find that it 
+Answer: The plugin has only been tested with version 2.7 and above. It works best on
+    3.0 and higher, because these are the most stable, feature rich versions of WordPress
+    available.  
+    
+	If you wish to test it on earlier versions you are free to do so. If you find that it 
 	works on an earlier version please consider sharing this information for 
 	the benefit of others.
 
@@ -185,9 +191,25 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 2.0 =
+ NEW: Ad Management Panel
+ NEW: CSV ad importer
+ NEW: Support for embedded videos in ads
+ NEW: Full Ad Renewal Support:  emails sent X days before expiration, email customization, renewal links in email
+ NEW: Feature to require registration for ad reply (reduces spam)
+ NEW: Workflow text made clearer
+ NEW: Ad Profile User meta fields are now auto-populated for ad creation (requires registration)
+ NEW: Admin Panel look and feel upgraded to WP 3.0 standards
+ NEW: Major back-end code revamp to split files for faster loading, easier maintenance
+ Bug: Security issue for image uploads patched
+ Bug: Minor cleanup of unused links in Admin Panel
+ Bug: Fixed payment gateway selection bug (where a selected payment plan required you to "reselect" it on submission)
+ Bug: Fixed email problem with ads and images
+ Bug: Fixed page renaming bug
+ 
  = 1.8.9.4 =
  Bug: Disabled Facebook meta fix, caused problems on some themes
- Bug: Chnaged CSS to support category display on IE correctly
+ Bug: Changed CSS to support category display on IE correctly
  
  = 1.8.9.3 =
  Bug: Fixed Facebook sharing metadata page injection

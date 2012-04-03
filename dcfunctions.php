@@ -349,31 +349,32 @@ function create_pager($from,$where,$offset,$results,$tpname)
 			}
 		}
 	}
-	if( isset($_REQUEST['a']) && !empty($_REQUEST['a']) && ($_REQUEST['a'] == 'browsecat') )
-	{
+
+	if( isset($_REQUEST['a']) && !empty($_REQUEST['a']) && ($_REQUEST['a'] == 'browsecat') ) {
 		//$cid=$_REQUEST['category_id'];
 		if (!empty($cid)) {
 			$params['category_id']=$cid;
 		}
-		
-		if( !get_awpcp_option('seofriendlyurls') )
-		{
-			$awpcppage=get_currentpagename();
-			$awpcppagename = sanitize_title($awpcppage, $post_ID='');
-			$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
-			//$params['page_id']="$awpcpwppostpageid";
+
+		// XXX: this does nothing!		
+		if( !get_awpcp_option('seofriendlyurls') ) {
+			// $awpcppage=get_currentpagename();
+			// $awpcppagename = sanitize_title($awpcppage, $post_ID='');
+			// $awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
+			// // the line below was already commented -@wvega
+			// //$params['page_id']="$awpcpwppostpageid";
 		}
 	}
 
-	if( isset($_REQUEST['a']) && !empty($_REQUEST['a']) && ($_REQUEST['a'] == 'browseads') )
-	{
-		$awpcppage=get_currentpagename();
-		$awpcppagename = sanitize_title($awpcppage, $post_ID='');
-		$awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
+	if( isset($_REQUEST['a']) && !empty($_REQUEST['a']) && ($_REQUEST['a'] == 'browseads') ) {
 
-		if( !get_awpcp_option('seofriendlyurls') )
-		{
-			//$params['page_id']="$awpcpwppostpageid";
+		// XXX: this does nothing!
+		if( !get_awpcp_option('seofriendlyurls') ) {
+			// $awpcppage=get_currentpagename();
+			// $awpcppagename = sanitize_title($awpcppage, $post_ID='');
+			// $awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
+			// // the line below was already commented -@wvega
+			// //$params['page_id']="$awpcpwppostpageid";
 		}
 	}
 
@@ -513,4 +514,3 @@ function awpcp_send_email($from,$to,$subject,$message,$html=false,$attachments=a
 	$sentok=@mail($to,$subject,$message,$headers,"-f$from");
 	return $sentok;
 }
-?>

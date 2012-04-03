@@ -1,3 +1,15 @@
+/* new clearfix */
+.clearfix:after {
+	visibility: hidden;
+	display: block;
+	font-size: 0;
+	content: " ";
+	clear: both;
+	height: 0;
+	}
+* html .clearfix             { zoom: 1; } /* IE6 */
+*:first-child+html .clearfix { zoom: 1; } /* IE7 */
+
 .inputbox {
 padding:5px;
 border:1px solid #888888;
@@ -111,6 +123,12 @@ float:left;
 margin:0 15px 10px 0;
 }
 
+#classiwrapper form fieldset {
+	margin-bottom: 20px;
+}
+#classiwrapper form fieldset {
+}
+
 #postsearchads .searchcads {
 background: transparent url("../images/search_ico.png") no-repeat left center;
 padding-left:20px;
@@ -128,6 +146,11 @@ padding-left:20px;
 
 #postsearchads .browse {
 background: transparent url("../images/browse_ico.png") no-repeat left center;
+padding-left:20px;
+}
+
+#postsearchads .buy-subscriptions {
+background: transparent url("../images/buy_subscription_ico.png") no-repeat left center;
 padding-left:20px;
 }
 
@@ -337,7 +360,7 @@ img.awpcpbrowseadsimg  { width:60px; }
 .pager a { padding:2px; border:1px solid #cccccc; }
 
 #awpcpcatlayout { width:100%; }
-#awpcpcatlayout .awpcpcatlayoutleft { width:70%;  }
+#awpcpcatlayout .awpcpcatlayoutleft { width:70%; float: left; }
 #awpcpcatlayout .awpcpcatlayoutright { width:25%;  float:right; border-left:1px solid #dddddd;}
 
 #awpcpcatlayout .awpcpcatlayoutright ul { list-style:none; margin-left:10px;  }
@@ -346,19 +369,22 @@ img.awpcpbrowseadsimg  { width:60px; }
 #awpcpcatlayout .awpcpcatlayoutright ul li ul li { margin:3px 0 3px 0; padding-right:5px; }
 #awpcpcatlayout .awpcpcatlayoutright span { font-weight:bold; }
 
-#showcategoriesmainlist {  display: inline-block; }
-.showcategoriesmainlist {  display: inline-block; }
-.showcategoriesmainlist ul {  list-style:none; }
-.showcategoriesmainlist ul li { width:210px; list-style:none; padding:0; margin:3px 10px 5px 0px; }
-.showcategoriesmainlist ul li a { text-decoration:none; }
-.showcategoriesmainlist ul li.maincat {  }
-.showcategoriesmainlist ul li ul { margin:0px 0px 20px 10px; list-style:none; }
-.showcategoriesmainlist .showcategoriessublist {   }
-.showcategoriesmainlist .showcategoriessublist ul {  float:left; list-style:none; }
-.showcategoriesmainlist .showcategoriessublist ul li { float:left; list-style:none; margin:0; padding:0;  background:none; }
+#showcategoriesmainlist { display: block; }
+.showcategoriesmainlist { clear: left; display: block; list-style: none; }
+.showcategoriesmainlist li { float: left; list-style:none; padding:0; margin:3px 2% 5px 0px !important; }
+.showcategoriesmainlist li.columns-1 { width: 100%; margin: 3px 0 5px; }
+.showcategoriesmainlist li.columns-2 { width: 48%; }
+.showcategoriesmainlist li.columns-3 { width: 31%; }
+.showcategoriesmainlist li.columns-4 { width: 23%; }
+.showcategoriesmainlist li.columns-5 { width: 18%; }
+.showcategoriesmainlist li a { text-decoration:none; }
+.showcategoriesmainlist li.maincat { }
+.showcategoriesmainlist li ul { margin:0px 0px 20px 10px; list-style:none; }
+.showcategoriesmainlist .showcategoriessublist li { float:none; list-style:none; margin:0; padding:0;  background:none; }
 
-p.maincategoryclass 
-{
+#awpcpcatlayout ul.awpcp-region-control-sidelist li { float:none; }
+
+p.maincategoryclass {
 	background:#eeeeee;
 	text-align:center;
 	padding-bottom:10px; 
@@ -366,19 +392,19 @@ p.maincategoryclass
 	margin: 0 0 3px 0; 
 }
 
-.categoryicon
-{
-margin:0px 2px 0px 2px;
-vertical-align:middle;
+.categoryicon {
+	margin:0px 2px 0px 2px;
+	vertical-align:middle;
 }
 
 
-div.uploadform {  float:left; padding:5px; }
+div.uploadform { float:left; padding:5px; }
 .theuploaddiv .button {  margin-top:20px; padding:6px; }
 div.theuploaddiv { display:block;padding:10px;   }
-.finishbutton {  background:#f2f2f2; height:auto !important; min-height:60px; width:90%; padding:10px; }
-.finishbutton .finishbuttonleft {  float:left; width:70%; margin-right:25px; }
-.finishbutton .finishbuttonright {  float:left;  }
+.finishbutton {  background:#f2f2f2; height:auto !important; min-height:60px; width:90%; padding:14px; }
+.finishbutton .finishbuttonleft {  float:left; width:60%; margin-right:25px; }
+.finishbutton .finishbuttonleft b { font-weight: bold; }
+.finishbutton .finishbuttonright {  float:right;  }
 .finishbutton .button { text-align:center; padding:6px; margin:10px 0px; }
 p.uploaderror { padding:5px; background:#ffffcc; color:#000000; }
 div.unsetsavedlocationslink { clear:both;padding:5px;background:#f2f2f2; width:300px;text-align:center;}
@@ -410,4 +436,49 @@ padding-top: 5px !important;
  border:none !important;
  margin:0 !important;
  padding:0 !important;
+}
+
+
+
+/* Ad Posted Styles */
+
+/* info message shown when an Ad is posted */
+p.ad_status_msg {
+    background: none repeat scroll 0 0 #A2C9DB;
+    padding: 10px;
+}
+
+
+/* Region Control styles */
+
+#awpcp-region-control-selector {
+	background: #EEE;
+	margin: 0 0 10px;
+	padding: 10px;
+}
+#awpcp-region-control-selector .legend {
+	margin-bottom: 10px;
+}
+#awpcp-region-control-selector .awpcp-form-spacer {
+	margin-bottom: 2px;
+}
+#awpcp-region-control-selector .awpcp-form-spacer .label {
+	font-weight: bold;
+}
+#awpcp-region-control-selector .submit {
+	margin-top: 20px;
+}
+
+.awpcp-region-control-region-fields .hidden {
+	display: none;
+}
+
+
+/* Extra Fields styles */
+
+.awpcp-extra-field {
+	display: none;
+}
+.awpcp-extra-field-category-root, .awpcp-extra-field-always-visible {
+	display: block;
 }
