@@ -191,6 +191,11 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 2.0.1 =
+ Bug: Warnings about AWPCP::init suppressed
+ Bug: Problem with table update for options fixed
+ Bug: WP 3.0 lacked import file present in 3.1, fixed
+
  = 2.0 =
  NEW: Ad Management Panel
  NEW: CSV ad importer

@@ -1248,6 +1248,16 @@ function awpcpui_process_editad() {
 	$action='';
 	$output = '';
 
+
+	// if Ad Management panel is enabled use  that to edit Ads
+	if (get_awpcp_option('enable-user-panel') == 1) {
+		$panel_url = admin_url('admin.php?page=awpcp-panel');
+		$output = __('Please go to the Ad Management panel to edit your Ads.', 'AWPCP');
+		$output.= ' <a href="' . $panel_url . '">' . __('Click here', 'AWPCP') . '</a>.';
+		return $output;
+	}
+
+
 	if (!isset($awpcppagename) || empty($awpcppagename)) {
 		$awpcppage = get_currentpagename();
 		$awpcppagename = sanitize_title($awpcppage, $post_ID='');
@@ -4951,13 +4961,9 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 			$adid = intval($_REQUEST['id']);
 			//_log("Found ad id (as just id) in request");
 		} else {
-			if ( $seoFriendlyUrls ) {
-				//_log("SEO friendly urls detected, looking for ad id in url");
-				if (isset($permastruc) && !empty($permastruc)) {
-					$adid = get_query_var('id');
-				}
-			} else {
-				//_log("BAD case, should not be here!");			
+			//_log("SEO friendly urls detected, looking for ad id in url");
+			if (isset($permastruc) && !empty($permastruc)) {
+				$adid = get_query_var('id');
 			}
 		}
 	}
@@ -5380,8 +5386,6 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
  * Generates HTML to display login form when user is not registered.
  */
 function awpcp_login_form($message=null, $redirect_to='/') {
-	//debug();
-
 	$action_url = get_awpcp_option('postloginformto');
 	$register_url = get_awpcp_option('registrationurl');
 

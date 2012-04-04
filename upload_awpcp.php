@@ -68,7 +68,7 @@ function awpcp_upload_image_file($directory, $file, $min_size, $max_size, $min_w
 
 	@chmod($newpath, 0644);
 
-	return array('original' => $filename, 'filename' => $newname, 'dirname' => $dirname);
+	return array('original' => $filename, 'filename' => $newname);
 }
 
 
@@ -246,7 +246,7 @@ function awpcp_handle_uploaded_images($ad_id, &$form_errors=array()) {
 		$field = 'AWPCPfileToUpload' . $i;
 		$file = $_FILES[$field];
 
-		if (empty($file['name'])) {
+		if ($file['error'] !== 0) {
 			continue;
 		}
 

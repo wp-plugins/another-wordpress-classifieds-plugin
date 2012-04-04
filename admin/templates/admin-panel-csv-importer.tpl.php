@@ -134,15 +134,20 @@
 								<?php _e('Separators Used in CSV', 'AWPCP') ?>
 							</th>
 							<td>
-								<label for="awpcp-importer-date-separator"><?php _e('Date Separator', 'AWPCP') ?>
+								<label for="awpcp-importer-date-separator"><?php _e('Date Separator', 'AWPCP') ?></label>
 								<input id="awpcp-importer-date-separator" type="text" maxlength="1" size="1" 
-									   name="sep_date" id="sepDate" value="<?php echo $date_sep; ?>" />
+									   name="sep_date" value="<?php echo esc_attr($date_sep); ?>" />
 								<br/><span class="error"><?php echo awpcp_array_data('sep_date', '', $form_errors) ?></span>
 
-								<label for="awpcp-importer-time-separator"><?php _e('Time Separator', 'AWPCP') ?>
+								<label for="awpcp-importer-time-separator"><?php _e('Time Separator', 'AWPCP') ?></label>
 								<input id="awpcp-importer-time-separator" type="text" maxlength="1" size="1" 
-									   name="sep_time" id="sepTime" value="<?php echo $time_sep; ?>" />
+									   name="sep_time" value="<?php echo esc_attr($time_sep); ?>" />
 								<br/><span class="error"><?php echo awpcp_array_data('sep_time', '', $form_errors) ?></span>
+
+								<label for="awpcp-importer-image-separator"><?php _e('Image Separator', 'AWPCP') ?></label>
+								<input id="awpcp-importer-image-separator" type="text" maxlength="1" size="1" 
+									   name="sep_image" value=";" disabled="disabled" /> <?php _e('(semi-colon)', 'AWPCP') ?>
+								<br/><span class="error"><?php echo awpcp_array_data('sep_image', '', $form_errors) ?></span>
 							</td>
 						</tr>
 						<tr>
