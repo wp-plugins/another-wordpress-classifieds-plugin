@@ -5,6 +5,7 @@
 
 require_once(AWPCP_DIR . 'admin/admin-panel-settings.php');
 require_once(AWPCP_DIR . 'admin/admin-panel-csv-importer.php');
+require_once(AWPCP_DIR . 'admin/admin-panel-debug.php');
 require_once(AWPCP_DIR . 'admin/admin-panel-uninstall.php');
 
 class AWPCP_Admin {
@@ -16,6 +17,7 @@ class AWPCP_Admin {
 		$this->title = __('Classifieds', 'AWPCP');
 		$this->settings = new AWPCP_Admin_Settings();
 		$this->importer = new AWPCP_Admin_CSV_Importer();
+		$this->debug = new AWPCP_Admin_Debug();
 		$this->uninstall = new AWPCP_Admin_Uninstall();
 
 		add_action('admin_init', array($this, 'init'));
@@ -82,6 +84,8 @@ class AWPCP_Admin {
 		if ( file_exists(AWPCP_DIR . "/awpcp_extra_fields_module.php") ) {
 			add_submenu_page($slug, 'Manage Extra Fields', 'Extra Fields', '7', 'Configure5', 'awpcp_add_new_field');
 		}
+
+		add_submenu_page($slug, 'Debug', 'Debug', '7', 'awpcp-debug', array($this->debug, 'dispatch'));
 
 		add_submenu_page($slug, 'Uninstall AWPCP', 'Uninstall', '7', 'awpcp-admin-uninstall', array($this->uninstall, 'dispatch'));
 
@@ -380,7 +384,7 @@ function awpcp_home_screen() {
 				    foreach ( $rss_items as $item ) {
 				    	$title = 'AWPCP News '.$item->get_date('j F Y | g:i a').': '.$item->get_title();
 				    	$excerpt = $item->get_description();
-				    	$output .= '<li><a href='.$item->get_permalink().' title='.title.'>'.$title.'</a><br/>'.$excerpt.'<br/><br/></li>';
+				    	$output .= '<li><a href='.$item->get_permalink().' title='.esc_attr($title).'>'.$title.'</a><br/>'.$excerpt.'<br/><br/></li>';
 				    }
 				}			    
 				$output .= '</ul></div>';
@@ -3324,12 +3328,16 @@ function awpcp_handle_admin_requests() {
  *
  * To remove Admin panel sidebar remove the mentioned filter on init.
  */
-function awpcp_admin_sidebar($float) {
+function awpcp_admin_sidebar($float='') {
 	$html = apply_filters('awpcp-admin-sidebar', '', $float);
 	return $html;
 }
 
 function awpcp_admin_sidebar_output($html, $float) {
+	global $hasregionsmodule, $hascaticonsmodule, $hasgooglecheckoutmodule;
+	global $hasextrafieldsmodule, $hasrssmodule, $hasfeaturedadsmodule;
+	global $haspoweredbyremovalmodule;
+
 	$apath = get_option('siteurl').'/wp-admin/images';
 	if ('' == $float) $float = 'float:right !important';
 	$url = AWPCP_URL;

@@ -765,6 +765,13 @@ class AWPCP_Settings_API {
 		echo $html;
 	}
 
+	/**
+	 * Dummy function to render an (empty) introduction
+	 * for each settings section.
+	 */
+	public function section($args) {
+	}
+
 	public function get_option($name, $default='', $reload=false) {
 		// reload options
 		if ($reload) { $this->load(); }

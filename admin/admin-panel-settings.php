@@ -3,6 +3,10 @@
 class AWPCP_Admin_Settings {
 	
 	public function AWPCP_Admin_Settings() {
+		add_action('init', array($this, 'init'));
+	}
+
+	public function init() {
 		global $awpcp;
 		$page = strtolower($awpcp->admin->title) . '_page_' . 'awpcp-admin-settings';
 		add_action('admin_print_styles_' . $page, array($this, 'scripts'));

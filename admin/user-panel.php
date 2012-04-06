@@ -38,8 +38,11 @@ class AWPCP_User_Panel_Listings {
 		$this->container_id = 'awpcp-ad-management-panel';
 		$this->page_title = __("AWPCP User Ad Management Panel - Listings","AWPCP");
 
+		add_action('init', array($this, 'init'));
 		add_action('wp_ajax_awpcp-panel-delete-ad', array($this, 'ajax'));
+	}
 
+	public function init() {
 		wp_register_script('awpcp-panel-listings', AWPCP_URL . 'js/user-panel-listings.js', 
 						   array('awpcp-table-ajax-admin'), '1.0', true);
 	}
@@ -237,7 +240,6 @@ class AWPCP_User_Panel_Listings {
 		$controller = $this;
 
 		ob_start();
-			include(AWPCP_DIR . 'admin/templates/ad-management-ads-entries.tpl.php');
 			include(AWPCP_DIR . 'admin/templates/user-panel-listings.tpl.php');
 			$content = ob_get_contents();
 		ob_clean();

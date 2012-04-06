@@ -3,7 +3,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. <strong>!!!IMPORTANT!!!</strong> Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 2.0.1
+ Version: 2.0.2
  Author: D. Rodenbaugh
  License: GPLv2 or any later version
  Author URI: http://www.skylineconsult.com
@@ -27,7 +27,6 @@
  * dcfunctions.php and filop.class.php used with permission of Dan Caragea, http://datemill.com
  * AWPCP Classifieds icon set courtesy of http://www.famfamfam.com/lab/icons/silk/
  */
-
 
 if (preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) {
 	die('You are not allowed to call this page directly.');
@@ -271,49 +270,49 @@ class AWPCP {
 	/**
 	 * Create pages after the plugin has been activated
 	 */
-	public function create_pages() {
+	public function create_pages() {		
 		$installation_complete = get_option('awpcp_installationcomplete', 0);
 		$version = get_option('awpcp_db_version');
 
 		if (!$installation_complete) {
-			awpcp_create_pages(__('AWPCP', 'AWPCP'));
 			update_option('awpcp_installationcomplete', 1);
+			awpcp_create_pages(__('AWPCP', 'AWPCP'));
 		} else if (version_compare($version, '1.8.9.4.54') > 0) {
-			global $wpdb;
-			$query = 'SELECT pages.page, pages.id, posts.ID post ';
-			$query.= 'FROM ' . AWPCP_TABLE_PAGES . ' AS pages ';
-			$query.= 'LEFT JOIN ' . $wpdb->posts . ' AS posts ON (posts.ID = pages.id) ';
-			$query.= 'WHERE posts.ID IS NULL';
+			// global $wpdb;
+			// $query = 'SELECT pages.page, pages.id, posts.ID post ';
+			// $query.= 'FROM ' . AWPCP_TABLE_PAGES . ' AS pages ';
+			// $query.= 'LEFT JOIN ' . $wpdb->posts . ' AS posts ON (posts.ID = pages.id) ';
+			// $query.= 'WHERE posts.ID IS NULL';
 
-			$orphan = $wpdb->get_results($wpdb->prepare($query));
-			$excluded = array('view-categories-page-name');
+			// $orphan = $wpdb->get_results($wpdb->prepare($query));
+			// $excluded = array('view-categories-page-name');
 
-			// if a page is registered in the code but there is no reference
-			// of it in the database, create it.
-			$shortcodes = awpcp_pages();
-			$refnames = $wpdb->get_col('SELECT page FROM ' . AWPCP_TABLE_PAGES);
-			$missing = array_diff(array_keys($shortcodes), $refnames);
+			// // if a page is registered in the code but there is no reference
+			// // of it in the database, create it.
+			// $shortcodes = awpcp_pages();
+			// $refnames = $wpdb->get_col('SELECT page FROM ' . AWPCP_TABLE_PAGES);
+			// $missing = array_diff(array_keys($shortcodes), $refnames);
 
-			foreach ($missing as $page) {
-				$item = new stdClass();
-				$item->page = $page;
-				$item->id = -1;
-				$item->post = null;
-				array_push($orphan, $item);
-			}
+			// foreach ($missing as $page) {
+			// 	$item = new stdClass();
+			// 	$item->page = $page;
+			// 	$item->id = -1;
+			// 	$item->post = null;
+			// 	array_push($orphan, $item);
+			// }
 
-			foreach($orphan as $page) {
-				$refname = $page->page;
+			// foreach($orphan as $page) {
+			// 	$refname = $page->page;
 
-				if (in_array($refname, $excluded)) { continue; }
+			// 	if (in_array($refname, $excluded)) { continue; }
 
-				$name = get_awpcp_option($refname);
-				if (strcmp($refname, 'main-page-name') == 0) {
-					awpcp_create_pages($name, $subpages=false);
-				} else {
-					awpcp_create_subpage($refname, $name, $shortcodes[$refname][1]);
-				}
-			}
+			// 	$name = get_awpcp_option($refname);
+			// 	if (strcmp($refname, 'main-page-name') == 0) {
+			// 		awpcp_create_pages($name, $subpages=false);
+			// 	} else {
+			// 		awpcp_create_subpage($refname, $name, $shortcodes[$refname][1]);
+			// 	}
+			// }
 		}
 	}
 }
@@ -435,8 +434,11 @@ function awpcp_insert_thickbox() {
 function maybe_redirect_new_ad() { 
 	global $wp_query;
 
+	$a = awpcp_post_param('a', '');
+	$adid = awpcp_post_param('adid', '');
+
     if (( isset($wp_query->query_vars) && 'adpostfinish' == get_query_var('a') && '' != get_query_var('adid') ) ||
-	 	('adpostfinish' == $_POST['a'] && '' != $_POST['adid']))
+	 	( 'adpostfinish' == $a && '' != $adid))
     {
 		// if ( get_awpcp_option('seofriendlyurls') ) {
 		// 	wp_redirect( url_showad( intval( $_POST['adid'] ) ).'?adstatus=preview');
@@ -637,8 +639,9 @@ function awpcp_addcss()
 function awpcp_insert_facebook_meta() {
 	$output = '';
 
-	if ( $_REQUEST['id'] != '' || get_query_var('id') != '' ) {
 
+	if ((isset($_REQUEST['id']) && $_REQUEST['id'] != '') || get_query_var('id') != '' ) 
+	{
 		$ad_id = $_REQUEST['id'];
 		if ( $ad_id == '' ) {
 			$ad_id = get_query_var('id');

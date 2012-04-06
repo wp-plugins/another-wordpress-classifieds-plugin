@@ -86,6 +86,7 @@ class WP_Skeleton_Logger {
             return;
         }
 
+        $html = '';
         foreach($this->log as $entry) {
             $html .= $this->render($entry);
         }

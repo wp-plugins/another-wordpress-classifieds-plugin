@@ -528,7 +528,6 @@ function awpcp_place_ad_checkout_step($form_values=array(), $form_errors=array()
 	$transaction->set('payment-term-id', $term->id);
 	$transaction->set('payment-method', $method);
 	$transaction->set('original-amount', $term->price);
-	// TODO: fix cupons module
 	$amount = apply_filters('awpcp-place-ad-payment-amount', $term->price, $transaction);
 	$transaction->set('amount', $amount);
 
@@ -2440,13 +2439,13 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 		}
 
 		if ($action== 'editad' ) {
-			$editorposttext=__("Your ad details have been filled out in the form below. Make any changes needed then resubmit the ad to update it","AWPCP");
+			$editorposttext= '<p>' . __("Your ad details have been filled out in the form below. Make any changes needed then resubmit the ad to update it","AWPCP") . '</p>';
 		} else {
 			$editorposttext='';
             if (current_user_can('administrator')) {
 				$editorposttext.=__("<p class='awpcp-form-spacer' style='font-weight:bold'><em>You are logged in as an administrator. Any payment steps will be skipped.</em></p> ","AWPCP");
 			}
-			$editorposttext.=__("Fill out the form below to post your classified ad. ","AWPCP");
+			$editorposttext.= '<p>' . __("Fill out the form below to post your classified ad. ","AWPCP") . '</p>';
 		}
 
 		////////////
@@ -2486,8 +2485,7 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 
 		// build the Form's action URL
 		if (!is_admin()) {
-			$theformbody.="$displaydeleteadlink<p>$editorposttext";
-			$theformbody.="</p>";
+			$theformbody.="$displaydeleteadlink $editorposttext";
 			$faction="id=\"awpcpui_process\"";
 
 		} else if (!empty($action_url)) {
@@ -2551,7 +2549,7 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 		}
 		
 		if (get_awpcp_option('displaywebsitefield') == 1) {
-			$theformbody.="<p class='awpcp-form-spacer'>Website URL<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"websiteurl\" value=\"$websiteurl\" /></select></p>";
+			$theformbody.="<p class='awpcp-form-spacer'>Website URL<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"websiteurl\" value=\"$websiteurl\" /></p>";
 		}
 
 		$theformbody.="<p class='awpcp-form-spacer'>";
@@ -3701,7 +3699,6 @@ function processadstep1($form_values=array(), $form_errors=array(), $transaction
 
 			$payment_status = $transaction->get('payment-status');
 			$txn_id = $transaction->get('txn-id', '');
-			// TODO: enable defaults for Transaction attributes
 			$amount = $transaction->get('amount', 0);
 
 			if (strcmp($transaction->get('payment-term-type'), 'ad-term-fee') === 0) {

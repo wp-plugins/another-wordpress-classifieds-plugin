@@ -1,11 +1,11 @@
 === Another Wordpress Classifieds Plugin ===
-Contributors: http://awpcp.com
+Contributors: awpcp
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
 Tested up to: 3.3.1
-Last Updated: 2012-Apr-3
-Stable tag: tags/2.0.1
+Last Updated: 2012-Apr-6
+Stable tag: tags/2.0.2
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
@@ -191,6 +191,13 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 2.0.2 =
+ NEW: Added Debug panel in admin screen, to allow for users to copy/paste current info about site
+ Bug: AWPCP page creation on upgrade fixed
+ Bug: Problem with coupon module fixed
+ Bug: Warnings about AWPCP::append_title arguments, awpcp_admin_sidebar, call-user-func fixed
+ Bug: Payment amount matching fixed
+ 
  = 2.0.1 =
  Bug: Warnings about AWPCP::init suppressed
  Bug: Problem with table update for options fixed

@@ -108,7 +108,12 @@ function init_awpcpsbarwidget() {
 
 	// Register Widgets
 	register_sidebar_widget('AWPCP Latest Ads', 'widget_awpcplatestads');
-	register_widget_control('AWPCP Latest Ads', 'widget_awpcplatestads_options', 350, 120);
+	//wp_register_sidebar_widget('awpcp-latest-ads', 'AWPCP Latest Ads', 'widget_awpcplatestads');
+
+	// register_widget_control('AWPCP Latest Ads', 'widget_awpcplatestads_options', 350, 120);
+	$options = array('width' => 350, 'height' => 120);
+	wp_register_widget_control('awpcp-latest-ads', 'AWPCP Latest Ads', 
+		'widget_awpcplatestads_options', $options);
 }
 
 function awpcp_sidebar_headlines($limit, $showimages, $showblank) {

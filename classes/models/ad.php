@@ -9,7 +9,6 @@ class AWPCP_Ad {
 		$ad->adterm_id = $object->adterm_id; // fee plan id
 		$ad->ad_fee_paid = $object->ad_fee_paid;
 		$ad->ad_category_id = $object->ad_category_id;
-		$ad->ad_category_parent = $object->ad_category_parent;
 		$ad->ad_category_parent_id = $object->ad_category_parent_id;
 		$ad->ad_title = $object->ad_title;
 		$ad->ad_details = $object->ad_details;

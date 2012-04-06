@@ -6,9 +6,12 @@ class AWPCP_Place_Ad_Page {
 	public $active = false;
 
 	public function AWPCP_Place_Ad_Page() {
+		add_action('init', array($this, 'init'));
 		add_action('wp_footer', array($this, 'print_scripts'));
 		add_action('admin_footer', array($this, 'print_scripts'));
+	}
 
+	public function init() {
 		$src = AWPCP_URL . 'js/extra-fields.js';
 		wp_register_script('awpcp-extra-fields', $src, array('jquery'), '1.0', true);
 	}

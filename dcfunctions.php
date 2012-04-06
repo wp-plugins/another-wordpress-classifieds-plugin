@@ -390,6 +390,8 @@ function create_pager($from,$where,$offset,$results,$tpname)
 	$dotsbefore=false;
 	$dotsafter=false;
 	$current_page = 0;
+	$myreturn = '';
+
 	for ($i=1;$i<=$total_pages;$i++) {
 		if (((($i-1)*$results)<=$offset) && ($offset<$i*$results)) {
 			$myreturn.="$i&nbsp;";
@@ -416,15 +418,17 @@ function create_pager($from,$where,$offset,$results,$tpname)
 		} else {
 			$prev.="\t\t<a href=\"$tpname".$awpcpoffset_set.(($current_page-2) * $results)."&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
 		}
+	} else {
+		$prev = '';
 	}
 
 	if ( $offset != (($total_pages-1)*$results) ) { 
-		$next.="<a href=\"$tpname$awpcpoffset_set".($current_page * $results)."&results=$results&".array2qs($params)."\">&raquo;</a>&nbsp;\n";
+		$next = "<a href=\"$tpname$awpcpoffset_set".($current_page * $results)."&results=$results&".array2qs($params)."\">&raquo;</a>&nbsp;\n";
 	}
 
-	if ( '' != $_REQUEST['page_id'] ) 
+	if ( isset($_REQUEST['page_id']) && '' != $_REQUEST['page_id'] ) {
 		$form.="\t\t<input type=\"hidden\" name=\"page_id\" value='".$_REQUEST['page_id']."' />\n";
-		
+	}
 
 	$form = $form . $prev . $myreturn . $next; 
 	$form.="\t</td>\n";

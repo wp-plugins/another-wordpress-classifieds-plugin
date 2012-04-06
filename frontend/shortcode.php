@@ -21,7 +21,7 @@ class AWPCP_Pages {
 	}
 
 	public function init() {
-		add_filter('wp_title','awpcp_append_title');
+		add_filter('wp_title','awpcp_append_title', 10, 3);
 
 		// add_shortcode('AWPCPPLACEAD','awpcpui_postformscreen');
 		add_shortcode('AWPCPPLACEAD', array($this->place_ad, 'dispatch'));
@@ -1079,7 +1079,7 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 
 
 
-function awpcp_append_title($title, $separator) {
+function awpcp_append_title($title, $separator, $seplocation) {
 	$awpcpiscat='';
 	$permastruc=get_option('permalink_structure');
 	$awpcpshowadpagename=sanitize_title(get_awpcp_option('show-ads-page-name'));

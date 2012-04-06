@@ -183,7 +183,7 @@ function awpcp_paypal_validate_transaction($valid, $transaction) {
 	$receiver_email = awpcp_post_param('receiver_email');
 	$quantity = awpcp_post_param('quantity');
 	$business = awpcp_post_param('business');
-	$mcgross = number_format(awpcp_post_param('mc_gross'), 2);
+	$mc_gross = $mcgross = number_format(awpcp_post_param('mc_gross'), 2);
 	$payment_gross = number_format(awpcp_post_param('payment_gross'), 2);
 	$mc_fee = awpcp_post_param('mc_fee');
 	$tax = awpcp_post_param('tax');
@@ -218,7 +218,7 @@ function awpcp_paypal_validate_transaction($valid, $transaction) {
 	// handle regular payments 
 
 	$amount = number_format($transaction->get('amount'), 2);
-	if ($amount !== $mc_gross && $amount !== $payment_gross) {
+	if ($amount != $mc_gross && $amount != $payment_gross) {
 		$msg = __("The amount you have paid does not match any of our Payment Terms amounts. Please contact us to clarify the problem.", "AWPCP");
 		$transaction->errors[] = $msg;
 		$transaction->set('payment-status', AWPCP_Payment_Transaction::$PAYMENT_STATUS_INVALID);
@@ -299,7 +299,7 @@ function awpcp_2checkout_validate_transaction($valid, $transaction) {
 	$x_twocorec = awpcp_post_param('x_twocorec');
 	$x_order_number = awpcp_post_param('order_number');
 	$x_sid = awpcp_post_param('sid');
-	$x_amount = awpcp_post_param('x_amount');
+	$x_amount = number_format(awpcp_post_param('x_amount'), 2);
 
 	$amount = number_format($transaction->get('amount'), 2);
 	if ($amount !== $x_amount) {

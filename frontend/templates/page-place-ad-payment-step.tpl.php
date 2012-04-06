@@ -18,12 +18,18 @@
 				<option value="0"><?php _e('Select a Category') ?></option>
 				<?php echo get_categorynameidall(awpcp_array_data('category', '', $form_values)); ?>
 			</select>
-			<br/><span class="error erroralert"><?php echo awpcp_array_data('category', '', $form_errors) ?></span>
+			<?php $error = awpcp_array_data('category', '', $form_errors); ?>
+			<?php if (!empty($error)): ?>
+			<br/><span class="awpcp-error"><?php echo $error ?></span>
+			<?php endif ?>
 		</fieldset>
 
 		<fieldset>
 			<h3><?php _e('Please select a payment term for your Ad', 'AWPCP') ?></h3>
-			<span class="error erroralert"><?php echo awpcp_array_data('payment-term', '', $form_errors) ?></span>
+			<?php $error = awpcp_array_data('payment-term', '', $form_errors); ?>
+			<?php if (!empty($error)): ?>
+			<span class="awpcp-error"><?php echo $error ?></span>
+			<?php endif ?>
 
 			<table>
 				<thead>
@@ -73,7 +79,10 @@
 
 		<fieldset>
 			<h3><?php _e('Please select a payment method', 'AWPCP') ?></h3>
-			<span class="error erroralert"><?php echo awpcp_array_data('payment-method', '', $form_errors) ?></span>
+			<?php $error = awpcp_array_data('payment-method', '', $form_errors); ?>
+			<?php if (!empty($error)): ?>
+			<span class="awpcp-error"><?php echo $error ?></span>
+			<?php endif ?>
 
 			<table>
 				<thead>

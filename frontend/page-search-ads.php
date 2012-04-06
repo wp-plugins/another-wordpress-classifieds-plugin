@@ -12,9 +12,12 @@ class AWPCP_Search_Ads_Page {
 		add_action('wp_ajax_awpcp-search-ads-get-regions', array($this, 'regions_list'));
 		add_action('wp_ajax_nopriv_awpcp-search-ads-get-regions', array($this, 'regions_list'));
 
+		add_action('init', array($this, 'init'));
 		add_action('wp_footer', array($this, 'print_scripts'));
 		add_action('admin_footer', array($this, 'print_scripts'));
+	}
 
+	public function init() {
 		$src = AWPCP_URL . 'js/region-control.js';
 		wp_register_script('awpcp-region-control', $src, array('jquery'), '1.1', true);
 	}

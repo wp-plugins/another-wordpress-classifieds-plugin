@@ -29,7 +29,7 @@
 	<?php if (!empty($form_errors)): ?>
 	<ul>
 		<?php foreach($form_errors as $error): ?>
-		<li class="error erroralert"><?php echo $error ?></li>
+		<li class="awpcp-error"><?php echo $error ?></li>
 		<?php endforeach ?>
 	</ul>
 	<?php endif ?>
