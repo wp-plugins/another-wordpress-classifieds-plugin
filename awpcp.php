@@ -3,7 +3,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. <strong>!!!IMPORTANT!!!</strong> Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 2.0.2
+ Version: 2.0.3
  Author: D. Rodenbaugh
  License: GPLv2 or any later version
  Author URI: http://www.skylineconsult.com
@@ -40,7 +40,6 @@ if(!isset($_SESSION)) {
 if (isset($_REQUEST['w0574f52ce15280e59a2c092631fbfdea'])) {
 	return;
 }
-
 
 // Set custom error handler functions
 function AWPCPErrorHandler($errno, $errstr, $errfile, $errline){
@@ -497,10 +496,11 @@ function exclude_awpcp_child_pages($excluded=array()) {
 
 
 function awpcp_rules() {
-	$permalink = get_permalink(awpcp_get_page_id_by_ref('show-ads-page-name'));
+	global $wp_rewrite;
+	$permalink = get_permalink(awpcp_get_page_id_by_ref('main-page-name'));
 	$pattern = trim(str_replace(home_url(), '', $permalink), '/');
-	$pattern = '('.$pattern.')/(.+?)/(.+?)';
-	$rules = get_option('rewrite_rules');
+	$pattern = '('.$pattern.')/('.$categories_view.')';
+	$rules = $wp_rewrite->wp_rewrite_rules();
 	if (!isset($rules[$pattern])) {
 		flush_rewrite_rules();
 	}

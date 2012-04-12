@@ -7,7 +7,6 @@ class AWPCP_Payment_Transaction {
 	public static $PAYMENT_STATUS_FAILED = 'Failed';
 	public static $PAYMENT_STATUS_PENDING = 'Pending';
 	public static $PAYMENT_STATUS_COMPLETED = 'Completed';
-	public static $PAYMENT_STATUS_FREE = 'Free';
 
 	private $attributes = array('__items__' => array());
 	

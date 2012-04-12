@@ -90,7 +90,13 @@ function awpcp_get_users($where='') {
  * AWPCP settings.
  */
 function awpcp_current_user_is_admin() {
-	return checkifisadmin() == 1;
+	if (get_awpcp_option('awpcpadminaccesslevel') == 'admin') {
+		return current_user_can('install_plugins');
+	} else if (get_awpcp_option('awpcpadminaccesslevel') == 'editor') {
+		return current_user_can('edit_pages');
+	}
+
+	return current_user_can('install_plugins');
 }
 
 

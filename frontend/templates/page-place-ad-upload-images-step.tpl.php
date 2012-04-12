@@ -3,9 +3,9 @@
 	<?php echo awpcp_menu_items() ?>
 	<?php endif ?>
 
-	<h2><?php _e('Step 4 of 4 - Upload Images') ?></h2>
+	<h2><?php _e('Upload Images') ?></h2>
 
-	<?php foreach ($header as $part): ?>
+	<?php foreach ((array) $header as $part): ?>
 		<?php echo $part ?>
 	<?php endforeach ?>
 

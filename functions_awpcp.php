@@ -333,49 +333,14 @@ function awpcp_is_classifieds()
 	return $istheclassifiedspage;
 
 }
+
+
 // START FUNCTION: Check if the user is an admin
 function checkifisadmin() {
-
-	global $current_user;
-	get_currentuserinfo();
-
-	if(get_awpcp_option('awpcpadminaccesslevel') == 'admin')
-	{
-		if(current_user_can('install_plugins'))
-		{
-			$isadmin=1;
-		}
-		else
-		{
-			$isadmin=0;
-		}
-	}
-	if(get_awpcp_option('awpcpadminaccesslevel') == 'editor')
-	{
-		if(current_user_can('edit_pages'))
-		{
-			$isadmin=1;
-		}
-		else
-		{
-			$isadmin=0;
-		}
-	}
-	else
-	{
-		if(current_user_can('install_plugins'))
-		{
-			$isadmin=1;
-		}
-		else
-		{
-			$isadmin=0;
-		}
-	}
-
-	return $isadmin;
-
+	return awpcp_current_user_is_admin() ? 1 : 0;
 }
+
+
 // END FUNCTION
 function awpcpistableempty($table){
 	global $wpdb;
@@ -561,8 +526,9 @@ function get_num_days_in_term($adtermid) {
 		list($numdaysinterm)=$rsrow;
 	}
 
-	if ('' == $numdaysinterm || 0 == $numdaysinterm)
-	$numdaysinterm = 36500; // 100 years, equivalent of never expires
+	if ('' == $numdaysinterm || 0 == $numdaysinterm) {
+		$numdaysinterm = 3650; // 100 years, equivalent of never expires
+	}
 
 	return $numdaysinterm;
 }

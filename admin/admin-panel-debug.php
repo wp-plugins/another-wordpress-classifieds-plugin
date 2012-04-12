@@ -28,7 +28,7 @@ class AWPCP_Admin_Debug {
 		$sql = $wpdb->prepare($sql, $refname);
 		$pages = $wpdb->get_results($sql);
 
-		$rules = $wp_rewrite->rewrite_rules();
+		$rules = $wp_rewrite->wp_rewrite_rules();
 
 		ob_start();
 			include(AWPCP_DIR . 'admin/templates/admin-panel-debug.tpl.php');

@@ -4,15 +4,15 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
 Tested up to: 3.3.1
-Last Updated: 2012-Apr-6
-Stable tag: tags/2.0.2
+Last Updated: 2012-Apr-12
+Stable tag: tags/2.0.3
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
 == Description ==
 Add a classified ads section to your Wordpress site, quickly and easily.  
 Lots of features, very configurable.  Easy to setup.  Great support.
-We're the #1 Wordpress Classified Ads Plugin: three years old and 110,000+ downloads!
+We're the #1 Wordpress Classified Ads Plugin: three+ years old and 120,000+ downloads!
 
 Fee Per Category NOW AVAILABLE (see below)!  Don't miss Featured Ads, too!
 
@@ -32,6 +32,7 @@ Features:
     10. Ads can have a "Share on Facebook" button in their layout
     11. Ads can be flagged by community for bad/offensive content
     12. Ads can imported via CSV files
+    13. Ads now support embedded videos
  = Notification Features =
     1. Allow posters to be notified of expiring ads
     2. Allow admin to be notified when new ads are posted
@@ -61,6 +62,8 @@ Features:
        then deleted or unflagged.
     9. **New Ad Management panel, visible by users and admins for easier
        ad creation/editing/delete.
+    10. Admin can post ads on behalf of other users with the ads displaying as
+        if the user posted them initially
  = Image Features =
     1. Allow image posting or shut it off completely
     2. Control the number, filesize, height and width of images posted
@@ -191,6 +194,15 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 2.0.3 =
+ Bug: PayPal issue with payments returning for mismatched emails
+ Bug: Category Icons module failed to display images correctly
+ Bug: Various PHP warnings fixed
+ Bug: Fixed expiration date problem with free ads
+ Bug: Fixed RSS feeds module issue (no ads displayed)
+ Bug: Fixed ad editing problem from admin Listings link
+ Bug: Changed workflow text that used "Step X of Y" to the actual step names to reduce confusion
+ 
  = 2.0.2 =
  NEW: Added Debug panel in admin screen, to allow for users to copy/paste current info about site
  Bug: AWPCP page creation on upgrade fixed

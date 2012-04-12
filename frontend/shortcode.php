@@ -528,7 +528,7 @@ function awpcp_menu_items() {
 	$browsecatspagenameunsani=get_awpcp_option('browse-categories-page-name');
 	$browsecatspagename=sanitize_title(get_awpcp_option('browse-categories-page-name'));
 	
-	$categoriesviewpagename=sanitize_title(get_awpcp_option('view-categories-page-name'),$post_ID='');
+	$categoriesviewpagename=sanitize_title(get_awpcp_option('view-categories-page-name'));
 	$categoriesviewpagenameunsani=get_awpcp_option('view-categories-page-name');
 	
 	$awpcp_page_id=awpcp_get_page_id_by_ref('main-page-name');
@@ -722,6 +722,8 @@ function awpcp_menu_items() {
  * LI or P element.
  */
 function awpcp_display_classifieds_category_item($category, $class='toplevelitem') {
+	global $awpcp_imagesurl;
+
 	$permastruc = get_option('permalink_structure');
 	$awpcp_browsecats_pageid=awpcp_get_page_id_by_ref('browse-categories-page-name');
 
@@ -774,8 +776,10 @@ function awpcp_display_classifieds_category_item($category, $class='toplevelitem
 
 
 function awpcp_display_the_classifieds_category($awpcppagename) {
-	//debug();
-	global $wpdb,$awpcp_imagesurl,$hasregionsmodule;
+	global $wpdb;
+	global $awpcp_imagesurl;
+	global $hasregionsmodule;
+	
 	$tbl_ad_categories = $wpdb->prefix . "awpcp_categories";
 
 	$usingsidelist=0;

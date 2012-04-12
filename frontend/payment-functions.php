@@ -181,8 +181,8 @@ function awpcp_paypal_validate_transaction($valid, $transaction) {
 	$item_name = awpcp_post_param('item_name');
 	$item_number = awpcp_post_param('item_number');
 	$receiver_email = awpcp_post_param('receiver_email');
-	$quantity = awpcp_post_param('quantity');
 	$business = awpcp_post_param('business');
+	$quantity = awpcp_post_param('quantity');
 	$mc_gross = $mcgross = number_format(awpcp_post_param('mc_gross'), 2);
 	$payment_gross = number_format(awpcp_post_param('payment_gross'), 2);
 	$mc_fee = awpcp_post_param('mc_fee');
@@ -226,7 +226,8 @@ function awpcp_paypal_validate_transaction($valid, $transaction) {
 		return false;	
 	}
 
-	if (strcasecmp($receiver_email, get_awpcp_option('paypalemail')) !== 0) {
+	$paypal_email = get_awpcp_option('paypalemail');
+	if (strcasecmp($receiver_email, $paypal_email) !== 0 && strcasecmp($business, $paypal_email) !== 0) {
 		$msg = __("There was an error processing your transaction. If funds have been deducted from your account they have not been processed to our account. You will need to contact PayPal about the matter.", "AWPCP");
 		$transaction->errors[] = $msg;
 		$transaction->set('payment-status', AWPCP_Payment_Transaction::$PAYMENT_STATUS_INVALID);

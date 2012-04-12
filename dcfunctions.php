@@ -289,7 +289,9 @@ function array2qs($myarray) {
 	$total = count($myarray);
 	$count = 1;
 	while (list($k,$v)=each($myarray)) {
-		$myreturn.= "$k=" . urlencode($v);
+		if (is_string($v)) {
+			$myreturn.= "$k=" . urlencode($v);
+		}
 		if ($count < $total) {
 			$myreturn .= "&";
 		}
@@ -333,7 +335,7 @@ function create_pager($from,$where,$offset,$results,$tpname)
 
 	}
 
-
+	// TODO: remove all fields that belongs to the Edit Ad form (including extra fields and others?)
 	$params=array();
 	$params=array_merge($_GET,$_POST);
 	unset($params['page_id'],$params['offset'],$params['results'],$params['PHPSESSID'],$params['aeaction'],$params['category_id'],$params['cat_ID'],$params['action'],$params['aeaction'],$params['category_name'],$params['category_parent_id'],$params['createeditadcategory'],$params['deletemultiplecategories'],$params['movedeleteads'],$params['moveadstocategory'],$params['category_to_delete'],$params['tpname'],$params['category_icon'],$params['sortby'],$params['adid'],$params['picid'],$params['adkey'],$params['editemail'],$params['deletemultipleads'],$params['spammultipleads'],$params['awpcp_ads_to_action']);

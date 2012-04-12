@@ -599,8 +599,9 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 
 function awpcpcreatethumb($filename, $destdir, $twidth) {
 	$show_all=true;
-	$photothumbs_width=$twidth;
-	$mynewimg='';
+	$photothumbs_width = $twidth <= 0 ? 150 : $twidth;
+	$mynewimg = '';
+
 	if (extension_loaded('gd')) {
 		if ($imginfo=getimagesize($destdir."/$filename")) {
 			$width=$imginfo[0];
@@ -608,25 +609,27 @@ function awpcpcreatethumb($filename, $destdir, $twidth) {
 			if ($width>$photothumbs_width) {
 				$newwidth=$photothumbs_width;
 				$newheight=$height*($photothumbs_width/$width);
-				if ($imginfo[2]==1) {		//gif
-				} elseif ($imginfo[2]==2) {		//jpg
+
+				if ($imginfo[2] == 1) {		//gif
+				} elseif ($imginfo[2] == 2) {		//jpg
 					if (function_exists('imagecreatefromjpeg')) {
-						$myimg=@imagecreatefromjpeg($destdir."/$filename");
+						$myimg = @imagecreatefromjpeg($destdir."/$filename");
 					}
-				} elseif ($imginfo[2]==3) {	//png
-					$myimg=@imagecreatefrompng($destdir."/$filename");
+				} elseif ($imginfo[2] == 3) {	//png
+					$myimg = @imagecreatefrompng($destdir."/$filename");
 				}
+
 				if (isset($myimg) && !empty($myimg)) {
 					$gdinfo=awpcp_GD();
 					if (stristr($gdinfo['GD Version'], '2.')) {	// if we have GD v2 installed
 						$mynewimg=@imagecreatetruecolor($newwidth,$newheight);
-						if (imagecopyresampled($mynewimg,$myimg,0,0,0,0,$newwidth,$newheight,$width,$height)) {
-							$show_all=false;
+						if ($mynewimg !== false) {
+							$show_all = !imagecopyresampled($mynewimg,$myimg,0,0,0,0,$newwidth,$newheight,$width,$height);
 						}
 					} else {	// GD 1.x here
 						$mynewimg=@imagecreate($newwidth,$newheight);
-						if (@imagecopyresized($mynewimg,$myimg,0,0,0,0,$newwidth,$newheight,$width,$height)) {
-							$show_all=false;
+						if ($mynewimg !== false) {
+							$show_all = !@imagecopyresized($mynewimg,$myimg,0,0,0,0,$newwidth,$newheight,$width,$height);
 						}
 					}
 				}
@@ -639,6 +642,7 @@ function awpcpcreatethumb($filename, $destdir, $twidth) {
 			@chmod($destdir.'/thumbs',0777);
 		}
 	}
+
 	if ($show_all) {
 		$myreturn=@copy($destdir."/$filename",$destdir."/thumbs/$filename");
 	} else {

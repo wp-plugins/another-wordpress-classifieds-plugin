@@ -9,7 +9,7 @@
 	<h2><?php _e("Your Ad has been submitted", "AWPCP") ?></h2>
 	<?php endif ?>
 
-	<?php foreach ($header as $part): ?>
+	<?php foreach ((array) $header as $part): ?>
 		<?php echo $part ?>
 	<?php endforeach ?>
 

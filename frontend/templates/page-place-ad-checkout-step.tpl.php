@@ -3,7 +3,7 @@
 	<?php echo awpcp_menu_items() ?>
 	<?php endif ?>
 
-	<h2><?php _e('Step 2 of 4 - Checkout', 'AWPCP') ?></h2>
+	<h2><?php _e('Complete Payment', 'AWPCP') ?></h2>
 
 	<?php foreach ($header as $part): ?>
 		<?php echo $part ?>
