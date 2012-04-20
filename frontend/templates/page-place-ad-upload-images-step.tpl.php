@@ -39,8 +39,7 @@
 		<div class="clearfix">
 	<?php for ($i = 0; $i < $images_left; $i++): ?>
 		<div class="uploadform">
-			<input type="file" name="AWPCPfileToUpload<?php echo $i ?>" 
-				   id="AWPCPfileToUpload<?php echo $i ?>" size="18" />
+			<input type="file" name="AWPCPfileToUpload<?php echo $i ?>" id="AWPCPfileToUpload<?php echo $i ?>" size="18" />
 		</div>
 	<?php endfor ?>
 		</div>

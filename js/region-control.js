@@ -56,11 +56,13 @@ if (typeof jQuery != 'undefined') {
                             self.helptext.addClass('hidden');
                             self.select.removeClass('hidden').attr('name', self.name);
                             self.select.empty().append($(response.html)).val('');
+                            self.select.trigger('awpcp-update-region-options-completed');
                         } else {
                             self.select.addClass('hidden').removeAttr('name');
                             self.input.removeClass('hidden').attr('name', self.name);
                             self.input.val('');
                             self.helptext.removeClass('hidden');
+                            self.input.trigger('awpcp-update-region-options-completed');
                         }
                     } else {
                         // TODO: tell the user an error ocurred

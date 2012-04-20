@@ -210,21 +210,24 @@
 		global $import_error_row_flag;
 		global $auto_cat;
 		global $test_import;
+
 		$create_category = true;
 		$sql = $wpdb->prepare("SELECT category_id FROM {$wpdb->base_prefix}awpcp_categories WHERE category_name = '%s'", $cat_name);
 		$cat_id = $wpdb->get_var($sql);
+
 		if (!$cat_id && $auto_cat == "1" && !$test_import) {
-			// $query = "INSERT INTO {$wpdb->base_prefix}awpcp_categories (category_parent_id, category_name, category_order) VALUES (0, '$cat_name', 0)";
 			$query = $wpdb->prepare("INSERT INTO {$wpdb->base_prefix}awpcp_categories (category_parent_id, category_name, category_order) VALUES (0, '%s', 0)", $cat_name);
-			// echo "<br/>$query";
 			$wpdb->query($query);
 			$cat_id = $wpdb->insert_id; // 5; //$wpdb->insert_id;
 			return $cat_id;
+
 		} else if ($cat_id) {
 			return $cat_id;
+
 		} else if ($auto_cat == "1" && $test_import) {
 			return 5; // dummy value returned for test import.
-		} 
+		}
+
 		return 0; // TODO false
 	}
 	

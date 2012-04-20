@@ -15,7 +15,8 @@
 			</thead>
 			<tbody>
 		<?php foreach($options as $name => $value): ?>
-				<tr><td><?php echo $name ?></td><td><?php echo htmlentities($value) ?></td></tr>
+		<?php $value = (is_object($value) || is_array($value)) ? print_r($value, true) : $value ?>
+				<tr><td><?php echo $name ?></td><td><?php echo esc_html($value) ?></td></tr>
 		<?php endforeach ?> 
 			</tbody>
 		</table>
@@ -57,6 +58,26 @@
 					<td><?php echo $rule ?></td>
 				</tr>
 		<?php endforeach ?> 
+			</tbody>
+		</table>
+
+		<h3><?php _e('PHP Info') ?></h3>
+		<table>
+			<thead>
+				<tr>
+					<th><?php _e('Variable', 'AWPCP') ?></th>
+					<th><?php _e('Value', 'AWPCP') ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><?php _e('PHP Version') ?></td>
+					<td><?php echo phpversion() ?></td>
+				</tr>
+				<tr>
+					<td><?php _e('cURL') ?></td>
+					<td><?php echo in_array('curl', get_loaded_extensions()) ? 'Installed' : 'Not Installed' ?></td>
+				</tr>
 			</tbody>
 		</table>
 

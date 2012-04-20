@@ -53,50 +53,49 @@ class AWPCP_Admin {
 	}
 
 	public function menu() {
-		//show settings only if installation is complete
-		if (isset($_REQUEST['awpcp_installationcomplete']) && $_REQUEST['awpcp_installationcomplete'] == '1' ) {
-			update_option('awpcp_installationcomplete','1');
+		if (get_awpcp_option('awpcpadminaccesslevel') == 'editor') {
+			$capability = 'edit_pages';
+		} else { // only administrators
+			$capability = 'install_plugins';
 		}
 
-		// if (installtablecheck() == '1') {
 		$slug = 'awpcp.php';
-		add_menu_page('AWPCP Classifieds Management System', $this->title, '7',
+		add_menu_page('AWPCP Classifieds Management System', $this->title, $capability,
 					  $slug, 'awpcp_home_screen', MENUICO);
 
-		add_submenu_page($slug, 'Configure General Options ', 'Settings',
-					     '7', 'awpcp-admin-settings', array($this->settings, 'dispatch'));
-		add_submenu_page($slug, 'Listing Fees Setup', 'Fees', '7', 
+		add_submenu_page($slug, 'Configure General Options ', 'Settings', $capability,
+						 'awpcp-admin-settings', array($this->settings, 'dispatch'));
+		add_submenu_page($slug, 'Listing Fees Setup', 'Fees', $capability,
 						 'Configure2', 'awpcp_opsconfig_fees');
-		add_submenu_page($slug, 'Add/Edit Categories', 'Categories', '7', 
+		add_submenu_page($slug, 'Add/Edit Categories', 'Categories', $capability,
 						 'Configure3', 'awpcp_opsconfig_categories');
-		add_submenu_page($slug, 'View Ad Listings', 'Listings', '7', 
+		add_submenu_page($slug, 'View Ad Listings', 'Listings', $capability,
 						 'Manage1', 'awpcp_manage_viewlistings');
 		// disabled because doesn't seems to be usefull anymore
 		// add_submenu_page($slug, 'View Ad Images', 'Images', '7', 'Manage2', 'awpcp_manage_viewimages');
-		add_submenu_page($slug, 'Import Ad', 'Import', '7', 'awpcp-import', array($this->importer, 'dispatch'));
+		add_submenu_page($slug, 'Import Ad', 'Import', $capability, 
+						 'awpcp-import', array($this->importer, 'dispatch'));
 
 		// allow plugins to define additional sub menu entries
-		do_action('awpcp_admin_add_submenu_page', $slug);
+		do_action('awpcp_admin_add_submenu_page', $slug, $capability);
 
 		if ( file_exists(AWPCP_DIR . "/awpcp_region_control_module.php") ) {
-			add_submenu_page($slug, 'Manage Regions', 'Regions', '7', 'Configure4', 'awpcp_opsconfig_regions');
+			add_submenu_page($slug, 'Manage Regions', 'Regions', $capability, 
+					     'Configure4', 'awpcp_opsconfig_regions');
 		}
 		if ( file_exists(AWPCP_DIR . "/awpcp_extra_fields_module.php") ) {
-			add_submenu_page($slug, 'Manage Extra Fields', 'Extra Fields', '7', 'Configure5', 'awpcp_add_new_field');
+			add_submenu_page($slug, 'Manage Extra Fields', 'Extra Fields', $capability,
+						 'Configure5', 'awpcp_add_new_field');
 		}
 
-		add_submenu_page($slug, 'Debug', 'Debug', '7', 'awpcp-debug', array($this->debug, 'dispatch'));
+		add_submenu_page($slug, 'Debug', 'Debug', $capability, 
+						 'awpcp-debug', array($this->debug, 'dispatch'));
 
-		add_submenu_page($slug, 'Uninstall AWPCP', 'Uninstall', '7', 'awpcp-admin-uninstall', array($this->uninstall, 'dispatch'));
+		add_submenu_page($slug, 'Uninstall AWPCP', 'Uninstall', $capability, 
+						 'awpcp-admin-uninstall', array($this->uninstall, 'dispatch'));
 
 		// allow plugins to define additional menu entries
 		do_action('awpcp_add_menu_page');
-
-		// } else {
-		// 	add_menu_page('AWPCP Classifieds Management System', 'Classifieds', '7', 'awpcp.php', 'awpcp_home_screen', MENUICO);
-		// 	add_submenu_page( 'awpcp.php', 'Finish Installation', 'Finish Install', '7', 'awpcp.php', '');
-		// 	add_submenu_page('awpcp.php', 'Uninstall AWPCP', 'Uninstall', '7', 'Manage3', 'awpcp_uninstall');
-		// }
 	}
 }
 
@@ -148,26 +147,6 @@ function checkifclassifiedpage($pagename) {
 // END FUNCTION
 
 
-
-function installtablecheck() {
-	global $wpdb;
-
-	$complete = get_option('awpcp_installationcomplete');
-	if ($complete == '1' ) {
-		return 1;
-	} else {
-		$isclassifiedpage = checkifclassifiedpage($cpagename_awpcp);
-		
-		if ($isclassifiedpage !== false) {
-			update_option('awpcp_installationcomplete','1');
-			return 1;
-		}
-		return 0;
-	}
-}
-
-
-
 // START FUNCTION: Display the admin home screen
 
 function awpcp_home_screen() {
@@ -202,32 +181,9 @@ function awpcp_home_screen() {
 		}
 	}
 
-	// $tableexists=checkfortable($tbl_ad_settings);
-	// if (!$tableexists)
-	// {
-	// 	$output .= "<b>";
-	// 	$output .= __("!!!!ALERT","AWPCP");
-	// 	$output .= ":</b>";
-	// 	$output .= __("There appears to be a problem with the plugin. The plugin is activated but your database tables are missing. Please de-activate the plugin from your plugins page then try to reactivate it.","AWPCP");
-	// }
-	// else
-	// {
-		// // Instead of asking if the settings table is empty
-		// // we ask if a very basic setting is present. If not,
-		// // we asume the settings hasn't been inserted.
-		// if (!field_exists('awpcpadminemail')) {
-		// 	awpcp_insert_settings();
-		// }
-
 	$cpagename_awpcp=get_awpcp_option('main-page-name');
 	$awpcppagename = sanitize_title($cpagename_awpcp, $post_ID='');
 
-	$isclassifiedpage = checkifclassifiedpage($cpagename_awpcp);
-	if ($isclassifiedpage == false) {
-		$awpcpsetuptext=display_setup_text();
-		$output .= $awpcpsetuptext;
-
-	} else {
 		$awpcp_classifieds_page_conflict_check=checkforduplicate(add_slashes_recursive($cpagename_awpcp));
 		if ( $awpcp_classifieds_page_conflict_check > 1)
 		{
@@ -398,82 +354,10 @@ function awpcp_home_screen() {
 		$output .= "</div>";
 
 		$output .= "</div>";
-	}
-	// }
-	//Echo OK here
+
 	echo $output;
 }
 // END FUNCTION
-
-/**
- * Shows a dialog asking for confirmation to rename AWPCP pages.
- *
- * XXX: It would be good to replace this with a JavaScript dialog
- *      using Thickbox or jQuery UI.
- */
-/*function awpcp_config_page_save( $nullvar = '' ) {
-
-	echo awpcp_admin_config_header();
-
-	?>
-
-	<div class="wrap">
-	    <h2><?php __("AWPCP Classifieds Management System Settings Configuration","AWPCP");?></h2>
-
-	    <?php echo awpcp_admin_sidebar(); ?>
-
-	    <div style="width:515px; margin: 0 auto; background-color: #FFFFE0; border-color: #E6DB55; border-radius: 3px 3px 3px 3px; border-style: solid; border-width: 1px; padding: 0 0.6em;" >
-		    <p style="padding:10px;"><?php _e("WARNING: You are about to rename one or more of your classified ad pages.","AWPCP"); ?></p>
-		    <p style="padding:10px;"><?php _e("Are you sure you want to do this?","AWPCP"); ?></p>
-
-		    <form action="" method="post">
-			    <?php 
-			    foreach ($_POST as $key => $val ) { 
-				    if ( 'savesettings' != $key )
-				    echo '<input type="hidden" name="'.$key.'" value="'.$val.'" >';
-			    }
-			    ?>
-		    <input type="hidden" name="confirmsave" value="1">
-		    <p style="padding:10px;">
-			<input type="submit" name="donothing" class="button" value="<?php _e('No','AWPCP')?>" style="width: 75px; float:right">
-			<input type="submit" name="savesettings" class="button" value="<?php _e('Yes','AWPCP')?>" style="width: 75px; float:right; margin-right: 20px"> 
-		    </p>
-		    <br/><br/>
-		    </form>
-
-	    </div>
-	</div>
-
-	<?php
-
-	return true;
-
-}*/
-
-/**
- * Shows a dialog informing that a page with the specified name
- * already exists.
- *
- * XXX: It would be good to replace this with a JavaScript dialog
- *      using Thickbox or jQuery UI.
- */
-/*function awpcp_config_page_save_collision( $nullvar = '' ) {
-
-	echo awpcp_admin_config_header(); ?>
-
-	<div class="wrap">
-	    <h2><?php __("AWPCP Classifieds Management System Settings Configuration","AWPCP");?></h2>
-
-	    <?php echo awpcp_admin_sidebar(); ?>
-
-	    <div style="width:515px; margin: 0 auto; background-color: #FFFFE0; border-color: #E6DB55; border-radius: 3px 3px 3px 3px; border-style: solid; border-width: 1px; padding: 0 0.6em;" >
-		    <p style="padding:10px;"><?php _e("WARNING: A page named ".$_POST['main-page-name']." already exists. Rename the existing page (or delete the page and empty the Trash) before attempting to change the page name in AWPCP. ","AWPCP"); ?></p>
-	    </div>
-	</div>
-
-	<?php return true;
-}*/
-
 
 
 /**
@@ -513,14 +397,6 @@ function awpcp_opsconfig_fees()
 	$output = '';
 	$cpagename_awpcp=get_awpcp_option('main-page-name');
 	$awpcppagename = sanitize_title($cpagename_awpcp, $post_ID='');
-
-	$isclassifiedpage = checkifclassifiedpage($cpagename_awpcp);
-	if ($isclassifiedpage == false)
-	{
-		$awpcpsetuptext=display_setup_text();
-		$output .= $awpcpsetuptext;
-
-	} else {
 
 		global $wpdb;
 		global $message;
@@ -607,7 +483,7 @@ function awpcp_opsconfig_fees()
 			/////
 	 	$output .= "<ul style='width: 80%'>";
 
-	 	$query="SELECT adterm_id,adterm_name,amount,rec_period,rec_increment,imagesallowed,is_featured_ad_pricing FROM ".$tbl_ad_fees."";
+	 	$query="SELECT adterm_id,adterm_name,amount,rec_period,rec_increment,imagesallowed,is_featured_ad_pricing,categories FROM ".$tbl_ad_fees."";
 	 	$res = awpcp_query($query, __LINE__);
 
 	 	$plans=array();
@@ -617,7 +493,10 @@ function awpcp_opsconfig_fees()
 
 	 		while ($rsrow=mysql_fetch_row($res))
 	 		{
-	 			list($adterm_id,$adterm_name,$amount,$rec_period,$rec_increment,$imagesallowed,$is_featured_ad_pricing,$categories)=$rsrow;
+	 			debug($rsrow);
+	 			list($adterm_id, $adterm_name, $amount,
+	 				 $rec_period, $rec_increment, $imagesallowed,
+	 				 $is_featured_ad_pricing, $categories) = $rsrow;
 				$categories = explode(',', $categories);
 	 			
 					/////////
@@ -675,8 +554,6 @@ function awpcp_opsconfig_fees()
 		}
 		$output .= "</div><br/>";
 
-	}
-	//Echo OK here
 	echo $output;
 }
 
@@ -692,14 +569,6 @@ function awpcp_opsconfig_categories()
 	$cpagename_awpcp=get_awpcp_option('main-page-name');
 	$awpcppagename = sanitize_title($cpagename_awpcp, $post_ID='');
 	$action='';
-
-	$isclassifiedpage = checkifclassifiedpage($cpagename_awpcp);
-	if ($isclassifiedpage == false)
-	{
-		$awpcpsetuptext=display_setup_text();
-		$output .= $awpcpsetuptext;
-
-	} else {
 
 		global $wpdb, $message, $awpcp_imagesurl, $clearform,$hascaticonsmodule;
 
@@ -960,7 +829,7 @@ function awpcp_opsconfig_categories()
 		else {
 			$categorynameinput="<p style=\"background:transparent url($awpcp_imagesurl/post_ico.png) left center no-repeat;padding-left:20px;\">";
 			$categorynameinput.=__("Add a New Category","AWPCP");
-			$categorynamefield.="<input name=\"category_name\" id=\"cat_name\" type=\"text\" class=\"inputbox\" value=\"$category_name\" size=\"40\" style=\"width: 220px\"/>";
+			$categorynamefield ="<input name=\"category_name\" id=\"cat_name\" type=\"text\" class=\"inputbox\" value=\"$category_name\" size=\"40\" style=\"width: 220px\"/>";
 			$selectinput="<select name=\"category_parent_id\"><option value=\"0\">";
 			$selectinput.=__("Make This a Top Level Category","AWPCP");
 			$selectinput.="</option>";
@@ -1171,8 +1040,6 @@ function awpcp_opsconfig_categories()
 		$showcategories
 		</form>$pager2</div>";
 
-	}
-	//Echo OK here:
 	echo $output;
 }
 
@@ -1320,14 +1187,6 @@ function awpcp_manage_viewlistings() {
 	$awpcppagename = sanitize_title($cpagename_awpcp, $post_ID='');
 	$laction = '';
 	$output = '';
-
-	$isclassifiedpage = checkifclassifiedpage($cpagename_awpcp);
-
-	if ($isclassifiedpage == false) {
-		$awpcpsetuptext=display_setup_text();
-		$output .= $awpcpsetuptext;
-
-	} else {
 
 		global $awpcp_imagesurl, $message;
 
@@ -1894,7 +1753,7 @@ function awpcp_manage_viewlistings() {
 
 				$items[]="<tr><td class=\"displayadscell\" width=\"200\">$ad_title</td>
 					<td> $approvelink $makefeaturedlink $handlelink  $imagesnote  </td>
-					$paymentstatus $payplan $startend_date$featured_note</tr>";
+					$paymentstatus $startend_date$featured_note</tr>";
 
 
 				$opentable="<table class=\"widefat fixed\"><thead><tr><th><input type=\"checkbox\" onclick=\"CheckAllAds()\" />";
@@ -1923,7 +1782,6 @@ function awpcp_manage_viewlistings() {
 				$pager1='';
 				$pager2='';
 			}
-		}
 
 		$output .= "
 			<style>
@@ -2093,7 +1951,7 @@ function awpcp_manage_viewlistings() {
 
 
 			$output .= "</div></div>";
-	}
+		}
 	//Echo OK here:
 	echo $output;
 }
@@ -2149,8 +2007,9 @@ function viewimages($where, $approve=true, $delete_image_form_action=null)
 
 		if (get_awpcp_option('imagesallowdisallow') == 0)
 		{
-			$imagesallowedstatus=__("You are not currently allowing users to upload images with their ad. To allow users to upload images please change the related setting in your general options configuration","AWPCP");
-			$imagesallowedstatus.="<p><a href=\"?page=Configure1\">";
+			$href = add_query_arg(array('page' => 'awpcp-admin-settings'), admin_url());
+			$imagesallowedstatus=__("You are not currently allowing users to upload images with their ad. To allow users to upload images please change the related setting in your general options configuration", "AWPCP");
+			$imagesallowedstatus.="<p><a href=\"$href\">";
 			$imagesallowedstatus.=__("Click here to change allowed images status","AWPCP");
 			$imagesallowedstatus.="</a></p>";
 		}

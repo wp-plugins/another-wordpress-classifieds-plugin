@@ -155,9 +155,11 @@
 								<?php _e('Category Handling on Import', 'AWPCP') ?>
 							</th>
 							<td>
-								<input type="checkbox" name="auto_cat" id="auto_cat" value="1" <?php if ($auto_cat == "1") echo "checked"; ?> />
-								<label for="awpcp-importer-auto-create-categories"><?php _e('Auto create categories', 'AWPCP') ?></label>
-								<br/><span class="error"><?php echo awpcp_array_data('auto_cat', '', $form_errors) ?></span>
+								<select name="auto_cat" id="auto_cat">
+									<option value='1' <?php if ($auto_cat == "1") echo 'selected="selected"'; ?>><?php _e('Auto create Categories', 'AWPCP') ?></option>
+									<option value='0' <?php if ($auto_cat == "0") echo 'selected="selected"'; ?>><?php _e('Generate errors if Category not found', 'AWPCP') ?></option>
+								</select><br/>
+								<span class="error"><?php echo awpcp_array_data('auto_cat', '', $form_errors) ?></span>
 							</td>
 						</tr>
 						<tr>

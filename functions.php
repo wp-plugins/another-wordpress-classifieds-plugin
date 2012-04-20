@@ -295,9 +295,14 @@ function awpcp_request_param($name, $default='', $from=null) {
 }
 
 function awpcp_array_data($name, $default, $from=array()) {
-	if (isset($from[$name]) && !empty($from[$name])) {
-		return $from[$name];
+	$value = isset($from[$name]) ? $from[$name] : null;
+
+	if (is_array($value) && count($value) > 0) {
+		return $value;
+	} else if (!empty($value)) {
+		return $value;
 	}
+
 	return $default;
 }
 

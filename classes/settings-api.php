@@ -15,7 +15,7 @@ class AWPCP_Settings_API {
 	 * to work.
 	 */
 	public function setup() {
-		add_action('init', array($this, 'init'));
+		add_action('init', array($this, 'init'), 9999);
 		add_action('admin_init', array($this, 'register'));
 
 		// setup validate functions
@@ -683,7 +683,7 @@ class AWPCP_Settings_API {
 	public function textfield($args) {
 		$setting = $args['setting'];
 
-		$value = htmlentities(stripslashes($this->get_option($setting->name)));
+		$value = esc_html(stripslashes($this->get_option($setting->name)));
 
 		$html = '<input id="'. $setting->name . '" class="regular-text" ';
 		$html.= 'value="' . $value . '" type="text" ';
@@ -713,7 +713,7 @@ class AWPCP_Settings_API {
 	public function textarea($args) {
 		$setting = $args['setting'];
 
-		$value = htmlentities(stripslashes($this->get_option($setting->name)));
+		$value = esc_html(stripslashes($this->get_option($setting->name)));
 
 		$html = '<textarea id="'. $setting->name . '" class="all-options" ';
 		$html.= 'name="awpcp-options['. $setting->name .']">';
@@ -728,7 +728,7 @@ class AWPCP_Settings_API {
 		$setting = $args['setting'];
 		$options = $args['options'];
 
-		$current = htmlentities(stripslashes($this->get_option($setting->name)));
+		$current = esc_html(stripslashes($this->get_option($setting->name)));
 
 		$html = '<select name="awpcp-options['. $setting->name .']">';
 		foreach ($options as $value => $label) {
@@ -748,7 +748,7 @@ class AWPCP_Settings_API {
 		$setting = $args['setting'];
 		$options = $args['options'];
 
-		$current = htmlentities(stripslashes($this->get_option($setting->name)));
+		$current = esc_html(stripslashes($this->get_option($setting->name)));
 
 		foreach ($options as $value => $label) {
 			$html.= '<input type="radio" value="' . $value . '" ';

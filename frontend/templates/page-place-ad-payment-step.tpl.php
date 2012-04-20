@@ -48,13 +48,11 @@
 
 					<?php if ($term->type != $type): ?>
 					<tr class="awpcp-payment-term-type-header">
-						<th colspan="5" scope="row"><?php echo $term->type_name ?></td>
+						<th colspan="5" scope="row"><?php echo $term->type_name ?></th>
 					</tr>
 					<?php endif ?>
 
-					<tr class="js-awpcp-payment-term" 
-						data-price="<?php echo esc_attr($term->price) ?>" 
-						data-categories="<?php echo esc_attr(json_encode($term->categories)) ?>">
+					<tr class="js-awpcp-payment-term" data-price="<?php echo esc_attr($term->price) ?>" data-categories="<?php echo esc_attr(json_encode($term->categories)) ?>">
 						<td>
 							<?php $id = "{$term->type}-{$term->id}" ?>
 							<?php $element_id = "payment-term-$id" ?>
@@ -97,9 +95,7 @@
 					<tr class="js-awpcp-payment-method">
 						<td>
 							<?php $id = "payment-method-{$method->slug}" ?>
-							<input id="<?php echo $id ?>" type="radio" name="payment-method" 
-								   value="<?php echo esc_attr($method->slug) ?>" 
-								   <?php echo $method->slug == $selected ? 'checked="checked"' : '' ?> />
+							<input id="<?php echo $id ?>" type="radio" name="payment-method" value="<?php echo esc_attr($method->slug) ?>" <?php echo $method->slug == $selected ? 'checked="checked"' : '' ?> />
 							<label for="<?php echo $id ?>"><strong><?php echo $method->name ?></strong></label><br/>
 							<?php echo $method->description ?>
 						</td>

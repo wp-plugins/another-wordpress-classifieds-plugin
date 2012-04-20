@@ -79,7 +79,7 @@ function vector2table($vector) {
 	$i=1;
 	$afis.="<tr>\n\t<td class='title' colspan='2'>Table</td>\n</tr>\n";
 	while (list($k,$v) = each($vector)) {
-		$afis.="<tr class='".(($i%2) ? "trpar" : "trimpar")."'>\n\t<td>".htmlentities($k)."</td>\n\t<td>".htmlentities($v)."</td>\n</tr>\n";
+		$afis.="<tr class='".(($i%2) ? "trpar" : "trimpar")."'>\n\t<td>".esc_html($k)."</td>\n\t<td>".esc_html($v)."</td>\n</tr>\n";
 		$i++;
 	}
 	$afis.="</table>\n";
@@ -426,6 +426,8 @@ function create_pager($from,$where,$offset,$results,$tpname)
 
 	if ( $offset != (($total_pages-1)*$results) ) { 
 		$next = "<a href=\"$tpname$awpcpoffset_set".($current_page * $results)."&results=$results&".array2qs($params)."\">&raquo;</a>&nbsp;\n";
+	} else {
+		$next = '';
 	}
 
 	if ( isset($_REQUEST['page_id']) && '' != $_REQUEST['page_id'] ) {

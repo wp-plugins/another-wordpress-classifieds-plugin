@@ -102,6 +102,7 @@ function admin_handleimagesupload($adid) {
 	}
 
 	if (is_array($result) && isset($result['filename'])) {
+		// TODO: consider images approve settings
 		$sql = 'insert into ' . AWPCP_TABLE_ADPHOTOS . " set image_name = '%s', ad_id = '$adid', disabled = 0";
 		$sql = $wpdb->prepare($sql, $result['filename']);
 		$result = $wpdb->query($sql) ;
@@ -235,7 +236,7 @@ function awpcp_handle_uploaded_images($ad_id, &$form_errors=array()) {
 	$min_width = get_awpcp_option('imgthumbwidth');
 	$min_height = $min_width;
 
-	$disable = get_awpcp_option('imagesapprove') == 1 ? 1 : 0;
+	$disabled = get_awpcp_option('imagesapprove') == 1 ? 1 : 0;
 
 	if ($images_left <= 0) {
 		$form_errors['form'] = __("You can't add more images to this Ad. There are not remaining images slots.", 'AWPCP');

@@ -1674,7 +1674,7 @@ function isValidEmailAddress($email) {
 	$local_array = explode(".", $email_array[0]);
 	for ($i = 0; $i < sizeof($local_array); $i++) {
 		//Special handling for 1-character domains:  (e.g. q.com):
-		if (i == 1 && strlen($local_array[$i]) == 1 && 
+		if ($i == 1 && strlen($local_array[$i]) == 1 && 
 			preg_match("/[A-Za-z0-9]/", $local_array[$i])) {
 			//single character domain is valid
 			continue;

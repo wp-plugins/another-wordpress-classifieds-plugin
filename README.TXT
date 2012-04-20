@@ -194,6 +194,19 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 2.0.4 =
+ Bug: Fixed PayPal issue when cURL wasn't available to process reply
+ Bug: Placing ad as admin for other user didn't pull profile data properly
+ Bug: Placed fees before subscriptions in Place Ad first step for paid boards
+ Bug: Fixed extra fields display problem (category specific fields showed in all categories)
+ Bug: RSS admin options restored
+ Bug: Auto approval for ads with images and no payments fixed
+ Bug: Used default thumbnail height (150/150) when image settings are at 0
+ Bug: Category handling for CSV import uses drop down for options instead of checkbox now
+ Bug: Fixed HTML template problem for Place Ad with mismatched tags
+ Bug: Removed "You need to complete your setup" as this is no longer needed
+ 
+ 
  = 2.0.3 =
  Bug: PayPal issue with payments returning for mismatched emails
  Bug: Category Icons module failed to display images correctly

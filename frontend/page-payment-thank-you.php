@@ -57,18 +57,31 @@ class AWPCP_Payment_ThankYou_Page {
 			return join('<br/><br/>', $transaction->errors);
 		}
 
-		$texts = array(
-			'title' => __('Step 2 of 4 - Checkout'),
-			'subtitle' => __('Congratulations', 'AWPCP'),
-			'text' => __('Your Payment has been processed succesfully. Please press the button below to continue with the process.', 'AWPCP')
-		);
+		$payment_status = $transaction->get('payment-status');
+		if ($payment_status != AWPCP_Payment_Transaction::$PAYMENT_STATUS_FAILED) {
+			$texts = array(
+				'title' => __('Payment Completed'),
+				'subtitle' => __('Congratulations', 'AWPCP'),
+				'text' => __('Your Payment has been processed succesfully. Please press the button below to continue with the process.', 'AWPCP')
+			);
+
+			$continue = true;
+
+		} else {
+			$text = __("Your Payment has been processed succesfully. However, the payment gateway didn't return a payment status that allows us to continue with the checkout process. Please contact the website to admin to solve this issue.", 'AWPCP');
+			$text.= '<br/><br/>';
+			$text.= sprintf(__('The payment status was set to %s', 'AWPCP'), $payment_status);
+
+			$texts = array('title' => __('Payment Failed'), 'subtitle' => '', 'text' => $text);
+
+			$continue = false;
+		}
 
 		// TODO: update Ads related stuff? disabled Ads?
 		// TODO: update Subscriptions related stuff? disable Subscriptions?
-		// If you want to change the message shown in this page change this action to become a filter
+		// TODO: disable Ad (if one exists) if payment was refunded or canceled
 		$texts = apply_filters('awpcp-payments-transaction-processed', $texts, $transaction);
 
-		$status = $transaction->get('status');
 		$transaction->save();
 
 		ob_start();

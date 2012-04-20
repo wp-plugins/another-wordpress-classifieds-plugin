@@ -33,19 +33,19 @@ class AWPCP_Admin_CSV_Importer {
 		$auto_cat = awpcp_post_param("auto_cat", 1);
 		$assign_user = awpcp_post_param('assign_user', 0);
 		$assigned_user = intval(awpcp_post_param('user', 0));
+
+		// Original implementation used a global var to pass errors.
+		// That is still used until I got a change to refactor the
+		// existing functions to use an errors array passed by reference.
+		// The messages array is only used to report when a new user
+		// is created.
+		$errors = array();
+		$messages = array();
+		$form_errors = array();
 		
 		if (!empty($import_type)) {
 			$csv_file_name = $_FILES['import']['name'];
 			$zip_file_name = $_FILES['import_zip']['name'];
-
-			// Original implementation used a global var to pass errors.
-			// That is still used until I got a change to refactor the
-			// existing functions to use an errors array passed by reference.
-			// The messages array is only used to report when a new user
-			// is created.
-			$errors = array();
-			$messages = array();
-			$form_errors = array();
 
 			if (empty($csv_file_name)) {
 				$form_errors['import'] = __('Please select the CSV file to import.', 'AWPCP');

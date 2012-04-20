@@ -103,9 +103,7 @@ function awpcp_2checkout_checkout_form($form, $transaction) {
 
 
 function awpcp_paypal_verify_transaction($verified, $transaction) {
-	if ($verified) { 
-		return true;
-	} else if ($transaction->get('payment-method') != 'paypal') {
+	if ($verified || $transaction->get('payment-method') != 'paypal') {
 		return $verified;
 	}
 
@@ -118,26 +116,60 @@ function awpcp_paypal_verify_transaction($verified, $transaction) {
 		}
 	}
 
-	if (get_awpcp_option('paylivetestmode') == 1) {
-		$paypallink="ssl://www.sandbox.paypal.com";
-		$paypal_url = "https://www.sandbox.paypal.com/cgi-bin/webscr";
+	if (in_array('curl', get_loaded_extensions())) {
+		if (get_awpcp_option('paylivetestmode') == 1) {
+			$paypal_url = "https://www.sandbox.paypal.com/cgi-bin/webscr";
+		} else {
+			$paypal_url = "https://www.paypal.com/cgi-bin/webscr";
+		}
+
+		$ch = curl_init($paypal_url);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response = curl_exec($ch);
+		curl_close($ch);
+
 	} else {
-		$paypallink="ssl://www.paypal.com";
-		$paypal_url = "https://www.paypal.com/cgi-bin/webscr";
+	    if (get_awpcp_option('paylivetestmode') == 1) {
+	        $paypallink = "ssl://www.sandbox.paypal.com";
+	    } else {
+	        $paypallink = "ssl://www.paypal.com";
+	    }
+
+	    // post back to PayPal system to validate
+	    $header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
+	    $header.= "Content-Type: application/x-www-form-urlencoded\r\n";
+	    $header.= "Content-Length: " . strlen($data) . "\r\n\r\n";
+	    $fp = fsockopen($paypallink, 443, $errno, $errstr, 30);
+	    $response = '';
+
+	    if ($fp) {
+	        fputs ($fp, $header . $data);
+
+	        $reply = '';
+	        $headerdone = false;
+	        while(!feof($fp)) {
+	            $line = fgets($fp);
+	            if (strcmp($line,"\r\n") == 0) {
+	                // read the header
+	                $headerdone=true;
+	            } elseif ($headerdone) {
+	                // header has been read. now read the contents
+	                $response.=$line;
+	            }
+	        }
+
+	        fclose($fp);
+	        $response = trim($response);
+	    }
 	}
 
-	$ch = curl_init($paypal_url);
-	curl_setopt($ch, CURLOPT_POST, true);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	$response = curl_exec($ch);
-	curl_close($ch);
-
-	$verified = strcmp($response, 'VERIFIED') === 0;
+	$verified = strcasecmp($response, 'VERIFIED') === 0;
 
 	if (!$verified) {
-		$msg = '<p>' . __("PayPal returned the following status from your payment: %s",'AWPCP') . '</p>';
-		$msg = sprintf($msg, $response);
+		$msg = '<p>' . __("PayPal returned the following status from your payment: %s. %d payment variables were posted.",'AWPCP') . '</p>';
+		$msg = sprintf($msg, $response, count($_POST));
 		$msg.= '<p>'.__("If this status is not COMPLETED or VERIFIED, then you may need to wait a bit before your payment is approved, or contact PayPal directly as to the reason the payment is having a problem.",'AWPCP').'</p>';
 		$msg.= '<p>'.__("If you have any further questions, contact this site administrator.",'AWPCP').'</p>';
 		$transaction->errors[] = $msg;

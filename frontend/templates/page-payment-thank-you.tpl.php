@@ -7,11 +7,12 @@
 		<?php echo $part ?>
 	<?php endforeach ?>
 
-	<?php if ($status === $transaction->COMPLETED || $status === $transaction->PENDING): ?>
+	<?php if ($continue): ?>
 
-	<?php $url = $transaction->get('success-redirect') ?>
+		<?php $url = $transaction->get('success-redirect') ?>
+
 	<form id="awpcp-payment-thank-you-form" method="post" action="<?php echo esc_attr($url) ?>">
-		<h3><?php echo $texts['subtitle'] ?></h3>
+	<?php if (!empty($texts['subtitle'])): ?><h3><?php echo $texts['subtitle'] ?></h3><?php endif ?>
 		<p><?php echo $texts['text'] ?></p>
 		<p class="form-submit">
 			<input class="button" type="submit" value="<?php _e('Continue', 'AWPCP') ?>" id="submit" name="submit" />
@@ -24,7 +25,8 @@
 
 	<?php else: ?>
 
-	<p><?php _e('Your payment was rejected. If you think this is an error please contact the website Administrator.', 'AWPCP') ?></p>
+	<?php if (!empty($texts['subtitle'])): ?><h3><?php echo $texts['subtitle'] ?></h3><?php endif ?>
+	<p><?php echo $texts['text'] ?></p>
 
 	<?php endif?>
 </div>

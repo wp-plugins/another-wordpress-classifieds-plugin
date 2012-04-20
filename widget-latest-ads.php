@@ -2,7 +2,7 @@
 
 ### Function: Init AWPCP Latest Classified Headlines Widget
 function init_awpcpsbarwidget() {
-	if (!function_exists('register_sidebar_widget')) {
+	if (!function_exists('wp_register_sidebar_widget')) {
 		return;
 	}
 
@@ -10,8 +10,9 @@ function init_awpcpsbarwidget() {
 	function widget_awpcplatestads($args) {
 		$output = '';
 		extract($args);
-		$limit=$args[0];
-		$title=$args[1];
+
+		$limit = isset($args[0]) ? $args[0] : '';
+		$title = isset($args[1]) ? $args[1] : '';
 
 		$options = get_option('widget_awpcplatestads');
 		if(!isset($limit)) {
@@ -71,18 +72,23 @@ function init_awpcpsbarwidget() {
 				$output .= "$awpcp_sb_widget_aftercontent";
 			}
 		}
-		//Echo OK here
+
 		echo $output;
 	}
 
 	### Function: AWPCP Latest Classified Headlines Widget Options
 	function widget_awpcplatestads_options() {
-		$output = '';
 		$options = get_option('widget_awpcplatestads');
+
 		if (!is_array($options)) {
-			$options = array('hlimit' => '10', 'title' => __('Latest Classifieds', 'AWPCP'), 'showimages' => '1', 'showblank' => '1');
+			$options = array(
+				'hlimit' => '10', 
+				'title' => __('Latest Classifieds', 'AWPCP'), 
+				'showimages' => '1', 
+				'showblank' => '1');
 		}
-		if ($_POST['awpcplatestads-submit']) {
+
+		if (isset($_POST['awpcplatestads-submit']) && $_POST['awpcplatestads-submit']) {
 			$options['hlimit'] = intval($_POST['awpcpwid-limit']);
 			$options['title'] = strip_tags($_POST['awpcpwid-title']);
 			$options['showimages'] = $_POST['awpcpwid-showimages'] == '1' ? 1 : 0;
@@ -93,22 +99,23 @@ function init_awpcpsbarwidget() {
 			//$options['aftertitle'] = $_POST['awpcpwid-aftertitle'];
 			update_option('widget_awpcplatestads', $options);
 		}
-		$output .= '<p><label for="awpcpwid-title">'.__('Widget Title', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-title" size="35" name="awpcpwid-title" value="'.htmlspecialchars(stripslashes($options['title'])).'" />';
-		$output .= '<p><label for="awpcpwid-limit">'.__('Number of Items to Show', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" size="5" id="awpcpwid-limit" name="awpcpwid-limit" value="'.htmlspecialchars(stripslashes($options['hlimit'])).'" />';
-		$output .= '<p><label for="awpcpwid-showimages">'.__('Show Thumbnails in Widget?', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-showimages" name="awpcpwid-showimages" value="1" '. ($options['showimages'] == 1 ? 'checked=\"true\"' : '') .' />';
-		$output .= '<p><label for="awpcpwid-showblank">'.__('Show \"No Image\" PNG when ad has no picture (improves layout)?', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-showblank" name="awpcpwid-showblank" value="1" '. ($options['showblank'] == 1 ? 'checked=\"true\"' : '') .' />';
+
+		$output = '<p><label for="awpcpwid-title">'.__('Widget Title', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-title" size="35" name="awpcpwid-title" value="'.htmlspecialchars(stripslashes($options['title'])).'" />';
+		$output.= '<p><label for="awpcpwid-limit">'.__('Number of Items to Show', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" size="5" id="awpcpwid-limit" name="awpcpwid-limit" value="'.htmlspecialchars(stripslashes($options['hlimit'])).'" />';
+		$output.= '<p><label for="awpcpwid-showimages">'.__('Show Thumbnails in Widget?', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-showimages" name="awpcpwid-showimages" value="1" '. ($options['showimages'] == 1 ? 'checked=\"true\"' : '') .' />';
+		$output.= '<p><label for="awpcpwid-showblank">'.__('Show \"No Image\" PNG when ad has no picture (improves layout)?', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-showblank" name="awpcpwid-showblank" value="1" '. ($options['showblank'] == 1 ? 'checked=\"true\"' : '') .' />';
 		//$output .= '<p><label for="awpcpwid-beforewidget">'.__('Before Widget HTML', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforewidget" size="35" name="awpcpwid-beforewidget" value="'.htmlspecialchars(stripslashes($options['beforewidget'])).'" />';
 		//$output .= '<p><label for="awpcpwid-afterwidget">'.__('After Widget HTML<br>Exclude all quotes<br>(<del>class="XYZ"</del> => class=XYZ)', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-afterwidget" size="35" name="awpcpwid-afterwidget" value="'.htmlspecialchars(stripslashes($options['afterwidget'])).'" />';
 		//$output .= '<p><label for="awpcpwid-beforetitle">'.__('Before title HTML', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforetitle" size="35" name="awpcpwid-beforetitle" value="'.htmlspecialchars(stripslashes($options['beforetitle'])).'" />';
 		//$output .= '<p><label for="awpcpwid-aftertitle">'.__('After title HTML', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-aftertitle" size="35" name="awpcpwid-aftertitle" value="'.htmlspecialchars(stripslashes($options['aftertitle'])).'" />';
-		$output .= '<input type="hidden" id="awpcplatestads-submit" name="awpcplatestads-submit" value="1" />'."\n";
-		//Echo ok here:
+		$output.= '<input type="hidden" id="awpcplatestads-submit" name="awpcplatestads-submit" value="1" />'."\n";
+
 		echo $output;
 	}
 
 	// Register Widgets
-	register_sidebar_widget('AWPCP Latest Ads', 'widget_awpcplatestads');
-	//wp_register_sidebar_widget('awpcp-latest-ads', 'AWPCP Latest Ads', 'widget_awpcplatestads');
+	// register_sidebar_widget('AWPCP Latest Ads', 'widget_awpcplatestads');
+	wp_register_sidebar_widget('awpcp-latest-ads', __('AWPCP Latest Ads', 'AWPCP'), 'widget_awpcplatestads');
 
 	// register_widget_control('AWPCP Latest Ads', 'widget_awpcplatestads_options', 350, 120);
 	$options = array('width' => 350, 'height' => 120);

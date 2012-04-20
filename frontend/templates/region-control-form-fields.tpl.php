@@ -15,8 +15,7 @@
 			$css = count($field['entries']) == 1 ? "single {$field['class']}" : $field['class']; ?>
 
 		<?php if (!$hidden): ?>
-		<p class="awpcp-form-spacer <?php echo $css ?>" region-field="<?php echo $name ?>" 
-		   data-region-field-name="<?php echo $field['name'] ?>">
+		<p class="awpcp-form-spacer <?php echo $css ?>" region-field="<?php echo $name ?>" data-region-field-name="<?php echo $field['name'] ?>">
 
 			<span class="label"><?php echo $field['label'] ?></span>
 
@@ -26,8 +25,7 @@
 			<select name="<?php echo esc_attr($field['name']) ?>">
 				<?php echo $field['options'] ?>
 			</select>
-			<input class="hidden" size="35" type="text" class="inputbox" 
-				   value="<?php echo esc_attr($field['value']) ?>" />
+			<input class="hidden" size="35" type="text" class="inputbox" value="<?php echo esc_attr($field['value']) ?>" />
 
 			<?php else: ?>	
 
@@ -35,8 +33,7 @@
 			<select class="hidden">
 				<?php echo $field['options'] ?>
 			</select>
-			<input size="35" type="text" class="inputbox" 
-				   name="<?php echo esc_attr($field['name']) ?>" value="<?php echo esc_attr($field['value']) ?>" />
+			<input size="35" type="text" class="inputbox" name="<?php echo esc_attr($field['name']) ?>" value="<?php echo esc_attr($field['value']) ?>" />
 
 			<?php endif ?>
 		</p>

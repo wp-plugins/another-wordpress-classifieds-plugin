@@ -3,7 +3,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. <strong>!!!IMPORTANT!!!</strong> Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 2.0.3
+ Version: 2.0.4
  Author: D. Rodenbaugh
  License: GPLv2 or any later version
  Author URI: http://www.skylineconsult.com
@@ -36,11 +36,23 @@ if(!isset($_SESSION)) {
 	@session_start();
 }
 
-// TODO: delete this
-if (isset($_REQUEST['w0574f52ce15280e59a2c092631fbfdea'])) {
-	return;
-}
 
+// // I don't think this are needed, should always be defined.. don't they?
+// if (!defined('WP_CONTENT_DIR')) {
+// 	// no trailing slash, full paths only - WP_CONTENT_URL is defined further down
+// 	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); 
+// }
+// if (!defined('WP_CONTENT_URL')) {
+// 	// no trailing slash, full paths only - WP_CONTENT_URL is defined further down
+// 	define( 'WP_CONTENT_URL', get_option('siteurl') . '/wp-content'); 
+// }
+
+define('AWPCP_BASENAME', str_replace(basename(__FILE__), "", plugin_basename(__FILE__)));
+define('AWPCP_DIR', WP_CONTENT_DIR. '/plugins/' . AWPCP_BASENAME);
+define('AWPCP_URL', WP_CONTENT_URL. '/plugins/' . AWPCP_BASENAME);
+
+
+// TODO: Why do we need a custom error handler?
 // Set custom error handler functions
 function AWPCPErrorHandler($errno, $errstr, $errfile, $errline){
 	$output = '';
@@ -70,25 +82,12 @@ function AWPCPErrorHandler($errno, $errstr, $errfile, $errline){
 	/* true=Don't execute PHP internal error handler */
 	return true;
 }
-set_error_handler("AWPCPErrorHandler");
 
-
-
-
-
-// // I don't think this are needed, should always be defined.. don't they?
-// if (!defined('WP_CONTENT_DIR')) {
-// 	// no trailing slash, full paths only - WP_CONTENT_URL is defined further down
-// 	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); 
-// }
-// if (!defined('WP_CONTENT_URL')) {
-// 	// no trailing slash, full paths only - WP_CONTENT_URL is defined further down
-// 	define( 'WP_CONTENT_URL', get_option('siteurl') . '/wp-content'); 
-// }
-
-define('AWPCP_BASENAME', str_replace(basename(__FILE__),"",plugin_basename(__FILE__)));
-define('AWPCP_DIR', WP_CONTENT_DIR. '/plugins/' . AWPCP_BASENAME);
-define('AWPCP_URL', WP_CONTENT_URL. '/plugins/' . AWPCP_BASENAME);
+if (file_exists(AWPCP_DIR . 'DEBUG')) {
+	// let's see some errors
+} else {
+	set_error_handler("AWPCPErrorHandler");
+}
 
 
 global $wpdb; // XXX: do we need $wpdb this here? --@wvega
@@ -276,6 +275,7 @@ class AWPCP {
 		if (!$installation_complete) {
 			update_option('awpcp_installationcomplete', 1);
 			awpcp_create_pages(__('AWPCP', 'AWPCP'));
+			
 		} else if (version_compare($version, '1.8.9.4.54') > 0) {
 			// global $wpdb;
 			// $query = 'SELECT pages.page, pages.id, posts.ID post ';
@@ -412,17 +412,6 @@ function awpcp_insert_thickbox() {
     ';
 }
 
-// Add actions and filters etc
-// add_action ('wp_print_scripts', 'awpcpjs',1);
-// add_action('wp_head', 'awpcp_addcss');
-// if ( !get_awpcp_option('awpcp_thickbox_disabled') )
-// {
-// 	add_action('wp_head', 'awpcp_insert_thickbox', 10);
-// }
-
-
-// add_action("plugins_loaded", "init_awpcpsbarwidget");
-
 
 /**
  * Redirect to the ad page when a new ad is posted. This prevents posting duplicates when someone clicks reload.
@@ -496,7 +485,8 @@ function exclude_awpcp_child_pages($excluded=array()) {
 
 
 function awpcp_rules() {
-	global $wp_rewrite;
+	global $wp_rewrite;	
+	$categories_view = sanitize_title(get_awpcp_option('view-categories-page-name'));
 	$permalink = get_permalink(awpcp_get_page_id_by_ref('main-page-name'));
 	$pattern = trim(str_replace(home_url(), '', $permalink), '/');
 	$pattern = '('.$pattern.')/('.$categories_view.')';
@@ -543,7 +533,7 @@ function awpcp_rewrite_rules($wp_rewrite) {
 		'('.$patterns['main-page-name'].')/(setregion)/(.+?)/(.+?)' 
 			=> 'index.php?pagename='.$patterns['main-page-name'].'/&a=setregion&regionid='.$wp_rewrite->preg_index(2),
 		'('.$patterns['main-page-name'].')/(classifiedsrss)' 
-			=> 'index.php?pagename='.$patterns['main-page-name'].'/&a=rss',
+			=> 'index.php?pagename='.$patterns['main-page-name'].'/&awpcp-action=rss',
 		'('.$patterns['main-page-name'].')/('.$categories_view.')' 
 			=> 'index.php?pagename='.$patterns['main-page-name'].'/&layout=2&cid='.$categories_view);
 
@@ -587,12 +577,13 @@ function awpcp_rewrite_rules($wp_rewrite) {
 }
 
 // add_filter('query_vars', 'awpcp_query_vars');
-function awpcp_query_vars($query_vars) { 
+function awpcp_query_vars($query_vars) {
 	$query_vars[] = "cid";
 	$query_vars[] = "i";
 	$query_vars[] = "id";
 	$query_vars[] = "layout";
 	$query_vars[] = "regionid";
+	$query_vars[] = 'awpcp-action';
 	return $query_vars;
 }
 

@@ -3,23 +3,12 @@
 class AWPCP_Cancel_Payment_Page {
 
 	public function AWPCP_Cancel_Payment_Page() {
-		// add_filter('query_vars', array($this, 'add_query_vars'));
-
-		// add_filter('awpcp-checkout-form', 'awpcp_paypal_checkout_form', 10, 2);
-		// add_filter('awpcp-checkout-form', 'awpcp_2checkout_checkout_form', 10, 2);
-
-		// add_filter('awpcp-payments-verify-transaction', 'awpcp_paypal_verify_transaction', 10, 2);
-		// add_filter('awpcp-payments-verify-transaction', 'awpcp_2checkout_verify_transaction', 10, 2);
-
-		// add_filter('awpcp-payments-validate-transaction', 'awpcp_paypal_validate_transaction', 10, 2);
-		// add_filter('awpcp-payments-validate-transaction', 'awpcp_2checkout_validate_transaction', 10, 2);
-
-		// // XXX: move to Place Ad page?
-		// add_filter('awpcp-payments-transaction-processed', 'awpcp_ad_term_fee_transaction_processed', 10, 2);
 	}
 
 	public function add_query_vars($vars) {
-    	// array_push($vars, 'awpcp-txn');
+		if (!isset($vars['awpcp-txn'])) {
+			array_push($vars, 'awpcp-txn');	
+		}
     	return $vars;
 	}
 
@@ -92,8 +81,6 @@ class AWPCP_Cancel_Payment_Page {
 			'text' => __('Your Payment has been processed succesfully. Please press the button below to continue with the process.', 'AWPCP')
 		);
 
-		// TODO: update Ads related stuff? disabled Ads?
-		// TODO: update Subscriptions related stuff? disable Subscriptions?
 		// If you want to change the message shown in this page change this action to become a filter
 		$texts = apply_filters('awpcp-payments-transaction-processed', $texts, $transaction);
 
