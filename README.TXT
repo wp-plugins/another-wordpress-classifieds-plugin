@@ -194,6 +194,11 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 2.0.4.1 =
+ Bug: Fixed install problem with AWPCP on new sites
+ Bug: Updated PO and POT files
+ 
+
  = 2.0.4 =
  Bug: Fixed PayPal issue when cURL wasn't available to process reply
  Bug: Placing ad as admin for other user didn't pull profile data properly

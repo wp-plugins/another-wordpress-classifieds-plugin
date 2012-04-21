@@ -296,6 +296,7 @@ function get_awpcp_setting($column, $option) {
 
 function get_awpcp_option($option, $default='') {
 	global $awpcp;
+	debug(is_object($awpcp), is_object($awpcp->settings), $option, $default, $awpcp->settings->get_option($option));
 	if ($awpcp && $awpcp->settings) {
 		return $awpcp->settings->get_option($option);
 	}

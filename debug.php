@@ -55,7 +55,7 @@ class WP_Skeleton_Logger {
                 $item = '<strong>';
                 $item .= substr(str_replace($this->root, '', $backtrace[$k]['file']), 1);
                 $item .= ':' . $backtrace[$k]['line'];
-                $item .= ' - function <strong>' . $backtrace[$k]['function'] . '</strong>()';
+                $item .= ' - function <strong>' . $backtrace[$k+1]['function'] . '</strong>()';
                 $item .= '</strong>';
 
                 $items[] = $item;

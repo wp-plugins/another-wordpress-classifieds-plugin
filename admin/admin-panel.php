@@ -2235,6 +2235,8 @@ function awpcp_create_pages($awpcp_page_name, $subpages=true) {
 		$id = awpcp_get_page_id_by_ref($refname);
 	}
 
+	debug($id);
+
 	// create subpages
 	if ($subpages) {
 		awpcp_create_subpages($id);
@@ -2243,6 +2245,8 @@ function awpcp_create_pages($awpcp_page_name, $subpages=true) {
 
 function awpcp_create_subpages($awpcp_page_id) {
 	$pages = awpcp_subpages();
+
+	debug($pages, $awpcp_page_id);
 
 	foreach ($pages as $key => $page) {
 		awpcp_create_subpage($key, $page[0], $page[1], $awpcp_page_id);
@@ -2276,6 +2280,8 @@ function awpcp_create_subpages($awpcp_page_id) {
 function awpcp_create_subpage($refname, $name, $shortcode, $awpcp_page_id=null) {
 	global $wpdb;
 
+	debug($refname, $name, $shortcode, $awpcp_page_id);
+
 	$id = 0;
 	if (!empty($name)) {
 		if (is_null($awpcp_page_id)) {
@@ -2289,12 +2295,17 @@ function awpcp_create_subpage($refname, $name, $shortcode, $awpcp_page_id=null) 
 	if ($id > 0) {
 		$previous = awpcp_get_page_id_by_ref($refname);
 		if ($previous === false) {
+			debug(AWPCP_TABLE_PAGES, array('page' => $refname, 'id' => $id));
 			$wpdb->insert(AWPCP_TABLE_PAGES, array('page' => $refname, 'id' => $id));
 		} else {
+			debug(AWPCP_TABLE_PAGES, array('page' => $refname, 'id' => $id), 
+					  array('page' => $refname));
 			$wpdb->update(AWPCP_TABLE_PAGES, array('page' => $refname, 'id' => $id), 
 					  array('page' => $refname));	
 		}
 	}
+
+	debug($id);
 
 	return $id;
 }
@@ -2341,8 +2352,9 @@ function awpcp_create_subpage($refname, $name, $shortcode, $awpcp_page_id=null) 
 // }
 
 function maketheclassifiedsubpage($theawpcppagename,$awpcpwppostpageid,$awpcpshortcodex) {
-	add_action('init', 'awpcp_flush_rewrite_rules');
 	global $wpdb,$table_prefix,$wp_rewrite;
+
+	add_action('init', 'awpcp_flush_rewrite_rules');
 
 	$pdate = date("Y-m-d");
 

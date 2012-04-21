@@ -8,6 +8,7 @@ class AWPCP_Settings_API {
 	
 	public function AWPCP_Settings_API() {
 		$this->options = get_option($this->option);
+		$this->register_settings();
 	}
 
 	/**
@@ -31,7 +32,7 @@ class AWPCP_Settings_API {
 				   array($this, 'validate_smtp_settings'), 10, 2);
 	}
 
-	public function init() {
+	public function register_settings() {
 
 		register_setting($this->option, $this->option, array($this, 'validate'));
 			
@@ -566,11 +567,16 @@ class AWPCP_Settings_API {
 							'textfield', '', 
 							'SMTP password [ if emails not processing normally]');
 
-							
-
 		// (\('(.*?)',(.*?),(.*?),.*?$)
 		// //\2\n\t\t$this->add_setting($key, '\2', , , \3, \4);\n\t\t\1
 
+		// save settings to database
+		$this->skip = true;
+		update_option($this->option, $this->options);
+		$this->skip = false;
+	}
+
+	public function init() {
 		do_action('awpcp_register_settings');
 
 		// save settings to database
