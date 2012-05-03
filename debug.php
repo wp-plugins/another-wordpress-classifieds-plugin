@@ -6,7 +6,7 @@ class WP_Skeleton_Logger {
     private function WP_Skeleton_Logger() {
         $this->html = true;
         $this->from = true;
-        $this->context = 1;
+        $this->context = 3;
 
         $this->root = realpath(getenv('DOCUMENT_ROOT'));
 
@@ -23,17 +23,26 @@ class WP_Skeleton_Logger {
         return WP_Skeleton_Logger::$instance;
     }
 
-    public function log($var, $type='debug', $print=false) {
+    public function log($var, $type='debug', $print=false, $file=false) {
         $entry = array('backtrace' => debug_backtrace(), 'var' => $var, 'type' => $type);
         $this->log[] = $entry;
-        return $print ? $this->render($entry) : true;
+
+        if ($print) {
+            return $this->render($entry);
+        }
+
+        if ($file) {
+            return $this->write($entry);
+        }
+
+        return true;
     }
 
-    public function debug($vars, $print=false) {
+    public function debug($vars, $print=false, $file=false) {
         if (count($vars) > 1) {
-            return $this->log($vars, 'debug', $print);
+            return $this->log($vars, 'debug', $print, $file);
         } else {
-            return $this->log($vars[0], 'debug', $print);
+            return $this->log($vars[0], 'debug', $print, $file);
         }
     }
 
@@ -48,7 +57,7 @@ class WP_Skeleton_Logger {
         if ($this->from) {
             $items = array();
             for ($k = $start; $k < $limit; $k++) {
-                if (!isset($backtrace[$k])) {
+                if (!isset($backtrace[$k]) || !isset($backtrace[$k]['file'])) {
                     break;
                 }
 
@@ -77,6 +86,12 @@ class WP_Skeleton_Logger {
         return $html;
     }
 
+    private function write($entry) {
+        $file = fopen(AWPCP_DIR . '/DEBUG', 'a');
+        fwrite($file, print_r($entry['var'], true) . "\n");
+        fclose($file);
+    }
+
     public function show() {
         if (!file_exists(AWPCP_DIR . '/DEBUG')) {
             return;
@@ -99,6 +114,11 @@ if (!function_exists('debug')) {
     function debugp($var = false) {
         $args = func_get_args();
         echo WP_Skeleton_Logger::instance()->debug($args, true);
+    }
+
+    function debugf($var = false) {
+        $args = func_get_args();
+        return WP_Skeleton_Logger::instance()->debug($args, false, true);
     }
 
     function debug($var = false) {

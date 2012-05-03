@@ -4,8 +4,8 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
 Tested up to: 3.3.1
-Last Updated: 2012-Apr-12
-Stable tag: tags/2.0.3
+Last Updated: 2012-May-3
+Stable tag: tags/2.0.5
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
@@ -194,6 +194,25 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 2.0.5 =
+ Bug: Place Ad page upgrade issue (added Restore Pages button)
+ Bug: PayPal issue for blogs that use GET instead of POST
+ Bug: Extra Fields display issue
+ Bug: 2.0.1 Place Ad shows HTML code issue
+ Bug: Featured ads widget broken in 2.0.x
+ Bug: Upgrade to 2.0.4.1 caused the board to go into uninitialized mode
+ Bug: 2.0.4.1 has editing problems with ads
+ Bug: Editing ads causes fields to disappear in 2.0.4.1
+ Bug: Editing ads as User from Ad Mgmt Panel causes ads to disappear
+ Bug: Sites with non-Latin character sets are displaying badly in 2.0
+ Bug: Show message after a setting is automatically changed
+ Bug: Place Ad fails when the payment status is not completed
+ Bug: RSS feeds image URLs are broken in 2.0.4
+ Bug: Latest ads widget not responding to parameters for ad display
+ Bug: Ad expiration failing in 2.0.4.1
+ Bug: Widget is missing title (Latest Ads) in 2.0.4.1
+ 
+
  = 2.0.4.1 =
  Bug: Fixed install problem with AWPCP on new sites
  Bug: Updated PO and POT files

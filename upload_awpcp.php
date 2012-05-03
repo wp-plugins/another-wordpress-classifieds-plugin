@@ -32,36 +32,41 @@ function awpcp_upload_image_file($directory, $file, $min_size, $max_size, $min_w
 		return __('Unknown error encountered while uploading the image.', 'AWPCP');
 	}
 
+	if (empty($size) || $size <= 0) {
+		$message = "There was an error trying to find out the file size of the image %s.";
+		return __(sprintf($message, $filename), 'AWPCP');
+	}
+
 	if (!(in_array($ext, $allowed_extensions))) {
 		return __('The file has an invalid extension and was rejected.', 'AWPCP');
 
-	} elseif ($size <= $min_size) {
-		$message = __("The size of %1$s was too small. The file was not uploaded. File size must be greater than %2$d bytes", "AWPCP");
+	} elseif ($size < $min_size) {
+		$message = __('The size of %1$s was too small. The file was not uploaded. File size must be greater than %2$d bytes', 'AWPCP');
 		return sprintf($message, $filename, $min_size);
 
 	} elseif ($size > $max_size) {
-		$message = __("The file [ %s ] was larger than the maximum allowed file size of [%s] bytes. The file was not uploaded.", "AWPCP");
+		$message = __('The file %s was larger than the maximum allowed file size of %s bytes. The file was not uploaded.', 'AWPCP');
 		return sprintf($message, $filename, $max_size);
 
 	} elseif (!isset($imginfo[0]) && !isset($imginfo[1])) {
 		return __('The file does not appear to be a valid image file', 'AWPCP');
 
 	} elseif ($imginfo[0] < $min_height) {
-		$message = __("The image did not meet the minimum width of [%s] pixels. The file was not uploaded", "AWPCP");
+		$message = __('The image did not meet the minimum width of [%s] pixels. The file was not uploaded', 'AWPCP');
 		return sprintf($message, $min_width);
 
 	} elseif ($imginfo[1] < $min_height) {
-		$message = __("The image did not meet the minimum height of [%s] pixels. The file was not uploaded", "AWPCP");
+		$message = __('The image did not meet the minimum height of [%s] pixels. The file was not uploaded', 'AWPCP');
 		return sprintf($message, $min_width);
 	}
 
-	if (!move_uploaded_file($tmpname, $newpath)) {
+	if (!@move_uploaded_file($tmpname, $newpath)) {
 		$message = __('The file [ %s ] could not be moved to the destination directory', 'AWPCP');
 		return sprintf($message, $filename);
 	}
 
 	if (!awpcpcreatethumb($newname, $directory, $min_width)) {
-		$message = __("Could not create thumbnail image of [%s]", "AWPCP");
+		$message = __('Could not create thumbnail image of [%s]', 'AWPCP');
 		@unlink($newpath);
 		return sprintf($message, $filename);
 	}
@@ -92,7 +97,7 @@ function admin_handleimagesupload($adid) {
 
 		if ($images_left > 0) {
 			$result = awpcp_upload_image_file($images_dir, $_FILES['awpcp_add_file'], 
-										$min_size, $max_size, $min_width, $min_height);
+											$min_size, $max_size, $min_width, $min_height);
 		} else {
 			$message = __('No more images can be added to this Ad. The Ad already have %d of %d images allowed.', 'AWPCP');
 			$result = sprintf($message, $images_uploaded, $images_allowed);
@@ -193,29 +198,28 @@ function awpcp_setup_uploads_dir() {
 	require_once(AWPCP_DIR . 'fileop.class.php');
 
 	$fileop = new fileop();
-	$filedata = fileowner($wpcontentdir);
-	$owner = $filedata['name'];
+	$owner = fileowner($wpcontentdir);
 
-	if (!is_dir($upload_dir)) {
+	if (!is_dir($upload_dir) && is_writable($wpcontentdir)) {
 		umask(0);
 		mkdir($upload_dir, 0777);
-		chown($uploadir, $owner);
+		chown($upload_dir, $owner);
 	}
 	$fileop->set_permission($upload_dir,0777);
 	
 	$images_dir = $upload_dir . 'awpcp/';
 	$thumbs_dir = $upload_dir . 'awpcp/thumbs/';
 
-	if (!is_dir($images_dir)) {
+	if (!is_dir($images_dir) && is_writable($upload_dir)) {
 		umask(0);
-		mkdir($images_dir, 0777);
-		chown($images_dir, $owner);
+		@mkdir($images_dir, 0777);
+		@chown($images_dir, $owner);
 	}
 
-	if (!is_dir($thumbs_dir)) {
+	if (!is_dir($thumbs_dir) && is_writable($upload_dir)) {
 		umask(0);
-		mkdir($thumbs_dir, 0777);
-		chown($thumbs_dir, $owner);
+		@mkdir($thumbs_dir, 0777);
+		@chown($thumbs_dir, $owner);
 	}
 
 	$fileop->set_permission($images_dir,0777);

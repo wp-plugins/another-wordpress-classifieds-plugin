@@ -302,61 +302,12 @@ class AWPCP_User_Panel_Listings {
 							$post_url=$this->url);
 
 		} else if ($step == 'dopost1') {
-			$content = awpcp_place_ad_save_details_step(array(), array(), true);
-			// $adid=clean_field($_REQUEST['adid']);
-			// $adterm_id=clean_field($_REQUEST['adtermid']);
-			// $adkey=clean_field($_REQUEST['adkey']);
-			// $editemail=clean_field($_REQUEST['editemail']);
-			// $adtitle=clean_field($_REQUEST['adtitle']);
-			// $adtitle=strip_html_tags($adtitle);
-			// $adcontact_name=clean_field($_REQUEST['adcontact_name']);
-			// $adcontact_name=strip_html_tags($adcontact_name);
-			// $adcontact_phone=clean_field($_REQUEST['adcontact_phone']);
-			// $adcontact_phone=strip_html_tags($adcontact_phone);
-			// $adcontact_email=clean_field($_REQUEST['adcontact_email']);
-			// $adcategory=clean_field($_REQUEST['adcategory']);
-			// $adcontact_city=clean_field($_REQUEST['adcontact_city']);
-			// $adcontact_city=strip_html_tags($adcontact_city);
-			// $adcontact_state=clean_field($_REQUEST['adcontact_state']);
-			// $adcontact_state=strip_html_tags($adcontact_state);
-			// $adcontact_country=clean_field($_REQUEST['adcontact_country']);
-			// $adcontact_country=strip_html_tags($adcontact_country);
-			// $ad_county_village=clean_field($_REQUEST['adcontact_countyvillage']);
-			// $ad_county_village=strip_html_tags($ad_county_village);
-			// $ad_item_price=clean_field($_REQUEST['ad_item_price']);
-			// $ad_item_price=str_replace(",", '', $ad_item_price);
-			// $addetails=clean_field($_REQUEST['addetails']);
-			// $websiteurl=clean_field($_REQUEST['websiteurl']);
-			// $checkhuman=clean_field($_REQUEST['checkhuman']);
-			// $numval1=clean_field($_REQUEST['numval1']);
-			// $numval2=clean_field($_REQUEST['numval2']);
-				
-			// if (get_awpcp_option('allowhtmlinadtext') == 0) {
-			// 	$addetails=strip_html_tags($addetails);
-			// }
-			// $adpaymethod=clean_field($_REQUEST['adpaymethod']);
-			// if (!isset($adpaymethod) || empty($adpaymethod)) {
-			// 	$adpaymethod="paypal";
-			// }
-			// if (isset($_REQUEST['adaction']) && !empty($_REQUEST['adaction'])){
-			// 	$adaction=clean_field($_REQUEST['adaction']);
-			// } else {
-			// 	$adaction='';
-			// }
+			$errors = array();
+			$content = awpcp_place_ad_save_details_step(array(), $errors, true);
 
-			// $awpcppagename=clean_field($_REQUEST['awpcppagename']);
-			// $offset=clean_field($_REQUEST['offset']);
-			// $results=clean_field($_REQUEST['results']);
-
-			// if (function_exists('awpcp_featured_ads')) {
-			//     $is_featured_ad = awpcp_featured_ad_checking($adterm_id);
-			// } else { 
-			//     $is_featured_ad = 0;
-			// }
-
-			// $content = processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg,$websiteurl,$checkhuman,$numval1,$numval2,$is_featured_ad);
-
-			return $this->redirect('list');
+			if (empty($errors)) {
+				return $this->redirect('list');
+			}
 		}
 
 		return $content;

@@ -43,7 +43,7 @@ function awpcpui_process_browseads() {
 
 	$grouporderby=get_group_orderby();
 
-	if ('dosearch' == $_REQUEST['a'] ) {
+	if ('dosearch' == $action ) {
 		$output = dosearch();	
 	} else {
 		$output = awpcp_display_ads($where,$byl='',$hidepager='',$grouporderby,$adorcat);

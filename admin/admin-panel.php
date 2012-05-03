@@ -493,7 +493,6 @@ function awpcp_opsconfig_fees()
 
 	 		while ($rsrow=mysql_fetch_row($res))
 	 		{
-	 			debug($rsrow);
 	 			list($adterm_id, $adterm_name, $amount,
 	 				 $rec_period, $rec_increment, $imagesallowed,
 	 				 $is_featured_ad_pricing, $categories) = $rsrow;
@@ -1188,41 +1187,33 @@ function awpcp_manage_viewlistings() {
 	$laction = '';
 	$output = '';
 
-		global $awpcp_imagesurl, $message;
+	global $awpcp_imagesurl, $message;
 
-		$output .= "<div class=\"wrap\"><h2>";
-		$output .= __("AWPCP Classifieds Management System Manage Ad Listings","AWPCP");
-		$output .= "</h2>";
-		
-		if (isset($message) && !empty($message)) {
-			$output .= $message;
-		}
+	$output .= "<div class=\"wrap\"><h2>";
+	$output .= __("AWPCP Classifieds Management System Manage Ad Listings","AWPCP");
+	$output .= "</h2>";
+	
+	if (isset($message) && !empty($message)) {
+		$output .= $message;
+	}
 
-		$sidebar = awpcp_admin_sidebar();
-		$output .= $sidebar;
+	$sidebar = awpcp_admin_sidebar();
+	$output .= $sidebar;
 
-		$tbl_ads = $wpdb->prefix . "awpcp_ads";
-		$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
+	$tbl_ads = AWPCP_TABLE_ADS;
+	$tbl_ad_photos = AWPCP_TABLE_ADPHOTOS;
 
-		if (isset($_REQUEST['action']) && !empty($_REQUEST['action']))
-		{
-			$laction=$_REQUEST['action'];
-		}
+	if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
+		$laction=$_REQUEST['action'];
+	}
 
-		if (empty($_REQUEST['action']))
-		{
-			if (isset($_REQUEST['a']) && !empty($_REQUEST['a']))
-			{
-				$laction=$_REQUEST['a'];
-			}
-		}
+	if (empty($_REQUEST['action']) && isset($_REQUEST['a']) && !empty($_REQUEST['a'])) {
+		$laction=$_REQUEST['a'];
+	}
 
-		if (isset($_REQUEST['id']) && !empty($_REQUEST['id']))
-		{
-			$actonid=$_REQUEST['id'];
-		}
-
-
+	if (isset($_REQUEST['id']) && !empty($_REQUEST['id'])) {
+		$actonid=$_REQUEST['id'];
+	}
 		if ($laction == 'deletead')
 		{
 			$message=deletead($actonid,$adkey='',$editemail='');
@@ -1253,7 +1244,8 @@ function awpcp_manage_viewlistings() {
 				$numval1='', $numval2='');
 		
 		} elseif ($laction == 'dopost1') {
-			$output .= awpcp_place_ad_save_details_step(array(), array(), true);
+			$errors = array();
+			$output .= awpcp_place_ad_save_details_step(array(), $errors, true);
 
 		} elseif ($laction == 'approvead') {
 			// is the ad expired? If so then reset based on the Fee Plan assigned to it
@@ -1437,7 +1429,7 @@ function awpcp_manage_viewlistings() {
 			}
 
 		}
-		elseif (in_array($laction, array('viewimages', 'deletepic', 'rejectpic', 'approvepic'))) {			
+		elseif (in_array($laction, array('viewimages', 'deletepic', 'rejectpic', 'approvepic'))) {
 			$picid = awpcp_request_param('picid');
 			$adid = awpcp_request_param('adid');
 			$adtermid = awpcp_request_param('adtermid');
@@ -1542,6 +1534,7 @@ function awpcp_manage_viewlistings() {
 			$showadstomanage.="</p>";
 			$pager1='';
 			$pager2='';
+			$output .= $showadstomanage;
 		}
 		else
 		{
@@ -1737,14 +1730,18 @@ function awpcp_manage_viewlistings() {
 				}
 				else {$imagesnotehead="";$imagesnote="";}
 
-				if (function_exists('awpcp_featured_ads'))
-				{
+				if (function_exists('awpcp_featured_ads')) {
 					$makefeaturedlink = awpcp_make_featured_link($ad_id, $offset, $results); 
+				} else {
+					$makefeaturedlink = '';
 				}
 
 				if (function_exists('awpcp_featured_ads')) { 
-				    $featured_head = awpcp_make_featured_head(); 	     
-				    $featured_note = awpcp_make_featured_note($is_featured); 
+				    $featured_head = awpcp_make_featured_head();
+				    $featured_note = awpcp_make_featured_note($is_featured);
+				} else {
+				    $featured_head = '';
+				    $featured_note = '';
 				}
 
 				$startend_date_head = '<th>Fee Plan</th><th>Start Date</th><th>End Date</th>';
@@ -1995,10 +1992,12 @@ function viewimages($where, $approve=true, $delete_image_form_action=null)
 		$where="image_name <> ''";
 	}
 
-	if ( 'add_image' == $_POST['awpcp_action'] && '' != $_GET['id'] )  { 
+	$upload_result = '';
+	if ( isset($_POST['awpcp_action']) && 'add_image' == $_POST['awpcp_action'] && '' != $_GET['id'] )  { 
 		$adid = absint( $_GET['id'] );
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'awpcp_upload_image' ) ) 
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'awpcp_upload_image' ) ) {
 		    $upload_result = admin_handleimagesupload( $adid );
+		}
 	}
 
 	if (!images_exist())
@@ -2235,8 +2234,6 @@ function awpcp_create_pages($awpcp_page_name, $subpages=true) {
 		$id = awpcp_get_page_id_by_ref($refname);
 	}
 
-	debug($id);
-
 	// create subpages
 	if ($subpages) {
 		awpcp_create_subpages($id);
@@ -2246,25 +2243,8 @@ function awpcp_create_pages($awpcp_page_name, $subpages=true) {
 function awpcp_create_subpages($awpcp_page_id) {
 	$pages = awpcp_subpages();
 
-	debug($pages, $awpcp_page_id);
-
 	foreach ($pages as $key => $page) {
 		awpcp_create_subpage($key, $page[0], $page[1], $awpcp_page_id);
-
-		// the code below creates a subpage if it doesn't exists. 
-		// If the subpage exists, it set its parent to the AWPCP main page.
-		// It is no longer necessary that other AWPCP pages are subpages of
-		// the main page.
-
-		// if (!empty($page[0]) && !awpcp_find_page($key)) {
-		// 	maketheclassifiedsubpage($page[0], $awpcp_page_id, $page[1]);
-		// } else {
-		// 	// $subpage_id = awpcp_get_page_id(sanitize_title($page[0]));
-		// 	$subpage_id = awpcp_get_page_id_by_ref($key);
-		// 	if (intval($subpage_id) > 0) {
-		// 		wp_update_post(array('ID' => $subpage_id, 'post_parent' => $awpcp_page_id));
-		// 	}
-		// }
 	}
 	
 	do_action('awpcp_create_subpage');
@@ -2280,13 +2260,16 @@ function awpcp_create_subpages($awpcp_page_id) {
 function awpcp_create_subpage($refname, $name, $shortcode, $awpcp_page_id=null) {
 	global $wpdb;
 
-	debug($refname, $name, $shortcode, $awpcp_page_id);
-
 	$id = 0;
 	if (!empty($name)) {
-		if (is_null($awpcp_page_id)) {
+		// it is possible that the main AWPCP page does not exist, in that case
+		// we should create Subpages without a parent.
+		if (is_null($awpcp_page_id) && awpcp_find_page('main-page-name')) {
 			$awpcp_page_id = awpcp_get_page_id_by_ref('main-page-name');
+		} else {
+			$awpcp_page_id = '';
 		}
+
 		if (!awpcp_find_page($refname)) {
 			$id = maketheclassifiedsubpage($name, $awpcp_page_id, $shortcode);
 		}
@@ -2295,61 +2278,16 @@ function awpcp_create_subpage($refname, $name, $shortcode, $awpcp_page_id=null) 
 	if ($id > 0) {
 		$previous = awpcp_get_page_id_by_ref($refname);
 		if ($previous === false) {
-			debug(AWPCP_TABLE_PAGES, array('page' => $refname, 'id' => $id));
 			$wpdb->insert(AWPCP_TABLE_PAGES, array('page' => $refname, 'id' => $id));
 		} else {
-			debug(AWPCP_TABLE_PAGES, array('page' => $refname, 'id' => $id), 
-					  array('page' => $refname));
 			$wpdb->update(AWPCP_TABLE_PAGES, array('page' => $refname, 'id' => $id), 
 					  array('page' => $refname));	
 		}
 	}
 
-	debug($id);
-
 	return $id;
 }
 
-// function maketheclassifiedpage($newuipagename,$makesubpages) {
-// 	global $wpdb,$table_prefix,$wp_rewrite;
-
-// 	add_action('init', 'awpcp_flush_rewrite_rules');
-
-// 	$pdate = date("Y-m-d");
-
-// 	// First delete any pages already existing with the title and post name of the new page to be created
-// 	$existspageswithawpcpagename = checkfortotalpageswithawpcpname($newuipagename);
-
-// 	if (!$existspageswithawpcpagename) {
-// 		$post_name = sanitize_title($newuipagename, $post_ID='');
-// 		$newuipagename = add_slashes_recursive($newuipagename);
-
-// 		$awpcp_page = array(
-// 			'post_author' => 1,
-// 			'post_date' => $pdate,
-// 			'post_date_gmt' => $pdate,
-// 			'post_content' => '[AWPCPCLASSIFIEDSUI]',
-// 			'post_title' => $newuipagename,
-// 			'post_status' => 'publish',
-// 			'post_name' => $post_name,
-// 			'post_modified' => $pdate,
-// 			'comments_status' => 'closed',
-// 			'post_content_filtered' => '[AWPCPCLASSIFIEDSUI]',
-// 			'post_parent' => 0,
-// 			'post_type' => 'page',
-// 			'menu_order' => 0
-// 		);
-// 		$page_id = wp_insert_post($awpcp_page);
-
-// 		if ($makesubpages) {
-// 			awpcp_restore_pages();
-// 			// allow plugins to create subpages
-// 			do_action('awpcp_create_subpage');
-// 		}
-
-// 		return $page_id;
-// 	}
-// }
 
 function maketheclassifiedsubpage($theawpcppagename,$awpcpwppostpageid,$awpcpshortcodex) {
 	global $wpdb,$table_prefix,$wp_rewrite;
@@ -2361,7 +2299,7 @@ function maketheclassifiedsubpage($theawpcppagename,$awpcpwppostpageid,$awpcpsho
 	// First delete any pages already existing with the title and post name of the new page to be created
 	//checkfortotalpageswithawpcpname($theawpcppagename);
 
-	$post_name = sanitize_title($theawpcppagename, $post_ID='');
+	$post_name = sanitize_title($theawpcppagename);
 	$theawpcppagename = add_slashes_recursive($theawpcppagename);
 	$query="INSERT INTO {$table_prefix}posts SET post_author='1', post_date='$pdate', post_date_gmt='$pdate', post_content='$awpcpshortcodex', post_title='$theawpcppagename', post_excerpt='', post_status='publish', comment_status='closed', post_name='$post_name', to_ping='', pinged='', post_modified='$pdate', post_modified_gmt='$pdate', post_content_filtered='$awpcpshortcodex', post_parent='$awpcpwppostpageid', guid='', post_type='page', menu_order='0'";
 	$res = awpcp_query($query, __LINE__);

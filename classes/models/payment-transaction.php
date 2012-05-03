@@ -7,6 +7,7 @@ class AWPCP_Payment_Transaction {
 	public static $PAYMENT_STATUS_FAILED = 'Failed';
 	public static $PAYMENT_STATUS_PENDING = 'Pending';
 	public static $PAYMENT_STATUS_COMPLETED = 'Completed';
+	public static $PAYMENT_STATUS_SUBSCRIPTION_CANCELED = 'Canceled';
 
 	private $attributes = array('__items__' => array());
 	
@@ -16,6 +17,7 @@ class AWPCP_Payment_Transaction {
 	public function AWPCP_Payment_Transaction($id, $attributes=array()) {
 		$this->id = $id;
 		$this->attributes = $attributes;
+		$this->errors = awpcp_array_data('__errors__', array(), $attributes);
 	}
 
 	public static function find_by_id($id) {		
@@ -66,12 +68,13 @@ class AWPCP_Payment_Transaction {
 	}
 
 	public function save() {
+		$this->attributes['__errors__'] = $this->errors;
+		$this->attributes['__updated__'] = current_time('mysql');
+
 		if (!isset($this->attributes['__created__'])) {
 			$this->attributes['__created__'] = current_time('mysql');
-			$this->attributes['__updated__'] = current_time('mysql');
 			add_option("awpcp-payment-transaction-{$this->id}", $this->attributes, '', 'no');
 		} else {
-			$this->attributes['__updated__'] = current_time('mysql');
 			update_option("awpcp-payment-transaction-{$this->id}", $this->attributes);
 		}
 	}

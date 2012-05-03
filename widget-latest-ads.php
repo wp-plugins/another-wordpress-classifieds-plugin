@@ -15,60 +15,39 @@ function init_awpcpsbarwidget() {
 		$title = isset($args[1]) ? $args[1] : '';
 
 		$options = get_option('widget_awpcplatestads');
-		if(!isset($limit)) {
+
+		if(empty($limit)) {
 			$limit = htmlspecialchars(stripslashes($options['hlimit']));
 		}
-
-		if(!isset($title)) {
+		if(empty($title)) {
 			$title = htmlspecialchars(stripslashes($options['title']));
 		}
 
 		if(ads_exist()) {
-			$awpcp_sb_widget_beforecontent=get_awpcp_option('sidebarwidgetbeforecontent');
-			$awpcp_sb_widget_aftercontent=get_awpcp_option('sidebarwidgetaftercontent');
-			$awpcp_sb_widget_beforetitle=get_awpcp_option('sidebarwidgetbeforetitle');
-			$awpcp_sb_widget_aftertitle=get_awpcp_option('sidebarwidgetaftertitle');
+			$awpcp_sb_widget_beforecontent = get_awpcp_option('sidebarwidgetbeforecontent');
+			$awpcp_sb_widget_aftercontent = get_awpcp_option('sidebarwidgetaftercontent');
+			$awpcp_sb_widget_beforetitle = get_awpcp_option('sidebarwidgetbeforetitle');
+			$awpcp_sb_widget_aftertitle = get_awpcp_option('sidebarwidgetaftertitle');
 
-			if(isset($awpcp_sb_widget_beforecontent) && !empty($awpcp_sb_widget_beforecontent))
-			{$awpcp_sb_widget_beforecontent="$awpcp_sb_widget_beforecontent";}
-			else{$awpcp_sb_widget_beforecontent="";}
-
-			if(isset($awpcp_sb_widget_aftercontent) && !empty($awpcp_sb_widget_aftercontent))
-			{$awpcp_sb_widget_aftercontent="$awpcp_sb_widget_aftercontent";}
-			else{$awpcp_sb_widget_aftercontent="";}
-
-			if(isset($awpcp_sb_widget_beforetitle) && !empty($awpcp_sb_widget_beforetitle))
-			{$awpcp_sb_widget_beforetitle="$awpcp_sb_widget_beforetitle";}
-			else{$awpcp_sb_widget_beforetitle="";}
-
-			if(isset($awpcp_sb_widget_aftertitle) && !empty($awpcp_sb_widget_aftertitle))
-			{$awpcp_sb_widget_aftertitle="$awpcp_sb_widget_aftertitle";}
-			else{$awpcp_sb_widget_aftertitle="";}
-
-			if(isset($awpcp_sb_widget_beforecontent) && !empty($awpcp_sb_widget_beforecontent))
-			{
+			if(isset($awpcp_sb_widget_beforecontent) && !empty($awpcp_sb_widget_beforecontent)) {
 				$output .= "$awpcp_sb_widget_beforecontent";
 			}
-			if(isset($awpcp_sb_widget_beforetitle) && !empty($awpcp_sb_widget_beforetitle))
-			{
+			if(isset($awpcp_sb_widget_beforetitle) && !empty($awpcp_sb_widget_beforetitle)) {
 				$output .= "$awpcp_sb_widget_beforetitle";
 			}
 
 			$output .= "$title";
-			if(isset($awpcp_sb_widget_aftertitle) && !empty($awpcp_sb_widget_aftertitle))
-			{
+			if(isset($awpcp_sb_widget_aftertitle) && !empty($awpcp_sb_widget_aftertitle)) {
 				$output .= "$awpcp_sb_widget_aftertitle";
 			}
 
-			if (function_exists('awpcp_sidebar_headlines'))
-			{
+			if (function_exists('awpcp_sidebar_headlines')) {
 				$output .= '<ul>'."\n";
 				$output .= awpcp_sidebar_headlines($limit, $options['showimages'], $options['showblank']);
 				$output .= '</ul>'."\n";
 			}
 
-			if(isset($awpcp_sb_widget_aftercontent) && !empty($awpcp_sb_widget_aftercontent))
-			{
+			if(isset($awpcp_sb_widget_aftercontent) && !empty($awpcp_sb_widget_aftercontent)) {
 				$output .= "$awpcp_sb_widget_aftercontent";
 			}
 		}
@@ -118,9 +97,8 @@ function init_awpcpsbarwidget() {
 	wp_register_sidebar_widget('awpcp-latest-ads', __('AWPCP Latest Ads', 'AWPCP'), 'widget_awpcplatestads');
 
 	// register_widget_control('AWPCP Latest Ads', 'widget_awpcplatestads_options', 350, 120);
-	$options = array('width' => 350, 'height' => 120);
-	wp_register_widget_control('awpcp-latest-ads', 'AWPCP Latest Ads', 
-		'widget_awpcplatestads_options', $options);
+	$options = array('width' => 350, 'height' => 120, 'id_base' => 'awpcp-latest-ads');
+	wp_register_widget_control('awpcp-latest-ads', 'AWPCP Latest Ads', 'widget_awpcplatestads_options', $options);
 }
 
 function awpcp_sidebar_headlines($limit, $showimages, $showblank) {

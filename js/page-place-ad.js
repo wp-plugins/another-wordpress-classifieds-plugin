@@ -14,7 +14,7 @@
         var handle_radio_button_click = function(event) {
             var radio = $(this);
             if (radio.attr('checked')) {
-                update_payment_methods(radio.closest('tr').data('price'));
+                update_payment_methods(radio.closest('tr').attr('data-price'));
             }
         };
 
@@ -27,7 +27,7 @@
             }
 
             enabled = terms.filter(function() {
-                categories = $(this).data('categories');
+                categories = $.parseJSON($(this).attr('data-categories'));
                 return $.inArray(category, categories) > -1 || categories.length === 0;
             });
 
@@ -46,7 +46,7 @@
             }
 
             methods.map(function() {
-                total += $(this).data('price');
+                total += $(this).attr('data-price');
             });
 
             update_payment_methods(total);
@@ -54,14 +54,15 @@
     });
 
 
-    // Update Ad Details fields related to user information everytimes an
+    // Update Ad Details fields related to user information everytime an
     // user is selected in the users dropdown (available to administrators)
     $(function() {
         var form = $('#adpostform'),
             name, email, state, city, website,
             users, categories, cats,
             terms, terms_parent,
-            items, item;
+            items, item,
+            user, user_payment_terms;
 
         name = form.find('input[name=adcontact_name]');
         email = form.find('input[name=adcontact_email]');
@@ -75,15 +76,14 @@
         terms_parent = terms.closest('p').hide();
 
         var update_payment_terms = function(id, category) {
-            console.log(id);
-            console.log(category);
+            id = parseInt(id, 10);
 
-            if (parseInt(id, 10) === 0) {
+            if (isNaN(id) || id === 0) {
                 selector = '[value]';
             } else {
                 selector = '#payment-term-default, #payment-term-';
-                selector+= users.find('[value=' + id + ']')
-                                .data('payment-terms').split(',').join(', #payment-term-');
+                user_payment_terms = users.find('[value=' + id + ']').attr('data-payment-terms') || [];
+                selector+= user_payment_terms.split(',').join(', #payment-term-');
             }
 
             terms_parent.show();
@@ -93,7 +93,7 @@
 
             if (category.length > 0) {
                 items = items.filter(function() {
-                    cats = $(this).data('categories');
+                    cats = $.parseJSON($(this).attr('data-categories'));
                     return $.inArray(category, cats) > -1 || cats.length === 0;
                 });
             }
@@ -113,7 +113,9 @@
         };
         
         categories.change(function() {
-            update_payment_terms(users.val(), $(this).val());
+            if (users.length > 0) {
+                update_payment_terms(users.val(), $(this).val());
+            }
         });
 
         users = $('#place-ad-user-id').change(function() {
@@ -132,7 +134,7 @@
                         website.val(user.user_url);
 
                         var field = state.filter(':visible');
-                        if (field[0].tagName.toLowerCase() == 'select') {
+                        if (field.length > 0 && field[0].tagName.toLowerCase() == 'select') {
                             city.one('awpcp-update-region-options-completed', function() {
                                 city.val(user.city).change();
                             });
@@ -150,7 +152,7 @@
                 });
             }
 
-            if (!done) {
+            if (id > 0 && !done) {
                 name.val('');
                 email.val('');
                 website.val('');
@@ -159,6 +161,8 @@
             }
         });
 
-        users.change();
+        if (users.length > 0) {
+            users.change();
+        }
     });
 })(jQuery);

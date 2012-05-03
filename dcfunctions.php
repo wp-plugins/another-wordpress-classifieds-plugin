@@ -336,11 +336,21 @@ function create_pager($from,$where,$offset,$results,$tpname)
 	}
 
 	// TODO: remove all fields that belongs to the Edit Ad form (including extra fields and others?)
-	$params=array();
-	$params=array_merge($_GET,$_POST);
-	unset($params['page_id'],$params['offset'],$params['results'],$params['PHPSESSID'],$params['aeaction'],$params['category_id'],$params['cat_ID'],$params['action'],$params['aeaction'],$params['category_name'],$params['category_parent_id'],$params['createeditadcategory'],$params['deletemultiplecategories'],$params['movedeleteads'],$params['moveadstocategory'],$params['category_to_delete'],$params['tpname'],$params['category_icon'],$params['sortby'],$params['adid'],$params['picid'],$params['adkey'],$params['editemail'],$params['deletemultipleads'],$params['spammultipleads'],$params['awpcp_ads_to_action']);
+	$params = array_merge($_GET,$_POST);
 
-	$cid='';
+	unset($params['page_id'], $params['offset'], $params['results']);
+	unset($params['PHPSESSID'], $params['aeaction'], $params['category_id']);
+	unset($params['cat_ID'], $params['action'], $params['aeaction']);
+	unset($params['category_name'], $params['category_parent_id']);
+	unset($params['createeditadcategory'], $params['deletemultiplecategories']);
+	unset($params['movedeleteads'], $params['moveadstocategory']);
+	unset($params['category_to_delete'], $params['tpname']);
+	unset($params['category_icon'], $params['sortby'], $params['adid']);
+	unset($params['picid'], $params['adkey'], $params['editemail']);
+	unset($params['deletemultipleads'], $params['spammultipleads']);
+	unset($params['awpcp_ads_to_action'], $params['post_type']);
+
+	$cid = '';
 	if (isset($_REQUEST['category_id']) && !empty($_REQUEST['category_id'])) {
 		//Keep category id in tact, if present, but clean out the string garbage with it:
 		$catinfo = preg_split("/\//", $_REQUEST['category_id']);
@@ -356,27 +366,6 @@ function create_pager($from,$where,$offset,$results,$tpname)
 		//$cid=$_REQUEST['category_id'];
 		if (!empty($cid)) {
 			$params['category_id']=$cid;
-		}
-
-		// XXX: this does nothing!		
-		if( !get_awpcp_option('seofriendlyurls') ) {
-			// $awpcppage=get_currentpagename();
-			// $awpcppagename = sanitize_title($awpcppage, $post_ID='');
-			// $awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
-			// // the line below was already commented -@wvega
-			// //$params['page_id']="$awpcpwppostpageid";
-		}
-	}
-
-	if( isset($_REQUEST['a']) && !empty($_REQUEST['a']) && ($_REQUEST['a'] == 'browseads') ) {
-
-		// XXX: this does nothing!
-		if( !get_awpcp_option('seofriendlyurls') ) {
-			// $awpcppage=get_currentpagename();
-			// $awpcppagename = sanitize_title($awpcppage, $post_ID='');
-			// $awpcpwppostpageid=awpcp_get_page_id($awpcppagename);
-			// // the line below was already commented -@wvega
-			// //$params['page_id']="$awpcpwppostpageid";
 		}
 	}
 
@@ -416,9 +405,9 @@ function create_pager($from,$where,$offset,$results,$tpname)
 	if ( $offset != 0 ) {
 		//Subtract 2, page is 1-based index, results is 0-based, must compensate for 2 pages here
 		if ( (($current_page-2) * $results) < $results) {
-			$prev.="\t\t<a href=\"$tpname".$awpcpoffset_set."0&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
+			$prev ="\t\t<a href=\"$tpname".$awpcpoffset_set."0&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
 		} else {
-			$prev.="\t\t<a href=\"$tpname".$awpcpoffset_set.(($current_page-2) * $results)."&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
+			$prev ="\t\t<a href=\"$tpname".$awpcpoffset_set.(($current_page-2) * $results)."&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
 		}
 	} else {
 		$prev = '';

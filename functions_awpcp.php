@@ -296,7 +296,6 @@ function get_awpcp_setting($column, $option) {
 
 function get_awpcp_option($option, $default='') {
 	global $awpcp;
-	debug(is_object($awpcp), is_object($awpcp->settings), $option, $default, $awpcp->settings->get_option($option));
 	if ($awpcp && $awpcp->settings) {
 		return $awpcp->settings->get_option($option);
 	}
@@ -698,16 +697,14 @@ function get_categorynameidall($cat_id = 0)
 
 	while ($rsrow=mysql_fetch_row($res)) {
 
-		$cat_ID=$rsrow[0];
-		$cat_name=$rsrow[1];
+		$cat_ID = $rsrow[0];
+		$cat_name = stripslashes(stripslashes($rsrow[1]));
 
-		$opstyle="class=\"dropdownparentcategory\"";
+		$opstyle = "class=\"dropdownparentcategory\"";
 
-		if($cat_ID == $cat_id)
-		{
+		if($cat_ID == $cat_id) {
 			$maincatoptionitem = "<option $opstyle selected='selected' value='$cat_ID'>$cat_name</option>";
-		}
-		else {
+		} else {
 			$maincatoptionitem = "<option $opstyle value='$cat_ID'>$cat_name</option>";
 		}
 
@@ -715,20 +712,18 @@ function get_categorynameidall($cat_id = 0)
 
 		// While still looping through main categories get any sub categories of the main category
 
-		$maincatid=$cat_ID;
+		$maincatid = $cat_ID;
 
 		$query="SELECT category_id,category_name FROM ".$tbl_categories." WHERE category_parent_id='$maincatid' ORDER BY category_order, category_name ASC";
 		$res2 = awpcp_query($query, __LINE__);
 
 		while ($rsrow2=mysql_fetch_row($res2)) {
-			$subcat_ID=$rsrow2[0];
-			$subcat_name=$rsrow2[1];
+			$subcat_ID = $rsrow2[0];
+			$subcat_name = stripslashes(stripslashes($rsrow2[1]));
 
-			if($subcat_ID == $cat_id)
-			{
+			if($subcat_ID == $cat_id) {
 				$subcatoptionitem = "<option selected='selected' value='$subcat_ID'>- $subcat_name</option>";
-			}
-			else {
+			} else {
 				$subcatoptionitem = "<option  value='$subcat_ID'>- $subcat_name</option>";
 			}
 
@@ -2459,28 +2454,27 @@ function awpcp_validip($ip) {
 
 // retrieve the ad poster's IP if possible
 function awpcp_getip() {
-
-	if ( awpcp_validip($_SERVER["HTTP_CLIENT_IP"]) ) {
+	if ( awpcp_validip(awpcp_array_data("HTTP_CLIENT_IP", '', $_SERVER)) ) {
 		return $_SERVER["HTTP_CLIENT_IP"];
 	}
 
-	foreach ( explode(",",$_SERVER["HTTP_X_FORWARDED_FOR"]) as $ip ) {
+	foreach ( explode(",", awpcp_array_data("HTTP_X_FORWARDED_FOR", '', $_SERVER)) as $ip ) {
 		if ( awpcp_validip(trim($ip) ) ) {
 			return $ip;
 		}
 	}
 
-	if (awpcp_validip($_SERVER["HTTP_X_FORWARDED"])) {
+	if (awpcp_validip(awpcp_array_data("HTTP_X_FORWARDED", '', $_SERVER))) {
 		return $_SERVER["HTTP_X_FORWARDED"];
 
-	} elseif (awpcp_validip($_SERVER["HTTP_FORWARDED_FOR"])) {
+	} elseif (awpcp_validip(awpcp_array_data('HTTP_FORWARDED_FOR', '', $_SERVER))) {
 		return $_SERVER["HTTP_FORWARDED_FOR"];
 
-	} elseif (awpcp_validip($_SERVER["HTTP_FORWARDED"])) {
+	} elseif (awpcp_validip(awpcp_array_data("HTTP_FORWARDED", '', $_SERVER))) {
 		return $_SERVER["HTTP_FORWARDED"];
 
 	} else {
-		return $_SERVER["REMOTE_ADDR"];
+		return awpcp_array_data("REMOTE_ADDR", '', $_SERVER);
 	}
 }
 
@@ -2512,14 +2506,79 @@ function awpcp_insert_tweet_button($layout, $adid, $title) {
 	return $layout;
 }
 
+
+function awpcp_get_ad_share_info($id) {
+	global $wpdb;
+
+	$ad = AWPCP_Ad::find_by_id($id);
+	$info = array();
+
+	if (is_null($ad)) {
+		return null;
+	}
+
+	$info['url'] = url_showad($id);
+	$info['title'] = stripslashes($ad->ad_title);
+	$info['description'] = strip_tags(stripslashes($ad->ad_details));
+	$info['description'] = str_replace("\n", " ", $info['description']);
+
+	if ( strlen($info['description']) > 300 ) {
+		$info['description'] = substr($info['description'], 0, 300) . '...';
+	}
+
+	$info['images'] = array();
+
+	$sql = 'SELECT image_name FROM ' . AWPCP_TABLE_ADPHOTOS . ' ';
+	$sql.= 'WHERE ad_id=%d AND disabled=0';
+
+	$images = $wpdb->get_results($wpdb->prepare($sql, $id), ARRAY_A);
+
+	if (!empty($images)) {
+
+		$uploads_dir = get_awpcp_option('uploadfoldername', 'uploads');
+
+		if ( is_multisite() ) {
+			$blog = get_blog_details(1);
+			$blogurl = $blog->siteurl;
+		} else {
+			$blogurl = get_site_url();
+		}
+
+		foreach ($images as $image) {
+			$info['images'][] = $blogurl . '/wp-content/' . $uploads_dir . '/awpcp/' . $image['image_name'];
+		}
+	}
+
+	return $info;
+}
+
+
 // add_filter('awpcp_single_ad_layout', 'awpcp_insert_share_button', 2, 3);
 function awpcp_insert_share_button($layout, $adid, $title) {
 	global $awpcp_plugin_url;
-	$adurl = url_showad($adid);
-	$button = 	'<div class="tw_button awpcp_tweet_button_div">';
-	$button .= '<a href="http://www.facebook.com/sharer.php?u='.urlencode($adurl).'&t='.urlencode($title).'" target="_blank"><img class="awpcp_facebook_btn_img" src="'.$awpcp_plugin_url.'images/fbshare.png" alt="Share on Facebook"></a>';
-	//$button .= '<div id="fb_share_1" style="facebook_like_button"><a name="fb_share" type="" share_url="'.$adurl.'" href="http://www.facebook.com/sharer.php">Share</a></div><div><script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script></div>';
-	$button .= 	'</div>';
+
+	$info = awpcp_get_ad_share_info($adid);
+
+	$href = 'http://www.facebook.com/sharer.php?';
+	$href.= 's=100';
+	$href.= '&p[url]=' . urlencode($info['url']);
+	$href.= '&p[title]=' . urlencode($title);
+	$href.= '&p[summary]=' . urlencode($info['description']);
+
+	foreach ($info['images'] as $k => $image) {
+		$href.= '&p[images][' . $k . ']=' . urlencode($image); 
+	}
+
+	// $href = 'http://www.facebook.com/sharer.php?';
+	// $href.= 'u=' . urlencode($info['url']) . '&';
+	// $href.= 't=' . urlencode($title);
+
+	$button = '<div class="tw_button awpcp_tweet_button_div">';
+	$button.= '<a href="' . $href . '" target="_blank">';
+	$button.= '<img class="awpcp_facebook_btn_img" src="'.$awpcp_plugin_url.'images/fbshare.png" alt="Share on Facebook" />';
+	$button.= '</a>';
+	$button.= '</div>';
+
 	$layout = str_replace('$sharebtn', $button, $layout);
 	return $layout;
 }

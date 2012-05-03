@@ -11,12 +11,18 @@
 <?php endforeach ?>
 			</ul>
 
+			<?php do_action('awpcp-admin-settings-page--' . $group->slug) ?>
+
 			<form action="<?php echo admin_url('options.php') ?>" method="post">
 				<?php settings_fields($awpcp->settings->option); ?>
+				<input type="hidden" name="group" value="<?php echo $group->slug ?>" />
+
+				<!--<p class="submit">
+					<input type="submit" value="Save Changes" class="button-primary" id="submit" name="submit">
+				</p>-->
+
 				<?php $awpcp->settings->load() ?>
 				<?php do_settings_sections($group->slug); ?>
-
-				<input type="hidden" name="group" value="<?php echo $group->slug ?>" />
 
 				<p class="submit">
 					<input type="submit" value="Save Changes" class="button-primary" id="submit" name="submit">

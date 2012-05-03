@@ -47,18 +47,31 @@ class AWPCP_Payment_ThankYou_Page {
 			} else {
 				$msg = join('<br/><br/>', $transaction->errors);
 			}
+
+			$transaction->set('verified', false);
+			$transaction->save();
 			// TODO: send email
 			// $output .= abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
 			return $msg;
+		} else {
+			$transaction->set('verified', true);
+			$transaction->save();
 		}
 
 		$valid = apply_filters('awpcp-payments-validate-transaction', false, $transaction);
 		if (!$valid) {
+			$transaction->set('validated', false);
+			$transaction->save();
 			return join('<br/><br/>', $transaction->errors);
+		} else {
+			$transaction->set('validated', true);
+			$transaction->save();
 		}
 
 		$payment_status = $transaction->get('payment-status');
-		if ($payment_status != AWPCP_Payment_Transaction::$PAYMENT_STATUS_FAILED) {
+		if (in_array($payment_status, array(AWPCP_Payment_Transaction::$PAYMENT_STATUS_COMPLETED,
+											AWPCP_Payment_Transaction::$PAYMENT_STATUS_PENDING)))
+		{
 			$texts = array(
 				'title' => __('Payment Completed'),
 				'subtitle' => __('Congratulations', 'AWPCP'),
@@ -67,11 +80,18 @@ class AWPCP_Payment_ThankYou_Page {
 
 			$continue = true;
 
-		} else {
-			$text = __("Your Payment has been processed succesfully. However, the payment gateway didn't return a payment status that allows us to continue with the checkout process. Please contact the website to admin to solve this issue.", 'AWPCP');
+		} else if (in_array($payment_status, array(AWPCP_Payment_Transaction::$PAYMENT_STATUS_SUBSCRIPTION_CANCELED,
+												   AWPCP_Payment_Transaction::$PAYMENT_STATUS_FAILED))) 
+		{
+			$text = __("Your Payment has been processed succesfully. However, the payment gateway didn't return a payment status that allows us to continue with the checkout process. Please contact the website admin to solve this issue.", 'AWPCP');
 			$text.= '<br/><br/>';
 			$text.= sprintf(__('The payment status was set to %s', 'AWPCP'), $payment_status);
 
+			$texts = array('title' => __('Payment Failed'), 'subtitle' => '', 'text' => $text);
+
+			$continue = false;
+		} else {
+			$text = __("There was an error processing your payment. The payment status couldn't be found. Please contact the website admin to solve this issue.", 'AWPCP');
 			$texts = array('title' => __('Payment Failed'), 'subtitle' => '', 'text' => $text);
 
 			$continue = false;
@@ -81,6 +101,7 @@ class AWPCP_Payment_ThankYou_Page {
 		// TODO: update Subscriptions related stuff? disable Subscriptions?
 		// TODO: disable Ad (if one exists) if payment was refunded or canceled
 		$texts = apply_filters('awpcp-payments-transaction-processed', $texts, $transaction);
+		$header = array();
 
 		$transaction->save();
 

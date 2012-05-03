@@ -107,71 +107,89 @@ function awpcp_paypal_verify_transaction($verified, $transaction) {
 		return $verified;
 	}
 
-	$data = 'cmd=_notify-validate';
-
-	foreach ($_POST as $key => $value) {
-		$value = urlencode(stripslashes($value));
-		if ('cmd' != $key) {
-			$data .= "&$key=$value";
+	// PayPal can redirect users using a GET request and issuing
+	// a POST request in the background. If the transaction was 
+	// already verified during the POST transaction the result 
+	// should be stored in the transaction's verified attribute
+	if (!empty($_POST)) {
+		
+		$data = 'cmd=_notify-validate';
+		foreach ($_POST as $key => $value) {
+			$value = urlencode(stripslashes($value));
+			if ('cmd' != $key) {
+				$data .= "&$key=$value";
+			}
 		}
-	}
 
-	if (in_array('curl', get_loaded_extensions())) {
-		if (get_awpcp_option('paylivetestmode') == 1) {
-			$paypal_url = "https://www.sandbox.paypal.com/cgi-bin/webscr";
+		if (in_array('curl', get_loaded_extensions())) {
+			if (get_awpcp_option('paylivetestmode') == 1) {
+				$paypal_url = "https://www.sandbox.paypal.com/cgi-bin/webscr";
+			} else {
+				$paypal_url = "https://www.paypal.com/cgi-bin/webscr";
+			}
+
+			$ch = curl_init($paypal_url);
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$response = curl_exec($ch);
+			curl_close($ch);
+
 		} else {
-			$paypal_url = "https://www.paypal.com/cgi-bin/webscr";
+		    if (get_awpcp_option('paylivetestmode') == 1) {
+		        $paypallink = "ssl://www.sandbox.paypal.com";
+		    } else {
+		        $paypallink = "ssl://www.paypal.com";
+		    }
+
+		    // post back to PayPal system to validate
+		    $header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
+		    $header.= "Content-Type: application/x-www-form-urlencoded\r\n";
+		    $header.= "Content-Length: " . strlen($data) . "\r\n\r\n";
+		    $fp = fsockopen($paypallink, 443, $errno, $errstr, 30);
+		    $response = '';
+
+		    if ($fp) {
+		        fputs ($fp, $header . $data);
+
+		        $reply = '';
+		        $headerdone = false;
+		        while(!feof($fp)) {
+		            $line = fgets($fp);
+		            if (strcmp($line,"\r\n") == 0) {
+		                // read the header
+		                $headerdone=true;
+		            } elseif ($headerdone) {
+		                // header has been read. now read the contents
+		                $response.=$line;
+		            }
+		        }
+
+		        fclose($fp);
+		        $response = trim($response);
+		    }
 		}
 
-		$ch = curl_init($paypal_url);
-		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$response = curl_exec($ch);
-		curl_close($ch);
-
+		$verified = strcasecmp($response, 'VERIFIED') === 0;
 	} else {
-	    if (get_awpcp_option('paylivetestmode') == 1) {
-	        $paypallink = "ssl://www.sandbox.paypal.com";
-	    } else {
-	        $paypallink = "ssl://www.paypal.com";
-	    }
-
-	    // post back to PayPal system to validate
-	    $header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
-	    $header.= "Content-Type: application/x-www-form-urlencoded\r\n";
-	    $header.= "Content-Length: " . strlen($data) . "\r\n\r\n";
-	    $fp = fsockopen($paypallink, 443, $errno, $errstr, 30);
-	    $response = '';
-
-	    if ($fp) {
-	        fputs ($fp, $header . $data);
-
-	        $reply = '';
-	        $headerdone = false;
-	        while(!feof($fp)) {
-	            $line = fgets($fp);
-	            if (strcmp($line,"\r\n") == 0) {
-	                // read the header
-	                $headerdone=true;
-	            } elseif ($headerdone) {
-	                // header has been read. now read the contents
-	                $response.=$line;
-	            }
-	        }
-
-	        fclose($fp);
-	        $response = trim($response);
-	    }
+		$verified = $transaction->get('verified', false);
 	}
-
-	$verified = strcasecmp($response, 'VERIFIED') === 0;
 
 	if (!$verified) {
-		$msg = '<p>' . __("PayPal returned the following status from your payment: %s. %d payment variables were posted.",'AWPCP') . '</p>';
-		$msg = sprintf($msg, $response, count($_POST));
-		$msg.= '<p>'.__("If this status is not COMPLETED or VERIFIED, then you may need to wait a bit before your payment is approved, or contact PayPal directly as to the reason the payment is having a problem.",'AWPCP').'</p>';
-		$msg.= '<p>'.__("If you have any further questions, contact this site administrator.",'AWPCP').'</p>';
+		$variables = count($_POST);
+		$url = awpcp_current_url();
+
+		if ($variables <= 0) {
+			$msg = '<p>' . __("We haven't received your payment information from PayPal yet and we are unable to verify your transaction. Please reload this page or visit <a href=\"%s\">%s</a> in 30 seconds to continue placing your Ad.", 'AWPCP') . '</p>';
+			$msg = sprintf($msg, $url, $url);
+		} else {
+			$msg = '<p>' . __("PayPal returned the following status from your payment: %s. %d payment variables were posted.",'AWPCP') . '</p>';
+			$msg = sprintf($msg, $response, count($_POST));
+			$msg.= '<p>'.__("If this status is not COMPLETED or VERIFIED, then you may need to wait a bit before your payment is approved, or contact PayPal directly as to the reason the payment is having a problem.",'AWPCP').'</p>';
+		}
+
+		$msg.= '<p>'.__("If you have any further questions, please contact this site administrator.",'AWPCP').'</p>';
+
 		$transaction->errors[] = $msg;
 	}
 
@@ -182,7 +200,7 @@ function awpcp_paypal_verify_transaction($verified, $transaction) {
 
 
 function awpcp_2checkout_verify_transaction($verified, $transaction) {
-	if ($transaction->get('payment-method') != '2checkout') {
+	if ($verified || $transaction->get('payment-method') != '2checkout') {
 		return $verified;
 	}
 
@@ -205,8 +223,16 @@ function awpcp_2checkout_verify_transaction($verified, $transaction) {
 
 
 function awpcp_paypal_validate_transaction($valid, $transaction) {
-	if ($transaction->get('payment-method') != 'paypal') {
+	if ($valid || $transaction->get('payment-method') != 'paypal') {
 		return $valid;
+	}
+
+	// PayPal can redirect users using a GET request and issuing
+	// a POST request in the background. If the transaction was 
+	// already verified during the POST transaction the result 
+	// should be stored in the transaction's validated attribute
+	if (empty($_POST)) {
+		return $transaction->get('validated', false);
 	}
 
 	$item_name = awpcp_post_param('item_name');
@@ -243,7 +269,7 @@ function awpcp_paypal_validate_transaction($valid, $transaction) {
 
 	// TODO: handle other Subscription related transaction types (out of the scope)
 	if (strcasecmp($txn_type, 'subscr-cancel') === 0) {
-		$transaction->set('payment-status', AWPCP_Payment_Transaction::$PAYMENT_STATUS_CANCELED);
+		$transaction->set('payment-status', AWPCP_Payment_Transaction::$PAYMENT_STATUS_SUBSCRIPTION_CANCELED);
 		return true;
 	}
 
@@ -301,7 +327,7 @@ function awpcp_paypal_validate_transaction($valid, $transaction) {
 		awpcp_abort_payment($msg, $transaction);
 	}
 
-	return true;
+	return empty($transaction->errors);
 }
 
 

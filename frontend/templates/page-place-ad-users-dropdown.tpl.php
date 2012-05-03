@@ -16,6 +16,7 @@
 </p>
 
 
+<?php if ($payment_term !== false): ?>
 <p class="awpcp-form-spacer">
 
 <?php _e('User Payment Term', 'AWPCP') ?><br/>
@@ -41,6 +42,7 @@
 </select>
 
 </p>
+<?php endif ?>
 
 
 <script type="text/javascript">//<![CDATA[

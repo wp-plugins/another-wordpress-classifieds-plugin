@@ -229,7 +229,7 @@ function awpcpui_process($awpcppagename)
 	$categoriesviewpagename = sanitize_title(get_awpcp_option('view-categories-page-name'));
 	$browsestat='';
 
-	global $awpcp_plugin_url,$hasregionsmodule;
+	global $awpcp_plugin_url, $hasregionsmodule;
 
 	/* delete: 
 
@@ -250,7 +250,7 @@ function awpcpui_process($awpcppagename)
 		if (isset($awpcpsplitbrowseadPath[$pathvalueviewcategories]) && !empty($awpcpsplitbrowseadPath[$pathvalueviewcategories]))
 		{
 			$browsestat=$awpcpsplitbrowseadPath[$pathvalueviewcategories];
-		}
+		} 
 	}
 
 	*/
@@ -258,29 +258,22 @@ function awpcpui_process($awpcppagename)
 	$browsestat = get_query_var('cid');
 	$layout = get_query_var('layout');
 
-	$awpcp_nothinghereyet=__("You currently have no classifieds","AWPCP");
-
 	$isadmin=checkifisadmin();
 
 	$isclassifiedpage = checkifclassifiedpage($awpcppage);
-	if ( ($isclassifiedpage == false) && ($isadmin == 1))
-	{
+	if (($isclassifiedpage == false) && ($isadmin == 1)) {
 		$output .= __("Hi admin, you need to go to your dashboard and setup your classifieds.","AWPCP");
-	}
-	elseif (($isclassifiedpage == false) && ($isadmin != 1))
-	{
-		$output .= $awpcp_nothinghereyet;
-	}
-	elseif ($browsestat == $categoriesviewpagename)
-	{
+
+	} elseif (($isclassifiedpage == false) && ($isadmin != 1)) {
+		$output .= __("You currently have no classifieds","AWPCP");
+
+	} elseif ($browsestat == $categoriesviewpagename) {
 		$output .= awpcp_display_the_classifieds_page_body($awpcppagename);
-	}
-	elseif ($layout == 2)
-	{
+
+	} elseif ($layout == 2) {
 		$output .= awpcp_display_the_classifieds_page_body($awpcppagename);
-	}
-	else
-	{
+
+	} else {
 		$output .= awpcp_load_classifieds($awpcppagename);
 	}
 	return $output;

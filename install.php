@@ -37,12 +37,6 @@ class AWPCP_Installer {
         return $result !== false;
     }
 
-    // public function activate() {
-    //     $this->install();
-    //     // not needed anymore, but some plugins may check for it
-    //     update_option('awpcp_installationcomplete', 0);
-    // }
-
     /**
      * Creates AWPCP tables.
      *
@@ -60,14 +54,6 @@ class AWPCP_Installer {
         if (strcmp($table, AWPCP_TABLE_CATEGORIES) === 0) {
             return $this->upgrade($version, $awpcp_db_version);
         }
-            
-        // // Ooops - page already exists - abort this function and queue an admin warning message
-        // if (findpagebyname('AWPCP')) {
-        //  update_option('awpcp_pagename_warning', 1);
-        //      return;
-        // } else { 
-        //  delete_option('awpcp_pagename_warning');
-        // }
 
 
         // create Categories table
@@ -231,9 +217,14 @@ class AWPCP_Installer {
         $wpdb->query("DROP TABLE IF EXISTS " . AWPCP_TABLE_PAGENAME);
         $wpdb->query("DROP TABLE IF EXISTS " . AWPCP_TABLE_PAGES);
 
+
         // TODO: remove other tables created by modules too?
-        $tbl_regions = $wpdb->prefix . "awpcp_regions";
-        $wpdb->query("DROP TABLE IF EXISTS " . $tbl_regions);
+        $tables = array($wpdb->prefix . 'awpcp_regions',
+                        $wpdb->prefix . 'awpcp_extra_fields',
+                        $wpdb->prefix . 'awpcp_comments');
+        foreach ($tables as $table) {
+            $wpdb->query("DROP TABLE IF EXISTS " . $table);    
+        }        
 
         // remove AWPCP options from options table
         delete_option('awpcp_installationcomplete');
@@ -287,6 +278,9 @@ class AWPCP_Installer {
         }
         if (version_compare($oldversion, '2.0.1') < 0) {
             $this->upgrade_to_2_0_1($oldversion);
+        }
+        if (version_compare($oldversion, '2.0.5') < 0) {
+            $this->upgrade_to_2_0_5($oldversion);
         }
 
         do_action('awpcp_upgrade', $oldversion, $newversion);
@@ -623,7 +617,7 @@ class AWPCP_Installer {
                         $value = $setting->config_value;
                         break;
                 }
-                $awpcp->settings->update_option($setting->config_option, $value, $force=true);
+                $awpcp->settings->update_option($setting->config_option, $value, true);
             }
         }
 
@@ -643,14 +637,13 @@ class AWPCP_Installer {
             'paymentcancelpagename' => 'payment-cancel-page-name');
 
         // rename page name settings
-        if (version_compare($version, '1.8.9.4.46') < 0 &&
-            $awpcp->settings->get_option('main-page-name', null) === null) {
+        if (version_compare($version, '1.8.9.4.46') < 0) {
             foreach ($translations as $original => $translation) {
                 $value = $awpcp->settings->get_option($original, null);
                 // only translate settings that already exists, the others will
                 // be defined when the settings are registered
                 if ($value !== null) {
-                    $awpcp->settings->update_option($translation, $value, $force=true);
+                    $awpcp->settings->update_option($translation, $value, true);
                 }
             }
         }
@@ -676,11 +669,13 @@ class AWPCP_Installer {
             $pages = array_values($translations);
             foreach ($pages as $page) {
                 $name = $awpcp->settings->get_option($page, null);
+                $sanitized = sanitize_title($name);
 
-                if ($name == null) { continue; }
+                if ($name == null || strcmp($sanitized, 'view-categories-page-name') === 0) {
+                    continue;
+                }
 
-                $name = sanitize_title($name);
-                $sql = "SELECT ID FROM $wpdb->posts WHERE post_name = '$name' AND post_type = 'page'";
+                $sql = "SELECT ID FROM $wpdb->posts WHERE post_name = '$sanitized' AND post_type = 'page'";
                 $id = intval($wpdb->get_var($sql));
                 $id = $id > 0 ? $id : -1;
 
@@ -729,6 +724,67 @@ class AWPCP_Installer {
             $sql = "ALTER TABLE $table " . join(', ', $parts);
             $wpdb->query($sql);
         }
+    }
+
+    private function upgrade_to_2_0_5($version) {
+        global $wpdb, $awpcp;
+
+        $translations = array(
+            'userpagename' => 'main-page-name', 
+            'showadspagename' => 'show-ads-page-name',
+            'placeadpagename' => 'place-ad-page-name',
+            'editadpagename' => 'edit-ad-page-name', 
+            'page-name-renew-ad' => 'renew-ad-page-name',
+            'replytoadpagename' => 'reply-to-ad-page-name',
+            'browseadspagename' => 'browse-ads-page-name', 
+            'searchadspagename' => 'search-ads-page-name', 
+            'browsecatspagename' => 'browse-categories-page-name', 
+            'categoriesviewpagename' => 'view-categories-page-name', 
+            'paymentthankyoupagename' => 'payment-thankyou-page-name', 
+            'paymentcancelpagename' => 'payment-cancel-page-name');
+
+        // Users who upgraded from 1.8.9.4 to 2.0.4 have an installation
+        // with no AWPCP pages. The pages exist, but are not recognized
+        // by the plugin.
+        foreach ($translations as $old => $new) {
+            // Find current stored id
+            $query = 'SELECT page, id FROM ' . AWPCP_TABLE_PAGES . ' WHERE page = %s';
+            $pages = $wpdb->get_results($wpdb->prepare($query, $new));
+
+            // A page was found, move on.
+            if (!empty($pages) && $pages[0]->id != -1) {
+                continue;
+            }
+
+            // Let's try to find the pages using the old AND new names
+            foreach (array($old, $new) as $option) {
+                // The setting doesn't exist. Nothing to do.
+                $name = $awpcp->settings->get_option($option, null);
+                if ($name == null) {
+                    continue;
+                }
+
+                $sanitized = sanitize_title($name);
+                $sql = "SELECT ID FROM $wpdb->posts WHERE post_name = %s AND post_type = 'page'";
+
+                $id = intval($wpdb->get_var($wpdb->prepare($sql, $sanitized)));
+                $id = $id > 0 ? $id : -1;
+
+                $params = array('page' => $new, 'id' => $id);
+                $result = $wpdb->update(AWPCP_TABLE_PAGES, $params, array('page' => $new));
+
+                if ($id > 0) {
+                    $awpcp->settings->update_option($new, $name, true);
+                    break;
+                }
+            }
+        }
+
+        // Since pages automatic creation is not enabled, we need to create the
+        // Renew Ad page manually.
+        awpcp_create_subpage('renew-ad-page-name', 
+                             $awpcp->settings->get_option('renew-ad-page-name'), 
+                             '[AWPCP-RENEW-AD]');
     }
 }
 

@@ -253,6 +253,9 @@ function awpcp_insert_menu_item($items, $after, $key, $item) {
 }
 
 
+/**
+ * Check if the page identified by $refname exists.
+ */
 function awpcp_find_page($refname) {
 	global $wpdb;
 
@@ -265,6 +268,7 @@ function awpcp_find_page($refname) {
 
 	return $pages !== false && !empty($pages);
 }
+
 
 /**
  * Return name of current AWPCP page.
@@ -323,6 +327,31 @@ function awpcp_get_properties($objects, $property, $default='') {
 	return $results;
 }
 
+
+
+function awpcp_flash($message) {
+	$messages = get_option('awpcp-messages', array());
+	$messages[] = $message;
+	update_option('awpcp-messages', $messages);
+}
+
+function awpcp_print_message($message, $class=array('updated')) {
+	return '<div class="' . join(' ', $class) . '"><p>' . $message . '</p></div>';
+}
+
+function awpcp_print_messages() {
+	$messages = get_option('awpcp-messages', array());
+
+	$html = '';
+	foreach ($messages as $message) {
+		$html .= awpcp_print_message($message);
+	}
+
+	update_option('awpcp-messages', array());
+
+	echo $html;
+}
+add_action('admin_notices', 'awpcp_print_messages');
 
 
 /** Table Helper related functions 

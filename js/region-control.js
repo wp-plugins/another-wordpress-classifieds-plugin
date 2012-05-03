@@ -1,5 +1,13 @@
 if (typeof jQuery != 'undefined') {
     (function($, undefined) {
+        var admin_url;
+
+        if (typeof AWPCP !== 'undefined' && AWPCP.url) {
+            admin_url = AWPCP.url;
+        } else {
+            admin_url = '/wp-admin/admin-ajax.php';
+        }
+
         $.RegionsField = function(element, field) {
             var self = this;
 
@@ -26,7 +34,7 @@ if (typeof jQuery != 'undefined') {
         };
 
         $.RegionsField.prototype = {
-            url: AWPCP.ajaxurl || '/wp-admin/admin-ajax.php',
+            url: admin_url,
             update: function(filterby, value) {
                 var self = this,
                     options = self.select.find('option').remove();

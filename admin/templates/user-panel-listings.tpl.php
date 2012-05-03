@@ -166,9 +166,9 @@
 						<td><?php echo __('N/A', 'AWPCP') ?></td>
 						<?php endif ?>
 
-						<?php $user = get_userdata($item->user_id);
-							if ($is_admin_user && !is_null($user)): ?>
-						<th><?php echo $user->user_login ?></th>
+						<?php $user = get_userdata($item->user_id); ?>
+						<?php if ($is_admin_user): ?>
+						<th><?php echo is_object($user) ? $user->user_login : '-' ?></th>
 						<?php endif ?>
 					</tr>
 				<?php endforeach ?>

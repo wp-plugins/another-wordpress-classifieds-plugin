@@ -4,6 +4,7 @@ class AWPCP_Settings_API {
 
 	public $option = 'awpcp-options';
 	public $options = array();
+	public $defaults = array();
 	public $groups = array();
 	
 	public function AWPCP_Settings_API() {
@@ -633,10 +634,12 @@ class AWPCP_Settings_API {
 		}
 
 		// make sure the setting is available to other components in the plugin
-
 		if (!isset($this->options[$name])) {
 			$this->options[$name] = $default;
 		}
+
+		// store the default value
+		$this->defaults[$name] = $default;
 
 		return true;
 	}
@@ -803,6 +806,13 @@ class AWPCP_Settings_API {
 		return $value;
 	}
 
+	public function get_option_default_value($name) {
+		if (isset($this->defaults[$name])) {
+			return $this->defaults[$name];
+		}
+		return null;
+	}
+
 	/**
 	 * @param $force boolean - true to update unregistered options
 	 */
@@ -824,14 +834,10 @@ class AWPCP_Settings_API {
 		if (isset($options[$setting])) {
 			$wpcom_api_key = get_option('wordpress_api_key');
 			if ($options[$setting] == 1 && !function_exists('akismet_init')) {
-				$message.= "<div style=\"background-color: #FF99CC;\" id=\"message\" class=\"updated fade\">";
-				$message.= __("You cannot enable Akismet SPAM control because you do not have Akismet installed/activated","AWPCP");
-				$message.= "</div>";
+				awpcp_flash(__("You cannot enable Akismet SPAM control because you do not have Akismet installed/activated","AWPCP"));
 				$options[$setting] = 0;
 			} else if ($options[$setting] == 1 && empty($wpcom_api_key)) {
-				$message.= "<div style=\"background-color: #FF99CC;\" id=\"message\" class=\"updated fade\">";
-				$message.= __("You cannot enable Akismet SPAM control because you have not configured Akismet properly","AWPCP");
-				$message.= "</div>";
+				awpcp_flash(__("You cannot enable Akismet SPAM control because you have not configured Akismet properly","AWPCP"));
 				$options[$setting] = 0;
 			}
 		}
@@ -840,7 +846,8 @@ class AWPCP_Settings_API {
 		// require Registration, if it isn’t enabled. Disabling this feature 
 		// will not disable Require Registration.
 		$setting = 'enable-user-panel';
-		if (isset($options[$setting]) && $options[$setting] == 1) {
+		if (isset($options[$setting]) && $options[$setting] == 1 && !$options['requireuserregistration']) {
+			awpcp_flash(__('Require Registration setting was enabled automatically because you activated the User Ad Management panel.', 'AWPCP'));
 			$options['requireuserregistration'] = 1;
 		}
 
@@ -854,7 +861,8 @@ class AWPCP_Settings_API {
 		// if Require Registration is disabled, User Ad Management Panel should be 
 		// disabled as well.
 		$setting = 'requireuserregistration';
-		if (isset($options[$setting]) && $options[$setting] == 0) {
+		if (isset($options[$setting]) && $options[$setting] == 0 && $options['enable-user-panel']) {
+			awpcp_flash(__('User Ad Management panel was automatically deactivated because you disabled Require Registration setting.', 'AWPCP'));
 			$options['enable-user-panel'] = 0;
 		}
 
@@ -874,13 +882,10 @@ class AWPCP_Settings_API {
 		if (isset($options[$setting]) && 
 			!in_array($options[$setting], $currency_codes)) {
 			
-			$message.= "<div style=\"background-color:#FF99CC;border:1px solid #ff0000;padding:5px;\" id=\"message\" class=\"updated fade\">";
-			$message.= __("There is a problem with the currency code you have entered. It does not match any of the codes in the list of available currencies provided by PayPal.","AWPCP");
-			$message.= "<p>";
-			$message.= __("The available currency codes are","AWPCP");
-			$message.= ":<br/>";
-			$message.= join(' | ', $currency_codes);
-			$message.= "</p></div>";
+			$message = __("There is a problem with the currency code you have entered. It does not match any of the codes in the list of available currencies provided by PayPal.","AWPCP");
+			$message.= "<br/>" . __("The available currency codes are","AWPCP");
+			$message.= ":<br/>" . join(' | ', $currency_codes);
+			awpcp_flash($message);
 
 			$options[$setting] = 'USD';
 		}
@@ -889,13 +894,10 @@ class AWPCP_Settings_API {
 		if (isset($options[$setting]) && 
 			!in_array($options[$setting], $currency_codes)) {
 			
-			$message.= "<div style=\"background-color:#FF99CC;border:1px solid #ff0000;padding:5px;\" id=\"message\" class=\"updated fade\">";
-			$message.= __("There is a problem with the currency code you have entered. It does not match any of the codes in the list of available currencies provided by PayPal.","AWPCP");
-			$message.= "<p>";
-			$message.= __("The available currency codes are","AWPCP");
-			$message.= ":<br/>";
-			$message.= join(' | ', $currency_codes);
-			$message.= "</p></div>";
+			$message = __("There is a problem with the currency code you have entered. It does not match any of the codes in the list of available currencies provided by PayPal.","AWPCP");
+			$message.= "<br/>" . __("The available currency codes are","AWPCP");
+			$message.= ":<br/>" . join(' | ', $currency_codes);
+			awpcp_flash($message);
 
 			$options[$setting] = 'USD';
 		}
@@ -937,7 +939,9 @@ class AWPCP_Settings_API {
 		foreach ($pages as $key => $data) {
 			$id = intval($pageids[$key]->id);
 
-			if ($id <= 0) { continue; }
+			if ($id <= 0 || is_null(get_post($id))) { 
+				continue;
+			}
 
 			$title = add_slashes_recursive($options[$key]);
 			$page = array(

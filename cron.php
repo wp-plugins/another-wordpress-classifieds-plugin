@@ -1,6 +1,5 @@
 <?php 
 
-
 function awpcp_cron_schedules($schedules) {
 	$schedules['monthly'] = array(
 		'interval'=> 2592000,
@@ -9,33 +8,39 @@ function awpcp_cron_schedules($schedules) {
 	return $schedules;
 }
 
-
 // ensure we get the expiration hooks scheduled properly:
 function awpcp_schedule_activation() {
 	if (!wp_next_scheduled('doadexpirations_hook')) {
 		wp_schedule_event(time(), 'hourly', 'doadexpirations_hook');
 	}
-	add_action('doadexpirations_hook', 'doadexpirations');
 
 	if (!wp_next_scheduled('doadcleanup_hook')) {
 		wp_schedule_event(time(), 'monthly', 'doadcleanup_hook');
 	}
-	add_action('doadcleanup_hook', 'doadcleanup');
 	
 	if (!wp_next_scheduled('awpcp_ad_renewal_email_hook')) {
 		wp_schedule_event(time(), 'daily', 'awpcp_ad_renewal_email_hook');
 	}
-	add_action('awpcp_ad_renewal_email_hook', 'awpcp_ad_renewal_email');
 
 	if (!wp_next_scheduled('awpcp-clean-up-payment-transactions')) {
 		wp_schedule_event(time(), 'daily', 'awpcp-clean-up-payment-transactions');
 	}
-	add_action('awpcp-clean-up-payment-transactions', 'awpcp_clean_up_payment_transactions');
 
-	// debug(wp_next_scheduled('doadexpirations_hook'),
-	// 	  wp_next_scheduled('doadcleanup_hook'),
-	// 	  wp_next_scheduled('awpcp_ad_renewal_email_hook'),
-	// 	  wp_next_scheduled('awpcp-clean-up-payment-transactions'));
+	add_action('doadexpirations_hook', 'doadexpirations');
+	add_action('doadcleanup_hook', 'doadcleanup');
+	add_action('awpcp_ad_renewal_email_hook', 'awpcp_ad_renewal_email');
+	add_action('awpcp-clean-up-payment-transactions', 'awpcp_clean_up_payment_transactions');
+	
+	// wp_schedule_event(time(), 'hourly', 'doadexpirations_hook');
+	// wp_schedule_event(time(), 'monthly', 'doadcleanup_hook');
+	// wp_schedule_event(time(), 'daily', 'awpcp_ad_renewal_email_hook');
+	// wp_schedule_event(time(), 'daily', 'awpcp-clean-up-payment-transactions');
+
+	// debug("System date is: " . date('d-m-Y H:i:s'),
+	// 	  date('d-m-Y H:i:s', wp_next_scheduled('doadexpirations_hook')),
+	// 	  date('d-m-Y H:i:s', wp_next_scheduled('doadcleanup_hook')),
+	// 	  date('d-m-Y H:i:s', wp_next_scheduled('awpcp_ad_renewal_email_hook')),
+	// 	  date('d-m-Y H:i:s', wp_next_scheduled('awpcp-clean-up-payment-transactions')));
 }
 
 
@@ -46,7 +51,6 @@ function doadexpirations() {
 	global $wpdb, $nameofsite, $siteurl, $thisadminemail;
 
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
-
 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 
 	$awpcp_from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
@@ -62,7 +66,7 @@ function doadexpirations() {
 
 	$adstodelete = '';
 
-	$sql = 'select ad_id from '.$tbl_ads.' where ad_enddate <= NOW() and disabled != 1';
+	$sql = 'select ad_id from ' . AWPCP_TABLE_ADS . ' where ad_enddate <= NOW() and disabled != 1';
 	$ads = $wpdb->get_results($sql, ARRAY_A);
 
 	$expiredid = array();
@@ -174,6 +178,7 @@ function doadexpirations() {
  */
 function doadcleanup() {
 	global $wpdb;
+
 	//If they set the 'disable instead of delete' flag, we just return and don't do anything here.
 	if (get_awpcp_option('autoexpiredisabledelete') == 1) return;
 
@@ -185,10 +190,8 @@ function doadcleanup() {
 	$res = awpcp_query($query, __LINE__);
 
 	$expiredid=array();
-	if (mysql_num_rows($res))
-	{
-		while ($rsrow=mysql_fetch_row($res))
-		{
+	if (mysql_num_rows($res)) {
+		while ($rsrow=mysql_fetch_row($res)) {
 			$expiredid[]=$rsrow[0];
 		}
 	}
@@ -197,16 +200,15 @@ function doadcleanup() {
 	$query="SELECT image_name FROM ".$tbl_ad_photos." WHERE ad_id IN ('$adstodelete')";
 	$res = awpcp_query($query, __LINE__);
 	$rowcount=mysql_num_rows($res);
-	for ($i=0;$i<$rowcount;$i++)
-	{
+
+	for ($i=0;$i<$rowcount;$i++) {
 		$photo=mysql_result($res,$i,0);
 
-		if (file_exists(AWPCPUPLOADDIR.'/'.$photo))
-		{
+		if (file_exists(AWPCPUPLOADDIR.'/'.$photo)) {
 			@unlink(AWPCPUPLOADDIR.'/'.$photo);
 		}
-		if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo))
-		{
+
+		if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo)) {
 			@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
 		}
 	}
