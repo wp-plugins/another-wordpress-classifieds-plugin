@@ -53,10 +53,19 @@ class AWPCP_Payment_Transaction {
 		$this->attributes[$name] = $value;
 	}
 
-	public function add_item($id, $name) {
+	/**
+	 * @param $increment	number of periods (the 8 in 8 Weeks)
+	 * @param $period		D, W, M, Y
+	 *
+	 * Increment and period are used in a different way in other sections of
+	 * AWPCP. Increment would be D, W, M, Y and period the number.
+	 */
+	public function add_item($id, $name, $increment, $period) {
 		$item = new stdClass();
 		$item->id = $id;
 		$item->name = $name;
+		$item->increment = $increment;
+		$item->period = $period;
 		$this->attributes['__items__'][] = $item;
 	}
 

@@ -18,6 +18,8 @@ class AWPCP_Search_Ads_Page {
 	}
 
 	public function init() {
+		add_filter('awpcp-display-ads-before-list', array($this, 'show_return_link'));
+		
 		$src = AWPCP_URL . 'js/region-control.js';
 		wp_register_script('awpcp-region-control', $src, array('jquery'), '1.1', true);
 	}
@@ -30,11 +32,23 @@ class AWPCP_Search_Ads_Page {
 		wp_print_scripts('awpcp-extra-fields');
 	}
 
+	public function show_return_link($content) {
+		if (isset($this->return_link) && !empty($this->return_link)) {
+			return $content . $this->return_link;
+		}
+		return $content;
+	}
+
 	public function dispatch() {
 		$action = awpcp_request_param('a');
 
 		switch ($action) {
 			case 'dosearch':
+				// build a link to hold all query parameters
+				$params = array_merge(stripslashes_deep($_REQUEST), array('a' => 'searchads'));
+				$href = add_query_arg(urlencode_deep($params), awpcp_current_url());
+				$this->return_link = '<div class="awpcp-return-to-search-link"><a href="' . esc_attr($href) . '">' . __('Return to Search', 'AWPCP') . '</a></div>';
+
 				$html = dosearch();
 				break;
 
@@ -46,10 +60,20 @@ class AWPCP_Search_Ads_Page {
 
 			case 'searchads':
 			default:
-				$html = $this->render($keywordphrase='', $searchname='', $searchcity='',
-											$searchstate='', $searchcountry='', $searchcountyvillage='',
-											$searchcategory='', $searchpricemin='', $searchpricemax='',
-											$message='');
+				$keywordphrase = awpcp_request_param('keywordphrase');
+				$searchcategory = awpcp_request_param('searchcategory');
+				$searchname = awpcp_request_param('searchname');
+				$searchpricemin = awpcp_request_param('searchpricemin');
+				$searchpricemax = awpcp_request_param('searchpricemax');
+				$searchcountry = awpcp_request_param('searchcountry');
+				$searchstate = awpcp_request_param('searchstate');
+				$searchcity = awpcp_request_param('searchcity');
+				$searchcountyvillage = awpcp_request_param('searchcountyvillage');
+
+				$html = $this->render($keywordphrase, $searchname, $searchcity,
+									  $searchstate, $searchcountry, $searchcountyvillage,
+									  $searchcategory, $searchpricemin, $searchpricemax,
+									  $message='');
 				break;
 		}
 

@@ -2,8 +2,8 @@
 	<?php if ($is_recurring): ?>
 	<input type="hidden" name="cmd" value="_xclick-subscriptions" />
 	<input type="hidden" name="a3" value="<?php echo $amount ?>" />
-	<input type="hidden" name="p3" value="<?php echo $payment_period ?>" />
-	<input type="hidden" name="t3" value="D" />
+	<input type="hidden" name="p3" value="<?php echo $item->increment ?>" />
+	<input type="hidden" name="t3" value="<?php echo $item->period ?>" />
 	<?php else: ?>
 	<input type="hidden" name="cmd" value="_xclick" />
 	<?php endif ?>

@@ -42,6 +42,8 @@ class AWPCP_Admin_CSV_Importer {
 		$errors = array();
 		$messages = array();
 		$form_errors = array();
+
+		$importer = null;
 		
 		if (!empty($import_type)) {
 			$csv_file_name = $_FILES['import']['name'];
@@ -83,7 +85,22 @@ class AWPCP_Admin_CSV_Importer {
 			}
 				
 			if (empty($form_errors)) {
-				import_ad($_FILES['import']['tmp_name'], $_FILES['import_zip']['tmp_name'], $errors, $messages);
+				$csv = $_FILES['import']['tmp_name'];
+				$zip = $_FILES['import_zip']['tmp_name'];
+
+				$importer = new AWPCP_CSV_Importer(array(
+					'start-date' => $start_date,
+					'end-date' => $end_date,
+					'date-format' => $import_date_format,
+					'date-separator' => $date_sep,
+					'time-separator' => $time_sep,
+					'autocreate-categories' => $auto_cat,
+					'assign-user' => $assign_user,
+					'default-user' => $assigned_user,
+					'test-import' => $test_import)
+				);
+
+				$importer->import($csv, $zip, $errors, $messages);
 			}
 		}
 
@@ -94,8 +111,4 @@ class AWPCP_Admin_CSV_Importer {
 
 		echo $html;
 	}
-}
-
-
-class AWPCP_CSV_Importer {
 }

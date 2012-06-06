@@ -1,13 +1,19 @@
 if (typeof jQuery != 'undefined') {
-    (function($, undefined) {
-        var admin_url;
 
-        if (typeof AWPCP !== 'undefined' && AWPCP.url) {
-            admin_url = AWPCP.url;
+	(function($, undefined) {
+
+        var admin_url;
+        if (typeof AWPCP !== 'undefined' && AWPCP.ajaxurl) {
+            admin_url = AWPCP.ajaxurl;
+        } else if (ajaxurl) {
+            admin_url = ajaxurl;
         } else {
             admin_url = '/wp-admin/admin-ajax.php';
         }
 
+        /**
+         * RegionsField plugin to handle Region Control form fields
+         */
         $.RegionsField = function(element, field) {
             var self = this;
 
@@ -89,7 +95,52 @@ if (typeof jQuery != 'undefined') {
             });
         };
 
-        /* Search Ads and Place Ad page */
+
+        /**
+         * Handle delete regions in Region admin page
+         */
+        $('#myregions table.listcatsh').delegate('td > a.delete', 'click', function(event) {
+            event.preventDefault();
+
+            var link = $(event.target),
+                row = link.closest('tr'),
+                columns = row.find('td').length;
+            $.post(ajaxurl, {
+                id: row.data('region-id'),
+                action: 'awpcp-delete-region',
+                columns: columns
+            }, function(response, status, xhr) {
+                var inline = $(response.html).insertAfter(row);
+
+                inline.find('a.cancel').click(function() {
+                    row.show(); inline.remove();
+                });
+                
+                var form = inline.find('form');
+                
+                inline.delegate('a.delete', 'click', function() {
+                    var waiting = inline.find('img.waiting').show();
+                    form.ajaxSubmit({
+                        data: { 'remove': true },
+                        dataType: 'json',
+                        success: function(response, status, xhr) {
+                            // mission acomplished!
+                            if (response.status === 'success') {
+                                row.remove(); inline.remove();
+                            
+                            } else {
+                                waiting.hide();
+                                form.find('div.error').remove();
+                                form.append('<div class="error"><p>' + response.message + '</p></div>');
+                            }
+                        }
+                    });
+                });
+            });
+            console.log(event, link, row);
+        });
+
+        /* Region Control form fields and Region Selector */
         $('.awpcp-region-control-region-fields').each(function() {
             var fields = $(this),
                 country = fields.find('[region-field="country"]').RegionsField('Country'),

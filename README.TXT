@@ -4,8 +4,8 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
 Tested up to: 3.3.1
-Last Updated: 2012-May-3
-Stable tag: tags/2.0.5
+Last Updated: 2012-Jun-5
+Stable tag: tags/2.0.6
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
@@ -14,7 +14,7 @@ Add a classified ads section to your Wordpress site, quickly and easily.
 Lots of features, very configurable.  Easy to setup.  Great support.
 We're the #1 Wordpress Classified Ads Plugin: three+ years old and 120,000+ downloads!
 
-Fee Per Category NOW AVAILABLE (see below)!  Don't miss Featured Ads, too!
+NEW modules:  Coupons/Discounts and Subscriptions!
 
 Features:
 
@@ -91,10 +91,16 @@ Features:
        highlight them.  Featured ads are always returned first in a category,
        the overall ad list, or in search results.  Also has a widget for 
        placement anywhere on your site.  Full admin control of featured ads, too)
-    7. **NEW** Fee Per Category (allows you to charge for certain categories
+    7. Fee Per Category (allows you to charge for certain categories
        and not others, giving you more freedom on how to configure your classified
        section.  Allows for multiple fee plans per category, as well as a default
        plan to cover "all other unspecified" categories)
+    7. **NEW** Coupons/Discounts (allows you to offer coupon codes for ad
+       promotions to your users, coupons can be a percent off, or a fixed amount,
+       have expiration dates and be tracked by usage)
+    7. **NEW** Subscriptions (allows power users to place blocks of ads at a time,
+       great for real estate agents, car dealers, anyone who wants to place ads in
+       bulk.)
 
 = Premium Module Links: =
 
@@ -111,6 +117,10 @@ Features:
 [Featured Ads](http://awpcp.com/premium-modules/featured-ads-module?ref=wp)
 
 [Fee per Category](http://www.awpcp.com/premium-modules/fee-per-category-module?ref=wp)
+
+[Coupons/Discounts](http://www.awpcp.com/premium-modules/coupon-module?ref=wp)
+
+[Subscriptions](http://www.awpcp.com/premium-modules/subscriptions-module?ref=wp)
 
 Or, just [Donate to AWPCP to Support further development](http://awpcp.com/donate?ref=wp)
 
@@ -194,6 +204,33 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 2.0.6 =
+ Bug: Extra fields rendered with .esc_attr
+ Bug: Windows MySQL error when inserting new ad
+ Bug: Featured ad widget missing in latest code
+ Bug: Image upload issue
+ Bug: Featured ads not getting set as featured upon submit
+ Bug: Featured ad column not inserting proper data
+ Bug: Region selector submitting to wrong URL
+ Bug: Pagination links in Browse Ads point to Browse Categories page
+ Bug: View categories link broken in some cases
+ Bug: Sidebar getting pushed down
+ Bug: Facebook share button not working correctly
+ Bug: HTML issue with payment grid
+ Bug: Ad pagination issue
+ Bug: Category display problem
+ Bug: Unable to delete fee plan
+ NEW: Added TOUR dialog to AWPCP for new installations
+ Bug: Latest ads widget doesn't honor background or title for theme
+ Bug: Payment term display issue
+ Bug: Ad visibility problem in Ad management
+ Bug: Edit ads doesn't show state/city in ad mgmt panel
+ Bug: Payment template page cleanup
+ Bug: PayPal payment issue status problem
+ Bug: View categories doesn't work as expected
+ Bug: CSV import issue
+ Bug: Image upload problem from 2.0.4.1
+ 
  = 2.0.5 =
  Bug: Place Ad page upgrade issue (added Restore Pages button)
  Bug: PayPal issue for blogs that use GET instead of POST

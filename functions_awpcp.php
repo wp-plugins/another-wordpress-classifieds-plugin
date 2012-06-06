@@ -19,7 +19,7 @@ if(!function_exists('_log')){
 
 
 
-function sqlerrorhandler($ERROR, $QUERY, $PHPFILE, $LINE){
+function sqlerrorhandler($ERROR, $QUERY, $PHPFILE, $LINE) {
 	define("SQLQUERY", $QUERY);
 	define("SQLMESSAGE", $ERROR);
 	define("SQLERRORLINE", $LINE);
@@ -38,15 +38,16 @@ function awpcp_query($query, $LINE) {
 	}
 	return $res;
 }
-//Error handler installed in main awpcp.php file, after this file is included.
-function add_slashes_recursive( $variable )
-{
-	if ( is_string( $variable ) )
-	return addslashes( $variable ) ;
 
-	elseif ( is_array( $variable ) )
-	foreach( $variable as $i => $value )
-	$variable[ $i ] = add_slashes_recursive( $value ) ;
+//Error handler installed in main awpcp.php file, after this file is included.
+function add_slashes_recursive( $variable ) {
+	if (is_string($variable)) {
+		return addslashes($variable);
+	} elseif (is_array($variable)) {
+		foreach($variable as $i => $value) {
+			$variable[$i] = add_slashes_recursive($value);
+		}
+	}
 
 	return $variable ;
 }
@@ -62,8 +63,7 @@ function strip_slashes_recursive( $variable )
 	return $variable ;
 }
 
-function string_contains($haystack, $needle, $case = true, $pos = 0)
-{
+function string_contains($haystack, $needle, $case=true, $pos = 0) {
 	if ($case) {
 		$result = (strpos($haystack, $needle, 0) === $pos);
 	} else {
@@ -95,7 +95,7 @@ function awpcp_submit_spam($ad_id) {
 			$query = "SELECT * FROM " . $tbl_ads . " WHERE ad_id = ".$ad_id;
 			$res = awpcp_query($query, __LINE__);
 			if ($ad_record=mysql_fetch_array($res)) {
-				if ( $ad_record['disabled'] == '1' ) {
+				if ( $ad_record['disabled'] == 1 ) {
 					_log("Ad " . $ad_id . " already marked as spam");
 					return;
 				}
@@ -453,7 +453,7 @@ function countcategoriesparents(){
 	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 
 	$totalparentcategories='';
-	$query="SELECT count(*) FROM ".$tbl_categories." WHERE category_parent_id='0'";
+	$query="SELECT count(*) FROM ".$tbl_categories." WHERE category_parent_id=0";
 	$res = awpcp_query($query, __LINE__);
 	while ($rsrow=mysql_fetch_row($res)) {
 		list($totalparentcategories)=$rsrow;
@@ -468,7 +468,7 @@ function countcategorieschildren(){
 	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 
 	$totalchildrencategories='';
-	$query="SELECT count(*) FROM ".$tbl_categories." WHERE category_parent_id!='0'";
+	$query="SELECT count(*) FROM ".$tbl_categories." WHERE category_parent_id!=0";
 	$res = awpcp_query($query, __LINE__);
 	while ($rsrow=mysql_fetch_row($res)) {
 		list($totalchildrencategories)=$rsrow;
@@ -514,6 +514,41 @@ function get_total_imagesuploaded($ad_id) {
 
 }
 // END FUNCTION
+
+
+
+function awpcp_get_term_duration($adtermid) {
+	global $wpdb;
+
+	$query = 'SELECT rec_period, rec_increment FROM ' . AWPCP_TABLE_ADFEES . ' ';
+	$query.= 'WHERE adterm_id = %d';
+
+	$term = $wpdb->get_row($wpdb->prepare($query, $adtermid));
+
+	if (is_null($term)) {
+		return array();
+	}
+
+	$duration = $term->rec_period;
+	$increment = $term->rec_increment;
+
+	// a value of zero or less means "never expires" or in AWPCP
+	// terms: it will expire in 10 years
+	if ($duration <= 0) {
+		if ($increment == 'D') {
+			$duration = 3650;
+		} else if ($increment == 'W') {
+			$duration = 520;
+		} else if ($increment == 'M') {
+			$duration = 120;
+		} else if ($increment == 'Y') {
+			$duration = 10;
+		}
+	}
+
+	return array('duration' => $duration, 'increment' => $increment);
+}
+
 // START FUNCTION: Get the total number of days an ad term last based on term ID value
 function get_num_days_in_term($adtermid) {
 	$numdaysinterm='';
@@ -663,7 +698,7 @@ function get_categorynameid($cat_id = 0,$cat_parent_id= 0,$exclude)
 		$excludequery="AND category_id !='$exclude'";
 	}else{$excludequery='';}
 
-	$catnid=$wpdb->get_results("select category_id as cat_ID, category_parent_id as cat_parent_ID, category_name as cat_name from ".$tbl_categories." WHERE category_parent_id='0' AND category_name <> '' $excludequery");
+	$catnid=$wpdb->get_results("select category_id as cat_ID, category_parent_id as cat_parent_ID, category_name as cat_name from ".$tbl_categories." WHERE category_parent_id=0 AND category_name <> '' $excludequery");
 
 	foreach($catnid as $categories)
 	{
@@ -692,7 +727,7 @@ function get_categorynameidall($cat_id = 0)
 
 	// Start with the main categories
 
-	$query="SELECT category_id,category_name FROM ".$tbl_categories." WHERE category_parent_id='0' and category_name <> '' ORDER BY category_order, category_name ASC";
+	$query="SELECT category_id,category_name FROM ".$tbl_categories." WHERE category_parent_id=0 and category_name <> '' ORDER BY category_order, category_name ASC";
 	$res = awpcp_query($query, __LINE__);
 
 	while ($rsrow=mysql_fetch_row($res)) {
@@ -755,7 +790,7 @@ function get_categorycheckboxes( $cats = array(), $adterm_id ) {
 
 	// Start with the main categories
 
-	$query="SELECT category_id,category_name FROM ".$tbl_categories." WHERE category_parent_id='0' and category_name <> '' ORDER BY category_order, category_name ASC";
+	$query="SELECT category_id,category_name FROM ".$tbl_categories." WHERE category_parent_id=0 and category_name <> '' ORDER BY category_order, category_name ASC";
 	$res = awpcp_query($query, __LINE__);
 
 	while ($rsrow=mysql_fetch_row($res)) {
@@ -868,7 +903,7 @@ function get_adparentcatname($cat_ID){
 	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 	$cname='';
 
-	if($cat_ID == '0')
+	if($cat_ID == 0)
 	{
 		$cname="Top Level Category";
 	}
@@ -949,7 +984,7 @@ function category_is_child($catid) {
 	$res = awpcp_query($query, __LINE__);
 	while ($rsrow=mysql_fetch_row($res)) {
 		list($cparentid)=$rsrow;
-		if( $cparentid != '0' )
+		if( $cparentid != 0 )
 		{
 			$myreturn=true;
 		}
@@ -986,8 +1021,8 @@ function total_ads_in_cat($catid) {
 
 	$query = "SELECT count(*) FROM " . AWPCP_TABLE_ADS . " ";
 	$query.= "WHERE (ad_category_id='$catid' OR ad_category_parent_id='$catid') ";
-	// $query.= "AND disabled = '0' AND (flagged IS NULL OR flagged =0) $filter";
-	$query.= "AND disabled = '0' $filter";
+	// $query.= "AND disabled = 0 AND (flagged IS NULL OR flagged =0) $filter";
+	$query.= "AND disabled = 0 $filter";
 
 	$res = awpcp_query($query, __LINE__);
 	while ($rsrow=mysql_fetch_row($res)) {
@@ -1030,6 +1065,24 @@ function clean_field($foo) {
 	return add_slashes_recursive($foo);
 }
 
+
+/**
+ * Always return the full URL, even if AWPCP main page
+ * is also the home page.
+ */
+function awpcp_get_main_page_url() {
+	$permalinks = get_option('permalink_structure');
+	$id = awpcp_get_page_id_by_ref('main-page-name');
+
+	if ($permalinks) {
+		$url = home_url(get_page_uri($id));
+		$url = user_trailingslashit($url);
+	} else {
+		$url = add_query_arg('page_id', $id, home_url());
+	}
+
+	return $url;
+}
 
 
 // END FUNCTION: replace underscores with dashes for search engine friendly urls
@@ -1378,7 +1431,6 @@ function get_page_parent_id($awpcpwppostpageid){
 
 
 // START FUNCTION: get the name of a wordpress entry from table posts where the parent id is present
-
 //XXX: never used?
 function get_awpcp_parent_page_name($awpcppageparentid) {
 
@@ -1386,34 +1438,22 @@ function get_awpcp_parent_page_name($awpcppageparentid) {
 	$awpcpparentpagename = $wpdb->get_var("SELECT post_name FROM $wpdb->posts WHERE ID = '$awpcppageparentid'");
 	return $awpcpparentpagename;
 }
-
-
 // END FUNCTION: get the name of a wordpress wp_post entry where the ID of the post parent is present
 
 
 
-
 // START FUNCTION: check if a specific database table exists
-
-
 function checkfortable($table) {
 	global $wpdb;
 	$tableexists = $wpdb->get_var("show tables like '$table'") == $table;
 	return $tableexists;
 }
-
-
 // END FUNCTION: check if a specific database table exists
 
 
 
-
 // START FUNCTION: add field config_group_id to table adsettings v 1.0.5.6 update specific
-
-
-
-function add_config_group_id($cvalue,$coption)
-{
+function add_config_group_id($cvalue,$coption) {
 	global $wpdb;
 	$tbl_ad_settings = $wpdb->prefix . "awpcp_adsettings";
 	//Escape quotes:
@@ -1421,15 +1461,11 @@ function add_config_group_id($cvalue,$coption)
 	$query="UPDATE ".$tbl_ad_settings." SET config_group_id='$cvalue' WHERE config_option='$coption'";
 	$res = awpcp_query($query, __LINE__);
 }
-
-
 // END FUNCTION: add field config_group_id to table adsettings v 1.0.5.6 update specific
 
 
 
 // START FUNCTION: check if a specific ad id already exists
-
-
 function adidexists($adid) {
 	global $wpdb;
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
@@ -1442,6 +1478,7 @@ function adidexists($adid) {
 	return $adidexists;
 }
 
+
 function categoryidexists($adcategoryid) {
 	global $wpdb;
 	$tbl_categories = $wpdb->prefix . "awpcp_adcategories";
@@ -1453,19 +1490,12 @@ function categoryidexists($adcategoryid) {
 
 	return $categoryidexists;
 }
-
-
-
 // END FUNCTION: check if a specific ad id already exists
 
 
 
-
 // START FUNCTION: get the current name of the classfieds page
-
-
-function display_setup_text()
-{
+function display_setup_text() {
 	$awpcpsetuptext="<h2>";
 	$awpcpsetuptext.=__("Setup Process","AWPCP");
 	$awpcpsetuptext.="</h2>";
@@ -1501,6 +1531,7 @@ function display_setup_text()
 	return $awpcpsetuptext;
 }
 
+
 /**
  * Returns the current name of the AWPCP main page.
  */
@@ -1509,14 +1540,8 @@ function get_currentpagename() {
 }
 
 
-// END FUNCTION: query awpcp_pagename for the name being used for the classifieds site
-
-
-
 
 // START FUNCTION: delete the classfied page name from database as needed
-
-
 function deleteuserpageentry() {
 
 	global $wpdb;
@@ -1526,17 +1551,13 @@ function deleteuserpageentry() {
 	$res = awpcp_query($query, __LINE__);
 	mysql_query($query);
 }
-
-
 // END FUNCTION: delete the user page entry from awpcp_pagename table
 
 
 
 
 // START FUNCTION: check if the classifieds page exists in the wp posts table
-
 function findpagebyname($pagename) {
-
 	global $wpdb,$table_prefix;
 	$myreturn=false;
 
@@ -1546,13 +1567,11 @@ function findpagebyname($pagename) {
 		$myreturn=true;
 	}
 	return $myreturn;
-
 }
 
 
 
 function findpage($pagename,$shortcode) {
-
 	global $wpdb,$table_prefix;
 	$myreturn=false;
 
@@ -1568,8 +1587,6 @@ function findpage($pagename,$shortcode) {
 
 
 // START FUNCTION: check ad_settings to see if a particular function exists to prevent duplicate entery when updating plugin
-
-
 function field_exists($field) {
 	global $wpdb;
 	$tbl_ad_settings = $wpdb->prefix . "awpcp_adsettings";
@@ -1588,74 +1605,15 @@ function field_exists($field) {
 	}
 	return false;
 }
-
-
 // END FUNCTION: check if ad_settings field exists
 
 
 
-// START FUNCTION: a general functin to shorten text to summary or excerpt
-
-
-function awpcpLimitText($Text,$Min,$Max,$MinAddChar) {
-	if (strlen($Text) < $Min) {
-		$Limit = $Min-strlen($Text);
-		$Text .= $MinAddChar;
-	}
-	elseif (strlen($Text) >= $Max) {
-		$words = explode(" ", $Text);
-		$check=1;
-		while (strlen($Text) >= $Max) {
-			$c=count($words)-$check;
-			$Text=substr($Text,0,(strlen($words[$c])+1)*(-1));
-			$check++;
-		}
-	}
-
-	return $Text;
-}
-
-
-// END FUNCTION: limit text
-
-
-function isValidURL($url)
-{
+function isValidURL($url) {
 	return preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $url);
 }
 
-//function isValidEmailAddress($email) {
-//	if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $email)) {
-//		return false;
-//	}
-//
-//	$email_array = explode("@", $email);
-//	$local_array = explode(".", $email_array[0]);
-//	for ($i = 0; $i < sizeof($local_array); $i++) {
-//		if
-//		(!ereg("^(([A-Za-z0-9!#$%&'*+/=?^_`{|}~-][A-Za-z0-9!#$%&
-//?'*+/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$",
-//		$local_array[$i])) {
-//			return false;
-//		}
-//	}
-//
-//	if (!ereg("^\[?[0-9\.]+\]?$", $email_array[1])) {
-//		$domain_array = explode(".", $email_array[1]);
-//		if (sizeof($domain_array) < 2) {
-//			return false; // Not enough parts to domain
-//		}
-//		for ($i = 0; $i < sizeof($domain_array); $i++) {
-//			if
-//			(!ereg("^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|
-//?([A-Za-z0-9]+))$",
-//			$domain_array[$i])) {
-//				return false;
-//			}
-//		}
-//	}
-//	return true;
-//}
+
 
 function isValidEmailAddress($email) {
 	// First, we check that there's one @ symbol,
@@ -1697,14 +1655,7 @@ function isValidEmailAddress($email) {
 	}
 	return true;
 }
-
-
-
 // START FUNCTION: function to handle automatic ad expirations
-
-
-
-
 
 
 /**
@@ -1726,15 +1677,11 @@ function renewsubscription($adid) {
 
 	return false;
 }
-
-
 // END FUNCTION: process auto ad expiration
 
 
 
 // START FUNCTION: Function to check for the existence of a default category with a category ID of 1 (used with mass category deletion)
-
-
 function defaultcatexists($defid) {
 	global $wpdb;
 	$tbl_categories = $wpdb->prefix . "awpcp_categories";
@@ -1749,37 +1696,29 @@ function defaultcatexists($defid) {
 	return $myreturn;
 
 }
-
-
 // END FUNCTION: check if default category exists
 
 
 
 // START FUNCTION: function to create a default category with an ID of  1 in the event a default category with ID 1 does not exist
-
-
 function createdefaultcategory($idtomake,$titletocallit) {
-
 	global $wpdb;
 	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 
-	$query="INSERT INTO ".$tbl_categories." SET category_name='$titletocallit',category_parent_id='0'";
+	$query="INSERT INTO ".$tbl_categories." SET category_name='$titletocallit',category_parent_id=0";
 	$res = awpcp_query($query, __LINE__);
 	$newdefid=mysql_insert_id();
 
-	$query="UPDATE ".$tbl_categories." SET category_id='1' WHERE category_id='$newdefid'";
+	$query="UPDATE ".$tbl_categories." SET category_id=1 WHERE category_id='$newdefid'";
 	$res = awpcp_query($query, __LINE__);
 }
-
-
 // END FUNCTION: create default category
 
 
 //////////////////////
 // START FUNCTION: function to delete multiple ads at once used when admin deletes a category that contains ads but does not move the ads to a new category
 //////////////////////
-
-function massdeleteadsfromcategory($catid){
+function massdeleteadsfromcategory($catid) {
 
 	global $wpdb,$nameofsite,$siteurl,$thisadminemail;
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
@@ -1825,18 +1764,19 @@ function massdeleteadsfromcategory($catid){
 	@mysql_query($query);
 }
 
-// END FUNCTION: mass delete ads
 
+
+// END FUNCTION: mass delete ads
 // add_action('widgets_init', 'widget_awpcp_search_init');
 function widget_awpcp_search_init() {
 	register_widget('AWPCP_Search_Widget');
 }
 
 
+
 // END FUNCTION: sidebar widget
 // START FUNCTION: make sure there's not more than one page with the name of the classifieds page
-function checkforduplicate($cpagename_awpcp)
-{
+function checkforduplicate($cpagename_awpcp) {
 	$awpcppagename = sanitize_title($cpagename_awpcp, $post_ID='');
 
 	$pageswithawpcpname=array();
@@ -1858,87 +1798,24 @@ function checkforduplicate($cpagename_awpcp)
 	return $totalpageswithawpcpname;
 }
 
-function checkfortotalpageswithawpcpname($awpcppage) {
 
-	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
-	$totalpageswithawpcpname='';
 
-	$allpageswithawpcppagename=array();
-	$pageswithawpcpname=array();
-	$childpageswithawpcpname=array();
-
-	global $wpdb,$table_prefix;
-	$awpcppage = add_slashes_recursive($awpcppage);
-	$query="SELECT ID FROM {$table_prefix}posts WHERE post_title='$awpcppage' AND post_name = '$awpcppagename' AND post_content LIKE '%AWPCP%' AND post_type='page'";
-	$res = awpcp_query($query, __LINE__);
-
-	if (mysql_num_rows($res))
-	{
-		while ($rsrow=mysql_fetch_row($res))
-		{
-			$pageswithawpcpname[]=$rsrow[0];
-		}
-	}
-
-	if(!empty($pageswithawpcpname))
-	{
-		foreach ( $pageswithawpcpname as $pagewithawpcpname )
-		{
-			// Get child pages if any
-			$query="SELECT ID FROM {$table_prefix}posts WHERE post_parent='$pagewithawpcpname' AND post_content LIKE '%AWPCP%'";
-			$res = awpcp_query($query, __LINE__);
-
-			if (mysql_num_rows($res))
-			{
-				while ($rsrow=mysql_fetch_row($res))
-				{
-					$childpageswithawpcpname[]=$rsrow[0];
-				}
-			}
-		}
-
-		if(!empty($childpageswithawpcpname))
-		{
-			$allpageswithawpcppagename=array_merge($pageswithawpcpname,$childpageswithawpcpname);
-		}
-		else
-		{
-			$allpageswithawpcppagename=$pageswithawpcpname;
-		}
-			
-		$totalpageswithawpcpname=count($allpageswithawpcppagename);
-
-		if( $totalpageswithawpcpname >= 1 )
-		{
-			//debug($allpageswithawpcppagename);
-			foreach ( $allpageswithawpcppagename as $thispagewithawpcpname )
-			{
-				//Delete the pages
-				//wp_delete_post( $thispagewithawpcpname, $force_delete = true );
-			}
-			deleteuserpageentry($awpcppage);
-		}
-	}
-	else
-	{
-		return 0;
-	}
-
-}
 // END FUNCTION: make sure there's not more than one page with the name of the classifieds page
 // START FUNCTION: create a drop down list containing names of ad posters
-function create_ad_postedby_list()
-{
+function create_ad_postedby_list($name) {
 	$output = '';
 	global $wpdb;
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-	$query="SELECT DISTINCT ad_contact_name FROM ".$tbl_ads." WHERE disabled='0'";
+	$query="SELECT DISTINCT ad_contact_name FROM ".$tbl_ads." WHERE disabled=0";
 	$res = awpcp_query($query, __LINE__);
 
-	while ($rsrow=mysql_fetch_row($res))
-	{
-		$output .= "<option value=\"$rsrow[0]\">$rsrow[0]</option>";
+	while ($rsrow=mysql_fetch_row($res)) {
+		if (strcmp($rsrow[0], $name) === 0) {
+			$output .= "<option value=\"$rsrow[0]\" selected=\"selected\">$rsrow[0]</option>";
+		} else {
+			$output .= "<option value=\"$rsrow[0]\">$rsrow[0]</option>";
+		}
 	}
 	return $output;
 }
@@ -1947,7 +1824,7 @@ function create_ad_postedby_list()
 function create_price_dropdownlist_min($searchpricemin)
 {
 	$output = '';
-	$pricerangevalues=array('0','25','50','100','500','1000','2500','5000','7500','10000','25000','50000','100000','250000','500000','1000000');
+	$pricerangevalues=array(0,'25','50','100','500','1000','2500','5000','7500','10000','25000','50000','100000','250000','500000','1000000');
 
 	if( isset($searchpricemin) && !empty($searchpricemin) )
 	{
@@ -1973,7 +1850,7 @@ function create_price_dropdownlist_min($searchpricemin)
 function create_price_dropdownlist_max($searchpricemax)
 {
 	$output = '';
-	$pricerangevalues=array('0','25','50','100','500','1000','2500','5000','7500','10000','25000','50000','100000','250000','500000','1000000');
+	$pricerangevalues=array(0,'25','50','100','500','1000','2500','5000','7500','10000','25000','50000','100000','250000','500000','1000000');
 
 	if( isset($searchpricemax) && !empty($searchpricemax) )
 	{
@@ -2028,7 +1905,7 @@ function create_dropdown_from_current_cities()
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 	$listofsavedcities=array();
 
-	$query="SELECT DISTINCT ad_city FROM ".$tbl_ads." WHERE ad_city <> '' AND disabled = '0' ORDER by ad_city ASC";
+	$query="SELECT DISTINCT ad_city FROM ".$tbl_ads." WHERE ad_city <> '' AND disabled = 0 ORDER by ad_city ASC";
 	$res = awpcp_query($query, __LINE__);
 
 	while ($rsrow=mysql_fetch_row($res))
@@ -2053,7 +1930,7 @@ function create_dropdown_from_current_states()
 
 	$listofsavedstates=array();
 
-	$query="SELECT DISTINCT ad_state FROM ".$tbl_ads." WHERE ad_state <> '' AND disabled = '0' ORDER by ad_state ASC";
+	$query="SELECT DISTINCT ad_state FROM ".$tbl_ads." WHERE ad_state <> '' AND disabled = 0 ORDER by ad_state ASC";
 	$res = awpcp_query($query, __LINE__);
 
 	while ($rsrow=mysql_fetch_row($res))
@@ -2078,7 +1955,7 @@ function create_dropdown_from_current_counties()
 
 	$listofsavedcounties=array();
 
-	$query="SELECT DISTINCT ad_county_village FROM ".$tbl_ads." WHERE ad_county_village <> '' AND disabled = '0' ORDER by ad_county_village ASC";
+	$query="SELECT DISTINCT ad_county_village FROM ".$tbl_ads." WHERE ad_county_village <> '' AND disabled = 0 ORDER by ad_county_village ASC";
 	$res = awpcp_query($query, __LINE__);
 
 	while ($rsrow=mysql_fetch_row($res))
@@ -2100,7 +1977,7 @@ function create_dropdown_from_current_countries() {
 	$output = '';
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-	$query="SELECT DISTINCT ad_country FROM ".$tbl_ads." WHERE ad_country <> '' AND disabled = '0' ORDER by ad_country ASC";
+	$query="SELECT DISTINCT ad_country FROM ".$tbl_ads." WHERE ad_country <> '' AND disabled = 0 ORDER by ad_country ASC";
 	$res = awpcp_query($query, __LINE__);
 
 	$listofsavedcountries = array();
@@ -2205,7 +2082,7 @@ function price_field_has_values()
 	global $wpdb;
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
 
-	$query="SELECT ad_item_price FROM ".$tbl_ads." WHERE ad_item_price > '0'";
+	$query="SELECT ad_item_price FROM ".$tbl_ads." WHERE ad_item_price > 0";
 	$res = awpcp_query($query, __LINE__);
 
 	if (mysql_num_rows($res))
@@ -2223,7 +2100,7 @@ function get_a_random_image($ad_id)
 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 	$awpcp_image_name='';
 
-	$query="SELECT image_name FROM ".$tbl_ad_photos." WHERE ad_id='$ad_id' AND disabled='0' LIMIT 1";
+	$query="SELECT image_name FROM ".$tbl_ad_photos." WHERE ad_id='$ad_id' AND disabled=0 LIMIT 1";
 	$res = awpcp_query($query, __LINE__);
 
 	if (mysql_num_rows($res))
@@ -2347,7 +2224,7 @@ function awpcp_phpmailer_init_smtp( $phpmailer ) {
 
 	// smtp not enabled? 
 	$enabled = get_awpcp_option('usesmtp');
-	if ( !$enabled || '0' == $enabled ) return; 
+	if ( !$enabled || 0 == $enabled ) return; 
 
 	$host = get_awpcp_option('smtphost');
 	$port = get_awpcp_option('smtpport');
@@ -2377,11 +2254,12 @@ function awpcp_phpmailer_init_smtp( $phpmailer ) {
 }
 
 
-function awpcp_process_mail($awpcpsenderemail='', $awpcpreceiveremail='', 
-	$awpcpemailsubject='', $awpcpemailbody='', $awpcpsendername='', $awpcpreplytoemail='', $html=false) {
+function awpcp_process_mail($senderemail='', $receiveremail='',  $subject='', 
+							$body='', $sendername='', $replytoemail='', $html=false) 
+{
 	$headers =	"MIME-Version: 1.0\n" .
-	"From: $awpcpsendername <$awpcpsenderemail>\n" .
-	"Reply-To: $awpcpreplytoemail\n";
+	"From: $sendername <$senderemail>\n" .
+	"Reply-To: $replytoemail\n";
 
 	if ($html) {
 		$headers .= "Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"\n";
@@ -2389,35 +2267,30 @@ function awpcp_process_mail($awpcpsenderemail='', $awpcpreceiveremail='',
 		$headers .= "Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"\n";
 	}
 
-	$subject = $awpcpemailsubject;
+	$subject = $subject;
 
-	$time = date_i18n( __('l F j, Y \a\t g:i a', "AWPCP"), current_time( 'timestamp' ) );
+	$time = date_i18n(__('l F j, Y \a\t g:i a', "AWPCP"), current_time('timestamp'));
 
-	$message = "$awpcpemailbody\n\n";
+	$message = "$body\n\n";
 	$message.= __('Email sent on:', 'AWPCP')." $time\n\n";
 	_log("Processing email");
 
-	if(wp_mail( $awpcpreceiveremail, $subject, $message, $headers ))
-	{
+	if (wp_mail($receiveremail, $subject, $message, $headers )) {
 		_log("Sent via WP");
 		return 1;
-	}
-	elseif( awpcp_send_email($awpcpsenderemail, $awpcpreceiveremail, $awpcpemailsubject, $awpcpemailbody,true) )
-	{
+
+	} elseif (awpcp_send_email($senderemail, $receiveremail, $subject, $body,true)) {
 		_log("Sent via send_email");
 		return 1;
-	}
-	elseif( @mail($awpcpreceiveremail, $awpcpemailsubject, $awpcpemailbody, $headers) )
-	{
+
+	} elseif (@mail($receiveremail, $subject, $body, $headers)) {
 		_log("Sent via mail");
 		return 1;
-	}
-	else
-	{
+
+	} else {
 	    _log("SMTP not configured properly, all attempts failed");
 	    return 0;
 	}
-
 }
 
 // make sure the IP isn't a reserved IP address

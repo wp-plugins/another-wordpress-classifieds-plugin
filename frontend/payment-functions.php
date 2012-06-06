@@ -116,9 +116,7 @@ function awpcp_paypal_verify_transaction($verified, $transaction) {
 		$data = 'cmd=_notify-validate';
 		foreach ($_POST as $key => $value) {
 			$value = urlencode(stripslashes($value));
-			if ('cmd' != $key) {
-				$data .= "&$key=$value";
-			}
+			$data .= "&$key=$value";
 		}
 
 		if (in_array('curl', get_loaded_extensions())) {
@@ -130,6 +128,10 @@ function awpcp_paypal_verify_transaction($verified, $transaction) {
 
 			$ch = curl_init($paypal_url);
 			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_VERBOSE, true);
+			// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+			// curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+			// curl_setopt($ch, CURLOPT_CAINFO, AWPCP_DIR . '/cacert.pem');
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			$response = curl_exec($ch);
@@ -654,7 +656,7 @@ function awpcp_displaypaymentbutton_twocheckout($adid,$custom,$adterm_name,$adte
 
 	if (get_awpcp_option('twocheckoutpaymentsrecurring'))
 	{
-		$showpaybuttontwocheckout.="<input type='hidden' name=\"quantity\" value='1' />";
+		$showpaybuttontwocheckout.="<input type='hidden' name=\"quantity\" value=1 />";
 		$showpaybuttontwocheckout.="<input type='hidden' name=\"product_id\" value=\"".get_2co_prodid($adterm_id)."\" />";
 		$showpaybuttontwocheckout.="<input type='hidden' name=\"x_twocorec\" value=\"1\" />";
 	}
@@ -716,16 +718,21 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 	// Determine when ad term ends based on start time and term length
 	
 	//addurationfreemode
-	$days=get_num_days_in_term($adtermid);
+	$days = get_num_days_in_term($adtermid);
+	$term_duration = awpcp_get_term_duration($adtermid);
+	$mysql_periods = array('D' => 'DAY', 'W' => 'WEEK', 'M' => 'MONTH', 'Y' => 'YEAR');
+
+	$duration = $term_duration['duration'];
+	$increment = $mysql_periods[$term_duration['increment']];
 
 	// Bypass amount email dupeid checks if this is a cancellation notification
 	
-	$awpcp_ipn_is_cancellation='';
+	$awpcp_ipn_is_cancellation = false;
 	$awpcp_subscr_cancel="subscr-cancel";
 	if (strcasecmp($txn_type, $awpcp_subscr_cancel) == 0)
 	{
 		// this is a cancellation notification so no need to run validation check on amount transaction id etc
-		$awpcp_ipn_is_cancellation=1;
+		$awpcp_ipn_is_cancellation = 1;
 		do_action('awpcp_disable_ad');
 	}
 	else
@@ -808,11 +815,11 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 
 		if (get_awpcp_option('adapprove') == 1)
 		{
-			$disabled='1';
+			$disabled=1;
 		}
 		else
 		{
-			$disabled='0';
+			$disabled=0;
 		}
 
 		if ($awpcp_ipn_is_cancellation == 1)
@@ -821,11 +828,16 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 		}
 		else
 		{
-			$query="UPDATE  ".$tbl_ads." SET adterm_id='".clean_field($item_number)."',ad_startdate=NOW(),ad_enddate=NOW()+INTERVAL $days DAY,ad_transaction_id='$txn_id',payment_status='$payment_status',payment_gateway='Paypal',disabled='$disabled',ad_fee_paid='".clean_field($mcgross)."',renew_email_sent=0 WHERE ad_id='$ad_id' AND ad_key='$key'";
+			$query = "UPDATE  ".$tbl_ads." SET adterm_id='".clean_field($item_number)."',";
+			$query.= "ad_startdate=NOW(), ad_enddate=NOW()+INTERVAL $duration $increment, ";
+			$query.= "ad_transaction_id='$txn_id', payment_status='$payment_status', ";
+			$query.= "payment_gateway='Paypal', disabled='$disabled', ";
+			$query.= "ad_fee_paid='".clean_field($mcgross)."', renew_email_sent=0 ";
+			$query.= "WHERE ad_id='$ad_id' AND ad_key='$key'";
 		}
 		$res = awpcp_query($query, __LINE__);
 		//Enable the images, if they were previously disabled
-		$query="UPDATE ".$tbl_ad_photos." set disabled='0' WHERE ad_id='$ad_id'";
+		$query="UPDATE ".$tbl_ad_photos." set disabled=0 WHERE ad_id='$ad_id'";
 		$res2 = awpcp_query($query, __LINE__);
 		
 		if (isset($item_number) && !empty($item_number))
@@ -864,7 +876,7 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 		///////////
 		if (get_awpcp_option(freepay) == 1)
 		{
-			$query="UPDATE  ".$tbl_ads." SET disabled='1',payment_status='$payment_status', WHERE ad_id='$ad_id' AND ad_key='$key'";
+			$query="UPDATE  ".$tbl_ads." SET disabled=1,payment_status='$payment_status', WHERE ad_id='$ad_id' AND ad_key='$key'";
 			$res = awpcp_query($query, __LINE__);
 
 			if (isset($item_number) && !empty($item_number))
@@ -888,11 +900,11 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 		///////////
 		if (get_awpcp_option('disablependingads') == 0)
 		{
-			$disabled='1';
+			$disabled=1;
 		}
 		else
 		{
-			$disabled='0';
+			$disabled=0;
 		}
 
 		if ($awpcp_ipn_is_cancellation == 1)
@@ -901,7 +913,12 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 		}
 		else
 		{
-			$query="UPDATE  ".$tbl_ads." SET adterm_id='".clean_field($item_number)."',ad_startdate=NOW(),ad_enddate=NOW()+INTERVAL $days DAY,ad_transaction_id='$txn_id',payment_status='$payment_status',payment_gateway='Paypal',disabled='$disabled',ad_fee_paid='".clean_field($mcgross)."',renew_email_sent=0 WHERE ad_id='$ad_id' AND ad_key='$key'";
+			$query = "UPDATE  ".$tbl_ads." SET adterm_id='".clean_field($item_number)."',";
+			$query.= "ad_startdate=NOW(), ad_enddate=NOW()+INTERVAL $duration $increment, ";
+			$query.= "ad_transaction_id='$txn_id', payment_status='$payment_status', ";
+			$query.= "payment_gateway='Paypal', disabled='$disabled', ";
+			$query.= "ad_fee_paid='".clean_field($mcgross)."', renew_email_sent=0 ";
+			$query.= "WHERE ad_id='$ad_id' AND ad_key='$key'";
 		}
 		$res = awpcp_query($query, __LINE__);
 		//Dis/enable the images, if they were previously disabled
@@ -938,7 +955,7 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 		$output .= '<h2 class="ad-posted">';
 		$output .= __("You Ad is posted","AWPCP");
 		$output .= "</h2>";
-		$output .= showad($ad_id, $omitmenu='1');
+		$output .= showad($ad_id, $omitmenu=1);
 	}
 	$output .= "</div>";
 	return $output;
@@ -980,7 +997,12 @@ function do_2checkout($custom,$x_amount,$x_item_number,$x_trans_id,$x_Login)
 
 	
 	// Determine when ad term ends based on start time and term length
-	$days=get_num_days_in_term($adtermid);
+	$days = get_num_days_in_term($adtermid);
+	$term_duration = awpcp_get_term_duration($adtermid);
+	$mysql_periods = array('D' => 'DAY', 'W' => 'WEEK', 'M' => 'MONTH', 'Y' => 'YEAR');
+
+	$duration = $term_duration['duration'];
+	$increment = $mysql_periods[$term_duration['increment']];
 	
 	// Make sure the incoming payment amount received matches at least one of the payment ids in the system
 	$myamounts=array();
@@ -1059,18 +1081,25 @@ function do_2checkout($custom,$x_amount,$x_item_number,$x_trans_id,$x_Login)
 
 	if ( (get_awpcp_option('adapprove') == 1) || (get_awpcp_option('disablependingads') == 0))
 	{
-		$disabled='1';
+		$disabled=1;
 		do_action('awpcp_disablead');
 	}
 	else
 	{
-		$disabled='0';
+		$disabled=0;
 		do_action('awpcp_approve_ad');
 	}
-	$query="UPDATE  ".$tbl_ads." SET adterm_id='".clean_field($x_item_number)."',ad_startdate=NOW(),ad_enddate=NOW()+INTERVAL $days DAY,ad_transaction_id='$x_trans_id',payment_status='Completed',payment_gateway='2Checkout',disabled='$disabled',ad_fee_paid='".clean_field($x_amount)."',renew_email_sent=0 WHERE ad_id='$ad_id' AND ad_key='$key'";
+
+	$query = "UPDATE  ".$tbl_ads." SET adterm_id='".clean_field($x_item_number)."',";
+	$query.= "ad_startdate=NOW(), ad_enddate=NOW()+INTERVAL $duration $increment, ";
+	$query.= "ad_transaction_id='$x_trans_id', payment_status='Completed', ";
+	$query.= "payment_gateway='2Checkout', disabled='$disabled', ";
+	$query.= "ad_fee_paid='".clean_field($x_amount)."', renew_email_sent=0 ";
+	$query.= "WHERE ad_id='$ad_id' AND ad_key='$key'";
+
 	$res = awpcp_query($query, __LINE__);
 	//Enable the images, if they were previously disabled
-	$query="UPDATE ".$tbl_ad_photos." set disabled='0' WHERE ad_id='$ad_id'";
+	$query="UPDATE ".$tbl_ad_photos." set disabled=0 WHERE ad_id='$ad_id'";
 	$res2 = awpcp_query($query, __LINE__);
 
 	// let plugins know an ad was successfully posted
@@ -1101,7 +1130,7 @@ function do_2checkout($custom,$x_amount,$x_item_number,$x_trans_id,$x_Login)
 		$output .= "<h2>";
 		$output .= __("Your Ad is posted","AWPCP");
 		$output .= "</h2>";
-		$output .= showad($ad_id,$omitmenu='1');
+		$output .= showad($ad_id,$omitmenu=1);
 	}
 	$output .= "</div>";
 	return $output;
@@ -1129,7 +1158,7 @@ function awpcp_abort_payment($message='', $transaction=null) {
 		$user = null;
 	}
 
-	if ($user) {
+	if (!is_null($user)) {
 		$adposteremail = $user->user_email;
 		$admostername = $user->display_name;
 

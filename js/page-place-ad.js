@@ -146,6 +146,28 @@
 
                         update_payment_terms(id, categories.val());
 
+                        // show message about empty fields
+                        var _fields = [{name: 'First Name', value: user.first_name},
+                                   {name: 'Last Name', value: user.last_name},
+                                   {name: 'Email', value: user.user_email},
+                                   {name: 'Website', value: user.user_url},
+                                   {name: 'State', value: user.state},
+                                   {name: 'City', value: user.city}],
+                            empty_fields = [],
+                            message = $('<span class="error message"></span>');
+
+                        $.each(_fields, function(k, _field) {
+                            if (_field.value.length === 0) {
+                                empty_fields.push(_field.name);
+                            }
+                        });
+
+                        users.nextAll('br, span.message').remove();
+                        if (empty_fields.length > 0) {
+                            message.text('This user has empty profile fields for ' + empty_fields.join(', ') + '.');
+                            users.closest('.awpcp-form-spacer').append('<br/>').append(message);
+                        }
+
                         done = true;
                     }
                     return !done;

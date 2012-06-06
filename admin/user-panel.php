@@ -344,7 +344,7 @@ class AWPCP_User_Panel_Profile_Data {
 	}
 
 	public function render($user) {
-		$profile = get_user_meta($user->ID, 'awpcp-profile', true);
+		$profile = (array) 	get_user_meta($user->ID, 'awpcp-profile', true);
 
 		ob_start();
 			include(AWPCP_DIR . '/admin/templates/profile-fields.tpl.php');

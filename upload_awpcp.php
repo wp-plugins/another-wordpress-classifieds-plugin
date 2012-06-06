@@ -12,9 +12,8 @@ if (!function_exists('imagecreatefrompng')) {
 /**
  * @param $file A $_FILES item
  */
-function awpcp_upload_image_file($directory, $file, $min_size, $max_size, $min_width, $min_height) {
-	$filename = sanitize_file_name($file['name']);
-	$tmpname = isset($file['tmp_name']) ? $file['tmp_name'] : '';			
+function awpcp_upload_image_file($directory, $filename, $tmpname, $min_size, $max_size, $min_width, $min_height, $uploaded=true) {
+	$filename = sanitize_file_name($filename);
 	$newname = wp_unique_filename($directory, $filename);
 	$newpath = trailingslashit($directory) . $newname;
 	$ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
@@ -23,12 +22,12 @@ function awpcp_upload_image_file($directory, $file, $min_size, $max_size, $min_w
 	$size = filesize($tmpname);
 
 	$allowed_extensions = array('gif', 'jpg', 'jpeg', 'png');
-
+	
 	if (empty($filename)) {
 		return __('No file was selected.', 'AWPCP');
 	}
 
-	if (!is_uploaded_file($tmpname)) {
+	if ($uploaded && !is_uploaded_file($tmpname)) {
 		return __('Unknown error encountered while uploading the image.', 'AWPCP');
 	}
 
@@ -60,7 +59,11 @@ function awpcp_upload_image_file($directory, $file, $min_size, $max_size, $min_w
 		return sprintf($message, $min_width);
 	}
 
-	if (!@move_uploaded_file($tmpname, $newpath)) {
+	if ($uploaded && !@move_uploaded_file($tmpname, $newpath)) {
+		$message = __('The file [ %s ] could not be moved to the destination directory', 'AWPCP');
+		return sprintf($message, $filename);
+		
+	} else if (!$uploaded && !@copy($tmpname, $newpath)) {
 		$message = __('The file [ %s ] could not be moved to the destination directory', 'AWPCP');
 		return sprintf($message, $filename);
 	}
@@ -84,11 +87,7 @@ function admin_handleimagesupload($adid) {
 	global $wpdb, $wpcontentdir, $awpcp_plugin_path;
 
 	list($images_dir, $thumbs_dir) = awpcp_setup_uploads_dir();
-
-	$min_width = get_awpcp_option('imgthumbwidth');
-	$min_height = $min_width;
-	$min_size = get_awpcp_option('minimagesize');
-	$max_size = get_awpcp_option('maximagesize');
+	list($min_width, $min_height, $min_size, $max_size) = awpcp_get_image_constraints();
 
 	$ad = AWPCP_Ad::find_by_id($adid);
 	if (!is_null($ad)) {
@@ -96,8 +95,10 @@ function admin_handleimagesupload($adid) {
 		list($images_allowed, $images_uploaded, $images_left) = awpcp_get_ad_images_information($adid);
 
 		if ($images_left > 0) {
-			$result = awpcp_upload_image_file($images_dir, $_FILES['awpcp_add_file'], 
-											$min_size, $max_size, $min_width, $min_height);
+			$filename = awpcp_array_data('name', '', $_FILES['awpcp_add_file']);
+			$tmpname = awpcp_array_data('tmp_name', '', $_FILES['awpcp_add_file']);
+			$result = awpcp_upload_image_file($images_dir, $filename, $tmpname, 
+											  $min_size, $max_size, $min_width, $min_height);
 		} else {
 			$message = __('No more images can be added to this Ad. The Ad already have %d of %d images allowed.', 'AWPCP');
 			$result = sprintf($message, $images_uploaded, $images_allowed);
@@ -229,16 +230,21 @@ function awpcp_setup_uploads_dir() {
 }
 
 
+function awpcp_get_image_constraints() {
+	$min_width = get_awpcp_option('imgthumbwidth');
+	$min_height = $min_width;
+	$min_size = get_awpcp_option('minimagesize');
+	$max_size = get_awpcp_option('maximagesize');
+	return array($min_width, $min_height, $min_size, $max_size);
+}
+
+
 function awpcp_handle_uploaded_images($ad_id, &$form_errors=array()) {
 	global $wpdb;
 
 	list($images_dir, $thumbs_dir) = awpcp_setup_uploads_dir();
 	list($images_allowed, $images_uploaded, $images_left) = awpcp_get_ad_images_information($ad_id);
-
-	$max_size = get_awpcp_option('maximagesize');
-	$min_size = get_awpcp_option('minimagesize');
-	$min_width = get_awpcp_option('imgthumbwidth');
-	$min_height = $min_width;
+	list($min_width, $min_height, $min_size, $max_size) = awpcp_get_image_constraints();
 
 	$disabled = get_awpcp_option('imagesapprove') == 1 ? 1 : 0;
 
@@ -255,7 +261,10 @@ function awpcp_handle_uploaded_images($ad_id, &$form_errors=array()) {
 			continue;
 		}
 
-		$uploaded = awpcp_upload_image_file($images_dir, $file, $min_size, $max_size, $min_width, $min_height);
+		$filename = sanitize_file_name($file['name']);
+		$tmpname = awpcp_array_data('tmp_name', '', $file);
+
+		$uploaded = awpcp_upload_image_file($images_dir, $filename, $tmpname, $min_size, $max_size, $min_width, $min_height);
 
 		if (is_array($uploaded) && isset($uploaded['filename'])) {
 			$sql = 'INSERT INTO ' . AWPCP_TABLE_ADPHOTOS . " SET image_name = '%s', ad_id = %d, disabled = %d";
@@ -369,8 +378,8 @@ function handleimagesupload($adid, $adtermid, $nextstep, $adpaymethod, $adaction
 }
 
 
-function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidth,$nextstep,$adpaymethod,$adaction,$destdir,$actual_field_name,$required=false) {
-	//debug();
+function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidth,$nextstep,$adpaymethod,$adaction,$destdir,$actual_field_name,$required=false) 
+{
 	$output = '';
 	global $wpdb;
 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
@@ -470,9 +479,9 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 						$ctiu = get_total_imagesuploaded($adid);
 
 						if(get_awpcp_option('imagesapprove') == 1) {
-							$disabled='1';
+							$disabled=1;
 						} else {
-							$disabled='0';
+							$disabled=0;
 						}
 
 						if($ctiu < $numimgsallowed) {
@@ -551,7 +560,7 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 				$output .= '<h2 class="ad-posted">';
 				$output .= __("You Ad is posted","AWPCP");
 				$output .= "</h2>";
-				$output .= showad($adid,$omitmenu='1');
+				$output .= showad($adid,$omitmenu=1);
 			}
 			$output .= "</div>";
 		}
@@ -592,7 +601,7 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 				$output .= "<h2>";
 				$output .= __("Your Ad is posted","AWPCP");
 				$output .= "</h2>";
-				$output .= showad($adid,$omitmenu='1',$preview=true,$send_email=false);
+				$output .= showad($adid,$omitmenu=1,$preview=true,$send_email=false);
 			}
 			$output .= "</div>";
 		}
@@ -601,61 +610,31 @@ function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidt
 	return $output;
 }
 
+function awpcpcreatethumb($filename, $dest_dir, $width) {
+	$dest_dir = trailingslashit($dest_dir);
+	$thumbs_dir = $dest_dir . 'thumbs/';
 
-function awpcpcreatethumb($filename, $destdir, $twidth) {
-	$show_all=true;
-	$photothumbs_width = $twidth <= 0 ? 150 : $twidth;
-	$mynewimg = '';
+	$filepath = $dest_dir . $filename;
+	$thumbpath = $thumbs_dir . $filename;
 
-	if (extension_loaded('gd')) {
-		if ($imginfo=getimagesize($destdir."/$filename")) {
-			$width=$imginfo[0];
-			$height=$imginfo[1];
-			if ($width>$photothumbs_width) {
-				$newwidth=$photothumbs_width;
-				$newheight=$height*($photothumbs_width/$width);
+	$image = image_make_intermediate_size($filepath, $width, $width, true);
 
-				if ($imginfo[2] == 1) {		//gif
-				} elseif ($imginfo[2] == 2) {		//jpg
-					if (function_exists('imagecreatefromjpeg')) {
-						$myimg = @imagecreatefromjpeg($destdir."/$filename");
-					}
-				} elseif ($imginfo[2] == 3) {	//png
-					$myimg = @imagecreatefrompng($destdir."/$filename");
-				}
-
-				if (isset($myimg) && !empty($myimg)) {
-					$gdinfo=awpcp_GD();
-					if (stristr($gdinfo['GD Version'], '2.')) {	// if we have GD v2 installed
-						$mynewimg=@imagecreatetruecolor($newwidth,$newheight);
-						if ($mynewimg !== false) {
-							$show_all = !imagecopyresampled($mynewimg,$myimg,0,0,0,0,$newwidth,$newheight,$width,$height);
-						}
-					} else {	// GD 1.x here
-						$mynewimg=@imagecreate($newwidth,$newheight);
-						if ($mynewimg !== false) {
-							$show_all = !@imagecopyresized($mynewimg,$myimg,0,0,0,0,$newwidth,$newheight,$width,$height);
-						}
-					}
-				}
-			}
-		}
-	}
-	if (!is_writable($destdir.'/thumbs')) {
-		@chmod($destdir.'/thumbs',0755);
-		if (!is_writable($destdir.'/thumbs')) {
-			@chmod($destdir.'/thumbs',0777);
+	if (!is_writable($thumbs_dir)) {
+		@chmod($thumbs_dir, 0755);
+		if (!is_writable($thumbs_dir)) {
+			@chmod($thumbs_dir, 0777);
 		}
 	}
 
-	if ($show_all) {
-		$myreturn=@copy($destdir."/$filename",$destdir."/thumbs/$filename");
+	if (is_array($image) && !empty($image)) {
+		$tmppath = $dest_dir . $image['file'];
+		$result = rename($tmppath, $thumbpath);
 	} else {
-		$myreturn=@imagejpeg($mynewimg,$destdir."/thumbs/$filename",100);
+		$result = copy($filepath, $thumbpath);
 	}
+	@chmod($thumbs_dir . $filename, 0644);
 
-	@chmod($destdir.'/thumbs'."/$filename",0644);
-	return $myreturn;
+	return $result;
 }
 
 

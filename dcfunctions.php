@@ -8,16 +8,15 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
  * http://datemill.com
  */
 
-function smart_table($array,$table_cols=1,$opentable,$closetable) {
-	$usingtable='';
-	if( (isset($opentable) && !empty($opentable)) && (isset($closetable) && !empty($closetable)) )
-	{
-		$usingtable=1;
+function smart_table($array, $table_cols=1, $opentable, $closetable) {
+	$usingtable = false;
+	if (!empty($opentable) && !empty($closetable)) {
+		$usingtable = true;
 	}
 	return smart_table2($array,$table_cols,$opentable,$closetable,$usingtable);
 }
 
-function smart_table2($array,$table_cols=1,$opentable,$closetable,$usingtable) {
+function smart_table2($array, $table_cols=1, $opentable, $closetable, $usingtable) {
 	$myreturn="$opentable\n";
 	$row=0;
 	$total_vals=count($array);
@@ -300,21 +299,14 @@ function array2qs($myarray) {
 	return $myreturn;
 }
 
-function create_pager($from,$where,$offset,$results,$tpname)
-{
+function create_pager($from,$where,$offset,$results,$tpname) {
 	$permastruc=get_option('permalink_structure');
-	if(isset($permastruc) && !empty($permastruc))
-	{
+	if(isset($permastruc) && !empty($permastruc)) {
 		$awpcpoffset_set="?offset=";
-	}
-	else
-	{
-		if(is_admin())
-		{
+	} else {
+		if(is_admin()) {
 			$awpcpoffset_set="?offset=";
-		}
-		else
-		{
+		} else {
 			$awpcpoffset_set="&offset=";
 		}
 	}
@@ -326,14 +318,16 @@ function create_pager($from,$where,$offset,$results,$tpname)
 
 	$accepted_results_per_page=array("5"=>5,"10"=>10,"20"=>20,"30"=>30,"40"=>40,"50"=>50,"60"=>60,"70"=>70,"80"=>80,"90"=>90,"100"=>100);
 
-	if ( get_awpcp_option('seofriendlyurls') ) { 
-
-		$tpname = $_SERVER['REQUEST_URI'];
-		$tpparts = explode('?', $tpname);
-		if ( is_array( $tpparts ) ) 
-			$tpname = $tpparts[0];
-
-	}
+	// // The code below removes query parameters from URL when seofriendlyurls are ON.
+	// // However, SEO URLs my be ON while WP are still NOT using permalinks, which means
+	// // page_id is going to be in every URL that points to a page. This break pagination.
+	// if (get_awpcp_option('seofriendlyurls')) { 
+	// 	$tpname = $_SERVER['REQUEST_URI'];
+	// 	$tpparts = explode('?', $tpname);
+	// 	if (is_array($tpparts)) {
+	// 		$tpname = $tpparts[0];
+	// 	}
+	// }
 
 	// TODO: remove all fields that belongs to the Edit Ad form (including extra fields and others?)
 	$params = array_merge($_GET,$_POST);
@@ -465,7 +459,7 @@ function unix2dos($mystring) {
 	return $mystring;
 }
 
-function awpcp_send_email($from,$to,$subject,$message,$html=false,$attachments=array(),$bcc='') {
+function awpcp_send_email($from,$to,$subject,$message, $html=false, $attachments=array(), $bcc='') {
 	$separator='Next.Part.331925654896717'.mktime();
 	$att_separator='NextPart.is_a_file9817298743'.mktime();
 	$headers="From: $from\n";
@@ -484,9 +478,11 @@ function awpcp_send_email($from,$to,$subject,$message,$html=false,$attachments=a
 	$text_message=preg_replace("/[\n]{3,}/", "\n\n",$text_message);
 	$text_message=wordwrap($text_message,72);
 	$message="\n\n--$separator\n".$text_header.$text_message;
+
 	if ($html) {
 		$message.="\n\n--$separator\n".$html_header.$html_message;
 	}
+
 	$message.="\n\n--$separator--\n";
 
 	if (!empty($attachments)) {

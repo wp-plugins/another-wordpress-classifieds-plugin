@@ -24,7 +24,7 @@
 				<label for="awpcp-profile-address"><?php _e('Address', 'AWPCP') ?></label>
 			</th>
 			<td>
-				<input id="awpcp-profile-address" class="regular-text" type="text" name="awpcp-profile[address]" value="<?php echo esc_attr($profile['address']) ?>" />
+				<input id="awpcp-profile-address" class="regular-text" type="text" name="awpcp-profile[address]" value="<?php echo esc_attr(awpcp_array_data('address', '', $profile)) ?>" />
 				<span class="description"></span>
 			</td>
 		</tr>
@@ -33,7 +33,7 @@
 				<label for="awpcp-profile-state"><?php _e('State', 'AWPCP') ?></label>
 			</th>
 			<td>
-				<input id="awpcp-profile-state" class="regular-text" type="text" name="awpcp-profile[state]" value="<?php echo esc_attr($profile['state']) ?>" />
+				<input id="awpcp-profile-state" class="regular-text" type="text" name="awpcp-profile[state]" value="<?php echo esc_attr(awpcp_array_data('state', '', $profile)) ?>" />
 				<span class="description"></span>
 			</td>
 		</tr>
@@ -42,7 +42,7 @@
 				<label for="awpcp-profile-city"><?php _e('City', 'AWPCP') ?></label>
 			</th>
 			<td>
-				<input id="awpcp-profile-city" class="regular-text" type="text" name="awpcp-profile[city]" value="<?php echo esc_attr($profile['city']) ?>" />
+				<input id="awpcp-profile-city" class="regular-text" type="text" name="awpcp-profile[city]" value="<?php echo esc_attr(awpcp_array_data('city', '', $profile)) ?>" />
 				<span class="description"></span>
 			</td>
 		</tr>

@@ -1,35 +1,83 @@
 <?php
 
-
-/**
- * For PHP4 users, even though it's not technically supported:
- */
+// for PHP4 users, even though it's not technically supported:
 if (!function_exists('array_walk_recursive')) {
-    function array_walk_recursive(&$input, $funcname, $userdata = "") {
-        if (!is_callable($funcname)) {
-            return false;
-        }
-        if (!is_array($input)) {
-            return false;
-        }
-       
-        foreach ($input AS $key => $value) {
-            if (is_array($input[$key])) {
-                array_walk_recursive($input[$key], $funcname, $userdata);
-            } else {
-                $saved_value = $value;
-                if (!empty($userdata)) {
-                    $funcname($value, $key, $userdata);
-                } else {
-                    $funcname($value, $key);
-                }               
-                if ($value != $saved_value) {
-                    $input[$key] = $value;
-                }
-            }
-        }        
-        return true;
-    }
+	function array_walk_recursive(&$input, $funcname, $userdata = "") {
+	    if (!is_callable($funcname)) {
+	        return false;
+	    }
+	    if (!is_array($input)) {
+	        return false;
+	    }
+	   
+	    foreach ($input AS $key => $value) {
+	        if (is_array($input[$key])) {
+	            array_walk_recursive($input[$key], $funcname, $userdata);
+	        } else {
+	            $saved_value = $value;
+	            if (!empty($userdata)) {
+	                $funcname($value, $key, $userdata);
+	            } else {
+	                $funcname($value, $key);
+	            }               
+	            if ($value != $saved_value) {
+	                $input[$key] = $value;
+	            }
+	        }
+	    }        
+	    return true;
+	}
+}
+
+
+if (!function_exists('wp_strip_all_tags')) {
+	/**
+	 * Properly strip all HTML tags including script and style
+	 *
+	 * @since 2.9.0
+	 *
+	 * @param string $string String containing HTML tags
+	 * @param bool $remove_breaks optional Whether to remove left over line breaks and white space chars
+	 * @return string The processed string.
+	 */
+	function wp_strip_all_tags($string, $remove_breaks = false) {
+		$string = preg_replace( '@<(script|style)[^>]*?>.*?</\\1>@si', '', $string );
+		$string = strip_tags($string);
+
+		if ( $remove_breaks )
+			$string = preg_replace('/[\r\n\t ]+/', ' ', $string);
+
+		return trim($string);
+	}
+}
+
+
+if (!function_exists('wp_trim_words')) {
+	/**
+	 * Trims text to a certain number of words.
+	 *
+	 * @since 3.3.0
+	 *
+	 * @param string $text Text to trim.
+	 * @param int $num_words Number of words. Default 55.
+	 * @param string $more What to append if $text needs to be trimmed. Default '&hellip;'.
+	 * @return string Trimmed text.
+	 */
+	function wp_trim_words( $text, $num_words = 55, $more = null ) {
+		if ( null === $more )
+			$more = __( '&hellip;' );
+		$original_text = $text;
+		$text = wp_strip_all_tags( $text );
+		$words_array = preg_split( "/[\n\r\t ]+/", $text, $num_words + 1, PREG_SPLIT_NO_EMPTY );
+		if ( count( $words_array ) > $num_words ) {
+			array_pop( $words_array );
+			$text = implode( ' ', $words_array );
+			$text = $text . $more;
+		} else {
+			$text = implode( ' ', $words_array );
+		}
+		return apply_filters( 'wp_trim_words', $text, $num_words, $more, $original_text );
+	}
 }
 
 
@@ -45,6 +93,7 @@ function awpcp_get_user($id) {
 	}
 	return null;
 }
+
 
 /**
  * Get list of WP registered users, adding special attributes to 
@@ -85,11 +134,15 @@ function awpcp_get_users($where='') {
 	return $users;
 }
 
+
 /**
  * Check if current user is an Administrator according to
  * AWPCP settings.
  */
 function awpcp_current_user_is_admin() {
+	// global $curent_user;
+	// get_currentuserinfo();
+	// return awpcp_user_is_admin($curent_user->ID);
 	if (get_awpcp_option('awpcpadminaccesslevel') == 'admin') {
 		return current_user_can('install_plugins');
 	} else if (get_awpcp_option('awpcpadminaccesslevel') == 'editor') {
@@ -98,6 +151,16 @@ function awpcp_current_user_is_admin() {
 
 	return current_user_can('install_plugins');
 }
+
+// function awpcp_user_is_admin($id) {
+// 	if (get_awpcp_option('awpcpadminaccesslevel') == 'admin') {
+// 		return user_can($id, 'install_plugins');
+// 	} else if (get_awpcp_option('awpcpadminaccesslevel') == 'editor') {
+// 		return user_can($id, 'edit_pages');
+// 	}
+
+// 	return user_can($id, 'install_plugins');
+// }
 
 
 function awpcp_get_categories() {
@@ -153,6 +216,7 @@ function awpcp_region_fields($translations) {
 	return $fields;
 }
 
+
 /**
  * Generates HTML for Region fields. Only those enabled
  * in the settings will be returned.
@@ -191,6 +255,7 @@ function awpcp_region_form_fields($query, $translations) {
  * as needed.
  */
 
+
 /**
  * Return number of allowed images for an Ad, according to its
  * Ad ID or Fee Term ID.
@@ -214,7 +279,6 @@ function awpcp_get_ad_number_allowed_images($ad_id) {
 
 	return apply_filters('awpcp_number_images_allowed', $allowed, $ad_id);
 }
-
 
 
 /**
@@ -280,6 +344,7 @@ function awpcp_get_main_page_name() {
 	return get_awpcp_option('main-page-name');
 }
 
+
 function awpcp_get_page_url($pagename) {
 	return get_permalink(awpcp_get_page_get_id(sanitize_title($pagename)));
 }
@@ -294,9 +359,11 @@ function awpcp_post_param($name, $default='') {
 	return awpcp_array_data($name, $default, $_POST);
 }
 
+
 function awpcp_request_param($name, $default='', $from=null) {
 	return awpcp_array_data($name, $default, is_null($from) ? $_REQUEST : $from);
 }
+
 
 function awpcp_array_data($name, $default, $from=array()) {
 	$value = isset($from[$name]) ? $from[$name] : null;
@@ -319,6 +386,7 @@ function awpcp_get_property($object, $property, $default='') {
     return $default;
 }
 
+
 function awpcp_get_properties($objects, $property, $default='') {
 	$results = array();
 	foreach ($objects as $object) {
@@ -328,16 +396,17 @@ function awpcp_get_properties($objects, $property, $default='') {
 }
 
 
-
 function awpcp_flash($message) {
 	$messages = get_option('awpcp-messages', array());
 	$messages[] = $message;
 	update_option('awpcp-messages', $messages);
 }
 
+
 function awpcp_print_message($message, $class=array('updated')) {
 	return '<div class="' . join(' ', $class) . '"><p>' . $message . '</p></div>';
 }
+
 
 function awpcp_print_messages() {
 	$messages = get_option('awpcp-messages', array());
@@ -360,6 +429,7 @@ add_action('admin_notices', 'awpcp_print_messages');
 function awpcp_register_column_headers($screen, $columns, $sortable=array()) {
 	$wp_list_table = new AWPCP_List_Table($screen, $columns, $sortable);
 }
+
 
 function awpcp_print_column_headers($screen, $id = true, $sortable=array()) {
 	$wp_list_table = new AWPCP_List_Table($screen, array(), $sortable);

@@ -3,7 +3,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. <strong>!!!IMPORTANT!!!</strong> Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 2.0.5
+ Version: 2.0.6
  Author: D. Rodenbaugh
  License: GPLv2 or any later version
  Author URI: http://www.skylineconsult.com
@@ -173,6 +173,8 @@ class AWPCP {
 	// Settings API -- not the one from WP
 	public $settings = null;
 
+	public $flush_rewrite_rules = false;
+
 	// TODO: I want to register all plugin scripts here, enqueue on demand in each page.
 	// is that a good idea? -@wvega
 
@@ -182,8 +184,14 @@ class AWPCP {
 		$this->settings = new AWPCP_Settings_API();
 		$this->installer = AWPCP_Installer::instance();
 
-        register_activation_hook(__FILE__, array($this->installer, 'install'));
+        register_activation_hook(__FILE__, array($this->installer, 'activate'));
         add_action('plugins_loaded', array($this, 'setup'), 10);
+
+        // register rewrite rules when the plugin file is loaded.
+		// generate_rewrite_rules or rewrite_rules_array hooks are
+		// too late to add rules using add_rewrite_rule function
+		add_action('page_rewrite_rules', 'awpcp_add_rewrite_rules');
+		add_filter('query_vars', 'awpcp_query_vars');
 	}
 
 	/**
@@ -205,6 +213,10 @@ class AWPCP {
 	public function setup() {
 		if (!$this->updated()) {
 			$this->installer->install();
+			// we can't call flush_rewrite_rules() because
+			// $wp_rewrite is not available yet. It is initialized 
+			// after plugins_load hook is executed.
+			$this->flush_rewrite_rules = true;
 		}
 
 		if ($this->updated()) {
@@ -212,9 +224,14 @@ class AWPCP {
 			$this->admin = new AWPCP_Admin();
 			$this->panel = new AWPCP_User_Panel();
 			$this->pages = new AWPCP_Pages();
-			
-			add_action('init', array($this, 'register_scripts'));
-			add_action('init', array($this, 'create_pages'));
+
+			$this->check_for_premium_modules();
+
+			add_action('init', array($this, 'init'));
+
+			add_action('awpcp_register_settings', array($this, 'register_settings'));
+
+			add_action('wp_print_scripts', array($this, 'print_scripts'));
 
 			// actions and filters from functions_awpcp.php
 			add_action('widgets_init', 'widget_awpcp_search_init');
@@ -240,19 +257,46 @@ class AWPCP {
 				add_filter('wp_list_pages_excludes', 'exclude_awpcp_child_pages');
 			}
 
-			add_action('wp_loaded', 'awpcp_rules');
-			add_action('generate_rewrite_rules', 'awpcp_rewrite_rules', 1, 1);
-			add_filter('query_vars', 'awpcp_query_vars');
-			add_action('wp_head', 'awpcp_insert_facebook_meta');
-
 			remove_action('wp_head', 'rel_canonical');
 			add_action('wp_head', 'awpcp_rel_canonical');
+			add_action('wp_head', 'awpcp_insert_facebook_meta');
 		}
 	}
 
+
+	public function init() {
+		$installation_complete = get_option('awpcp_installationcomplete', 0);
+		if (!$installation_complete) {
+			update_option('awpcp_installationcomplete', 1);
+			awpcp_create_pages(__('AWPCP', 'AWPCP'));
+			$this->flush_rewrite_rules = true;
+		}
+
+		if ($this->flush_rewrite_rules) {
+			flush_rewrite_rules();
+		}
+
+		$this->register_scripts();
+	}
+
+	/**
+	 * Register other AWPCP settings, normally for private use.
+	 */
+	public function register_settings() {
+		$this->settings->add_setting('private:notices', 'show-quick-start-guide-notice', '', 'checkbox', false, '');
+	}
+
+
+	/**
+	 * A good place to register all AWPCP standard scripts than can be
+	 * used form other sections.
+	 */
 	public function register_scripts() {
 		// had to use false as the version number because otherwise the resulting URLs would 
 		// throw 404 errors. Not sure why :S -@wvega
+
+		wp_register_script('awpcp-admin-general', 
+					AWPCP_URL . 'js/admin-general.js', array('jquery'), '1.0.0', true);
 
 		wp_register_script('awpcp-page-place-ad',
 					AWPCP_URL . 'js/page-place-ad.js', array('jquery'), false, true);
@@ -263,20 +307,27 @@ class AWPCP {
 		wp_register_script('awpcp-jquery-ui-datepicker',
 					AWPCP_URL . 'js/datepicker/jquery-ui-1.8.16.datepicker.min.js',
 					array('jquery'), false, true);
-	}
 
-	/**
-	 * Create pages after the plugin has been activated
-	 */
-	public function create_pages() {		
-		$installation_complete = get_option('awpcp_installationcomplete', 0);
-		$version = get_option('awpcp_db_version');
+		if (is_admin()) {
+			wp_enqueue_script('awpcp-admin-general');
+		} else {
 
-		if (!$installation_complete) {
-			update_option('awpcp_installationcomplete', 1);
-			awpcp_create_pages(__('AWPCP', 'AWPCP'));	
 		}
 	}
+
+
+	public function print_scripts() {
+		$options = array(
+			'ajaxurl' => admin_url('admin-ajax.php')
+		);
+
+		if (is_admin()) {
+			wp_localize_script('awpcp-admin-general', 'AWPCPAjaxOptions', $options);
+		} else {
+			// 
+		}
+	}
+
 
 	public function get_missing_pages() {
 		global $awpcp, $wpdb;
@@ -303,8 +354,6 @@ class AWPCP {
 
 		$orphan = $wpdb->get_results($wpdb->prepare($query));
 
-		debug($registered, $referenced, $missing, $leftovers, $excluded, $orphan);
-
 		// if a page is registered in the code but there is no reference
 		// of it in the database, create it.
 		foreach ($missing as $page) {
@@ -317,6 +366,7 @@ class AWPCP {
 
 		return $orphan;
 	}
+
 
 	public function restore_pages() {
 		global $wpdb;
@@ -342,6 +392,20 @@ class AWPCP {
 				awpcp_create_subpage($refname, $name, $shortcodes[$refname][1]);
 			}
 		}
+
+		flush_rewrite_rules();
+	}
+
+
+	/**
+	 * As of version 2.0.6 premium module are all separated plugins. 
+	 * This function check if those new plugins are present and update the 
+	 * relevant global variables.
+	 */
+	public function check_for_premium_modules() {
+		global $hasregionsmodule;
+
+		$hasregionsmodule = $hasregionsmodule || defined('AWPCP_REGION_CONTROL_MODULE');
 	}
 }
 
@@ -376,16 +440,15 @@ $hasrssmodule = 0;
 $hasfeaturedadsmodule = 0;
 
 
+if (!defined('AWPCP_REGION_CONTROL_MODULE') && file_exists("$awpcp_plugin_path/awpcp_region_control_module.php")) {
+	require_once("$awpcp_plugin_path/awpcp_region_control_module.php");
+	$hasregionsmodule = 1;
+}
 
 if ( file_exists("$awpcp_plugin_path/awpcp_category_icons_module.php") )
 {
 	require("$awpcp_plugin_path/awpcp_category_icons_module.php");
 	$hascaticonsmodule=1;
-}
-if ( file_exists("$awpcp_plugin_path/awpcp_region_control_module.php") )
-{
-	require("$awpcp_plugin_path/awpcp_region_control_module.php");
-	$hasregionsmodule=1;
 }
 if ( file_exists("$awpcp_plugin_path/awpcp_remove_powered_by_module.php") )
 {
@@ -427,7 +490,7 @@ function awpcpjs() {
 }
 
 function awpcp_insert_thickbox() {
-	global $siteurl,$wpinc;
+	global $siteurl, $wpinc;
 	//	Echo OK here
 	echo "\n".'
 
@@ -478,24 +541,16 @@ function awpcp_insert_thickbox() {
  * Returns the IDs of the pages used by the AWPCP plugin.
  */
 function exclude_awpcp_child_pages($excluded=array()) {
-	// global $wpdb;
-
-	// $pages = array_keys(awpcp_subpages());
-	// if (empty($pages)) {
-	// 	return array();
-	// }
-
-	// $query = 'SELECT id FROM ' . AWPCP_TABLE_PAGES . ' ';
-	// $query.= "WHERE page in ('" . implode("','", $pages) . "')";
-
-	// return  array_filter($wpdb->get_col($query));
-
-
-	global $wpdb,$table_prefix;
+	global $wpdb, $table_prefix;
 
 	$awpcp_page_id = awpcp_get_page_id_by_ref('main-page-name');
 
-	$query = "SELECT ID FROM {$table_prefix}posts WHERE post_parent='$awpcp_page_id' AND post_content LIKE '%AWPCP%'";
+	if (empty($awpcp_page_id)) {
+		return array();
+	}
+
+	$query = "SELECT ID FROM {$table_prefix}posts ";
+	$query.= "WHERE post_parent=$awpcp_page_id AND post_content LIKE '%AWPCP%'";
 	$res = awpcp_query($query, __LINE__);
 
 	$awpcpchildpages = array();
@@ -503,142 +558,13 @@ function exclude_awpcp_child_pages($excluded=array()) {
 		$awpcpchildpages[] = $rsrow[0];
 	}
 
-	// foreach ($awpcpchildpages as $awpcppageidstoexclude) {
-	// 	array_push($output, $awpcppageidstoexclude);
-	// }
-
-	// return $output;
-
 	return array_merge($awpcpchildpages, $excluded);
-}
-
-
-function awpcp_rules() {
-	global $wp_rewrite;	
-	$categories_view = sanitize_title(get_awpcp_option('view-categories-page-name'));
-	$permalink = get_permalink(awpcp_get_page_id_by_ref('main-page-name'));
-	$pattern = trim(str_replace(home_url(), '', $permalink), '/');
-	$pattern = '('.$pattern.')/('.$categories_view.')';
-	$rules = $wp_rewrite->wp_rewrite_rules();
-	if (!isset($rules[$pattern])) {
-		flush_rewrite_rules();
-	}
-}
-
-
-// add_action('generate_rewrite_rules', 'awpcp_rewrite_rules', 1, 1);
-function awpcp_rewrite_rules($wp_rewrite) {
-	$pages = array('main-page-name', 
-				   'show-ads-page-name', 
-				   'reply-to-ad-page-name', 
-				   'browse-categories-page-name', 
-				   'payment-thankyou-page-name', 
-				   'payment-cancel-page-name');
-
-	$home_url = home_url(); $patterns = array();
-	foreach ($pages as $page) {
-		$id = awpcp_get_page_id_by_ref($page);
-		$permalink = get_permalink($id);
-		$pattern = trim(str_replace($home_url, '', $permalink), '/');
-		if (!empty($pattern)) {
-			$patterns[$page] = $pattern;
-		}
-	}
-
-	$categories_view = sanitize_title(get_awpcp_option('view-categories-page-name'));
-
-	$rules = array();
-
-	if (isset($patterns['show-ads-page-name'])) {
-		$rules['('.$patterns['show-ads-page-name'].')/(.+?)/(.+?)']
-			= 'index.php?pagename=$matches[1]/&id=$matches[2]';
-	}
-
-	if (isset($patterns['reply-to-ad-page-name'])) {
-		$rules['('.$patterns['reply-to-ad-page-name'].')/(.+?)/(.+?)']
-			= 'index.php?pagename=$matches[1]/&id=$matches[2]';
-	}
-
-	if (isset($patterns['browse-categories-page-name'])) {
-		$rules['('.$patterns['browse-categories-page-name'].')/(.+?)/(.+?)']
-			= 'index.php?pagename=$matches[1]/&a=browsecat&cid='.$wp_rewrite->preg_index(2);
-	}
-
-	if (isset($patterns['payment-thankyou-page-name'])) {
-		$rules['('.$patterns['payment-thankyou-page-name'].')/([a-zA-Z0-9]+)']
-			= 'index.php?pagename=$matches[1]/&awpcp-txn='.$wp_rewrite->preg_index(2);
-	}
-
-	if (isset($patterns['payment-cancel-page-name'])) {
-		$rules['('.$patterns['payment-cancel-page-name'].')/([a-zA-Z0-9]+)']
-			= 'index.php?pagename=$matches[1]/&awpcp-txn='.$wp_rewrite->preg_index(2);
-	}
-
-	if (isset($patterns['main-page-name'])) {
-		$rules['('.$patterns['main-page-name'].')/(setregion)/(.+?)/(.+?)']
-			= 'index.php?pagename='.$patterns['main-page-name'].'/&a=setregion&regionid='.$wp_rewrite->preg_index(2);
-		$rules['('.$patterns['main-page-name'].')/(classifiedsrss)']
-			= 'index.php?pagename='.$patterns['main-page-name'].'/&awpcp-action=rss';
-		$rules['('.$patterns['main-page-name'].')/('.$categories_view.')']
-			= 'index.php?pagename='.$patterns['main-page-name'].'/&layout=2&cid='.$categories_view;
-	}
-
-	$wp_rewrite->rules = $rules + $wp_rewrite->rules;
-
-
-	// global $siteurl;
-	// $awpcppage = get_currentpagename();
-	// $pprefx = sanitize_title($awpcppage, $post_ID='');
-
-	// $pprefxpageguid=awpcp_get_guid($awpcppageid=awpcp_get_page_id($pprefx));
-	// $showadspagename=sanitize_title(get_awpcp_option('show-ads-page-name'),$post_ID='');
-	// $replytoadpagename=sanitize_title(get_awpcp_option('reply-to-ad-page-name'),$post_ID='');
-	// $showadspageguid=awpcp_get_guid($awpcpshowadspageid=awpcp_get_page_id($showadspagename));
-	// $replytoadsadspageguid=awpcp_get_guid($awpcpreplytoadspageid=awpcp_get_page_id($replytoadpagename));
-	// $awpcppageguid=awpcp_get_guid($awpcppageid=awpcp_get_page_id($pprefx));
-	// $browsecatspagename=sanitize_title(get_awpcp_option('browse-categories-page-name'),$post_ID='');
-	// $browsecatspageguid=awpcp_get_guid($awpcpbrowsecatspageid=awpcp_get_page_id($browsecatspagename));
-	// $paymentcancelpagename=sanitize_title(get_awpcp_option('payment-cancel-page-name'),$post_ID='');
-	// $paymentcancelpageguid=awpcp_get_guid($awpcppaymentcancelpageid=awpcp_get_page_id($paymentcancelpagename));
-	// $paymentthankyoupagename=sanitize_title(get_awpcp_option('payment-thankyou-page-name'),$post_ID='');
-	// $paymentthankyoupageguid=awpcp_get_guid($awpcppaymentcancelpageid=awpcp_get_page_id($paymentthankyoupagename));
-	// $categoriesviewpagename=sanitize_title(get_awpcp_option('view-categories-page-name'),$post_ID='');
-	// //$browsecatspageguid=awpcp_get_guid($awpcpbrowsecatspageid=awpcp_get_page_id($browsecatspagename));
-
-	// $awpcppre = $pprefx; // save a copy without parenthesis for use in rules below
-	// $pprefx = '(' . sanitize_title($awpcppage, $post_ID='') . ')';
-
-	// $awpcp_rules = array(
-	// 	$pprefx.'/('.$showadspagename.')/(.+?)/(.+?)' => 'index.php?pagename=$matches[1]/$matches[2]/&id=$matches[3]',
-	// 	$pprefx.'/('.$replytoadpagename.')/(.+?)/(.+?)' => 'index.php?pagename=$matches[1]/$matches[2]/&id=$matches[3]',
-	// 	$pprefx.'/('.$browsecatspagename.')/(.+?)/(.+?)' => 'index.php?pagename=$matches[1]/$matches[2]/&a=browsecat&cid='.$wp_rewrite->preg_index(3),
-	// 	$pprefx.'/('.$paymentthankyoupagename.')/(.+?)' => 'index.php?pagename=$matches[1]/$matches[2]/&i='.$wp_rewrite->preg_index(3),
-	// 	$pprefx.'/('.$paymentcancelpagename.')/(.+?)' => 'index.php?pagename=$matches[1]/$matches[2]/&i='.$wp_rewrite->preg_index(3),
-	// 	$pprefx.'/(setregion)/(.+?)/(.+?)' => 'index.php?pagename='.$awpcppre.'/&a=setregion&regionid='.$wp_rewrite->preg_index(3),
-	// 	$pprefx.'/(classifiedsrss)' => 'index.php?pagename='.$awpcppre.'/&a=rss',
-	// 	$pprefx.'/('.$categoriesviewpagename .')' => 'index.php?pagename='.$awpcppre.'/&layout=2'
-	// );
-
-	// // $wp_rewrite->rules = $awpcp_rules + $wp_rewrite->rules;
-}
-
-// add_filter('query_vars', 'awpcp_query_vars');
-function awpcp_query_vars($query_vars) {
-	$query_vars[] = "cid";
-	$query_vars[] = "i";
-	$query_vars[] = "id";
-	$query_vars[] = "layout";
-	$query_vars[] = "regionid";
-	$query_vars[] = 'awpcp-action';
-	return $query_vars;
 }
 
 
 
 // The function to add the reference to the plugin css style sheet to the header of the index page
-function awpcp_addcss()
-{
-	//Echo OK here
+function awpcp_addcss() {
 	$awpcpstylesheet="awpcpstyle.css";
 	$awpcpstylesheetie6="awpcpstyle-ie-6.css";
 	echo "\n".'<link rel="stylesheet" type="text/css" media="screen" href="'.AWPCP_URL.'css/'.$awpcpstylesheet.'" /> 
@@ -651,21 +577,6 @@ function awpcp_addcss()
 
 }
 // PROGRAM FUNCTIONS
-
-// START FUNCTIONS: Installation | Update
-
-
-
-
-//	End process
-
-
-
-
-
-
-
-
 
 
 // Add actions and filters etc
@@ -714,6 +625,85 @@ function awpcp_insert_facebook_meta() {
 	echo $output;
 }
 
+
+function awpcp_add_rewrite_rules($rules) {
+	$pages = array('main-page-name', 
+				   'show-ads-page-name', 
+				   'reply-to-ad-page-name', 
+				   'browse-categories-page-name', 
+				   'payment-thankyou-page-name', 
+				   'payment-cancel-page-name');
+	$patterns = array();
+
+	foreach ($pages as $refname) {
+		if ($id = awpcp_get_page_id_by_ref($refname)) {
+			if ($page = get_page($id)) {
+				$patterns[$refname] = get_page_uri($page->ID);
+			}
+		}
+	}
+
+	$categories_view = sanitize_title(get_awpcp_option('view-categories-page-name'));
+
+	if (isset($patterns['show-ads-page-name'])) {
+		add_rewrite_rule('('.$patterns['show-ads-page-name'].')/(.+?)/(.+?)',
+						 'index.php?pagename=$matches[1]&id=$matches[2]', 'top');
+	}
+
+	if (isset($patterns['reply-to-ad-page-name'])) {
+		add_rewrite_rule('('.$patterns['reply-to-ad-page-name'].')/(.+?)/(.+?)',
+						 'index.php?pagename=$matches[1]&id=$matches[2]', 'top');
+	}
+
+	if (isset($patterns['browse-categories-page-name'])) {
+		add_rewrite_rule('('.$patterns['browse-categories-page-name'].')/(.+?)/(.+?)',
+						 'index.php?pagename=$matches[1]&cid=$matches[2]&a=browsecat',
+						 'top');
+	}
+
+	if (isset($patterns['payment-thankyou-page-name'])) {
+		add_rewrite_rule('('.$patterns['payment-thankyou-page-name'].')/([a-zA-Z0-9]+)',
+						 'index.php?pagename=$matches[1]&awpcp-txn=$matches[2]', 'top');
+	}
+
+	if (isset($patterns['payment-cancel-page-name'])) {
+		add_rewrite_rule('('.$patterns['payment-cancel-page-name'].')/([a-zA-Z0-9]+)',
+						 'index.php?pagename=$matches[1]&awpcp-txn=$matches[2]', 'top');
+	}
+
+	if (isset($patterns['main-page-name'])) {
+		add_rewrite_rule('('.$patterns['main-page-name'].')/(setregion)/(.+?)/(.+?)',
+						 'index.php?pagename=$matches[1]&regionid=$matches[3]&a=setregion',
+						 'top');
+		add_rewrite_rule('('.$patterns['main-page-name'].')/(classifiedsrss)',
+						 'index.php?pagename=$matches[1]&awpcp-action=rss',
+						 'top');
+		add_rewrite_rule('('.$patterns['main-page-name'].')/('.$categories_view.')',
+						 'index.php?pagename=$matches[1]&layout=2&cid='.$categories_view,
+						 'top');
+	}
+
+	return $rules;
+}
+
+
+/**
+ * Register AWPCP query vars
+ */
+function awpcp_query_vars($query_vars) {
+	$query_vars[] = "cid";
+	$query_vars[] = "i";
+	$query_vars[] = "id";
+	$query_vars[] = "layout";
+	$query_vars[] = "regionid";
+	$query_vars[] = 'awpcp-action';
+	return $query_vars;
+}
+
+
+/**
+ * Set canonical URL to the Ad URL when in viewing on of AWPCP Ads
+ */
 function awpcp_rel_canonical() {
 	if (!is_singular())
 		return;
@@ -738,3 +728,36 @@ function awpcp_rel_canonical() {
 	
 	echo "<link rel='canonical' href='$link' />\n";
 }
+
+
+/**
+ * Overwrittes WP canonicalisation to ensure our rewrite rules
+ * work, even when the main AWPCP page is also the front page or 
+ * when the requested page slug is 'awpcp'.
+ *
+ * Required for the View Categories and Classifieds RSS rules to work
+ * when AWPCP main page is also the front page.
+ *
+ * http://wordpress.stackexchange.com/questions/51530/rewrite-rules-problem-when-rule-includes-homepage-slug
+ */
+function awpcp_redirect_canonical($redirect_url, $requested_url) {
+	global $wp_query;
+
+	$id = awpcp_get_page_id_by_ref('main-page-name');
+
+	// do not redirect direct requests to AWPCP main page
+	if (is_page() && !empty($_GET['page_id']) && $id == $_GET['page_id']) {
+		$redirect_url = $requested_url;
+
+	// do not redirect request to the front page, if AWPCP main page is
+	// the front page
+	} else if (is_page() && !is_feed() && isset($wp_query->queried_object) && 
+			  'page' == get_option('show_on_front') && $id == $wp_query->queried_object->ID &&
+			   $wp_query->queried_object->ID == get_option('page_on_front')) 
+	{
+		$redirect_url = $requested_url;
+	}
+
+	return $redirect_url;
+}
+add_filter('redirect_canonical', 'awpcp_redirect_canonical', 10, 2);

@@ -25,7 +25,7 @@ class AWPCP_Payment_ThankYou_Page {
 
 	public function dispatch() {
 		global $wp_query;
-
+		
 		$transaction_id = awpcp_array_data('awpcp-txn', '', $wp_query->query_vars);
 
 		$transaction_id_msg = '<br/><br/>';

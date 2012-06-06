@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Installation and Upgrade functions
  */
@@ -37,13 +37,18 @@ class AWPCP_Installer {
         return $result !== false;
     }
 
+    public function activate() {
+        $this->install();
+        flush_rewrite_rules();
+    }
+
     /**
      * Creates AWPCP tables.
      *
      * If is not a fresh install it calls $this->upgrade().
      */
     public function install() {
-        global $wpdb, $awpcp_db_version;
+        global $awpcp, $wpdb, $awpcp_db_version;
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
@@ -61,7 +66,7 @@ class AWPCP_Installer {
           `category_id` int(10) NOT NULL AUTO_INCREMENT,
           `category_parent_id` int(10) NOT NULL,
           `category_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `category_order` int(10) NULL DEFAULT '0',
+          `category_order` int(10) NULL DEFAULT 0,
           PRIMARY KEY  (`category_id`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
         dbDelta($sql);
@@ -72,11 +77,11 @@ class AWPCP_Installer {
           `adterm_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
           `adterm_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
           `amount` float(6,2) unsigned NOT NULL DEFAULT '0.00',
-          `recurring` tinyint(1) unsigned NOT NULL DEFAULT '0',
-          `rec_period` int(5) unsigned NOT NULL DEFAULT '0',
+          `recurring` tinyint(1) unsigned NOT NULL DEFAULT 0,
+          `rec_period` int(5) unsigned NOT NULL DEFAULT 0,
           `rec_increment` varchar(5) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `buys` int(10) unsigned NOT NULL DEFAULT '0',
-          `imagesallowed` int(5) unsigned NOT NULL DEFAULT '0',
+          `buys` int(10) unsigned NOT NULL DEFAULT 0,
+          `imagesallowed` int(5) unsigned NOT NULL DEFAULT 0,
           `is_featured_ad_pricing` tinyint(1) DEFAULT NULL,
           `categories` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
           PRIMARY KEY  (`adterm_id`)
@@ -87,7 +92,7 @@ class AWPCP_Installer {
         // create Ads table
         $sql = "CREATE TABLE IF NOT EXISTS " . AWPCP_TABLE_ADS . " (
           `ad_id` int(10) NOT NULL AUTO_INCREMENT,
-          `adterm_id` int(10) NOT NULL DEFAULT '0',
+          `adterm_id` int(10) NOT NULL DEFAULT 0,
           `ad_fee_paid` float(7,2) NOT NULL,
           `ad_category_id` int(10) NOT NULL,
           `ad_category_parent_id` int(10) NOT NULL,
@@ -107,7 +112,7 @@ class AWPCP_Installer {
           `ad_last_updated` date NOT NULL,
           `ad_startdate` datetime NOT NULL,
           `ad_enddate` datetime NOT NULL,
-          `disabled` tinyint(1) NOT NULL DEFAULT '0',
+          `disabled` tinyint(1) NOT NULL DEFAULT 0,
           `disabled_date` datetime,
           `ad_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
           `ad_transaction_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
@@ -129,8 +134,8 @@ class AWPCP_Installer {
         //   `config_option` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
         //   `config_value` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
         //   `config_diz` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-        //   `config_group_id` tinyint(1) unsigned NOT NULL DEFAULT '1',
-        //   `option_type` tinyint(1) unsigned NOT NULL DEFAULT '0',
+        //   `config_group_id` tinyint(1) unsigned NOT NULL DEFAULT 1,
+        //   `option_type` tinyint(1) unsigned NOT NULL DEFAULT 0,
         //   PRIMARY KEY  (`config_option`)
         // ) ENGINE=MyISAM COMMENT='0-checkbox, 1-text,2-textarea';";
         // dbDelta($sql);
@@ -139,7 +144,7 @@ class AWPCP_Installer {
         // create Ad Photos table
         $sql = "CREATE TABLE IF NOT EXISTS " . AWPCP_TABLE_ADPHOTOS . " (
           `key_id` int(10) NOT NULL AUTO_INCREMENT,
-          `ad_id` int(10) unsigned NOT NULL DEFAULT '0',
+          `ad_id` int(10) unsigned NOT NULL DEFAULT 0,
           `image_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
           `disabled` tinyint(1) NOT NULL,
           PRIMARY KEY  (`key_id`)
@@ -187,6 +192,8 @@ class AWPCP_Installer {
 
         do_action('awpcp_install');
 
+        $awpcp->settings->update_option('show-quick-start-guide-notice', true, true);
+
         return update_option("awpcp_db_version", $awpcp_db_version);
     }
 
@@ -202,11 +209,10 @@ class AWPCP_Installer {
         }
 
         // Delete the classifieds page(s)
-        $awpcppageid = awpcp_get_page_id_by_ref('main-page-name');
-
-        // TODO: use wp_delete_post and query_posts
-        $query="DELETE FROM {$table_prefix}posts WHERE ID='$awpcppageid' OR post_parent='$awpcppageid' and post_content LIKE '%AWPCP%'";
-        awpcp_query($query, __LINE__);
+        $pages = awpcp_pages();
+        foreach ($pages as $page => $data) {
+            wp_delete_post(awpcp_get_page_id_by_ref($page), true);
+        }
 
         // Drop the tables
         $wpdb->query("DROP TABLE IF EXISTS " . AWPCP_TABLE_CATEGORIES);
@@ -219,8 +225,7 @@ class AWPCP_Installer {
 
 
         // TODO: remove other tables created by modules too?
-        $tables = array($wpdb->prefix . 'awpcp_regions',
-                        $wpdb->prefix . 'awpcp_extra_fields',
+        $tables = array($wpdb->prefix . 'awpcp_extra_fields',
                         $wpdb->prefix . 'awpcp_comments');
         foreach ($tables as $table) {
             $wpdb->query("DROP TABLE IF EXISTS " . $table);    
@@ -282,6 +287,9 @@ class AWPCP_Installer {
         if (version_compare($oldversion, '2.0.5') < 0) {
             $this->upgrade_to_2_0_5($oldversion);
         }
+        if (version_compare($oldversion, '2.0.6') < 0) {
+            $this->upgrade_to_2_0_6($oldversion);
+        }
 
         do_action('awpcp_upgrade', $oldversion, $newversion);
         
@@ -293,7 +301,7 @@ class AWPCP_Installer {
 
         // Try to enable the expired ads, bug in 1.0.6.17:
         if ($version == '1.0.6.17') {
-            $query = "UPDATE ". AWPCP_TABLE_ADS ." SET DISABLED='0' WHERE ad_enddate >= NOW()";
+            $query = "UPDATE ". AWPCP_TABLE_ADS ." SET DISABLED=0 WHERE ad_enddate >= NOW()";
             $wpdb->query($query);
         }
 
@@ -333,7 +341,7 @@ class AWPCP_Installer {
 
 
         if (!$this->column_exists(AWPCP_TABLE_CATEGORIES, 'category_order')) {
-            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_CATEGORIES . "  ADD `category_order` int(10) NULL DEFAULT '0' AFTER category_name");
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_CATEGORIES . "  ADD `category_order` int(10) NULL DEFAULT 0 AFTER category_name");
             $wpdb->query("UPDATE " . AWPCP_TABLE_CATEGORIES . " SET category_order=0");
         }
 
@@ -369,7 +377,7 @@ class AWPCP_Installer {
         }
 
         //Fix bug from 1.8.6.4:
-        $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET option_type ='0' where config_option='notifyofadexpired'");
+        $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET option_type =0 where config_option='notifyofadexpired'");
 
 
 
@@ -378,7 +386,7 @@ class AWPCP_Installer {
         $cgid_column_name="config_group_id";
         $cgid_column_name_exists=mysql_query("SELECT $cgid_column_name FROM " . AWPCP_TABLE_ADSETTINGS);
         if (mysql_errno() || !$cgid_column_name_exists) {
-            $query=("ALTER TABLE " . AWPCP_TABLE_ADSETTINGS . "  ADD `config_group_id` tinyint(1) unsigned NOT NULL DEFAULT '1' AFTER config_diz");
+            $query=("ALTER TABLE " . AWPCP_TABLE_ADSETTINGS . "  ADD `config_group_id` tinyint(1) unsigned NOT NULL DEFAULT 1 AFTER config_diz");
             awpcp_query($query, __LINE__);
 
             $myconfig_group_ops_1=array('showlatestawpcpnews','uiwelcome','main_page_display','useakismet','contactformcheckhuman', 'contactformcheckhumanhighnumval','awpcptitleseparator','showcityinpagetitle','showstateinpagetitle','showcountryinpagetitle','showcategoryinpagetitle','showcountyvillageinpagetitle','awpcppagefilterswitch','activatelanguages','sidebarwidgetbeforecontent','sidebarwidgetaftercontent','sidebarwidgetbeforetitle','sidebarwidgetaftertitle','usesenderemailinsteadofadmin','awpcpadminaccesslevel','awpcpadminemail','useakismet');
@@ -394,7 +402,7 @@ class AWPCP_Installer {
             $myconfig_group_ops_11=array('seofriendlyurls','pathvaluecontact','pathvalueshowad','pathvaluebrowsecategory','pathvalueviewcategories','pathvaluecancelpayment','pathvaluepaymentthankyou');
 
             // assign a group value to each setting
-            foreach($myconfig_group_ops_1 as $myconfig_group_op_1){add_config_group_id($cvalue='1',$myconfig_group_op_1);}
+            foreach($myconfig_group_ops_1 as $myconfig_group_op_1){add_config_group_id($cvalue=1,$myconfig_group_op_1);}
             foreach($myconfig_group_ops_2 as $myconfig_group_op_2){add_config_group_id($cvalue='2',$myconfig_group_op_2);}
             foreach($myconfig_group_ops_3 as $myconfig_group_op_3){add_config_group_id($cvalue='3',$myconfig_group_op_3);}
             foreach($myconfig_group_ops_4 as $myconfig_group_op_4){add_config_group_id($cvalue='4',$myconfig_group_op_4);}
@@ -408,133 +416,133 @@ class AWPCP_Installer {
         }
 
         if (get_awpcp_option_group_id('seofriendlyurls') == 1){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_group_id` = '11' WHERE `config_option` = 'seofriendlyurls'"); }
-        if (get_awpcp_option_type('main_page_display') == 1){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = '0', `option_type` = '0', `config_diz` = 'Main page layout [ check for ad listings ] [ Uncheck for categories ]',config_group_id='1' WHERE `config_option` = 'main_page_display'"); }
-        if (get_awpcp_option_config_diz('paylivetestmode') != "Put payment gateways in test mode"){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = '0', `option_type` = '0', `config_diz` = 'Put payment gateways in test mode' WHERE `config_option` = 'paylivetestmode'");}
-        if (get_awpcp_option_config_diz('adresultsperpage') != "Default number of ads per page"){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = '10', `option_type` = '1', `config_diz` = 'Default number of ads per page' WHERE `config_option` = 'adresultsperpage'");}
+        if (get_awpcp_option_type('main_page_display') == 1){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = 0, `option_type` = 0, `config_diz` = 'Main page layout [ check for ad listings ] [ Uncheck for categories ]',config_group_id=1 WHERE `config_option` = 'main_page_display'"); }
+        if (get_awpcp_option_config_diz('paylivetestmode') != "Put payment gateways in test mode"){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = 0, `option_type` = 0, `config_diz` = 'Put payment gateways in test mode' WHERE `config_option` = 'paylivetestmode'");}
+        if (get_awpcp_option_config_diz('adresultsperpage') != "Default number of ads per page"){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = '10', `option_type` = 1, `config_diz` = 'Default number of ads per page' WHERE `config_option` = 'adresultsperpage'");}
         if (get_awpcp_option_config_diz('awpcpshowtheadlayout') != "<div id=\"showawpcpadpage\"><div class=\"adtitle\">$ad_title</div><br/><div class=\"showawpcpadpage\">$featureimg<label>Contact Information</label><br/><a href=\"$quers/$codecontact\">Contact $adcontact_name</a>$adcontactphone $location $awpcpvisitwebsite</div>$aditemprice $awpcpextrafields <div class=\"fixfloat\"></div> $showadsense1<div class=\"showawpcpadpage\"><label>More Information</label><br/>$addetails</div>$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>$awpcpshowadotherimages</ul></div></div><span class=\"fixfloat\">$tweetbtn $sharebtn $flagad</span>$awpcpadviews $showadsense3</div>"){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = '2', `option_type` = '2', `config_diz` = 'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.', `config_value` = '<div id=\"showawpcpadpage\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"showawpcpadpage\">\$featureimg<label>Contact Information</label><br/><a href=\"\$quers/\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location \$awpcpvisitwebsite</div>\$aditemprice \$awpcpextrafields <div class=\"fixfloat\"></div> \$showadsense1<div class=\"showawpcpadpage\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><span class=\"fixfloat\">\$tweetbtn \$sharebtn \$flagad</span>\$awpcpadviews \$showadsense3</div>' WHERE `config_option` = 'awpcpshowtheadlayout'");}
 
         ////
         // Match up the ad settings fields of current versions and upgrading versions
         ////
 
-        if (!field_exists($field='userpagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('userpagename', 'AWPCP', 'Name for classifieds page. [CAUTION: Make sure page does not already exist]','10','1');");}
-        if (!field_exists($field='showadspagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showadspagename', 'Show Ad', 'Name for show ads page. [CAUTION: existing page will be overwritten]','10','1');");}
-        if (!field_exists($field='placeadpagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('placeadpagename', 'Place Ad', 'Name for place ads page. [CAUTION: existing page will be overwritten]','10','1');");}
-        if (!field_exists($field='browseadspagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('browseadspagename', 'Browse Ads', 'Name browse ads apge. [CAUTION: existing page will be overwritten]','10','1');");}
-        if (!field_exists($field='searchadspagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES        ('searchadspagename', 'Search Ads', 'Name for search ads page. [CAUTION: existing page will be overwritten]','10','1');");}
-        if (!field_exists($field='paymentthankyoupagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paymentthankyoupagename', 'Payment Thank You', 'Name for payment thank you page. [CAUTION: existing page will be overwritten]','10','1');");}
-        if (!field_exists($field='paymentcancelpagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paymentcancelpagename', 'Cancel Payment', 'Name for payment cancel page. [CAUTION: existing page will be overwritten]','10','1');");}
-        if (!field_exists($field='replytoadpagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('replytoadpagename', 'Reply To Ad', 'Name for reply to ad page. [CAUTION: existing page will be overwritten]','10','1');");}
-        if (!field_exists($field='browsecatspagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('browsecatspagename', 'Browse Categories', 'Name for browse categories page. [CAUTION: existing page will be overwritten]','10','1');");}
-        if (!field_exists($field='editadpagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('editadpagename', 'Edit Ad', 'Name for edit ad page. [CAUTION: existing page will be overwritten]','10','1');");}
-        if (!field_exists($field='categoriesviewpagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES        ('categoriesviewpagename', 'View Categories', 'Name for categories view page. [ Dynamic Page]','10','1');");}
-        if (!field_exists($field='freepay')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('freepay', '0', 'Charge Listing Fee?','3','0');");}
-        if (!field_exists($field='requireuserregistration')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('requireuserregistration', '0', 'Require user registration?','7','0');");}
-        if (!field_exists($field='postloginformto')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('postloginformto', '', 'Post login form to [Value should be the full URL to the wordpress login script. Example http://www.awpcp.com/wp-login.php **Only needed if registration is required and your login url is mod-rewritten ] ','7','1');");}
-        if (!field_exists($field='registrationurl')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('registrationurl', '', 'Location of registraiton page [Value should be the full URL to the wordpress registration page. Example http://www.awpcp.com/wp-login.php?action=register **Only needed if registration is required and your login url is mod-rewritten ] ','7','1');");}
-        if (!field_exists($field='main_page_display')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('main_page_display', '0', 'Main page layout [ check for ad listings | Uncheck for categories ]','1','0');");}
-        if (!field_exists($field='activatelanguages')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('activatelanguages', '0', 'Activate Language Capability','1','0');");}
-        if (!field_exists($field='awpcpadminaccesslevel')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('awpcpadminaccesslevel', 'admin', 'Set wordpress role of users who can have admin access to classifieds. Choices [admin,editor]. Currently no other roles will be granted access.','1','1');");}
-        if (!field_exists($field='sidebarwidgetaftertitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('sidebarwidgetaftertitle', '</h3>', 'Code to appear after widget title','1','1');");}
-        if (!field_exists($field='sidebarwidgetbeforetitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('sidebarwidgetbeforetitle', '<h3 class=\"widgettitle\">', 'Code to appear before widget title','1','1');");}
-        if (!field_exists($field='sidebarwidgetaftercontent')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('sidebarwidgetaftercontent', '</div>', 'Code to appear after widget content','1','1');");}
-        if (!field_exists($field='sidebarwidgetbeforecontent')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('sidebarwidgetbeforecontent', '<div class=\"widget\">', 'Code to appear before widget content','1','1');");}
-        if (!field_exists($field='usesenderemailinsteadofadmin')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('usesenderemailinsteadofadmin', '0', 'Check this to use the name and email of the sender in the FROM field when someone replies to an ad. When unchecked the messages go out with the website name and WP admin email address in the from field. Some servers will not process outgoing emails that have an email address from gmail, yahoo, hotmail and other free email services in the FROM field. Some servers will also not process emails that have an email address that is different from the email address associated with your hosting account in the FROM field. If you are with such a webhost you need to leave this option unchecked and make sure your WordPress admin email address is tied to your hosting account.','1','0');");}
-        if (!field_exists($field='awpcpadminemail')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('awpcpadminemail', '', 'Emails go out using your WordPress admin email. If you prefer to use a different email enter it here.','1','1');");}
-        if (!field_exists($field='awpcptitleseparator')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('awpcptitleseparator', '-', 'The character to use to separate ad details used in browser page title [Example: | / - ]','1','1');");}
-        if (!field_exists($field='showcityinpagetitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showcityinpagetitle', '1', 'Show city in browser page title when viewing individual ad','1','0');");}
-        if (!field_exists($field='showstateinpagetitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showstateinpagetitle', '1', 'Show state in browser page title when viewing individual ad','1','0');");}
-        if (!field_exists($field='showcountryinpagetitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showcountryinpagetitle', '1', 'Show country in browser page title when viewing individual ad','1','0');");}
-        if (!field_exists($field='showcountyvillageinpagetitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES        ('showcountyvillageinpagetitle', '1', 'Show county/village/other setting in browser page title when viewing individual ad','1','0');");}
-        if (!field_exists($field='showcategoryinpagetitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showcategoryinpagetitle', '1', 'Show category in browser page title when viewing individual ad','1','0');");}
-        if (!field_exists($field='awpcppagefilterswitch')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('awpcppagefilterswitch', '1', 'Uncheck this if you need to turn off the awpcp page filter that prevents awpcp classifieds children pages from showing up in your wp pages menu [you might need to do this if for example the awpcp page filter is messing up your page menu. It means you will have to manually exclude the awpcp children pages from showing in your page list. Some of the pages really should not be visible to your users by default]','1','0');");}
-        if (!field_exists($field='paylivetestmode')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paylivetestmode', '0', 'Put Paypal and 2Checkout in test mode.','3','0');");}
-        if (!field_exists($field='useadsense')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('useadsense', '1', 'Activate adsense','5','0');");}
+        if (!field_exists($field='userpagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('userpagename', 'AWPCP', 'Name for classifieds page. [CAUTION: Make sure page does not already exist]','10',1);");}
+        if (!field_exists($field='showadspagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showadspagename', 'Show Ad', 'Name for show ads page. [CAUTION: existing page will be overwritten]','10',1);");}
+        if (!field_exists($field='placeadpagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('placeadpagename', 'Place Ad', 'Name for place ads page. [CAUTION: existing page will be overwritten]','10',1);");}
+        if (!field_exists($field='browseadspagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('browseadspagename', 'Browse Ads', 'Name browse ads apge. [CAUTION: existing page will be overwritten]','10',1);");}
+        if (!field_exists($field='searchadspagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES        ('searchadspagename', 'Search Ads', 'Name for search ads page. [CAUTION: existing page will be overwritten]','10',1);");}
+        if (!field_exists($field='paymentthankyoupagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paymentthankyoupagename', 'Payment Thank You', 'Name for payment thank you page. [CAUTION: existing page will be overwritten]','10',1);");}
+        if (!field_exists($field='paymentcancelpagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paymentcancelpagename', 'Cancel Payment', 'Name for payment cancel page. [CAUTION: existing page will be overwritten]','10',1);");}
+        if (!field_exists($field='replytoadpagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('replytoadpagename', 'Reply To Ad', 'Name for reply to ad page. [CAUTION: existing page will be overwritten]','10',1);");}
+        if (!field_exists($field='browsecatspagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('browsecatspagename', 'Browse Categories', 'Name for browse categories page. [CAUTION: existing page will be overwritten]','10',1);");}
+        if (!field_exists($field='editadpagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('editadpagename', 'Edit Ad', 'Name for edit ad page. [CAUTION: existing page will be overwritten]','10',1);");}
+        if (!field_exists($field='categoriesviewpagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES        ('categoriesviewpagename', 'View Categories', 'Name for categories view page. [ Dynamic Page]','10',1);");}
+        if (!field_exists($field='freepay')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('freepay', 0, 'Charge Listing Fee?','3',0);");}
+        if (!field_exists($field='requireuserregistration')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('requireuserregistration', 0, 'Require user registration?','7',0);");}
+        if (!field_exists($field='postloginformto')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('postloginformto', '', 'Post login form to [Value should be the full URL to the wordpress login script. Example http://www.awpcp.com/wp-login.php **Only needed if registration is required and your login url is mod-rewritten ] ','7',1);");}
+        if (!field_exists($field='registrationurl')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('registrationurl', '', 'Location of registraiton page [Value should be the full URL to the wordpress registration page. Example http://www.awpcp.com/wp-login.php?action=register **Only needed if registration is required and your login url is mod-rewritten ] ','7',1);");}
+        if (!field_exists($field='main_page_display')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('main_page_display', 0, 'Main page layout [ check for ad listings | Uncheck for categories ]',1,0);");}
+        if (!field_exists($field='activatelanguages')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('activatelanguages', 0, 'Activate Language Capability',1,0);");}
+        if (!field_exists($field='awpcpadminaccesslevel')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('awpcpadminaccesslevel', 'admin', 'Set wordpress role of users who can have admin access to classifieds. Choices [admin,editor]. Currently no other roles will be granted access.',1,1);");}
+        if (!field_exists($field='sidebarwidgetaftertitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('sidebarwidgetaftertitle', '</h3>', 'Code to appear after widget title',1,1);");}
+        if (!field_exists($field='sidebarwidgetbeforetitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('sidebarwidgetbeforetitle', '<h3 class=\"widgettitle\">', 'Code to appear before widget title',1,1);");}
+        if (!field_exists($field='sidebarwidgetaftercontent')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('sidebarwidgetaftercontent', '</div>', 'Code to appear after widget content',1,1);");}
+        if (!field_exists($field='sidebarwidgetbeforecontent')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('sidebarwidgetbeforecontent', '<div class=\"widget\">', 'Code to appear before widget content',1,1);");}
+        if (!field_exists($field='usesenderemailinsteadofadmin')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('usesenderemailinsteadofadmin', 0, 'Check this to use the name and email of the sender in the FROM field when someone replies to an ad. When unchecked the messages go out with the website name and WP admin email address in the from field. Some servers will not process outgoing emails that have an email address from gmail, yahoo, hotmail and other free email services in the FROM field. Some servers will also not process emails that have an email address that is different from the email address associated with your hosting account in the FROM field. If you are with such a webhost you need to leave this option unchecked and make sure your WordPress admin email address is tied to your hosting account.',1,0);");}
+        if (!field_exists($field='awpcpadminemail')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('awpcpadminemail', '', 'Emails go out using your WordPress admin email. If you prefer to use a different email enter it here.',1,1);");}
+        if (!field_exists($field='awpcptitleseparator')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('awpcptitleseparator', '-', 'The character to use to separate ad details used in browser page title [Example: | / - ]',1,1);");}
+        if (!field_exists($field='showcityinpagetitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showcityinpagetitle', 1, 'Show city in browser page title when viewing individual ad',1,0);");}
+        if (!field_exists($field='showstateinpagetitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showstateinpagetitle', 1, 'Show state in browser page title when viewing individual ad',1,0);");}
+        if (!field_exists($field='showcountryinpagetitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showcountryinpagetitle', 1, 'Show country in browser page title when viewing individual ad',1,0);");}
+        if (!field_exists($field='showcountyvillageinpagetitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES        ('showcountyvillageinpagetitle', 1, 'Show county/village/other setting in browser page title when viewing individual ad',1,0);");}
+        if (!field_exists($field='showcategoryinpagetitle')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showcategoryinpagetitle', 1, 'Show category in browser page title when viewing individual ad',1,0);");}
+        if (!field_exists($field='awpcppagefilterswitch')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('awpcppagefilterswitch', 1, 'Uncheck this if you need to turn off the awpcp page filter that prevents awpcp classifieds children pages from showing up in your wp pages menu [you might need to do this if for example the awpcp page filter is messing up your page menu. It means you will have to manually exclude the awpcp children pages from showing in your page list. Some of the pages really should not be visible to your users by default]',1,0);");}
+        if (!field_exists($field='paylivetestmode')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paylivetestmode', 0, 'Put Paypal and 2Checkout in test mode.','3',0);");}
+        if (!field_exists($field='useadsense')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('useadsense', 1, 'Activate adsense','5',0);");}
         if (!field_exists($field='adsense')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('adsense', 'Adsense code', 'Your adsense code [ Best if 468 by 60 text or banner. ]','5','2');");}
-        if (!field_exists($field='adsenseposition')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('adsenseposition', '2', 'Adsense position. [ 1 - above ad text body ] [ 2 - under ad text body ] [ 3 - below ad images. ]','5','1');");}
-        if (!field_exists($field='addurationfreemode')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('addurationfreemode', '0', 'Expire free ads after how many days? [0 for no expiry].','2','1');");}
-        if (!field_exists($field='autoexpiredisabledelete')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('autoexpiredisabledelete', '0', 'Disable expired ads instead of deleting them?','2','0');");}
-        if (!field_exists($field='imagesallowdisallow')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('imagesallowdisallow', '1', 'Allow images in ads? [Affects both free and paid]','4','0');");}
-        if (!field_exists($field='awpcp_thickbox_disabled')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('awpcp_thickbox_disabled', '0', 'Turn off the thickbox/lightbox if it conflicts with other elements of your site','4','0');");}
-        if (!field_exists($field='imagesallowedfree')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('imagesallowedfree', '4', ' Free mode number of images allowed?','4','1');");}
-        if (!field_exists($field='uploadfoldername')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('uploadfoldername', 'uploads', 'Upload folder name. [ Folder must exist and be located in your wp-content directory ]','4','1');");}
-        if (!field_exists($field='maximagesize')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('maximagesize', '150000', 'Maximum size per image user can upload to system.','4','1');");}
-        if (!field_exists($field='minimagesize')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('minimagesize', '300', 'Minimum size per image user can upload to system','4','1');");}
-        if (!field_exists($field='imgthumbwidth')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('imgthumbwidth', '125', 'Minimum height/width for uploaded images (used for both).','4','1');");}
-        if (!field_exists($field='maxcharactersallowed')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('maxcharactersallowed', '750', 'What is the maximum number of characters the text of an ad can contain?','2','1');");}
-        if (!field_exists($field='imgmaxheight')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,`config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('imgmaxheight', '480', 'Max image height. Images taller than this are automatically resized upon upload.','4','1');");}
-        if (!field_exists($field='imgmaxwidth')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('imgmaxwidth', '640', 'Max image width. Images wider than this are automatically resized upon upload.','4','1');");}
-        if (!field_exists($field='paypalemail')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paypalemail', 'xxx@xxxxxx.xxx', 'Email address for paypal payments [if running in paymode and if paypal is activated]','3','1');");}
-        if (!field_exists($field='paypalcurrencycode')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paypalcurrencycode', 'USD', 'The currency in which you would like to receive your paypal payments','3','1');");}
-        if (!field_exists($field='displaycurrencycode')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycurrencycode', 'USD', 'The currency to show on your payment pages','3','1');");}
-        if (!field_exists($field='2checkout')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('2checkout', 'xxxxxxx', 'Account for 2Checkout payments [if running in pay mode and if 2Checkout is activated]','3','1');");}
-        if (!field_exists($field='activatepaypal')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('activatepaypal', '1', 'Activate PayPal','3','0');");}
-        if (!field_exists($field='activate2checkout')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('activate2checkout', '1', 'Activate 2Checkout ','3','0');");}
-        if (!field_exists($field='paypalpaymentsrecurring')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paypalpaymentsrecurring', '0', 'Use recurring payments paypal [ this feature is not fully automated or fully integrated. For more reliable results do not use recurring ','3','0');");}
-        if (!field_exists($field='twocheckoutpaymentsrecurring')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('twocheckoutpaymentsrecurring', '0', 'Use recurring payments 2checkout [ this feature is not fully automated or fully integrated. For more reliable results do not use recurring ','3','0');");}
-        if (!field_exists($field='notifyofadexpiring')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('notifyofadexpiring', '1', 'Notify ad poster that their ad has expired?','2','0');");}
-        if (!field_exists($field='notifyofadposted')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('notifyofadposted', '1', 'Notify admin of new ad.','2','0');");}
-        if (!field_exists($field='listingaddedsubject')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('listingaddedsubject', 'Your classified ad listing has been submitted', 'Subject line for email sent out when someone posts an ad','8','1');");}
+        if (!field_exists($field='adsenseposition')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('adsenseposition', '2', 'Adsense position. [ 1 - above ad text body ] [ 2 - under ad text body ] [ 3 - below ad images. ]','5',1);");}
+        if (!field_exists($field='addurationfreemode')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('addurationfreemode', 0, 'Expire free ads after how many days? [0 for no expiry].','2',1);");}
+        if (!field_exists($field='autoexpiredisabledelete')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('autoexpiredisabledelete', 0, 'Disable expired ads instead of deleting them?','2',0);");}
+        if (!field_exists($field='imagesallowdisallow')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('imagesallowdisallow', 1, 'Allow images in ads? [Affects both free and paid]','4',0);");}
+        if (!field_exists($field='awpcp_thickbox_disabled')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('awpcp_thickbox_disabled', 0, 'Turn off the thickbox/lightbox if it conflicts with other elements of your site','4',0);");}
+        if (!field_exists($field='imagesallowedfree')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('imagesallowedfree', '4', ' Free mode number of images allowed?','4',1);");}
+        if (!field_exists($field='uploadfoldername')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('uploadfoldername', 'uploads', 'Upload folder name. [ Folder must exist and be located in your wp-content directory ]','4',1);");}
+        if (!field_exists($field='maximagesize')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('maximagesize', '150000', 'Maximum size per image user can upload to system.','4',1);");}
+        if (!field_exists($field='minimagesize')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('minimagesize', '300', 'Minimum size per image user can upload to system','4',1);");}
+        if (!field_exists($field='imgthumbwidth')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('imgthumbwidth', '125', 'Minimum height/width for uploaded images (used for both).','4',1);");}
+        if (!field_exists($field='maxcharactersallowed')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('maxcharactersallowed', '750', 'What is the maximum number of characters the text of an ad can contain?','2',1);");}
+        if (!field_exists($field='imgmaxheight')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,`config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('imgmaxheight', '480', 'Max image height. Images taller than this are automatically resized upon upload.','4',1);");}
+        if (!field_exists($field='imgmaxwidth')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('imgmaxwidth', '640', 'Max image width. Images wider than this are automatically resized upon upload.','4',1);");}
+        if (!field_exists($field='paypalemail')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paypalemail', 'xxx@xxxxxx.xxx', 'Email address for paypal payments [if running in paymode and if paypal is activated]','3',1);");}
+        if (!field_exists($field='paypalcurrencycode')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paypalcurrencycode', 'USD', 'The currency in which you would like to receive your paypal payments','3',1);");}
+        if (!field_exists($field='displaycurrencycode')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycurrencycode', 'USD', 'The currency to show on your payment pages','3',1);");}
+        if (!field_exists($field='2checkout')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('2checkout', 'xxxxxxx', 'Account for 2Checkout payments [if running in pay mode and if 2Checkout is activated]','3',1);");}
+        if (!field_exists($field='activatepaypal')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('activatepaypal', 1, 'Activate PayPal','3',0);");}
+        if (!field_exists($field='activate2checkout')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('activate2checkout', 1, 'Activate 2Checkout ','3',0);");}
+        if (!field_exists($field='paypalpaymentsrecurring')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paypalpaymentsrecurring', 0, 'Use recurring payments paypal [ this feature is not fully automated or fully integrated. For more reliable results do not use recurring ','3',0);");}
+        if (!field_exists($field='twocheckoutpaymentsrecurring')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('twocheckoutpaymentsrecurring', 0, 'Use recurring payments 2checkout [ this feature is not fully automated or fully integrated. For more reliable results do not use recurring ','3',0);");}
+        if (!field_exists($field='notifyofadexpiring')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('notifyofadexpiring', 1, 'Notify ad poster that their ad has expired?','2',0);");}
+        if (!field_exists($field='notifyofadposted')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('notifyofadposted', 1, 'Notify admin of new ad.','2',0);");}
+        if (!field_exists($field='listingaddedsubject')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('listingaddedsubject', 'Your classified ad listing has been submitted', 'Subject line for email sent out when someone posts an ad','8',1);");}
         if (!field_exists($field='listingaddedbody')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('listingaddedbody', 'Thank you for submitting your classified ad. The details of your ad are shown below.', 'Message body text for email sent out when someone posts an ad','8','2');");}
-        if (!field_exists($field='imagesapprove')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('imagesapprove', '0', 'Hide images until admin approves them','4','0');");}
-        if (!field_exists($field='adapprove')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('adapprove', '0', 'Disable ad until admin approves','2','0');");}
-        if (!field_exists($field='displayadthumbwidth')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displayadthumbwidth', '80', 'Width for thumbnails in ad listings view [Only numerical value]','2','1');");}
-        if (!field_exists($field='disablependingads')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('disablependingads', '1', 'Enable paid ads that are pending payment.','2','0');");}
-        if (!field_exists($field='groupbrowseadsby')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('groupbrowseadsby', '1', 'Group ad listings by','2','3');");}
-        if (!field_exists($field='groupsearchresultsby')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('groupsearchresultsby', '1', 'Group ad listings in search results by','2','3');");}
-        if (!field_exists($field='showadcount')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showadcount', '1', 'Show how many ads a category contains.','2','0');");}
-        if (!field_exists($field='adresultsperpage')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('adresultsperpage', '10', 'Default number of ads per page','2','1');");}
-        if (!field_exists($field='noadsinparentcat')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('noadsinparentcat', '0', 'Prevent ads from being posted to top level categories?.','2','0');");}
-        if (!field_exists($field='displayadviews')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displayadviews', '1', 'Show ad views','2','0');");}
+        if (!field_exists($field='imagesapprove')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('imagesapprove', 0, 'Hide images until admin approves them','4',0);");}
+        if (!field_exists($field='adapprove')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('adapprove', 0, 'Disable ad until admin approves','2',0);");}
+        if (!field_exists($field='displayadthumbwidth')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displayadthumbwidth', '80', 'Width for thumbnails in ad listings view [Only numerical value]','2',1);");}
+        if (!field_exists($field='disablependingads')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('disablependingads', 1, 'Enable paid ads that are pending payment.','2',0);");}
+        if (!field_exists($field='groupbrowseadsby')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('groupbrowseadsby', 1, 'Group ad listings by','2','3');");}
+        if (!field_exists($field='groupsearchresultsby')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('groupsearchresultsby', 1, 'Group ad listings in search results by','2','3');");}
+        if (!field_exists($field='showadcount')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showadcount', 1, 'Show how many ads a category contains.','2',0);");}
+        if (!field_exists($field='adresultsperpage')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('adresultsperpage', '10', 'Default number of ads per page','2',1);");}
+        if (!field_exists($field='noadsinparentcat')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('noadsinparentcat', 0, 'Prevent ads from being posted to top level categories?.','2',0);");}
+        if (!field_exists($field='displayadviews')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displayadviews', 1, 'Show ad views','2',0);");}
         if (!field_exists($field='displayadlayoutcode')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displayadlayoutcode', '<div class=\"\$awpcpdisplayaditems\"><div style=\"width:\$imgblockwidth;padding:5px;float:left;margin-right:20px;\">\$awpcp_image_name_srccode</div><div style=\"width:50%;padding:5px;float:left;\"><h4>\$ad_title</h4> \$addetailssummary...</div><div style=\"padding:5px;float:left;\"> \$awpcpadpostdate \$awpcp_city_display \$awpcp_state_display \$awpcp_display_adviews \$awpcp_display_price </div><div class=\"fixfloat\"></div></div><div class=\"fixfloat\"></div>', 'Modify as needed to control layout of ad listings page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.','2','2');");}
         if (!field_exists($field='awpcpshowtheadlayout')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('awpcpshowtheadlayout', '<div id=\"showawpcpadpage\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"showawpcpadpage\">\$featureimg<label>Contact Information</label><br/><a href=\"\$quers/\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location \$awpcpvisitwebsite</div>\$aditemprice \$awpcpextrafields <div class=\"fixfloat\"></div> \$showadsense1<div class=\"showawpcpadpage\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><span class=\"fixfloat\">\$tweetbtn \$sharebtn \$flagad</span>\$awpcpadviews \$showadsense3</div>', 'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.','2','2');");}
-        if (!field_exists($field='usesmtp')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('usesmtp', '0', 'Enable external SMTP server [ if emails not processing normally]', 9 ,'0');");}
-        if (!field_exists($field='smtphost')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('smtphost', 'mail.example.com', 'SMTP host [ if emails not processing normally]', 9 ,'1');");}
-        if (!field_exists($field='smtpport')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('smtpport', '25', 'SMTP port [ if emails not processing normally]', 9 ,'1');");}
-        if (!field_exists($field='smtpusername')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('smtpusername', 'smtp_username', 'SMTP username [ if emails not processing normally]', 9,'1');");}
-        if (!field_exists($field='smtppassword')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('smtppassword', '', 'SMTP password [ if emails not processing normally]', 9,'1');");}
-        if (!field_exists($field='onlyadmincanplaceads')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('onlyadmincanplaceads', '0', 'Only admin can post ads', '2','0');");}
-        if (!field_exists($field='contactformcheckhuman')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('contactformcheckhuman', '1', 'Activate Math ad post and contact form validation', '1','0');");}
-        if (!field_exists($field='useakismet')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('useakismet', '0', 'Use Akismet for Posting Ads/Contact Responses (strong anti-spam)', '1','0');");}
-        if (!field_exists($field='contactformcheckhumanhighnumval')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('contactformcheckhumanhighnumval', '10', 'Math validation highest number', '1','1');");}
-        if (!field_exists($field='contactformsubjectline')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('contactformsubjectline', 'Response to your AWPCP Demo Ad', 'Subject line for email sent out when someone replies to ad','8', '1');");}
+        if (!field_exists($field='usesmtp')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('usesmtp', 0, 'Enable external SMTP server [ if emails not processing normally]', 9 ,0);");}
+        if (!field_exists($field='smtphost')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('smtphost', 'mail.example.com', 'SMTP host [ if emails not processing normally]', 9 ,1);");}
+        if (!field_exists($field='smtpport')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('smtpport', '25', 'SMTP port [ if emails not processing normally]', 9 ,1);");}
+        if (!field_exists($field='smtpusername')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('smtpusername', 'smtp_username', 'SMTP username [ if emails not processing normally]', 9,1);");}
+        if (!field_exists($field='smtppassword')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('smtppassword', '', 'SMTP password [ if emails not processing normally]', 9,1);");}
+        if (!field_exists($field='onlyadmincanplaceads')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('onlyadmincanplaceads', 0, 'Only admin can post ads', '2',0);");}
+        if (!field_exists($field='contactformcheckhuman')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('contactformcheckhuman', 1, 'Activate Math ad post and contact form validation', 1,0);");}
+        if (!field_exists($field='useakismet')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('useakismet', 0, 'Use Akismet for Posting Ads/Contact Responses (strong anti-spam)', 1,0);");}
+        if (!field_exists($field='contactformcheckhumanhighnumval')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('contactformcheckhumanhighnumval', '10', 'Math validation highest number', 1,1);");}
+        if (!field_exists($field='contactformsubjectline')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('contactformsubjectline', 'Response to your AWPCP Demo Ad', 'Subject line for email sent out when someone replies to ad','8', 1);");}
         if (!field_exists($field='contactformbodymessage')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('contactformbodymessage', 'Someone has responded to your AWPCP Demo Ad', 'Message body text for email sent out when someone replies to ad', '8','2');");}
-        if (!field_exists($field='resendakeyformsubjectline')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('resendakeyformsubjectline', 'The classified ad access key you requested', 'Subject line for email sent out when someone requests their ad access key resent','8', '1');");}
+        if (!field_exists($field='resendakeyformsubjectline')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('resendakeyformsubjectline', 'The classified ad access key you requested', 'Subject line for email sent out when someone requests their ad access key resent','8', 1);");}
         if (!field_exists($field='resendakeyformbodymessage')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('resendakeyformbodymessage', 'You asked to have your classified ad ad access key resent. Below are all the ad access keys in the system that are tied to the email address you provided', 'Message body text for email sent out when someone requests their ad access key resent', '8','2');");}
-        if (!field_exists($field='paymentabortedsubjectline')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paymentabortedsubjectline', 'There was a problem processing your classified ads listing payment', 'Subject line for email sent out when the payment processing does not complete','8', '1');");}
+        if (!field_exists($field='paymentabortedsubjectline')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paymentabortedsubjectline', 'There was a problem processing your classified ads listing payment', 'Subject line for email sent out when the payment processing does not complete','8', 1);");}
         if (!field_exists($field='paymentabortedbodymessage')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('paymentabortedbodymessage', 'There was a problem encountered during your attempt to submit payment for your classified ad listing. If funds were removed from the account you tried to use to make a payment please contact the website admin or the payment website customer service for assistance.', 'Message body text for email sent out when the payment processing does not complete','8','2');");}
-        if (!field_exists($field='adexpiredsubjectline')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('adexpiredsubjectline', 'Your classifieds listing ad has expired', 'Subject line for email sent out when an ad has auto-expired','8', '1');");}
+        if (!field_exists($field='adexpiredsubjectline')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('adexpiredsubjectline', 'Your classifieds listing ad has expired', 'Subject line for email sent out when an ad has auto-expired','8', 1);");}
         if (!field_exists($field='adexpiredbodymessage')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('adexpiredbodymessage', 'This is an automated notification that your classified ad has expired.','Message body text for email sent out when an ad has auto-expired', '8','2');");}
-        if (!field_exists($field='seofriendlyurls')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('seofriendlyurls', '0', 'Search Engine Friendly URLs? [ Does not work in some instances ]', '11','0');");}
-        if (!field_exists($field='pathvaluecontact')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('pathvaluecontact', '3', 'If contact page link not working in seo mode change value until correct path is found. Start at 1', '11','1');");}
-        if (!field_exists($field='pathvalueshowad')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('pathvalueshowad', '3', 'If show ad links not working in seo mode change value until correct path is found. Start at 1', '11','1');");}
-        if (!field_exists($field='pathvaluebrowsecats')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('pathvaluebrowsecats', '2', 'If browse categories links not working in seo mode change value until correct path is found. Start at 1', '11','1');");}
-        if (!field_exists($field='pathvalueviewcategories')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('pathvalueviewcategories', '2', 'If the view categories link is not working in seo mode change value until correct path is found. Start at 1', '11','1');");}
-        if (!field_exists($field='pathvaluecancelpayment')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('pathvaluecancelpayment', '2', 'If the cancel payment buttons are not working in seo mode it means the path the plugin is using is not correct. Change the until the correct path is found. Start at 1', '11','1');");}
-        if (!field_exists($field='pathvaluepaymentthankyou')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('pathvaluepaymentthankyou', '2', 'If the payment thank you page is not working in seo mode it means the path the plugin is using is not correct. Change the until the correct path is found. Start at 1', '11','1');");}
-        if (!field_exists($field='allowhtmlinadtext')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('allowhtmlinadtext', '0', 'Allow HTML in ad text [ Not recommended ]', '2','0');");}
+        if (!field_exists($field='seofriendlyurls')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('seofriendlyurls', 0, 'Search Engine Friendly URLs? [ Does not work in some instances ]', '11',0);");}
+        if (!field_exists($field='pathvaluecontact')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('pathvaluecontact', '3', 'If contact page link not working in seo mode change value until correct path is found. Start at 1', '11',1);");}
+        if (!field_exists($field='pathvalueshowad')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('pathvalueshowad', '3', 'If show ad links not working in seo mode change value until correct path is found. Start at 1', '11',1);");}
+        if (!field_exists($field='pathvaluebrowsecats')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('pathvaluebrowsecats', '2', 'If browse categories links not working in seo mode change value until correct path is found. Start at 1', '11',1);");}
+        if (!field_exists($field='pathvalueviewcategories')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('pathvalueviewcategories', '2', 'If the view categories link is not working in seo mode change value until correct path is found. Start at 1', '11',1);");}
+        if (!field_exists($field='pathvaluecancelpayment')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('pathvaluecancelpayment', '2', 'If the cancel payment buttons are not working in seo mode it means the path the plugin is using is not correct. Change the until the correct path is found. Start at 1', '11',1);");}
+        if (!field_exists($field='pathvaluepaymentthankyou')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('pathvaluepaymentthankyou', '2', 'If the payment thank you page is not working in seo mode it means the path the plugin is using is not correct. Change the until the correct path is found. Start at 1', '11',1);");}
+        if (!field_exists($field='allowhtmlinadtext')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('allowhtmlinadtext', 0, 'Allow HTML in ad text [ Not recommended ]', '2',0);");}
         if (!field_exists($field='htmlstatustext')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('htmlstatustext', 'No HTML Allowed', 'Display this text above ad detail text input box on ad post page', '2','2');");}
-        if (!field_exists($field='hyperlinkurlsinadtext')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('hyperlinkurlsinadtext', '0', 'Make URLs in ad text clickable', '2','0');");}
-        if (!field_exists($field='visitwebsitelinknofollow')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('visitwebsitelinknofollow', '1', 'Add no follow to links in ads', '2','0');");}
+        if (!field_exists($field='hyperlinkurlsinadtext')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('hyperlinkurlsinadtext', 0, 'Make URLs in ad text clickable', '2',0);");}
+        if (!field_exists($field='visitwebsitelinknofollow')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('visitwebsitelinknofollow', 1, 'Add no follow to links in ads', '2',0);");}
         if (!field_exists($field='notice_awaiting_approval_ad')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('notice_awaiting_approval_ad', 'All ads must first be approved by the administrator before they are activated in the system. As soon as an admin has approved your ad it will become visible in the system. Thank you for your business.','Text for message to notify user that ad is awaiting approval','2','2');");}
-        if (!field_exists($field='displayphonefield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displayphonefield', '1', 'Show phone field','6','0');");}
-        if (!field_exists($field='displayphonefieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displayphonefieldreqop', '0', 'Require phone','6','0');");}
-        if (!field_exists($field='displaycityfield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycityfield', '1', 'Show city field.','6','0');");}
-        if (!field_exists($field='displaycityfieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycityfieldreqop', '0', 'Require city','6','0');");}
-        if (!field_exists($field='displaystatefield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaystatefield', '1', 'Show state field.','6','0');");}
-        if (!field_exists($field='displaystatefieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaystatefieldreqop', '0', 'Require state','6','0');");}
-        if (!field_exists($field='displaycountryfield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycountryfield', '1', 'Show country field.','6','0');");}
-        if (!field_exists($field='displaycountryfieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycountryfieldreqop', '0', 'Require country','6','0');");}
-        if (!field_exists($field='displaycountyvillagefield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycountyvillagefield', '0', 'Show County/village/other.','6','0');");}
-        if (!field_exists($field='displaycountyvillagefieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycountyvillagefieldreqop', '0', 'Require county/village/other.','6','0');");}
-        if (!field_exists($field='displaypricefield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaypricefield', '1', 'Show price field.','6','0');");}
-        if (!field_exists($field='displaypricefieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaypricefieldreqop', '0', 'Require price.','6','0');");}
-        if (!field_exists($field='displaywebsitefield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaywebsitefield', '1', 'Show website field','6','0');");}
-        if (!field_exists($field='displaywebsitefieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaywebsitefieldreqop', '0', 'Require website','6','0');");}
-        if (!field_exists($field='displaypostedbyfield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaypostedbyfield', '1', 'Show Posted By field?','6','0');");}
-        if (!field_exists($field='buildsearchdropdownlists')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('buildsearchdropdownlists', '0', 'The search form can attempt to build drop down country, state, city and county lists if data is available in the system. Limits search to available locations. Note that with the regions module installed the value for this option is overridden.','2','0');");}
-        if (!field_exists($field='uiwelcome')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side','1','2');");}
-        if (!field_exists($field='showlatestawpcpnews')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showlatestawpcpnews', '1', 'Allow AWPCP RSS.','1','0');");}
+        if (!field_exists($field='displayphonefield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displayphonefield', 1, 'Show phone field','6',0);");}
+        if (!field_exists($field='displayphonefieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displayphonefieldreqop', 0, 'Require phone','6',0);");}
+        if (!field_exists($field='displaycityfield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycityfield', 1, 'Show city field.','6',0);");}
+        if (!field_exists($field='displaycityfieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycityfieldreqop', 0, 'Require city','6',0);");}
+        if (!field_exists($field='displaystatefield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaystatefield', 1, 'Show state field.','6',0);");}
+        if (!field_exists($field='displaystatefieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaystatefieldreqop', 0, 'Require state','6',0);");}
+        if (!field_exists($field='displaycountryfield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycountryfield', 1, 'Show country field.','6',0);");}
+        if (!field_exists($field='displaycountryfieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycountryfieldreqop', 0, 'Require country','6',0);");}
+        if (!field_exists($field='displaycountyvillagefield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycountyvillagefield', 0, 'Show County/village/other.','6',0);");}
+        if (!field_exists($field='displaycountyvillagefieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaycountyvillagefieldreqop', 0, 'Require county/village/other.','6',0);");}
+        if (!field_exists($field='displaypricefield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaypricefield', 1, 'Show price field.','6',0);");}
+        if (!field_exists($field='displaypricefieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,  `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaypricefieldreqop', 0, 'Require price.','6',0);");}
+        if (!field_exists($field='displaywebsitefield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaywebsitefield', 1, 'Show website field','6',0);");}
+        if (!field_exists($field='displaywebsitefieldreqop')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaywebsitefieldreqop', 0, 'Require website','6',0);");}
+        if (!field_exists($field='displaypostedbyfield')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('displaypostedbyfield', 1, 'Show Posted By field?','6',0);");}
+        if (!field_exists($field='buildsearchdropdownlists')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('buildsearchdropdownlists', 0, 'The search form can attempt to build drop down country, state, city and county lists if data is available in the system. Limits search to available locations. Note that with the regions module installed the value for this option is overridden.','2',0);");}
+        if (!field_exists($field='uiwelcome')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side',1,'2');");}
+        if (!field_exists($field='showlatestawpcpnews')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showlatestawpcpnews', 1, 'Allow AWPCP RSS.',1,0);");}
 
 
         // create or restore AWPCP pages
@@ -579,8 +587,7 @@ class AWPCP_Installer {
         global $wpdb, $awpcp;
 
         // Add an user_id column to the Ads table
-        if (version_compare($version, '1.8.9.4.46') < 0 &&
-            !$this->column_exists(AWPCP_TABLE_ADS, 'user_id')) {
+        if (!$this->column_exists(AWPCP_TABLE_ADS, 'user_id')) {
             $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `user_id` INT(10) DEFAULT NULL");
 
             // attempt to populate user_id column
@@ -594,17 +601,14 @@ class AWPCP_Installer {
 
 
         // Add a renew_email_sent column to Ads table
-        if (version_compare($version, '1.8.9.4.46') < 0 &&
-            !$this->column_exists(AWPCP_TABLE_ADS, 'renew_email_sent')) {
+        if (!$this->column_exists(AWPCP_TABLE_ADS, 'renew_email_sent')) {
             $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `renew_email_sent` TINYINT(1) NOT NULL DEFAULT 0");
         }
 
 
         // Map old settings to the new Settings API system
         $table = $wpdb->get_var("SHOW TABLES LIKE '" . AWPCP_TABLE_ADSETTINGS . "'");
-        if (version_compare($version, '1.8.9.4.46') < 0 &&
-            strcmp($table, AWPCP_TABLE_ADSETTINGS) == 0) 
-        {
+        if (strcmp($table, AWPCP_TABLE_ADSETTINGS) == 0) {
             $settings = $wpdb->get_results('SELECT * FROM ' . AWPCP_TABLE_ADSETTINGS);
             foreach ($settings as $setting) {
                 switch (intval($setting->option_type)) {
@@ -637,17 +641,14 @@ class AWPCP_Installer {
             'paymentcancelpagename' => 'payment-cancel-page-name');
 
         // rename page name settings
-        if (version_compare($version, '1.8.9.4.46') < 0) {
-            foreach ($translations as $original => $translation) {
-                $value = $awpcp->settings->get_option($original, null);
-                // only translate settings that already exists, the others will
-                // be defined when the settings are registered
-                if ($value !== null) {
-                    $awpcp->settings->update_option($translation, $value, true);
-                }
+        foreach ($translations as $original => $translation) {
+            $value = $awpcp->settings->get_option($original, null);
+            // only translate settings that already exists, the others will
+            // be defined when the settings are registered
+            if ($value !== null) {
+                $awpcp->settings->update_option($translation, $value, true);
             }
         }
-
 
         // create Pages table and map pagename to WP Pages IDs
         $table = $wpdb->get_var("SHOW TABLES LIKE '" . AWPCP_TABLE_PAGES . "'");
@@ -785,6 +786,14 @@ class AWPCP_Installer {
         awpcp_create_subpage('renew-ad-page-name', 
                              $awpcp->settings->get_option('renew-ad-page-name'), 
                              '[AWPCP-RENEW-AD]');
+    }
+
+    private function upgrade_to_2_0_6($version) {
+        global $awpcp;
+
+        // force disable recurring payments
+        $awpcp->settings->update_option('paypalpaymentsrecurring', 0, true);
+        $awpcp->settings->update_option('twocheckoutpaymentsrecurring', 0, true);
     }
 }
 

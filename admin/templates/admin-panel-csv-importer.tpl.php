@@ -3,7 +3,7 @@
 
 <?php include(AWPCP_DIR . 'admin/templates/admin-panel-header.tpl.php') ?>
 
-<?php if ($import_count > 0 || $reject_count > 0): ?>
+<?php if (!is_null($importer) && ($importer->ads_imported > 0 || $importer->ads_rejected > 0)): ?>
 	<?php if ($test_import): ?>
 			<h3><?php _e('Import Testing Results', 'AWPCP'); ?></h3>
 	<?php else: ?>
@@ -11,9 +11,9 @@
 	<?php endif ?>
 
 			<ul>
-				<li><b><?php _e('Imported rows:', 'AWPCP') ?></b> <?php echo $import_count ?></li>
-				<li><b><?php _e('Imported Picture count:', 'AWPCP') ?></b> <?php echo $pic_import_count ?></li>
-				<li><b><?php _e('Rejected rows:', 'AWPCP') ?></b> <?php echo $reject_count ?></li>
+				<li><b><?php _e('Imported rows:', 'AWPCP') ?></b> <?php echo $importer->ads_imported ?></li>
+				<li><b><?php _e('Imported Picture count:', 'AWPCP') ?></b> <?php echo $importer->images_imported ?></li>
+				<li><b><?php _e('Rejected rows:', 'AWPCP') ?></b> <?php echo $importer->ads_rejected ?></li>
 			</ul>
 <?php endif ?>
 
@@ -30,10 +30,10 @@
 				</ul>
 			<?php endif ?>
 
-			<?php if (!empty($import_errors)): ?>
+			<?php if (!empty($errors)): ?>
 				<h3>Errors</h3>
 				<ul>
-				<?php foreach ($import_errors as $error): ?>
+				<?php foreach ($errors as $error): ?>
 					<li><?php echo "$error" ?></li>
 				<?php endforeach ?>
 				</ul>
@@ -156,8 +156,8 @@
 							</th>
 							<td>
 								<select name="auto_cat" id="auto_cat">
-									<option value='1' <?php if ($auto_cat == "1") echo 'selected="selected"'; ?>><?php _e('Auto create Categories', 'AWPCP') ?></option>
-									<option value='0' <?php if ($auto_cat == "0") echo 'selected="selected"'; ?>><?php _e('Generate errors if Category not found', 'AWPCP') ?></option>
+									<option value=1 <?php if ($auto_cat == "1") echo 'selected="selected"'; ?>><?php _e('Auto create Categories', 'AWPCP') ?></option>
+									<option value=0 <?php if ($auto_cat == "0") echo 'selected="selected"'; ?>><?php _e('Generate errors if Category not found', 'AWPCP') ?></option>
 								</select><br/>
 								<span class="error"><?php echo awpcp_array_data('auto_cat', '', $form_errors) ?></span>
 							</td>

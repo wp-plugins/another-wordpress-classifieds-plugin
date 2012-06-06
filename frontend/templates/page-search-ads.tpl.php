@@ -32,7 +32,7 @@
 		<input type="hidden" name="a" value="dosearch" />
 		<p class='awpcp-form-spacer'>
 			<?php _e("Search for ads containing this word or phrase","AWPCP") ?>:<br/>
-			<input type="text" class="inputbox" size="50" name="keywordphrase" value="<?php $keywordphrase ?>" />
+			<input type="text" class="inputbox" size="50" name="keywordphrase" value="<?php echo esc_attr($keywordphrase) ?>" />
 		</p>
 		<p class='awpcp-form-spacer'>
 			<?php _e("Search in Category","AWPCP") ?><br/>

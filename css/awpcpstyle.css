@@ -449,6 +449,24 @@ p.ad_status_msg {
 }
 
 
+/* AWPCP Table styles */
+
+.awpcp-table {
+	border-bottom: 1px solid #DDDDDD;
+    margin: 0 0 1.625em;
+	width: 100%;
+}
+.awpcp-table th, .awpcp-table td {
+    padding: 6px 10px 6px 0;
+	text-align: left;
+}
+.awpcp-table th { 
+}
+.awpcp-table td {
+	border-top: 1px solid #DDDDDD;
+}
+
+
 /* Region Control styles */
 
 #awpcp-region-control-selector {

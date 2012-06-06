@@ -74,7 +74,7 @@ class AWPCP_Settings_API {
 						   'checkbox', 1, 'Display and require Terms of Service');
 		$this->add_setting($key, 'tos', 'Terms of Service', 
 						   'textarea', 'Terms of service go here...', 
-						   'Terms of Service for posting Ads. Modify this to fit your needs.');
+						   'Terms of Service for posting Ads. Put in text or an URL starting with http. If you use an URL, the text box will be replaced by a link to the appropriate Terms of Service page');
 
 		// Section: General - Anti-SPAM
 
@@ -215,7 +215,7 @@ class AWPCP_Settings_API {
 		$this->add_setting($key, 'disablependingads', 'Enable paid ads that are pending payment.', 
 						   'checkbox', 1, 'Enable paid ads that are pending payment.');
 		$this->add_setting($key, 'addurationfreemode', 'Free Ads expiration threshold', 
-						   'textfield', '0', 'Expire free ads after how many days? [0 for no expiration].');
+						   'textfield', 0, 'Expire free ads after how many days? [0 for no expiration].');
 		$this->add_setting($key, 'autoexpiredisabledelete', 'Disable expired ads instead of deleting them?', 
 						   'checkbox', 0, 'Check to disable.');
 
@@ -759,6 +759,7 @@ class AWPCP_Settings_API {
 
 		$current = esc_html(stripslashes($this->get_option($setting->name)));
 
+		$html = '';
 		foreach ($options as $value => $label) {
 			$html.= '<input type="radio" value="' . $value . '" ';
 			$html.= 'name="awpcp-options['. $setting->name .']" ';
@@ -927,15 +928,6 @@ class AWPCP_Settings_API {
 		$pages = awpcp_pages();
 		$pageids = $wpdb->get_results('SELECT page, id FROM ' . AWPCP_TABLE_PAGES, OBJECT_K);
 
-		// $changed_pages = awpcp_check_for_new_page_names($options, true);
-
-		// // admin is renaming existing classified pages
-		// if (isset($changed_pages['main-page-name']) && 
-		// 	findpagebyname( trim( $_POST['main-page-name']))) {
-		// 	add_filter( 'awpcp_confirm_new_page_save_collision', 'awpcp_config_page_save_collision', 1, 1);
-		// 	return; 
-		// }
-
 		foreach ($pages as $key => $data) {
 			$id = intval($pageids[$key]->id);
 
@@ -951,10 +943,8 @@ class AWPCP_Settings_API {
 
 			wp_update_post($page);
 		}
-
-		$wp_rewrite->flush_rules();
+		
 		flush_rewrite_rules();
-		add_action('shutdown', 'flush_rewrite_rules', 99 );
 
 		return $options;
 	}

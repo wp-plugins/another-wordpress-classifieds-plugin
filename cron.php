@@ -31,16 +31,16 @@ function awpcp_schedule_activation() {
 	add_action('awpcp_ad_renewal_email_hook', 'awpcp_ad_renewal_email');
 	add_action('awpcp-clean-up-payment-transactions', 'awpcp_clean_up_payment_transactions');
 	
-	// wp_schedule_event(time(), 'hourly', 'doadexpirations_hook');
-	// wp_schedule_event(time(), 'monthly', 'doadcleanup_hook');
+	// wp_schedule_event(time() + 60, 'hourly', 'doadexpirations_hook');
+	// wp_schedule_event(time() + 10, 'monthly', 'doadcleanup_hook');
 	// wp_schedule_event(time(), 'daily', 'awpcp_ad_renewal_email_hook');
 	// wp_schedule_event(time(), 'daily', 'awpcp-clean-up-payment-transactions');
 
-	// debug("System date is: " . date('d-m-Y H:i:s'),
-	// 	  date('d-m-Y H:i:s', wp_next_scheduled('doadexpirations_hook')),
-	// 	  date('d-m-Y H:i:s', wp_next_scheduled('doadcleanup_hook')),
-	// 	  date('d-m-Y H:i:s', wp_next_scheduled('awpcp_ad_renewal_email_hook')),
-	// 	  date('d-m-Y H:i:s', wp_next_scheduled('awpcp-clean-up-payment-transactions')));
+	// debug('System date is: ' . date('d-m-Y H:i:s'),
+	// 	  'Ad Expiration: ' . date('d-m-Y H:i:s', wp_next_scheduled('doadexpirations_hook')),
+	// 	  'Ad Cleanup: ' . date('d-m-Y H:i:s', wp_next_scheduled('doadcleanup_hook')),
+	// 	  'Ad Renewal Email: ' . date('d-m-Y H:i:s', wp_next_scheduled('awpcp_ad_renewal_email_hook')),
+	// 	  'Payment transactions: ' . date('d-m-Y H:i:s', wp_next_scheduled('awpcp-clean-up-payment-transactions')));
 }
 
 
@@ -80,10 +80,9 @@ function doadexpirations() {
 		foreach ($ads as $ad) {
 
 			$expiredid[] = $ad['ad_id'];
-
 			$adid = $ad['ad_id'];
 
-			if( get_awpcp_option('notifyofadexpiring') == '1' && $disable_ads ) {
+			if( get_awpcp_option('notifyofadexpiring') == 1 && $disable_ads ) {
 
 				_log("Processing Notification for ad: " . $adid);
 
@@ -123,26 +122,24 @@ function doadexpirations() {
 					$awpcpadexpiredbody,
 					$nameofsite,
 					$thisadminemail
-					);
+				);
 
 				// SEND THE ADMIN A NOTICE TOO?
 				if ( $notify_admin ) {
 					awpcp_process_mail(
-					$awpcpsenderemail=$thisadminemail,
-					$awpcpreceiveremail=$thisadminemail,
-					$awpcpemailsubject=$awpcpadexpiredsubject,
-					$awpcpemailbody=$awpcpadexpiredbody,
-					$awpcpsendername=$nameofsite,
-					$awpcpreplytoemail=$thisadminemail
+						$awpcpsenderemail=$thisadminemail,
+						$awpcpreceiveremail=$thisadminemail,
+						$awpcpemailsubject=$awpcpadexpiredsubject,
+						$awpcpemailbody=$awpcpadexpiredbody,
+						$awpcpsendername=$nameofsite,
+						$awpcpreplytoemail=$thisadminemail
 					);
 				}
 
 				_log("DONE Processing Notification for ad: " . $adid);
-
 			}
 
 			_log("Processing Notifications complete");
-
 		}
 
 		$adstodelete = join(',' , $expiredid);
@@ -152,19 +149,18 @@ function doadexpirations() {
 	}
 
 
-
 	if ('' != $adstodelete) {
 		_log("Now doing expiration query");
 
 		// disable images
-		$query = 'update '.$tbl_ad_photos." set disabled='1' WHERE ad_id IN ($adstodelete)";
+		$query = 'update '.$tbl_ad_photos." set disabled=1 WHERE ad_id IN ($adstodelete)";
 		_log("Running query: " . $query);
 
 		$res = awpcp_query($query, __LINE__);
 		_log("Disabled photos result is " . $res);
 	  
 		// Disable the ads
-		$query="UPDATE ".$tbl_ads." set disabled='1', disabled_date = NOW() WHERE ad_id IN ($adstodelete)";
+		$query="UPDATE ".$tbl_ads." set disabled=1, disabled_date = NOW() WHERE ad_id IN ($adstodelete)";
 		_log("Running query: " . $query);
 
 		$res = awpcp_query($query, __LINE__);
@@ -186,7 +182,7 @@ function doadcleanup() {
 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 
 	// Get the IDs of the ads to be deleted (those that are disabled more than 30 days ago)
-	$query="SELECT ad_id FROM ".$tbl_ads." WHERE disabled='1' and (disabled_date + INTERVAL 30 DAY) < CURDATE()";
+	$query="SELECT ad_id FROM ".$tbl_ads." WHERE disabled=1 and (disabled_date + INTERVAL 30 DAY) < CURDATE()";
 	$res = awpcp_query($query, __LINE__);
 
 	$expiredid=array();
@@ -196,12 +192,12 @@ function doadcleanup() {
 		}
 	}
 
-	$adstodelete=join("','",$expiredid);
-	$query="SELECT image_name FROM ".$tbl_ad_photos." WHERE ad_id IN ('$adstodelete')";
+	$adstodelete = join("','", $expiredid);
+	$query = "SELECT image_name FROM " . $tbl_ad_photos . " WHERE ad_id IN ('$adstodelete')";
 	$res = awpcp_query($query, __LINE__);
-	$rowcount=mysql_num_rows($res);
+	$rowcount = mysql_num_rows($res);
 
-	for ($i=0;$i<$rowcount;$i++) {
+	for ($i=0; $i < $rowcount; $i++) {
 		$photo=mysql_result($res,$i,0);
 
 		if (file_exists(AWPCPUPLOADDIR.'/'.$photo)) {
@@ -213,11 +209,11 @@ function doadcleanup() {
 		}
 	}
 
-	$query="DELETE FROM ".$tbl_ad_photos." WHERE ad_id IN ('$adstodelete')";
+	$query = "DELETE FROM " . $tbl_ad_photos . " WHERE ad_id IN ('$adstodelete')";
 	$res = awpcp_query($query, __LINE__);
 
 	// Delete the ads
-	$query="DELETE FROM ".$tbl_ads." WHERE ad_id IN ('$adstodelete')";
+	$query = "DELETE FROM " . $tbl_ads . " WHERE ad_id IN ('$adstodelete')";
 	$res = awpcp_query($query, __LINE__);
 }
 

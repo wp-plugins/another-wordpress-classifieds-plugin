@@ -31,7 +31,7 @@
 			<span class="awpcp-error"><?php echo $error ?></span>
 			<?php endif ?>
 
-			<table>
+			<table class="awpcp-table">
 				<thead>
 					<tr>
 						<th>Payment Term</th>
@@ -56,17 +56,14 @@
 						<td>
 							<?php $id = "{$term->type}-{$term->id}" ?>
 							<?php $element_id = "payment-term-$id" ?>
-							<input id="<?php echo $element_id ?>" type="radio" name="payment-term" 
-								   value="<?php echo esc_attr("$id") ?>" 
-								   <?php echo $id == $selected ? 'checked="checked"' : '' ?> 
-								   <?php echo $selected ?>/>
+							<input id="<?php echo $element_id ?>" type="radio" name="payment-term" value="<?php echo esc_attr($id) ?>" <?php echo $id == $selected ? 'checked="checked"' : '' ?> />
 							<label for="<?php echo $id ?>"><strong><?php echo $term->name ?></strong></label><br/>
 							<?php echo $term->description ?>
 						</td>
 						<td><?php echo $term->ads_allowed ?></td>
 						<td><?php echo $term->images_allowed ?></td>
 						<td><?php echo $term->duration ?></td>
-						<td><?php echo $term->price ?></td>
+						<td><?php echo number_format($term->price, 2) ?></td>
 					</tr>
 					<?php $type = $term->type ?>
 
@@ -82,7 +79,7 @@
 			<span class="awpcp-error"><?php echo $error ?></span>
 			<?php endif ?>
 
-			<table>
+			<table class="awpcp-table">
 				<thead>
 					<tr>
 						<th>Payment Method</th>

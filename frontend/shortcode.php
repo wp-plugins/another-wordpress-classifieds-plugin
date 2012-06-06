@@ -115,65 +115,22 @@ function awpcpui_browsecatsscreen()
 
 
 
-function awpcpui_process($awpcppagename)
-{
-	//debug();
-	/*global $wp_rewrite;
-	 $therwrules=$wp_rewrite->rewrite_rules();
-	 print_r($therwrules);*/
+function awpcpui_process($awpcppagename) {
+	global $hasrssmodule, $hasregionsmodule, $awpcp_plugin_url;
+
 	$output = '';
 	$action='';
 
-	// delete: remove when testing complete for SEO mode.
-	/*
-	$pathvalueviewcategories=get_awpcp_option('pathvalueviewcategories');
-
-	if (!isset($pathvalueviewcategories) || empty($pathvalueviewcategories))
-	{
-		$pathvalueviewcategories='';
-	}
-	*/
-
-	global $hasrssmodule,$awpcp_plugin_url;
 	$awpcppage=get_currentpagename();
-	if (!isset($awpcppagename) || empty($awpcppagename) )
-	{
+	if (!isset($awpcppagename) || empty($awpcppagename)) {
 		$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 	}
 
-
-	/*
-	$pathsetregionid=get_awpcp_option('pathsetregionid');
-	$pathsetregionbeforevalue='';
-	if (isset($pathsetregionid) && !empty($pathsetregionid))
-	{
-		$pathsetregionbefore=($pathsetregionid - 1);
-	}
-	else
-	{
-		$pathsetregionbefore='';
-	}
-
-	$awpcpsetregionid_requested_url  = ( !empty($_SERVER['HTTPS'] ) && strtolower($_SERVER['HTTPS']) == 'on' ) ? 'https://' : 'http://';
-	$awpcpsetregionid_requested_url .= $_SERVER['HTTP_HOST'];
-	$awpcpsetregionid_requested_url .= $_SERVER['REQUEST_URI'];
-
-	$awpcpparsedsetregionidURL = parse_url ($awpcpsetregionid_requested_url);
-	$awpcpsplitsetregionidPath = preg_split ('/\//', $awpcpparsedsetregionidURL['path'], 0, PREG_SPLIT_NO_EMPTY);
-
-	if (isset($awpcpsplitsetregionidPath[$pathsetregionbefore]) && !empty($awpcpsplitsetregionidPath[$pathsetregionbefore]))
-	{
-		$pathsetregionbeforevalue=$awpcpsplitsetregionidPath[$pathsetregionbefore];
-	}
-	*/
-
-	if (isset($_REQUEST['a']) && !empty($_REQUEST['a']))
-	{
+	if (isset($_REQUEST['a']) && !empty($_REQUEST['a'])) {
 		$action=$_REQUEST['a'];
 	}
-	global $hasregionsmodule;
-	if (($action == 'setregion') || '' != get_query_var('regionid') /*($pathsetregionbeforevalue == 'setregion')*/ )
-	{
+
+	if (($action == 'setregion') || '' != get_query_var('regionid')) {
 		if ($hasregionsmodule ==  1)
 		{
 			if (isset($_REQUEST['regionid']) && !empty($_REQUEST['regionid']))
@@ -215,45 +172,16 @@ function awpcpui_process($awpcppagename)
 				$_SESSION['regioncityID']=$theregionidtoset;
 			}
 		}
-	}
-	elseif ($action == 'unsetregion')
-	{
-		if ( isset($_SESSION['theactiveregionid']) )
-		{
+
+	} elseif ($action == 'unsetregion') {
+		if (isset($_SESSION['theactiveregionid'])) {
 			unset($_SESSION['theactiveregionid']);
 		}
-
 	}
 
 
 	$categoriesviewpagename = sanitize_title(get_awpcp_option('view-categories-page-name'));
 	$browsestat='';
-
-	global $awpcp_plugin_url, $hasregionsmodule;
-
-	/* delete: 
-
-	$awpcpbrowse_requested_url  = ( !empty($_SERVER['HTTPS'] ) && strtolower($_SERVER['HTTPS']) == 'on' ) ? 'https://' : 'http://';
-	$awpcpbrowse_requested_url .= $_SERVER['HTTP_HOST'];
-	$awpcpbrowse_requested_url .= $_SERVER['REQUEST_URI'];
-
-	$awpcpparsedbrowseadsURL = parse_url ($awpcpbrowse_requested_url);
-
-	if (isset($awpcpparsedbrowseadsURL) && !empty($awpcpparsedbrowseadsURL))
-	{
-		$awpcpsplitbrowseadPath = preg_split ('/\//', $awpcpparsedbrowseadsURL['path'], 0, PREG_SPLIT_NO_EMPTY);
-	}
-
-
-	if (isset($pathvalueviewcategories) && !empty($pathvalueviewcategories))
-	{
-		if (isset($awpcpsplitbrowseadPath[$pathvalueviewcategories]) && !empty($awpcpsplitbrowseadPath[$pathvalueviewcategories]))
-		{
-			$browsestat=$awpcpsplitbrowseadPath[$pathvalueviewcategories];
-		} 
-	}
-
-	*/
 
 	$browsestat = get_query_var('cid');
 	$layout = get_query_var('layout');
@@ -276,6 +204,7 @@ function awpcpui_process($awpcppagename)
 	} else {
 		$output .= awpcp_load_classifieds($awpcppagename);
 	}
+
 	return $output;
 }
 
@@ -349,10 +278,9 @@ function awpcpui_process_contact() {
 
 
 
-function awpcpui_process_browsecats()
-{
-	//debug();
+function awpcpui_process_browsecats() {
 	global $hasregionsmodule;
+
 	$output = '';
 	$action='';
 
@@ -365,22 +293,23 @@ function awpcpui_process_browsecats()
 	if (isset($_REQUEST['a']) && !empty($_REQUEST['a'])) {
 		$action=$_REQUEST['a'];
 	}
+
 	if (!isset($action) || empty($action)){
 		$action="browsecat";
 	}
 
-	if ( ($action == 'browsecat') ) {
+	if (($action == 'browsecat')) {
 		if ($adcategory == -1 || empty($adcategory)) {
 			$where="";
 		} else {
-			$where="(ad_category_id='".$adcategory."' OR ad_category_parent_id='".$adcategory."') AND disabled ='0'";
+			$where="(ad_category_id='".$adcategory."' OR ad_category_parent_id='".$adcategory."') AND disabled =0";
 		}
 	} elseif (!isset($action)) {
 		if (isset($adcategory) ) {
 			if ($adcategory == -1 || empty($adcategory)) {
 				$where="";
 			} else {
-				$where="(ad_category_id='".$adcategory."' OR ad_category_parent_id='".$adcategory."') AND disabled ='0'";
+				$where="(ad_category_id='".$adcategory."' OR ad_category_parent_id='".$adcategory."') AND disabled =0";
 			}
 		} else {
 			$where="";
@@ -389,33 +318,29 @@ function awpcpui_process_browsecats()
 		$where="";
 	}
 
-	if ($adcategory == -1)
-	{
+	if ($adcategory == -1) {
 		$output .= "<p><b>";
 		$output .= __("No specific category was selected for browsing so you are viewing listings from all categories","AWPCP");
 		$output .= "</b></p>";
 	}
 
-	$grouporderby=get_group_orderby();
+	$grouporderby = get_group_orderby();
 
 	$output .= awpcp_display_ads($where,$byl='',$hidepager='',$grouporderby,$adorcat='cat');
 	return $output;
 }
 
-function awpcp_load_classifieds($awpcppagename)
-{
-	//debug();
+
+function awpcp_load_classifieds($awpcppagename) {
 	$output = '';
-	if (get_awpcp_option('main_page_display') == 1)
-	{
+	if (get_awpcp_option('main_page_display') == 1) {
 		//Display latest ads on mainpage
 		$grouporderby=get_group_orderby();
-		$output .= awpcp_display_ads($where='',$byl='1',$hidepager='',$grouporderby,$adorcat='ad');
-	}
-	else
-	{
+		$output .= awpcp_display_ads($where='',$byl=1,$hidepager='',$grouporderby,$adorcat='ad');
+	} else {
 		$output .= awpcp_display_the_classifieds_page_body($awpcppagename);
 	}
+
 	return $output;
 }
 
@@ -424,13 +349,12 @@ function awpcp_load_classifieds($awpcppagename)
 
 //	START FUNCTION: show the classifieds page body
 
-function awpcp_display_the_classifieds_page_body($awpcppagename)
-{
-	//debug();
+function awpcp_display_the_classifieds_page_body($awpcppagename) {
 	global $hasregionsmodule;
+
 	$output = '';
-	if (!isset($awpcppagename) || empty($awpcppagename) )
-	{
+
+	if (!isset($awpcppagename) || empty($awpcppagename)) {
 		$awpcppage=get_currentpagename();
 		$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 	}
@@ -446,9 +370,9 @@ function awpcp_display_the_classifieds_page_body($awpcppagename)
 	$output .= awpcp_menu_items();
 
 	if ($hasregionsmodule ==  1) {
-		if ( isset($_SESSION['theactiveregionid']) ) {
-			$theactiveregionid=$_SESSION['theactiveregionid'];
-			$theactiveregionname=get_theawpcpregionname($theactiveregionid);
+		if (isset($_SESSION['theactiveregionid'])) {
+			$theactiveregionid = $_SESSION['theactiveregionid'];
+			$theactiveregionname = get_theawpcpregionname($theactiveregionid);
 			// $output .= "<h2>";
 			// $output .= __("You are currently browsing in ","AWPCP");
 			// $output .= "<b>$theactiveregionname</b></h2><SUP><a href=\"$quers/?a=unsetregion\">";
@@ -531,7 +455,14 @@ function awpcp_menu_items() {
 	$awpcp_searchads_pageid=awpcp_get_page_id_by_ref('search-ads-page-name');
 	$awpcp_browsecats_pageid=awpcp_get_page_id_by_ref('browse-categories-page-name');
 
-	$base_url = get_permalink($awpcp_page_id);
+	// we don't use get_permalink to because it will return the homepage URL
+	// if the main AWPCP page happens to be also the front page, and that 
+	// will break our rewrite rules
+	if (!empty($permastruc)) {
+		$base_url = home_url(get_page_uri($awpcp_page_id));
+	} else {
+		$base_url = add_query_arg('page_id', $awpcp_page_id, home_url());
+	}
 
 	if ($hasrssmodule == 1) {
 		$url_rss_feed = add_query_arg(array('a' => 'rss'), $base_url);
@@ -540,10 +471,8 @@ function awpcp_menu_items() {
 		$output .= "<div style=\"float:left;margin-right:10px;\"><a href=\"$url_rss_feed\"><img style=\"border:none;\" title='".$rsstitle."' alt='.$rsstitle.' src=\"$awpcp_imagesurl/rssicon.png\"/></a></div>";
 	}
 
-	if (!isset($action) || empty ($action))
-	{
-		if (isset($_REQUEST['a']) && !empty($_REQUEST['a']))
-		{
+	if (!isset($action) || empty ($action)) {
+		if (isset($_REQUEST['a']) && !empty($_REQUEST['a'])) {
 			$action=$_REQUEST['a'];
 		}
 	}
@@ -608,33 +537,26 @@ function awpcp_menu_items() {
 
 	$catviewpagecheck = get_query_var('cid');
 
-	if (is_page($browseadspagename) )
-	{
+	if (is_page($browseadspagename)) {
 		$browseads_browsecats="<li class=\"browse\"><a href=\"$url_browsecats\">$categoriesviewpagenameunsani";
 		$browseads_browsecats.="</a></li>";
-	}
-	elseif (is_page($browsecatspagename) || ($catviewpagecheck == $categoriesviewpagename))
-	{
+
+	} elseif (is_page($browsecatspagename) || ($catviewpagecheck == $categoriesviewpagename)) {
 		$browseads_browsecats="<li class=\"browse\"><a href=\"$url_browseads\">$browseadspagenameunsani";
 		$browseads_browsecats.="</a></li>";
-	}
-	elseif (( get_awpcp_option('main_page_display') == 1) && ($catviewpagecheck != $categoriesviewpagename))
-	{
-		if (is_page($awpcp_page_id) && ($action != 'unsetregion'))
-		{
+
+	} elseif ((get_awpcp_option('main_page_display') == 1) && ($catviewpagecheck != $categoriesviewpagename)) {
+		if (is_page($awpcp_page_id) && ($action != 'unsetregion')) {
 			$browseads_browsecats="<li class=\"browse\"><a href=\"$url_browsecats\">$categoriesviewpagenameunsani";
 			$browseads_browsecats.="</a></li>";
-		}
-		else
-		{
+		} else {
 			$browseads_browsecats="<li class=\"browse\"><a href=\"$url_browseads\">$browseadspagenameunsani";
 			$browseads_browsecats.="</a></li>";
 			$browseads_browsecats.="<li class=\"browse\"><a href=\"$url_browsecats\">$categoriesviewpagenameunsani";
 			$browseads_browsecats.="</a></li>";
 		}
-	}
-	else
-	{
+
+	} else {
 		$browseads_browsecats="<li class=\"browse\"><a href=\"$url_browseads\">$browseadspagenameunsani";
 		$browseads_browsecats.="</a></li>";
 	}
@@ -789,7 +711,7 @@ function awpcp_display_the_classifieds_category($awpcppagename) {
 
 	$table_cols = 1;
 	$query = "SELECT category_id,category_name FROM ". AWPCP_TABLE_CATEGORIES ." ";
-	$query.= "WHERE category_parent_id='0' AND category_name <> '' ";
+	$query.= "WHERE category_parent_id=0 AND category_name <> '' ";
 	$query.= "ORDER BY category_order,category_name ASC";
 	$res = awpcp_query($query, __LINE__);
 
@@ -924,7 +846,7 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 			{
 				// Next figure out how many images user is allowed to upload
 
-				// if ((get_awpcp_option('freepay') == 1) && isset($adtermid) && $adtermid != '0')
+				// if ((get_awpcp_option('freepay') == 1) && isset($adtermid) && $adtermid != 0)
 				// {
 				// 	$numimgsallowed=get_numimgsallowed($adtermid);
 				// }
@@ -951,7 +873,7 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 					$imagecode.=__("Your images are displayed below. The total number of images you are allowed is","AWPCP");
 					$imagecode.=": $numimgsallowed</p>";
 
-					if (($numimgsallowed - $totalimagesuploaded) == '0')
+					if (($numimgsallowed - $totalimagesuploaded) == 0)
 					{
 						$imagecode.="<p>";
 						$imagecode.=__("If you want to change your images you will first need to delete the current images","AWPCP");
@@ -1136,9 +1058,12 @@ function awpcp_append_title($title, $separator, $seplocation) {
 
 					$adcategoryid = get_query_var('cid');
 					$adid = get_query_var('id');
+				} else {
+					$adid = 0;
 				}
 			}
 		}
+
 		if ( $awpcpiscat == 1 )
 		{
 			$awpcp_ad_cat_title=get_adcatname($adcategoryid);

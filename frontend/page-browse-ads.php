@@ -14,7 +14,6 @@ function awpcpui_browseadsscreen() {
  * Renders Browse Ads page
  */
 function awpcpui_process_browseads() {
-
 	if (isset($_REQUEST['category_id']) && !empty($_REQUEST['category_id'])) {
 		$adcategory = $_REQUEST['category_id'];
 	} else {
@@ -26,22 +25,22 @@ function awpcpui_process_browseads() {
 		$action=$_REQUEST['a'];
 	}
 	if (!isset($action) || empty($action)){
-		$action="browsecat";
+		$action="browseads";
 	}
 
 	if ( ($action == 'browsecat') ) {
 		if ($adcategory == -1 || empty($adcategory)) {
 			$where="";
 		} else {
-			$where="(ad_category_id='".$adcategory."' OR ad_category_parent_id='".$adcategory."') AND disabled ='0'";
+			$where="(ad_category_id='".$adcategory."' OR ad_category_parent_id='".$adcategory."') AND disabled =0";
 		}
 		$adorcat='cat';
 	} else {
-		$where="disabled ='0'";
+		$where="disabled =0";
 		$adorcat='ad';
 	}
 
-	$grouporderby=get_group_orderby();
+	$grouporderby = get_group_orderby();
 
 	if ('dosearch' == $action ) {
 		$output = dosearch();	
