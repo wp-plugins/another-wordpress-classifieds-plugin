@@ -1,5 +1,9 @@
 <?php
-if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You are not allowed to call this page directly.'); }
+
+if (preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) {
+	die('You are not allowed to call this page directly.');
+}
+
 /**
  * Originally developed by Dan Caragea.  
  * Permission is hereby granted to AWPCP to release this code 
@@ -7,7 +11,6 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You 
  * @author Dan Caragea
  * http://datemill.com
  */
-
 function smart_table($array, $table_cols=1, $opentable, $closetable) {
 	$usingtable = false;
 	if (!empty($opentable) && !empty($closetable)) {
@@ -15,6 +18,7 @@ function smart_table($array, $table_cols=1, $opentable, $closetable) {
 	}
 	return smart_table2($array,$table_cols,$opentable,$closetable,$usingtable);
 }
+
 
 function smart_table2($array, $table_cols=1, $opentable, $closetable, $usingtable) {
 	$myreturn="$opentable\n";
@@ -288,7 +292,7 @@ function array2qs($myarray) {
 	$total = count($myarray);
 	$count = 1;
 	while (list($k,$v)=each($myarray)) {
-		if (is_string($v)) {
+		if (!is_object($v) && !is_array($v)) {
 			$myreturn.= "$k=" . urlencode($v);
 		}
 		if ($count < $total) {
@@ -301,7 +305,8 @@ function array2qs($myarray) {
 
 function create_pager($from,$where,$offset,$results,$tpname) {
 	$permastruc=get_option('permalink_structure');
-	if(isset($permastruc) && !empty($permastruc)) {
+
+	if (isset($permastruc) && !empty($permastruc)) {
 		$awpcpoffset_set="?offset=";
 	} else {
 		if(is_admin()) {
@@ -319,7 +324,7 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 	$accepted_results_per_page=array("5"=>5,"10"=>10,"20"=>20,"30"=>30,"40"=>40,"50"=>50,"60"=>60,"70"=>70,"80"=>80,"90"=>90,"100"=>100);
 
 	// // The code below removes query parameters from URL when seofriendlyurls are ON.
-	// // However, SEO URLs my be ON while WP are still NOT using permalinks, which means
+	// // However, SEO URLs may be ON while WP are still NOT using permalinks, which means
 	// // page_id is going to be in every URL that points to a page. This break pagination.
 	// if (get_awpcp_option('seofriendlyurls')) { 
 	// 	$tpname = $_SERVER['REQUEST_URI'];
@@ -344,23 +349,11 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 	unset($params['deletemultipleads'], $params['spammultipleads']);
 	unset($params['awpcp_ads_to_action'], $params['post_type']);
 
-	$cid = '';
-	if (isset($_REQUEST['category_id']) && !empty($_REQUEST['category_id'])) {
-		//Keep category id in tact, if present, but clean out the string garbage with it:
-		$catinfo = preg_split("/\//", $_REQUEST['category_id']);
-		if ($catinfo && is_numeric($catinfo[0])) {
-			$cid = $catinfo[0];
-			if (!empty($cid)) {
-				$params['category_id']=$cid;
-			}
-		}
-	}
+	$cid = intval(awpcp_request_param('category_id'));
+	$cid = empty($cid) ? get_query_var('cid') : $cid;
 
-	if( isset($_REQUEST['a']) && !empty($_REQUEST['a']) && ($_REQUEST['a'] == 'browsecat') ) {
-		//$cid=$_REQUEST['category_id'];
-		if (!empty($cid)) {
-			$params['category_id']=$cid;
-		}
+	if ($cid > 0) {
+		$params['category_id'] = $cid;
 	}
 
 	$myrand=mt_rand(1000,2000);
@@ -392,23 +385,34 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 				$dotsafter=true;
 			}
 		} else {
-			$myreturn.="<a href=\"$tpname$awpcpoffset_set".(($i-1)*$results)."&results=$results&".array2qs($params)."\">$i</a>&nbsp;";
+			$href_params = array_merge($params, array('offset' => ($i-1) * $results, 'results' => $results));
+			$href = add_query_arg($href_params, $tpname);
+			$myreturn.= sprintf('<a href="%s">%d</a>&nbsp;', esc_attr($href), esc_attr($i));
+			// $myreturn.="<a href=\"$tpname$awpcpoffset_set".(($i-1)*$results)."&results=$results&".array2qs($params)."\">$i</a>&nbsp;";
 		}
 	}
 
 	if ( $offset != 0 ) {
 		//Subtract 2, page is 1-based index, results is 0-based, must compensate for 2 pages here
 		if ( (($current_page-2) * $results) < $results) {
-			$prev ="\t\t<a href=\"$tpname".$awpcpoffset_set."0&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
+			$href_params = array_merge($params, array('offset' => 0, 'results' => $results));
+			$href = add_query_arg($href_params, $tpname);
+			// $prev ="\t\t<a href=\"$tpname".$awpcpoffset_set."0&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
 		} else {
-			$prev ="\t\t<a href=\"$tpname".$awpcpoffset_set.(($current_page-2) * $results)."&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
+			$href_params = array_merge($params, array('offset' => ($current_page-2) * $results, 'results' => $results));
+			$href = add_query_arg($href_params, $tpname);
+			// $prev ="\t\t<a href=\"$tpname".$awpcpoffset_set.(($current_page-2) * $results)."&results=$results&".array2qs($params)."\">&laquo;</a>&nbsp;";
 		}
+		$prev = sprintf('<a href="%s">&laquo;</a>&nbsp;', esc_attr($href));
 	} else {
 		$prev = '';
 	}
 
-	if ( $offset != (($total_pages-1)*$results) ) { 
-		$next = "<a href=\"$tpname$awpcpoffset_set".($current_page * $results)."&results=$results&".array2qs($params)."\">&raquo;</a>&nbsp;\n";
+	if ( $offset != (($total_pages-1)*$results) ) {
+		$href_params = array_merge($params, array('offset' => $current_page * $results, 'results' => $results));
+		$href = add_query_arg($href_params, $tpname);
+		$next = sprintf('<a href="%s">&raquo;</a>&nbsp;', esc_attr($href));
+		// $next = "<a href=\"$tpname$awpcpoffset_set".($current_page * $results)."&results=$results&".array2qs($params)."\">&raquo;</a>&nbsp;\n";
 	} else {
 		$next = '';
 	}

@@ -31,6 +31,9 @@ class AWPCP_Admin {
 
 		add_action('admin_notices', array($this, 'notices'));
 
+		// make sure AWPCP admins (WP Administrators and/or Editors) can edit settings
+		add_filter('option_page_capability_awpcp-options', 'awpcp_admin_capability');
+
 		// hook filter to output Admin panel sidebar. To remove the sidebar
 		// just remove this action
 		add_filter('awpcp-admin-sidebar', 'awpcp_admin_sidebar_output', 10, 2);
@@ -74,12 +77,9 @@ class AWPCP_Admin {
 
 	public function menu() {
 		global $hasregionsmodule;
+		global $hasextrafieldsmodule;
 
-		if (get_awpcp_option('awpcpadminaccesslevel') == 'editor') {
-			$capability = 'edit_pages';
-		} else { // only administrators
-			$capability = 'install_plugins';
-		}
+		$capability = awpcp_admin_capability();
 
 		$slug = 'awpcp.php';
 		add_menu_page('AWPCP Classifieds Management System', $this->title, $capability,
@@ -105,7 +105,7 @@ class AWPCP_Admin {
 			add_submenu_page($slug, 'Manage Regions', 'Regions', $capability, 
 					     'Configure4', 'awpcp_opsconfig_regions');
 		}
-		if ( file_exists(AWPCP_DIR . "/awpcp_extra_fields_module.php") ) {
+		if ($hasextrafieldsmodule) {
 			add_submenu_page($slug, 'Manage Extra Fields', 'Extra Fields', $capability,
 						 'Configure5', 'awpcp_add_new_field');
 		}
@@ -149,13 +149,6 @@ class AWPCP_Admin {
 // 	echo 'WARNING: </strong>A page named AWPCP already exists. You must either delete that page and its subpages, or rename them before continuing with the plugin configuration.';
 // 	echo '</p></div>';
 // }
-
-
-
-function awpcp_flush_rewrite_rules() {
-	global $wp_rewrite;
-	$wp_rewrite->flush_rules();
-}
 
 
 
@@ -220,10 +213,10 @@ function awpcp_home_screen() {
 			$output .= __("It appears you have a potential problem that could result in the malfunctioning of Another Wordpress Classifieds plugin. A check of your database was performed and duplicate entries were found that share the same post_name value as your classifieds page. If for some reason you uninstall and then reinstall this plugin and the duplicate pages remain in your database, it could break the plugin and prevent it from working. To fix this problem you can manually delete the duplicate pages and leave only the page with the ID of your real classifieds page, or you can use the link below to rebuild your classifieds page. The process will include first deleting all existing pages with a post name value identical to your classifieds page. Note that if you recreate the page, it will be assigned a new page ID so if you are referencing the classifieds page ID anywhere outside of the classifieds program you will need to adjust the old ID to the new ID.","AWPCP");
 			$output .= "<br/>";
 			$output .= __("Number of duplicate pages","AWPCP");
-			$output .= ": [<b>$awpcp_classifieds_page_conflict_check</b>]";
+			$output .= ": <b>$awpcp_classifieds_page_conflict_check</b>";
 			$output .= "<br/>";
 			$output .= __("Duplicated post name","AWPCP");
-			$output .= ":[<b>$awpcppagename</b>]";
+			$output .= ": <b>$awpcppagename</b>";
 			$output .= "<p><a href=\"?page=Configure1&action=recreatepage\">";
 			$output .= __("Recreate the classifieds page to fix the conflict","AWPCP");
 			$output .= "</a></p></div>";
@@ -244,12 +237,12 @@ function awpcp_home_screen() {
 		$totallistings=countlistings(1);
 		$output .= "<div style=\"padding:5px;\">";
 		$output .= __("Number of active listings currently in the system","AWPCP");
-		$output .= ": [<b>$totallistings</b>]";
+		$output .= ": <b>$totallistings</b>";
 		$output .= "</div>";
 		$totallistings=countlistings(0);
 		$output .= "<div style=\"padding:5px;\">";
 		$output .= __("Number of inactive/expired/disabled listings currently in the system","AWPCP");
-		$output .= ": [<b>$totallistings</b>]";
+		$output .= ": <b>$totallistings</b>";
 		$output .= "</div>";
 		
 
@@ -283,13 +276,13 @@ function awpcp_home_screen() {
 			$output .= "<div style=\"padding:10px;border-top:1px solid #dddddd;\"><ul>";
 			$output .= "<li style=\"margin-bottom:6px;list-style:none;\">";
 			$output .= __("Total number of categories in the system","AWPCP");
-			$output .= ": [<b>$totalcategories</b>]</li>";
+			$output .= ": <b>$totalcategories</b></li>";
 			$output .= "<li style=\"margin-bottom:6px;list-style:none;\">";
 			$output .= __("Number of Top Level parent categories","AWPCP");
-			$output .= ": [<b>$totalparentcategories</b>]</li>";
+			$output .= ": <b>$totalparentcategories</b></li>";
 			$output .= "<li style=\"margin-bottom:6px;list-style:none;\">";
 			$output .= __("Number of sub level children categories","AWPCP");
-			$output .= ": [<b>$totalchildrencategories</b>]</li>";
+			$output .= ": <b>$totalchildrencategories</b></li>";
 			$output .= "</ul><p>";
 			$output .= __("Use the 'Manage Categories' option to edit/delete current categories or add new categories.","AWPCP");
 			$output .= "</p></div>";
@@ -1110,62 +1103,27 @@ function awpcp_manage_viewlistings() {
 			$output .= awpcp_place_ad_save_details_step(array(), $errors, true);
 
 		} elseif ($laction == 'approvead') {
-			// is the ad expired? If so then reset based on the Fee Plan assigned to it
-			$sql = 'select adterm_id, ad_enddate from '.$wpdb->prefix.'awpcp_ads where ad_id = '.$actonid;
-			$ad_info = $wpdb->get_results($sql, ARRAY_A);
-			$ad_expires = $ad_info[0]['ad_enddate'];
-			$ad_expires = strtotime($ad_expires);
-			if ( $ad_expires < time() ) { 
-				$freepaymode = get_awpcp_option('freepay');
-				if($freepaymode == 1) { 
-					//pay mode - use the plan term to reset:
-				    $sql = 'select rec_increment, rec_period from '.$wpdb->prefix.'awpcp_adfees where adterm_id = '.$ad_info[0]['adterm_id'] ;
-				    $period = $wpdb->get_results($sql, ARRAY_A);
-				    switch ( $period[0]['rec_increment'] ) { 
-						case 'D': $unit = 'DAY'; break;
-						case 'W': $unit = 'WEEK'; break;
-						case 'M': $unit = 'MONTH'; break;
-						case 'Y': $unit = 'YEAR'; break;
-				    }
-				    $length = $period[0]['rec_period'];
-				} else {
-					//free mode - reset to ad duration for free mode
-					$unit = 'DAY';
-					$length = get_awpcp_option('addurationfreemode');
-					if ('' == $length || $length == 0) {
-						//No expiration...make up an end date
-						$length = '3650';	//10 years, effectively forever
-					}
-				}
-			    $start = date( 'Y-m-d H:i:s', time() ); 
-			    $end = strtotime('+'.$length.' '.$unit , strtotime( $start ) );
+			$ad = AWPCP_Ad::find_by_id($actonid);
 
-			    $end = date( 'Y-m-d H:i:s', $end );
-
-			    $sql  = "update ".$tbl_ads." set disabled=0, ad_startdate = '".$start."', ad_enddate = '".$end."', disabled_date = '' where ad_id='$actonid'";
-			    $wpdb->query($sql);
-
-			    $sql  = "update ".$tbl_ad_photos." set disabled=0 where ad_id='$actonid'";
-			    $wpdb->query($sql);
-
-			} else { 
-
-			    $query="UPDATE  ".$tbl_ads." SET disabled=0, disabled_date = '' WHERE ad_id='$actonid'";
-			    $res = awpcp_query($query, __LINE__);
-
-			    $query="UPDATE  ".$tbl_ad_photos." SET disabled=0 WHERE ad_id='$actonid'";
-			    $res = awpcp_query($query, __LINE__);
-
+			if (($ad->disabled && is_null($ad->get_disabled_date())) || $ad->has_expired()) {
+				$ad->set_start_date(current_time('mysql'));
+				$ad->set_end_date($ad->calculate_end_date());
+			    $ad->save();
 			}
 
+		    $sql  = "UPDATE  " . AWPCP_TABLE_ADS . " SET disabled = 0 WHERE ad_id = %d";
+		    $wpdb->query($wpdb->prepare($sql, $actonid));
+
+		    $sql  = "UPDATE " . AWPCP_TABLE_ADPHOTOS . " SET disabled = 0 WHERE ad_id = %d";
+		    $wpdb->query($wpdb->prepare($sql, $actonid));
+
 			$output .= "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
-			$output .= __("The ad has been approved","AWPCP");
+			$output .= __("The Ad has been approved", "AWPCP");
 			$output .= "</div>";
 
 			do_action('awpcp_approve_ad');
-		}
-		elseif ($laction == 'rejectad')
-		{
+
+		} elseif ($laction == 'rejectad') {
 			$query="UPDATE  ".$tbl_ads." SET disabled=1, disabled_date = NOW() WHERE ad_id='$actonid'";
 			$res = awpcp_query($query, __LINE__);
 
@@ -1242,9 +1200,13 @@ function awpcp_manage_viewlistings() {
 				$editlink.="</a>";
 
 
-				$output .= "<div style=\"padding:10px 0px;; margin-bottom:20px;\"><b>";
-				$output .= __("Manage Listing: ","AWPCP");
-				$output .= "</b>";
+				$category_id = get_adcategory($actonid);
+				$href = add_query_arg(array('page' => 'Manage1', 'showadsfromcat_id' => $category_id), admin_url('admin.php'));
+
+				$output .= "<div style=\"padding:10px 0px;; margin-bottom:20px;\">";
+				$output .= "<b>" . __("Category: ","AWPCP") . "</b>";
+				$output .= '<a href="' . esc_attr($href) . '">' . get_adcatname($category_id) . "</a> &raquo ";
+				$output .= "<b>" . __("Manage Listing: ","AWPCP") . "</b>";
 				$output .= "$deletelink $editlink";
 
 				//if (get_awpcp_option('adapprove') == 1 || get_awpcp_option('freepay')  == 1)
@@ -1278,20 +1240,19 @@ function awpcp_manage_viewlistings() {
 				$output .= "</div>";
 
 				// end insert delete | edit | approve/disable admin links
-				$output .= showad($actonid,$omitmenu=1);
+				$output .= showad($actonid, $omitmenu=1);
 
 				$output .= "</div>";
-			}
-			else
-			{
+
+			} else {
 				$output .= "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
 				$output .= __("No ad ID was supplied","AWPCP");
 				$output .= "</div>";
-
 			}
 
-		}
-		elseif (in_array($laction, array('viewimages', 'deletepic', 'rejectpic', 'approvepic'))) {
+		} elseif (in_array($laction, array('viewimages', 'deletepic', 'rejectpic', 
+										   'approvepic', 'set-primary-image'))) 
+		{
 			$picid = awpcp_request_param('picid');
 			$adid = awpcp_request_param('adid');
 			$adtermid = awpcp_request_param('adtermid');
@@ -1317,6 +1278,9 @@ function awpcp_manage_viewlistings() {
 				$output .= "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
 				$output .= __("The image has been enabled and can now be viewed","AWPCP");
 				$output .= "</div>";
+			}
+			elseif ($laction == 'set-primary-image') {
+				awpcp_set_ad_primary_image($adid, $picid);
 			}
 
 			if (isset($_REQUEST['id']) && !empty($_REQUEST['id']))
@@ -1471,11 +1435,11 @@ function awpcp_manage_viewlistings() {
 				if ( is_array( $rsrow ) ) for( $i=0; $i < count($rsrow); $i++ ) $rsrow[$i] = stripslashes( $rsrow[$i] ); 
 
 				$ad_id=$rsrow[0];
-				$modtitle=cleanstring($rsrow[2]);
-				$modtitle=add_dashes($modtitle);
+				// $modtitle=cleanstring($rsrow[2]);
+				// $modtitle=add_dashes($modtitle);
 				$tcname=get_adcatname($rsrow[1]);
-				$modcatname=cleanstring($tcname);
-				$modcatname=add_dashes($modcatname);
+				// $modcatname=cleanstring($tcname);
+				// $modcatname=add_dashes($modcatname);
 				$category_id=$rsrow[1];
 				$category_name=get_adcatname($category_id);
 				$disabled=$rsrow[11];
@@ -1499,13 +1463,13 @@ function awpcp_manage_viewlistings() {
 				$pager2="<p>".create_pager($from,$where,$offset,$results,$tpname='')."</p>";
 
 				// XXX: this variables are unused. verify and delete them
-				$base=get_option('siteurl');
 				$awpcppage=get_currentpagename();
 				$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 				$awpcpwppostpageid = awpcp_get_page_id_by_ref('main-page-name');
 
-				$ad_title="<input type=\"checkbox\" name=\"awpcp_ads_to_action[]\" value=\"$ad_id\" />
-					    <a href=\"?page=Manage1&action=viewad&id=$ad_id&offset=$offset&results=$results\">".$rsrow[2]."</a>";
+				$ad_checkbox = "<input type=\"checkbox\" name=\"awpcp_ads_to_action[]\" value=\"$ad_id\" />";
+				$ad_title = "<a href=\"?page=Manage1&action=viewad&id=$ad_id&offset=$offset&results=$results\">" . stripslashes($rsrow[2]) . "</a>";
+
 				$handlelink="<a class=\"trash\" href=\"?page=Manage1&action=deletead&id=$ad_id&offset=$offset&results=$results\">";
 				$handlelink.=__("Delete","AWPCP");
 				$handlelink.="</a> | <a href=\"?page=Manage1&action=editad&id=$ad_id&offset=$offset&results=$results\">";
@@ -1610,12 +1574,14 @@ function awpcp_manage_viewlistings() {
 
 				$startend_date = '<td>'.$fee_plan_name.'</td><td>'.$ad_start.'</td><td>'.$ad_end.'</td>';
 
-				$items[]="<tr><td class=\"displayadscell\" width=\"200\">$ad_title</td>
+				$items[]="<tr><th scope=\"row\">$ad_checkbox</th><td class=\"displayadscell\" width=\"200\">$ad_title</td>
 					<td> $approvelink $makefeaturedlink $handlelink  $imagesnote  </td>
 					$paymentstatus $startend_date$featured_note</tr>";
 
 
-				$opentable="<table class=\"widefat fixed\"><thead><tr><th><input type=\"checkbox\" onclick=\"CheckAllAds()\" />";
+				$opentable="<table class=\"widefat fixed\"><thead><tr>";
+				$opentable.="<th style=\"width:18px\"><input type=\"checkbox\" onclick=\"CheckAllAds()\" /></th>";
+				$opentable.="<th>";
 				$opentable.=__("Ad Headline","AWPCP");
 				$opentable.="</th><th style=\"width:25%\">";
 				$opentable.=__("Manage Ad","AWPCP");
@@ -1832,8 +1798,7 @@ function awpcp_manage_viewlistings() {
  * @param $delete_image_form_action string URL used as the action for the 
  *										   delete form.
  */
-function viewimages($where, $approve=true, $delete_image_form_action=null)
-{
+function viewimages($where, $approve=true, $delete_image_form_action=null) {
 
 	//debug();
 	$output = '';
@@ -1887,11 +1852,12 @@ function viewimages($where, $approve=true, $delete_image_form_action=null)
 		$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? clean_field($_REQUEST['results']) : ($results=10);
 
 		$items=array();
-		$query="SELECT key_id,ad_id,image_name,disabled FROM $from WHERE $where ORDER BY image_name DESC LIMIT $offset,$results";
+		$query = "SELECT key_id, ad_id, image_name, disabled, is_primary FROM $from ";
+		$query.= "WHERE $where ORDER BY image_name DESC LIMIT $offset, $results";
 		$res = awpcp_query($query, __LINE__);
 
 		while ($rsrow=mysql_fetch_row($res)) {
-			list($ikey,$adid,$image_name,$disabled)=$rsrow;
+			list($ikey, $adid, $image_name, $disabled, $is_primary)=$rsrow;
 			$adtermid=get_adterm_id($adid);
 			$editemail=get_adposteremail($adid);
 			$adkey=get_adkey($adid);
@@ -1946,9 +1912,24 @@ function viewimages($where, $approve=true, $delete_image_form_action=null)
 				$approvelink.="</form>";
 			}
 
+			$primary_image_form = '';
+			if (!$is_primary) {
+				$primary_image_form = "<form method=\"post\" action=\"$delete_image_form_action\">";
+				$primary_image_form.= "<input type=\"hidden\" name=\"adid\" value=\"$adid\" />";
+				$primary_image_form.= "<input type=\"hidden\" name=\"picid\" value=\"$ikey\" />";
+				$primary_image_form.= "<input type=\"hidden\" name=\"adtermid\" value=\"$adtermid\" />";
+				$primary_image_form.= "<input type=\"hidden\" name=\"adkey\" value=\"$adkey\" />";
+				$primary_image_form.= "<input type=\"hidden\" name=\"editemail\" value=\"$editemail\" />";
+				$primary_image_form.= "<input type=\"hidden\" name=\"action\" value=\"set-primary-image\" />";
+				$primary_image_form.= "<input type=\"submit\" class=\"button\" value=\"";
+				$primary_image_form.= __("Set as primary","AWPCP");
+				$primary_image_form.= "\" />";
+				$primary_image_form.= "</form>";
+			}
 
-			$theimages="<a href=\"".AWPCPUPLOADURL."/$image_name\"><img $transval src=\"".AWPCPTHUMBSUPLOADURL."/$image_name\"/></a><br/>$dellink $approvelink";
-
+			$large_image = awpcp_get_image_url($image_name, 'large');
+			$thumbnail = awpcp_get_image_url($image_name, 'thumbnail');
+			$theimages = "<a href=\"" . $large_image . "\"><img $transval src=\"" . $thumbnail . "\"/></a><br/>$dellink $approvelink $primary_image_form";
 
 			$pager1=create_pager($from,$where,$offset,$results,$tpname='');
 			$pager2=create_pager($from,$where,$offset,$results,$tpname='');
@@ -2227,23 +2208,29 @@ function awpcp_addfees() {
 	global $message;
 
     if (isset($_REQUEST['addnewfeesetting']) && !empty($_REQUEST['addnewfeesetting'])) {
-	    $tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
-
 	    $adterm_name=stripslashes(clean_field($_REQUEST['adterm_name']));
 	    $amount=clean_field($_REQUEST['amount']);
+	    $rec_period=clean_field($_REQUEST['rec_period']);
+	    $rec_increment=clean_field($_REQUEST['rec_increment']);
+	    $imagesallowed=clean_field($_REQUEST['imagesallowed']);
+	    $characters_allowed = awpcp_request_param('characters_allowed');
+
+	    if (function_exists('awpcp_featured_ads')) {
+		    $is_featured_ad_pricing = awpcp_featured_ad_parms();
+	    } else {
+		    $is_featured_ad_pricing = 0;
+	    }
+
 	    if (function_exists('awpcp_price_cats')) {
 			$fee_cats = awpcp_price_cats_fees();
 	    } else {
 			$fee_cats = '';
 	    }
-	    
-	    $rec_period=clean_field($_REQUEST['rec_period']);
-	    $rec_increment=clean_field($_REQUEST['rec_increment']);
-	    $imagesallowed=clean_field($_REQUEST['imagesallowed']);
+
 	    if (function_exists('awpcp_price_cats')) {
-		$query="INSERT INTO ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed', categories='$fee_cats'";
+			$query = "INSERT INTO " . AWPCP_TABLE_ADFEES . " SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing, categories='$fee_cats', characters_allowed=$characters_allowed";
 	    } else { 
-		$query="INSERT INTO ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed'";
+			$query = "INSERT INTO " . AWPCP_TABLE_ADFEES . " SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing, characters_allowed=$characters_allowed";
 	    }
 
 	    $res = awpcp_query($query, __LINE__);
@@ -2262,18 +2249,13 @@ function awpcp_savefees() {
 	global $message;
 
     if (isset($_REQUEST['savefeesetting']) && !empty($_REQUEST['savefeesetting'])) {
-	    $tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
-	    if (function_exists('awpcp_price_cats')) {
-			$fee_cats = awpcp_price_cats_fees();
-	    } else { 
-			$fee_cats = '';
-	    }
 	    $adterm_id=clean_field($_REQUEST['adterm_id']);
 	    $adterm_name=stripslashes(clean_field($_REQUEST['adterm_name']));
 	    $amount=clean_field($_REQUEST['amount']);
 	    $rec_period=clean_field($_REQUEST['rec_period']);
 	    $rec_increment=clean_field($_REQUEST['rec_increment']);
 	    $imagesallowed=clean_field($_REQUEST['imagesallowed']);
+	    $characters_allowed = awpcp_request_param('characters_allowed', 0);
 
 	    if (function_exists('awpcp_featured_ads')) {
 		    $is_featured_ad_pricing = awpcp_featured_ad_parms();
@@ -2282,12 +2264,19 @@ function awpcp_savefees() {
 	    }
 
 	    if (function_exists('awpcp_price_cats')) {
-			$query="UPDATE ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing, categories='$fee_cats' WHERE adterm_id='$adterm_id'";
+			$fee_cats = awpcp_price_cats_fees();
 	    } else { 
-			$query="UPDATE ".$tbl_ad_fees." SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing WHERE adterm_id='$adterm_id'";
+			$fee_cats = '';
+	    }
+
+	    if (function_exists('awpcp_price_cats')) {
+			$query = "UPDATE " . AWPCP_TABLE_ADFEES . " SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing, characters_allowed=$characters_allowed, categories='$fee_cats' WHERE adterm_id='$adterm_id'";
+	    } else { 
+			$query = "UPDATE " . AWPCP_TABLE_ADFEES . " SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing, characters_allowed=$characters_allowed WHERE adterm_id='$adterm_id'";
 	    }
 
 	    $res = awpcp_query($query, __LINE__);
+
 	    $message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
 	    $message.=__("The item has been updated","AWPCP");
 	    $message.="!</div>";
@@ -2808,7 +2797,7 @@ function awpcp_admin_sidebar_output($html, $float) {
 	global $hasextrafieldsmodule, $hasrssmodule, $hasfeaturedadsmodule;
 	global $haspoweredbyremovalmodule;
 
-	$apath = get_option('siteurl').'/wp-admin/images';
+	$apath = get_option('siteurl') . '/wp-admin/images';
 	if ('' == $float) $float = 'float:right !important';
 	$url = AWPCP_URL;
 	$out = <<< AWPCP
@@ -2876,8 +2865,8 @@ target="_blank">Donate to Support AWPCP</a></li>
 		    <h3 class="hndle1"><span>Found a bug? &nbsp; Need Support?</span></h3>
 		    <div class="inside">
 		    	<ul>
-		    		<li>Browse the <a href="http://www.awpcp.com/quick-start-guide">Quick Start Guide</a>.</li>
-		    		<li>Read the full <a href="http://awpcp.com/docs">Documentation</a>.</li>
+		    		<li>Browse the <a href="http://www.awpcp.com/quick-start-guide" target="_blank">Quick Start Guide</a>.</li>
+		    		<li>Read the full <a href="http://awpcp.com/docs" target="_blank">Documentation</a>.</li>
 		    		<li>Report bugs or get more help: <a href="http://forum.awpcp.com/" target="_blank">visit the forums!</a>.</li>
 		    	</ul>			
 		    </div>
@@ -2976,22 +2965,22 @@ AWPCP;
 
 		if ( ($haspoweredbyremovalmodule != 1) ) {
 			$out .= "<li>"; 
-			$out .= __("No [Other] modules installed","AWPCP"); 
+			$out .= __("No [Other] modules installed", "AWPCP");
 			$out .= "</li>";
 		} else {
 			if ( ($haspoweredbyremovalmodule == 1) ) {
-//						$out .= "<li>"; 
-//						$out .= __("Powered By Link Removal Module","AWPCP"); 
-//						$out .= "</li>";
+				// $out .= "<li>"; 
+				// $out .= __("Powered By Link Removal Module","AWPCP"); 
+				// $out .= "</li>";
 			}
 		}
 
 		$out .= "</ul><em>"; $out .= __("Uninstalled","AWPCP"); $out .= "</em><ul>";
 
 		if ( ($haspoweredbyremovalmodule != 1) ) {
-//					$out .= "<li><a href=\"http://www.awpcp.com/premium-modules/powered-by-link-removal-module/\">"; 
-//					$out .= __("Powered By Link Removal Module","AWPCP"); 
-//					$out .= "</a></li>";
+			// $out .= "<li><a href=\"http://www.awpcp.com/premium-modules/powered-by-link-removal-module/\">"; 
+			// $out .= __("Powered By Link Removal Module","AWPCP"); 
+			// $out .= "</a></li>";
 		} else {
 			$out .= __("All [Other] modules installed","AWPCP");
 		}

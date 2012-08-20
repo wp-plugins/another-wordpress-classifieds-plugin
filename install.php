@@ -63,91 +63,81 @@ class AWPCP_Installer {
 
         // create Categories table
         $sql = "CREATE TABLE IF NOT EXISTS " . AWPCP_TABLE_CATEGORIES . " (
-          `category_id` int(10) NOT NULL AUTO_INCREMENT,
-          `category_parent_id` int(10) NOT NULL,
-          `category_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `category_order` int(10) NULL DEFAULT 0,
-          PRIMARY KEY  (`category_id`)
+            `category_id` INT(10) NOT NULL AUTO_INCREMENT,
+            `category_parent_id` INT(10) NOT NULL,
+            `category_name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `category_order` INT(10) NULL DEFAULT 0,
+            PRIMARY KEY  (`category_id`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
         dbDelta($sql);
 
 
         // create Ad Fees table
         $sql = "CREATE TABLE IF NOT EXISTS " . AWPCP_TABLE_ADFEES . " (
-          `adterm_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-          `adterm_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `amount` float(6,2) unsigned NOT NULL DEFAULT '0.00',
-          `recurring` tinyint(1) unsigned NOT NULL DEFAULT 0,
-          `rec_period` int(5) unsigned NOT NULL DEFAULT 0,
-          `rec_increment` varchar(5) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `buys` int(10) unsigned NOT NULL DEFAULT 0,
-          `imagesallowed` int(5) unsigned NOT NULL DEFAULT 0,
-          `is_featured_ad_pricing` tinyint(1) DEFAULT NULL,
-          `categories` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-          PRIMARY KEY  (`adterm_id`)
+            `adterm_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+            `adterm_name` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `amount` FLOAT(6,2) UNSIGNED NOT NULL DEFAULT '0.00',
+            `recurring` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+            `rec_period` INT(5) UNSIGNED NOT NULL DEFAULT 0,
+            `rec_increment` VARCHAR(5) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `buys` INT(10) UNSIGNED NOT NULL DEFAULT 0,
+            `imagesallowed` INT(5) UNSIGNED NOT NULL DEFAULT 0,
+            `is_featured_ad_pricing` TINYINT(1) DEFAULT NULL,
+            `categories` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci,
+            `characters_allowed` INT(1) NOT NULL DEFAULT 0,
+            PRIMARY KEY  (`adterm_id`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
         dbDelta($sql);
 
 
         // create Ads table
         $sql = "CREATE TABLE IF NOT EXISTS " . AWPCP_TABLE_ADS . " (
-          `ad_id` int(10) NOT NULL AUTO_INCREMENT,
-          `adterm_id` int(10) NOT NULL DEFAULT 0,
-          `ad_fee_paid` float(7,2) NOT NULL,
-          `ad_category_id` int(10) NOT NULL,
-          `ad_category_parent_id` int(10) NOT NULL,
-          `ad_title` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `ad_details` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-          `ad_contact_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `ad_contact_phone` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `ad_contact_email` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `websiteurl` varchar( 375 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-          `ad_city` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `ad_state` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `ad_country` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `ad_county_village` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `ad_item_price` int(25) NOT NULL,
-          `ad_views` int(10) NOT NULL DEFAULT 0,
-          `ad_postdate` date NOT NULL DEFAULT '0000-00-00',
-          `ad_last_updated` date NOT NULL,
-          `ad_startdate` datetime NOT NULL,
-          `ad_enddate` datetime NOT NULL,
-          `disabled` tinyint(1) NOT NULL DEFAULT 0,
-          `disabled_date` datetime,
-          `ad_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `ad_transaction_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `payment_gateway` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `payment_status` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `is_featured_ad` tinyint(1) DEFAULT NULL,
-          `posterip` varchar(15) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `flagged` tinyint(1) NOT NULL DEFAULT 0,
-          `user_id` INT(10) DEFAULT NULL,
-          `renew_email_sent` TINYINT(1) NOT NULL DEFAULT 0,
-          FULLTEXT KEY `titdes` (`ad_title`,`ad_details`),
-          PRIMARY KEY  (`ad_id`)
+            `ad_id` INT(10) NOT NULL AUTO_INCREMENT,
+            `adterm_id` INT(10) NOT NULL DEFAULT 0,
+            `ad_fee_paid` FLOAT(7,2) NOT NULL,
+            `ad_category_id` INT(10) NOT NULL,
+            `ad_category_parent_id` INT(10) NOT NULL,
+            `ad_title` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_details` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            `ad_contact_name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_contact_phone` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_contact_email` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `websiteurl` VARCHAR( 375 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            `ad_city` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_state` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_country` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_county_village` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_item_price` INT(25) NOT NULL,
+            `ad_views` INT(10) NOT NULL DEFAULT 0,
+            `ad_postdate` DATE NOT NULL,
+            `ad_last_updated` DATE NOT NULL,
+            `ad_startdate` DATETIME NOT NULL,
+            `ad_enddate` DATETIME NOT NULL,
+            `disabled` TINYINT(1) NOT NULL DEFAULT 0,
+            `disabled_date` DATETIME,
+            `ad_key` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_transaction_id` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `payment_gateway` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `payment_status` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `is_featured_ad` TINYINT(1) DEFAULT NULL,
+            `posterip` VARCHAR(15) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `flagged` TINYINT(1) NOT NULL DEFAULT 0,
+            `user_id` INT(10) DEFAULT NULL,
+            `renew_email_sent` TINYINT(1) NOT NULL DEFAULT 0,
+            FULLTEXT KEY `titdes` (`ad_title`,`ad_details`),
+            PRIMARY KEY  (`ad_id`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
         dbDelta($sql);
 
 
-        // Create Ad Settings table
-        // $sql = "CREATE TABLE IF NOT EXISTS " . AWPCP_TABLE_ADSETTINGS . " (
-        //   `config_option` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-        //   `config_value` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-        //   `config_diz` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-        //   `config_group_id` tinyint(1) unsigned NOT NULL DEFAULT 1,
-        //   `option_type` tinyint(1) unsigned NOT NULL DEFAULT 0,
-        //   PRIMARY KEY  (`config_option`)
-        // ) ENGINE=MyISAM COMMENT='0-checkbox, 1-text,2-textarea';";
-        // dbDelta($sql);
-
-
         // create Ad Photos table
         $sql = "CREATE TABLE IF NOT EXISTS " . AWPCP_TABLE_ADPHOTOS . " (
-          `key_id` int(10) NOT NULL AUTO_INCREMENT,
-          `ad_id` int(10) unsigned NOT NULL DEFAULT 0,
-          `image_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          `disabled` tinyint(1) NOT NULL,
-          PRIMARY KEY  (`key_id`)
+            `key_id` INT(10) NOT NULL AUTO_INCREMENT,
+            `ad_id` INT(10) UNSIGNED NOT NULL DEFAULT 0,
+            `image_name` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `disabled` TINYINT(1) NOT NULL DEFAULT 0,
+            `is_primary` TINYINT(1) NOT NULL DEFAULT 0,
+            PRIMARY KEY  (`key_id`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
         dbDelta($sql);
 
@@ -155,26 +145,26 @@ class AWPCP_Installer {
         // create Pagename table
         // TODO: not sure if this table is needed at all, we could use an option...
         $sql = "CREATE TABLE IF NOT EXISTS " . AWPCP_TABLE_PAGENAME . " (
-          `key_id` int(10) NOT NULL AUTO_INCREMENT,
-          `userpagename` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-          PRIMARY KEY  (`key_id`)
+            `key_id` INT(10) NOT NULL AUTO_INCREMENT,
+            `userpagename` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            PRIMARY KEY  (`key_id`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
         dbDelta($sql);
 
 
         // create Pages table
         $sql = 'CREATE TABLE IF NOT EXISTS ' . AWPCP_TABLE_PAGES . " (
-          `page` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-          `id` INT(10) NOT NULL,
+            `page` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            `id` INT(10) NOT NULL,
           PRIMARY KEY  (`page`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
         dbDelta($sql);
 
 
         // insert deafult category
-        $data = array('category_id' => 1, 
-                      'category_parent_id' => 0, 
-                      'category_name' => __('General', 'AWPCP'), 
+        $data = array('category_id' => 1,
+                      'category_parent_id' => 0,
+                      'category_name' => __('General', 'AWPCP'),
                       'category_order' => 0);
         $wpdb->insert(AWPCP_TABLE_CATEGORIES, $data);
         
@@ -182,19 +172,20 @@ class AWPCP_Installer {
         $data = array('adterm_id' => 1, 
                       'adterm_name' => __('30 Day Listing', 'AWPCP'), 
                       'amount' => 9.99, 
-                      'recurring' => 1, 
-                      'rec_period' => 31, 
+                      'recurring' => 1,
+                      'rec_period' => 31,
                       'rec_increment' => 'D', 
-                      'buys' => 0, 
+                      'buys' => 0,
                       'imagesallowed' => 6);
         $wpdb->insert(AWPCP_TABLE_ADFEES, $data);
 
 
-        do_action('awpcp_install');
-
+        $result = update_option('awpcp_db_version', $awpcp_db_version);
         $awpcp->settings->update_option('show-quick-start-guide-notice', true, true);
 
-        return update_option("awpcp_db_version", $awpcp_db_version);
+        do_action('awpcp_install');
+
+        return $result;
     }
 
     public function uninstall() {
@@ -224,9 +215,8 @@ class AWPCP_Installer {
         $wpdb->query("DROP TABLE IF EXISTS " . AWPCP_TABLE_PAGES);
 
 
-        // TODO: remove other tables created by modules too?
-        $tables = array($wpdb->prefix . 'awpcp_extra_fields',
-                        $wpdb->prefix . 'awpcp_comments');
+        // TODO: implement uninstall methods in other modules
+        $tables = array($wpdb->prefix . 'awpcp_comments');
         foreach ($tables as $table) {
             $wpdb->query("DROP TABLE IF EXISTS " . $table);    
         }        
@@ -290,6 +280,9 @@ class AWPCP_Installer {
         if (version_compare($oldversion, '2.0.6') < 0) {
             $this->upgrade_to_2_0_6($oldversion);
         }
+        if (version_compare($oldversion, '2.0.7') < 0) {
+            $this->upgrade_to_2_0_7($oldversion);
+        }
 
         do_action('awpcp_upgrade', $oldversion, $newversion);
         
@@ -307,47 +300,47 @@ class AWPCP_Installer {
 
         if (!is_at_least_awpcp_version('1.8.7.1')) {
             // Fix the problem with disabled_date not being nullable from 1.8.7
-            $query = "ALTER TABLE ". AWPCP_TABLE_ADS ." MODIFY disabled_date datetime";
+            $query = "ALTER TABLE ". AWPCP_TABLE_ADS ." MODIFY disabled_date DATETIME";
             $wpdb->query($query);
         }
 
         // Upgrade featured ad columns for module
         if (!$this->column_exists(AWPCP_TABLE_ADS, 'is_featured_ad')) {
-            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `is_featured_ad` tinyint(1) DEFAULT NULL");
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `is_featured_ad` TINYINT(1) DEFAULT NULL");
         }
 
         // Upgrade for tracking poster's IP address
         if (!$this->column_exists(AWPCP_TABLE_ADS, 'posterip')) {
-            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `posterip` varchar(15) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL");
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `posterip` VARCHAR(15) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL");
         }
 
         if (!$this->column_exists(AWPCP_TABLE_ADS, 'flagged')) {
-            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `flagged` tinyint(1) DEFAULT NULL");
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `flagged` TINYINT(1) DEFAULT NULL");
         }
 
         // Upgrade for deleting ads that are marked as disabled or deleted
         if (!$this->column_exists(AWPCP_TABLE_ADS, 'disabled_date')) {
-            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `disabled_date` datetime DEFAULT NULL");
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `disabled_date` DATETIME DEFAULT NULL");
         }
 
 
         if (!$this->column_exists(AWPCP_TABLE_ADFEES, 'is_featured_ad_pricing')) {
-            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADFEES . "  ADD `is_featured_ad_pricing` tinyint(1) DEFAULT NULL");
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADFEES . "  ADD `is_featured_ad_pricing` TINYINT(1) DEFAULT NULL");
         }
 
         if (!$this->column_exists(AWPCP_TABLE_ADFEES, 'categories')) {
-            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADFEES . "  ADD `categories` text CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL");
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADFEES . "  ADD `categories` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci");
         }
 
 
         if (!$this->column_exists(AWPCP_TABLE_CATEGORIES, 'category_order')) {
-            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_CATEGORIES . "  ADD `category_order` int(10) NULL DEFAULT 0 AFTER category_name");
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_CATEGORIES . "  ADD `category_order` INT(10) NULL DEFAULT 0 AFTER category_name");
             $wpdb->query("UPDATE " . AWPCP_TABLE_CATEGORIES . " SET category_order=0");
         }
 
 
         if (!$this->column_exists(AWPCP_TABLE_ADFEES, 'categories')) {
-            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADFEES . "  ADD `categories` text CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL");
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADFEES . "  ADD `categories` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci");
         }
 
 
@@ -386,7 +379,7 @@ class AWPCP_Installer {
         $cgid_column_name="config_group_id";
         $cgid_column_name_exists=mysql_query("SELECT $cgid_column_name FROM " . AWPCP_TABLE_ADSETTINGS);
         if (mysql_errno() || !$cgid_column_name_exists) {
-            $query=("ALTER TABLE " . AWPCP_TABLE_ADSETTINGS . "  ADD `config_group_id` tinyint(1) unsigned NOT NULL DEFAULT 1 AFTER config_diz");
+            $query=("ALTER TABLE " . AWPCP_TABLE_ADSETTINGS . "  ADD `config_group_id` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 AFTER config_diz");
             awpcp_query($query, __LINE__);
 
             $myconfig_group_ops_1=array('showlatestawpcpnews','uiwelcome','main_page_display','useakismet','contactformcheckhuman', 'contactformcheckhumanhighnumval','awpcptitleseparator','showcityinpagetitle','showstateinpagetitle','showcountryinpagetitle','showcategoryinpagetitle','showcountyvillageinpagetitle','awpcppagefilterswitch','activatelanguages','sidebarwidgetbeforecontent','sidebarwidgetaftercontent','sidebarwidgetbeforetitle','sidebarwidgetaftertitle','usesenderemailinsteadofadmin','awpcpadminaccesslevel','awpcpadminemail','useakismet');
@@ -560,7 +553,7 @@ class AWPCP_Installer {
 
         // Add new field ad_fee_paid for sorting ads by paid listings first
         if (!$this->column_exists(AWPCP_TABLE_ADS, 'ad_fee_paid')) {
-             $query=("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `ad_fee_paid` float(7,2) NOT NULL AFTER `adterm_id`");
+             $query=("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `ad_fee_paid` FLOAT(7,2) NOT NULL AFTER `adterm_id`");
              awpcp_query($query, __LINE__);
         }
 
@@ -569,12 +562,12 @@ class AWPCP_Installer {
 
         // Ad new field add_county_village to awpcp_ads
         if (!$this->column_exists(AWPCP_TABLE_ADS, 'ad_county_village')) {
-            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `ad_county_village` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `ad_country`");
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `ad_county_village` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `ad_country`");
         }
 
         // Add field ad_views to table awpcp_ads to track ad views
         if (!$this->column_exists(AWPCP_TABLE_ADS, 'ad_views')) {
-            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `ad_views` int(10) NOT NULL DEFAULT 0 AFTER `ad_item_price`");
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `ad_views` INT(10) NOT NULL DEFAULT 0 AFTER `ad_item_price`");
         }
 
         // Insert new field ad_item_price into awpcp_ads table
@@ -654,9 +647,9 @@ class AWPCP_Installer {
         $table = $wpdb->get_var("SHOW TABLES LIKE '" . AWPCP_TABLE_PAGES . "'");
         if (strcmp($table, AWPCP_TABLE_PAGES) != 0) {
             $sql = 'CREATE TABLE IF NOT EXISTS ' . AWPCP_TABLE_PAGES . " (
-              `page` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-              `id` INT(10) NOT NULL,
-              PRIMARY KEY  (`page`)
+                `page` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                `id` INT(10) NOT NULL,
+                PRIMARY KEY  (`page`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
             dbDelta($sql);
 
@@ -699,32 +692,8 @@ class AWPCP_Installer {
         global $wpdb;
 
         // update CHARSET and COLLATE values for standard AWPCP tables and columns
-        $types = array('varchar', 'char', 'text', 'enum', 'set');
         $tables = $wpdb->get_col("SHOW TABLES LIKE '%_awpcp_%'");
-
-        foreach ($tables as $table) {
-            $sql = "ALTER TABLE `$table` CHARACTER SET utf8 COLLATE utf8_general_ci";
-            $wpdb->query($wpdb->prepare($sql, $table));
-
-            $sql = "SHOW COLUMNS FROM `$table`";
-            $columns = $wpdb->get_results($wpdb->prepare($sql, $table), ARRAY_N);
-
-            $parts = array();
-            foreach ($columns as $col) {
-                foreach ($types as $type) {
-                    if (strpos($col[1], $type) !== false) {
-                        $definition = "CHANGE `$col[0]` `$col[0]` $col[1] ";
-                        $definition.= "CHARACTER SET utf8 COLLATE utf8_general_ci ";
-                        $definition.= strcasecmp($col[2], 'NO') === 0 ? 'NOT NULL ' : '';
-                        $definition.= strcasecmp($col[4], 'NUL') === 0 ? 'DEFAULT NULL' : "DEFAULT '$col[4]'";
-                        $parts[] = $definition;
-                        break;
-                    }
-                }
-            }
-            $sql = "ALTER TABLE $table " . join(', ', $parts);
-            $wpdb->query($sql);
-        }
+        awpcp_fix_table_charset_and_collate($tables);
     }
 
     private function upgrade_to_2_0_5($version) {
@@ -795,6 +764,33 @@ class AWPCP_Installer {
         $awpcp->settings->update_option('paypalpaymentsrecurring', 0, true);
         $awpcp->settings->update_option('twocheckoutpaymentsrecurring', 0, true);
     }
+
+    private function upgrade_to_2_0_7($version) {
+        global $wpdb;
+        global $awpcp;
+        
+        // Change Ad's title CSS class to avoid problems with Ad Blocker extensions
+        $value = $awpcp->settings->get_option('awpcpshowtheadlayout');
+        $value = preg_replace('/<div class="adtitle">/', '<div class="awpcp-title">', $value);
+        $awpcp->settings->update_option('awpcpshowtheadlayout', $value);
+
+        // Insert new field ad_item_price into awpcp_ads table
+        if (!$this->column_exists(AWPCP_TABLE_ADPHOTOS, 'is_primary')) {
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADPHOTOS . "  ADD `is_primary` TINYINT(1) NOT NULL DEFAULT 0");
+        }
+
+        // Add character limit to Fee plans
+        if (!$this->column_exists(AWPCP_TABLE_ADFEES, 'characters_allowed')) {
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADFEES . "  ADD `characters_allowed` INT(1) NOT NULL DEFAULT 0");
+        }
+
+        $fees = awpcp_get_fees();
+        $characters_allowed = get_awpcp_option('maxcharactersallowed', 0);
+        foreach ($fees as $fee) {
+            $sql = 'UPDATE ' . AWPCP_TABLE_ADFEES . ' SET characters_allowed = %d WHERE adterm_id = %d';
+            $wpdb->query($wpdb->prepare($sql, $characters_allowed, $fee->adterm_id));
+        }
+    }
 }
 
 
@@ -810,5 +806,40 @@ function awpcp_insert_setting($field, $value, $description, $group, $type) {
                       'config_diz' => $description, 'config_group_id' => $group, 
                       'option_type' => $type);
         $wpdb->insert(AWPCP_TABLE_ADSETTINGS, $data);
+    }
+}
+
+/**
+ * Set tables charset to utf8 and text-based columns collate to utf8_general_ci.
+ */
+function awpcp_fix_table_charset_and_collate($tables) {
+    global $wpdb;
+
+    $tables = is_array($tables) ? $tables : array($tables);
+
+    $types = array('varchar', 'char', 'text', 'enum', 'set');
+
+    foreach ($tables as $table) {
+        $sql = "ALTER TABLE `$table` CHARACTER SET utf8 COLLATE utf8_general_ci";
+        $wpdb->query($wpdb->prepare($sql, $table));
+
+        $sql = "SHOW COLUMNS FROM `$table`";
+        $columns = $wpdb->get_results($wpdb->prepare($sql, $table), ARRAY_N);
+
+        $parts = array();
+        foreach ($columns as $col) {
+            foreach ($types as $type) {
+                if (strpos($col[1], $type) !== false) {
+                    $definition = "CHANGE `$col[0]` `$col[0]` $col[1] ";
+                    $definition.= "CHARACTER SET utf8 COLLATE utf8_general_ci ";
+                    $definition.= strcasecmp($col[2], 'NO') === 0 ? 'NOT NULL ' : '';
+                    $definition.= strcasecmp($col[4], 'NUL') === 0 ? 'DEFAULT NULL' : "DEFAULT '$col[4]'";
+                    $parts[] = $definition;
+                    break;
+                }
+            }
+        }
+        $sql = "ALTER TABLE $table " . join(', ', $parts);
+        $wpdb->query($sql);
     }
 }

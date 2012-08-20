@@ -48,123 +48,73 @@ function awpcp_schedule_activation() {
  * Function to disable ads run hourly
  */
 function doadexpirations() {
-	global $wpdb, $nameofsite, $siteurl, $thisadminemail;
-
-	$tbl_ads = $wpdb->prefix . "awpcp_ads";
-	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
-
-	$awpcp_from_header = "From: ". $nameofsite . " <" . $thisadminemail . ">\r\n";
+	global $wpdb, $nameofsite, $thisadminemail;
 
 	$adexpireafter = get_awpcp_option('addurationfreemode');
 	$notify_admin = get_awpcp_option('notifyofadexpired');
 
-	_log("Checking ad expirations");
-
 	// disable the ads or delete the ads?
-	$disable_ads = get_awpcp_option('autoexpiredisabledelete');
 	// 1 = disable, 0 = delete
+	$disable_ads = get_awpcp_option('autoexpiredisabledelete');
 
+	$expiredid = array();
 	$adstodelete = '';
+
+	// allow users to use %s placeholder for the website name in the subject line
+	$subject = get_awpcp_option('adexpiredsubjectline');
+	$subject = sprintf($subject, $nameofsite);
+	$bodybase = get_awpcp_option('adexpiredbodymessage');
+
+	$admin_email = get_option('admin_email');
 
 	$sql = 'select ad_id from ' . AWPCP_TABLE_ADS . ' where ad_enddate <= NOW() and disabled != 1';
 	$ads = $wpdb->get_results($sql, ARRAY_A);
 
-	$expiredid = array();
+	foreach ($ads as $ad) {
+		$expiredid[] = $ad['ad_id'];
+		$adid = $ad['ad_id'];
 
-	$subject = get_awpcp_option('adexpiredsubjectline');
-	$bodybase = get_awpcp_option('adexpiredbodymessage');
+		if(get_awpcp_option('notifyofadexpiring') == 1 && $disable_ads) {
+			$user_email = get_adposteremail($adid);
 
-	_log("Expiring ads: " . $adstodelete);
+			if ('' == $user_email) continue; // no email, can't send a message without it.
 
-	if ($ads) {
-		foreach ($ads as $ad) {
+			$adtitle = get_adtitle($adid);
+			$adcontact = get_adpostername($adid);
+			$adstartdate = date("D M j Y G:i:s", strtotime(get_adstartdate($adid)));
 
-			$expiredid[] = $ad['ad_id'];
-			$adid = $ad['ad_id'];
+			$body = $bodybase;
+			$body.= "\n\n";
+			$body.= __("Listing Details", "AWPCP");
+			$body.= "\n\n";
+			$body.= __("Ad Title:", "AWPCP");
+			$body.= " $adtitle";
+			$body.= "\n\n";
+			$body.= __("Posted:", "AWPCP");
+			$body.= " $adstartdate";
+			$body.= "\n\n";
+			$body.= __("Renew your ad by visiting:", "AWPCP");
+			$body.= " " . awpcp_get_renew_ad_url($adid);
+			$body.= "\n\n";
 
-			if( get_awpcp_option('notifyofadexpiring') == 1 && $disable_ads ) {
+			awpcp_process_mail($admin_email, $user_email, $subject, $body, $nameofsite, $admin_email);
 
-				_log("Processing Notification for ad: " . $adid);
-
-				$adcontact=get_adpostername($adid);
-				_log("Got poster name for ad: " . $adid);
-
-				$awpcpnotifyexpireemail=get_adposteremail($adid);
-				_log("Got poster email for ad: " . $adid);
-
-				if ('' == $awpcpnotifyexpireemail) continue; // no email addy, can't send a message without it.
-
-				$adtitle=get_adtitle($adid);
-				_log("Got title for ad: " . $adid);
-
-				$adstartdate = date("D M j Y G:i:s", strtotime( get_adstartdate($adid) ) );
-				_log("Formatted date for ad: " . $adid);
-
-				$awpcpadexpiredsubject = $subject;
-				$awpcpadexpiredbody = $bodybase;
-				$awpcpadexpiredbody.="\n\n";
-				$awpcpadexpiredbody.=__("Listing Details", "AWPCP");
-				$awpcpadexpiredbody.="\n\n";
-				$awpcpadexpiredbody.=__("Ad Title:", "AWPCP");
-				$awpcpadexpiredbody.=" $adtitle";
-				$awpcpadexpiredbody.="\n\n";
-				$awpcpadexpiredbody.=__("Posted:", "AWPCP");
-				$awpcpadexpiredbody.=" $adstartdate";
-				$awpcpadexpiredbody.="\n\n";
-				$awpcpadexpiredbody.=__("Renew your ad by visiting:", "AWPCP");
-				$awpcpadexpiredbody.=" $siteurl";
-				$awpcpadexpiredbody.="\n\n";
-
-				awpcp_process_mail(
-					$thisadminemail,
-					$awpcpnotifyexpireemail,
-					$awpcpadexpiredsubject,
-					$awpcpadexpiredbody,
-					$nameofsite,
-					$thisadminemail
-				);
-
-				// SEND THE ADMIN A NOTICE TOO?
-				if ( $notify_admin ) {
-					awpcp_process_mail(
-						$awpcpsenderemail=$thisadminemail,
-						$awpcpreceiveremail=$thisadminemail,
-						$awpcpemailsubject=$awpcpadexpiredsubject,
-						$awpcpemailbody=$awpcpadexpiredbody,
-						$awpcpsendername=$nameofsite,
-						$awpcpreplytoemail=$thisadminemail
-					);
-				}
-
-				_log("DONE Processing Notification for ad: " . $adid);
+			if ( $notify_admin ) {
+				awpcp_process_mail($admin_email, $admin_email, $subject, $body, $nameofsite, $admin_email);
 			}
-
-			_log("Processing Notifications complete");
 		}
-
-		$adstodelete = join(',' , $expiredid);
-
-	} else {
-		_log("No ads expiring now.");
 	}
 
+	$adstodelete = join(',' , $expiredid);
 
 	if ('' != $adstodelete) {
-		_log("Now doing expiration query");
-
 		// disable images
-		$query = 'update '.$tbl_ad_photos." set disabled=1 WHERE ad_id IN ($adstodelete)";
-		_log("Running query: " . $query);
-
+		$query = 'update ' . AWPCP_TABLE_ADPHOTOS . " set disabled=1 WHERE ad_id IN ($adstodelete)";
 		$res = awpcp_query($query, __LINE__);
-		_log("Disabled photos result is " . $res);
 	  
 		// Disable the ads
-		$query="UPDATE ".$tbl_ads." set disabled=1, disabled_date = NOW() WHERE ad_id IN ($adstodelete)";
-		_log("Running query: " . $query);
-
+		$query="UPDATE " . AWPCP_TABLE_ADS . " set disabled=1, disabled_date = NOW() WHERE ad_id IN ($adstodelete)";
 		$res = awpcp_query($query, __LINE__);
-		_log("Disabled ads result is " . $res);
 	}
 }
 
@@ -178,11 +128,8 @@ function doadcleanup() {
 	//If they set the 'disable instead of delete' flag, we just return and don't do anything here.
 	if (get_awpcp_option('autoexpiredisabledelete') == 1) return;
 
-	$tbl_ads = $wpdb->prefix . "awpcp_ads";
-	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
-
 	// Get the IDs of the ads to be deleted (those that are disabled more than 30 days ago)
-	$query="SELECT ad_id FROM ".$tbl_ads." WHERE disabled=1 and (disabled_date + INTERVAL 30 DAY) < CURDATE()";
+	$query="SELECT ad_id FROM " . AWPCP_TABLE_ADS . " WHERE disabled=1 and (disabled_date + INTERVAL 30 DAY) < CURDATE()";
 	$res = awpcp_query($query, __LINE__);
 
 	$expiredid=array();
@@ -193,7 +140,7 @@ function doadcleanup() {
 	}
 
 	$adstodelete = join("','", $expiredid);
-	$query = "SELECT image_name FROM " . $tbl_ad_photos . " WHERE ad_id IN ('$adstodelete')";
+	$query = "SELECT image_name FROM " . AWPCP_TABLE_ADPHOTOS . " WHERE ad_id IN ('$adstodelete')";
 	$res = awpcp_query($query, __LINE__);
 	$rowcount = mysql_num_rows($res);
 
@@ -209,11 +156,11 @@ function doadcleanup() {
 		}
 	}
 
-	$query = "DELETE FROM " . $tbl_ad_photos . " WHERE ad_id IN ('$adstodelete')";
+	$query = "DELETE FROM " . AWPCP_TABLE_ADPHOTOS . " WHERE ad_id IN ('$adstodelete')";
 	$res = awpcp_query($query, __LINE__);
 
 	// Delete the ads
-	$query = "DELETE FROM " . $tbl_ads . " WHERE ad_id IN ('$adstodelete')";
+	$query = "DELETE FROM " . AWPCP_TABLE_ADS . " WHERE ad_id IN ('$adstodelete')";
 	$res = awpcp_query($query, __LINE__);
 }
 
@@ -239,15 +186,8 @@ function awpcp_ad_renewal_email() {
 	$subject = get_awpcp_option('renew-ad-email-subject');
 	$subject = sprintf($subject, $threshold);
 
-	$panel_url = admin_url('admin.php?page=awpcp-panel');
-	$renew_ad_url = get_permalink(awpcp_get_page_id_by_ref('renew-ad-page-name'));
-
 	foreach ($ads as $ad) {
-		if (get_awpcp_option('enable-user-panel') == 1) {
-			$href = $panel_url;
-		} else {			
-			$href = add_query_arg(array('ad_id' => $ad->ad_id), $renew_ad_url);
-		}		
+		$href = awpcp_get_renew_ad_url($ad->ad_id);	
 
 		// awpcp_process_mail doesn't support HTML
 		$body = get_awpcp_option('renew-ad-email-body');

@@ -3,17 +3,47 @@
 class AWPCP_Admin_Debug {
 	
 	public function AWPCP_Admin_Debug() {
-		// global $awpcp;
-		// $page = strtolower($awpcp->admin->title) . '_page_' . 'awpcp-admin-settings';
-		// add_action('admin_print_styles_' . $page, array($this, 'scripts'));
+		add_action('init', array($this, 'download'));
 	}
 
 	public function scripts() {
 	}
 
-	public function dispatch() {
+	private function blacklisted($setting) {
+		$blacklisted = array('awpcpadminemail', 'paypalemail', '2checkout', 'tos',
+							 'smtphost', 'smtpport', 'smtpusername', 'smtppassword');
+		return in_array($setting, $blacklisted);
+	}
+
+	private function sanitize($setting, $value) {
+		static $hosts_regexp = '';
+		static $email_regexp = '';
+
+		if (empty($hosts_regexp)) {
+			$hosts = array_unique(array(parse_url(home_url(), PHP_URL_HOST), 
+						   				parse_url(site_url(), PHP_URL_HOST)));
+			$hosts_regexp = '/' . preg_quote(join('|', $hosts), '/') . '/';
+			$email_regexp = '/[_a-z0-9-+]+(\.[_a-z0-9-+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})/';
+		}
+
+		$sanitized = (is_object($value) || is_array($value)) ? print_r($value, true) : $value;
+		// remove Website domain
+		$sanitized = preg_replace($hosts_regexp, '<host>', $sanitized);
+		// remove email addresses
+		$sanitized = preg_replace($email_regexp, '<email>', $sanitized);
+
+		return $sanitized;
+	}
+
+	/**
+	 * Renders an HTML page with AWPCP informaiton useful for debugging tasks.
+	 *
+	 * @since 2.0.7
+	 */
+	private function render($download=false) {
 		global $awpcp, $wpdb, $wp_rewrite;
 
+		$debug_info = $this;
 		$options = $awpcp->settings->options;
 
         $options['awpcp_installationcomplete'] = get_option('awpcp_installationcomplete');
@@ -34,6 +64,38 @@ class AWPCP_Admin_Debug {
 			$content = ob_get_contents();
 		ob_end_clean();
 
-		echo $content;
+		return $content;
+	}
+
+	/**
+	 * Allow users to download Debug Info as an HTML file.
+	 *
+	 * @since 2.0.7
+	 */
+	public function download() {
+		global $pagenow;
+
+		if (!awpcp_current_user_is_admin()) return;
+
+		if ($pagenow == 'admin.php' && awpcp_request_param('page') === 'awpcp-debug'
+									&& awpcp_request_param('download') === 'debug-info') {
+			$filename = sprintf('awpcp-debug-info-%s.html', date('Y-m-d-Hi', current_time('timestamp')));
+
+			header('Content-Description: File Transfer');
+			header('Content-Type: text/xml; charset=' . get_option('blog_charset'), true);
+			header('Content-Disposition: attachment; filename=' . $filename);
+	        header("Pragma: no-cache");
+
+			die($this->render(true));
+		}
+	}
+
+	/**
+	 * Handler for the Classifieds->Debug AWPCP Admin page.
+	 * 
+	 * @since unknown
+	 */
+	public function dispatch() {
+		echo $this->render();
 	}
 }

@@ -6,6 +6,26 @@ function init_awpcpsbarwidget() {
 		return;
 	}
 
+    function awpcp_latest_ads_widget_options() {
+        $defaults = array(
+            'hlimit' => 10,
+            'title' => __('Latest Classifieds', 'AWPCP'),
+            'showimages' => 1,
+            'showblank' => 1,
+            'show-title' => 1,
+            'show-excerpt' => 1
+        );
+
+        $options = get_option('widget_awpcplatestads');
+        if (is_array($options)) {
+            $options = array_merge($defaults, $options);
+        } else {
+            $options = $defaults;
+        }
+
+        return $options;
+    }
+
 	### Function: AWPCP Latest Classified Headlines Widget
 	function widget_awpcplatestads($args) {
 		$output = '';
@@ -14,14 +34,7 @@ function init_awpcpsbarwidget() {
 		$limit = isset($args[0]) ? $args[0] : '';
 		$title = isset($args[1]) ? $args[1] : '';
 
-		$options = get_option('widget_awpcplatestads');
-        if (!is_array($options)) {
-            $options = array(
-                'hlimit' => 10, 
-                'title' => __('Latest Classifieds', 'AWPCP'), 
-                'showimages' => 1, 
-                'showblank' => 1);
-        }
+        $options = awpcp_latest_ads_widget_options();
 
 		if(empty($limit)) {
 			$limit = htmlspecialchars(stripslashes($options['hlimit']));
@@ -50,7 +63,7 @@ function init_awpcpsbarwidget() {
 
 			if (function_exists('awpcp_sidebar_headlines')) {
 				$output .= '<ul>'."\n";
-				$output .= awpcp_sidebar_headlines($limit, $options['showimages'], $options['showblank']);
+				$output .= awpcp_sidebar_headlines($limit, $options['showimages'], $options['showblank'], $options['show-title'], $options['show-excerpt']);
 				$output .= '</ul>'."\n";
 			}
 
@@ -64,20 +77,15 @@ function init_awpcpsbarwidget() {
 
 	### Function: AWPCP Latest Classified Headlines Widget Options
 	function widget_awpcplatestads_options() {
-		$options = get_option('widget_awpcplatestads');
-		if (!is_array($options)) {
-			$options = array(
-				'hlimit' => '10', 
-				'title' => __('Latest Classifieds', 'AWPCP'), 
-				'showimages' => 1, 
-				'showblank' => 1);
-		}
+        $options = awpcp_latest_ads_widget_options();
 
 		if (isset($_POST['awpcplatestads-submit']) && $_POST['awpcplatestads-submit']) {
 			$options['hlimit'] = intval($_POST['awpcpwid-limit']);
 			$options['title'] = strip_tags($_POST['awpcpwid-title']);
 			$options['showimages'] = awpcp_post_param('awpcpwid-showimages', 0);
 			$options['showblank'] = awpcp_post_param('awpcpwid-showblank', 0);
+            $options['show-title'] = awpcp_post_param('awpcpwid-show-title', 0);
+            $options['show-excerpt'] = awpcp_post_param('awpcpwid-show-excerpt', 0);
 			update_option('widget_awpcplatestads', $options);
 		}
 
@@ -85,6 +93,8 @@ function init_awpcpsbarwidget() {
 		$output.= '<p><label for="awpcpwid-limit">'.__('Number of Items to Show', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" size="5" id="awpcpwid-limit" name="awpcpwid-limit" value="'.htmlspecialchars(stripslashes($options['hlimit'])).'" />';
 		$output.= '<p><label for="awpcpwid-showimages">'.__('Show Thumbnails in Widget?', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-showimages" name="awpcpwid-showimages" value="1" '. ($options['showimages'] == 1 ? 'checked=\"true\"' : '') .' />';
 		$output.= '<p><label for="awpcpwid-showblank">'.__('Show "No Image" PNG when ad has no picture (improves layout)?', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-showblank" name="awpcpwid-showblank" value="1" '. ($options['showblank'] == 1 ? 'checked=\"true\"' : '') .' />';
+        $output.= '<p><label for="awpcpwid-show-title">'.__('Show Ad title', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-show-title" name="awpcpwid-show-title" value="1" '. ($options['show-title'] == 1 ? 'checked=\"true\"' : '') .' />';
+        $output.= '<p><label for="awpcpwid-show-excerpt">'.__('Show Ad excerpt', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="checkbox" id="awpcpwid-show-excerpt" name="awpcpwid-show-excerpt" value="1" '. ($options['show-excerpt'] == 1 ? 'checked=\"true\"' : '') .' />';
 		//$output .= '<p><label for="awpcpwid-beforewidget">'.__('Before Widget HTML', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforewidget" size="35" name="awpcpwid-beforewidget" value="'.htmlspecialchars(stripslashes($options['beforewidget'])).'" />';
 		//$output .= '<p><label for="awpcpwid-afterwidget">'.__('After Widget HTML<br>Exclude all quotes<br>(<del>class="XYZ"</del> => class=XYZ)', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-afterwidget" size="35" name="awpcpwid-afterwidget" value="'.htmlspecialchars(stripslashes($options['afterwidget'])).'" />';
 		//$output .= '<p><label for="awpcpwid-beforetitle">'.__('Before title HTML', 'AWPCP').':</label>&nbsp;&nbsp;&nbsp;<input type="text" id="awpcpwid-beforetitle" size="35" name="awpcpwid-beforetitle" value="'.htmlspecialchars(stripslashes($options['beforetitle'])).'" />';
@@ -100,10 +110,10 @@ function init_awpcpsbarwidget() {
 
 	// register_widget_control('AWPCP Latest Ads', 'widget_awpcplatestads_options', 350, 120);
 	$options = array('width' => 350, 'height' => 120, 'id_base' => 'awpcp-latest-ads');
-	wp_register_widget_control('awpcp-latest-ads', 'AWPCP Latest Ads', 'widget_awpcplatestads_options', $options);
+	wp_register_widget_control('awpcp-latest-ads', __('AWPCP Latest Ads', 'AWPCP'), 'widget_awpcplatestads_options', $options);
 }
 
-function awpcp_sidebar_headlines($limit, $showimages, $showblank) {
+function awpcp_sidebar_headlines($limit, $showimages, $showblank, $show_title, $show_excerpt) {
     $output = '';
     global $wpdb,$awpcp_imagesurl;
     $tbl_ads = $wpdb->prefix . "awpcp_ads";
@@ -126,8 +136,7 @@ function awpcp_sidebar_headlines($limit, $showimages, $showblank) {
 
     while ($rsrow=mysql_fetch_row($res)) {
         $ad_id=$rsrow[0];
-        $modtitle=cleanstring($rsrow[1]);
-        $modtitle=add_dashes($modtitle);
+        $modtitle= awpcp_esc_attr($rsrow[1]);
         $hasNoImage = true;
         $url_showad=url_showad($ad_id);
 
@@ -138,39 +147,32 @@ function awpcp_sidebar_headlines($limit, $showimages, $showblank) {
         } else {
             //New style, with images and layout control:
             $awpcp_image_display="<a class=\"self\" href=\"$url_showad\">";
-            if (get_awpcp_option('imagesallowdisallow'))
-            {
+            if (get_awpcp_option('imagesallowdisallow')) {
                 $totalimagesuploaded=get_total_imagesuploaded($ad_id);
-                if ($totalimagesuploaded >=1)
-                {
-                    $awpcp_image_name=get_a_random_image($ad_id);
-                    if (isset($awpcp_image_name) && !empty($awpcp_image_name))
-                    {
-                        $awpcp_image_name_srccode="<img src=\"".AWPCPTHUMBSUPLOADURL."/$awpcp_image_name\" border=\"0\" width=\"$displayadthumbwidth\" alt=\"$modtitle\"/>";
+                if ($totalimagesuploaded >=1) {
+                    $image = awpcp_get_ad_primary_image($ad_id);
+                    if (!is_null($image)) {
+                        $awpcp_image_name_srccode="<img src=\"" . awpcp_get_image_url($image) . "\" border=\"0\" width=\"$displayadthumbwidth\" alt=\"$modtitle\"/>";
                         $hasNoImage = false;
-                    }
-                    else
-                    {
+                    } else {
                         $awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\"/>";
                     }
-                }
-                else
-                {
+                } else {
                     $awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\"/>";
                 }
-            }
-            else
-            {
+            } else {
                 $awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\"/>";
             }
+
             $ad_teaser = stripslashes(substr($rsrow[2], 0, 50)) . "...";
             $read_more = "<a href=\"$url_showad\">[" . __("Read more", "AWPCP") . "]</a>";
             $awpcp_image_display.="$awpcp_image_name_srccode</a>";
-            if (!$showblank && $hasNoImage) {
-                //Don't put anything there
-                $awpcp_image_display = '';
-            }
-            $output .= "<li><div class='awpcplatestbox'><div class='awpcplatestthumb'>$awpcp_image_display</div><p><h3>$ad_title</h3></p><p>$ad_teaser<br/>$read_more</p><div class='awpcplatestspacer'></div></div></li>";
+
+            $awpcp_image_display = (!$showblank && $hasNoImage) ? '' : $awpcp_image_display;
+            $html_title = $show_title ? "<h3>$ad_title</h3>" : '';
+            $html_excerpt = $show_excerpt ? "<p>$ad_teaser<br/>$read_more</p>" : '';
+
+            $output .= "<li><div class='awpcplatestbox'><div class='awpcplatestthumb'>$awpcp_image_display</div>$html_title $html_excerpt<div class='awpcplatestspacer'></div></div></li>";
         }
     }
     return $output;

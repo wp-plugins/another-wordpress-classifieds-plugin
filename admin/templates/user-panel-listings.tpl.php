@@ -96,7 +96,8 @@
 			<table class="widefat fixed">
 				<thead>
 					<tr>
-						<th><input type="checkbox" onclick="jQuery(this).toggleCheckboxes();" /><?php _e("Ad Headline","AWPCP") ?></th>
+						<th style="width:18px"><input type="checkbox" onclick="jQuery(this).toggleCheckboxes();" /></th>
+						<th><?php _e("Ad Headline","AWPCP") ?></th>
 						<th style="width:30%"><?php _e("Manage Ad","AWPCP") ?></th>
 						<?php /*if ($charge_listing_fee): ?>
 						<th><?php _e('Pay Status', 'AWPCP') ?></th>
@@ -118,10 +119,14 @@
 					<?php $href = add_query_arg($params, $controller->url) ?>
 					<?php $href2 = url_showad($item->ad_id); ?>
 					<tr id="ad-<?php echo $item->ad_id ?>" data-id="<?php echo $item->ad_id ?>">
-						<td class="displayadscell" width="200">
+
+						<th scope="row">
 							<input type="checkbox" name="selected[]" value="<?php echo $item->ad_id ?>" />
-							<a href="<?php echo $href2 ?>" target="_blank"><?php echo $item->ad_title ?></a>
+						</th>
+						<td class="displayadscell" width="200">
+							<a href="<?php echo $href2 ?>" target="_blank"><?php echo stripslashes($item->ad_title) ?></a>
 						</td>
+
 						<td>
 							<div class="row-actions" style="visibility: visible">
 								<a href="<?php echo $href2 ?>" target="_blank"><?php _e('View', 'AWPCP'); ?></a> | 
@@ -144,7 +149,6 @@
 									<?php endif ?>
 								<?php endif ?>
 							</div>
-
 						</td>
 						<?php /*if ($charge_listing_fee): ?>
 						<td>

@@ -1,102 +1,80 @@
 (function($, undefined) {
 
-    // Show/Hide Payment Terms when a Category is selected
-    // Show/Hide Payment Methods when a Payment Term is selected
-    $(function() {
-        var form = $('#awpcp-place-ad-payment-step-form'),
-            terms = form.find('.js-awpcp-payment-term'),
-            methods = form.find('.js-awpcp-payment-method');
+    $.AWPCP = typeof $.AWPCP !== 'undefined' ? $.AWPCP : {};
 
-        var update_payment_methods = function(price) {
-            methods.closest('fieldset')[price > 0 ? 'show' : 'hide']();
-        };
+    $.AWPCP.PlaceAdForm = function(id, selectors) {
+        this.id = id;
+        this.form = $(id);
 
-        var handle_radio_button_click = function(event) {
-            var radio = $(this);
-            if (radio.attr('checked')) {
-                update_payment_methods(radio.closest('tr').attr('data-price'));
+        selectors = $.extend({ users: '', terms: '', methods: '' }, selectors);
+        this.users = this.form.find(selectors.users);
+        this.terms = this.form.find(selectors.terms);
+        this.methods = this.form.find(selectors.methods);
+        this.categories = this.form.find(selectors.categories);
+
+        this.name = this.form.find(selectors.name);
+        this.email = this.form.find(selectors.email);
+        this.website = this.form.find(selectors.website);
+        this.phone = this.form.find(selectors.phone);
+        this.state = this.form.find(selectors.state);
+        this.city = this.form.find(selectors.city);
+    };
+
+    $.extend($.AWPCP.PlaceAdForm.prototype, {
+        get_user_data: function(user_id) {
+            var user = null;
+            $.each(AWPCP_Users, function(k, entry) {
+                if (entry.ID == user_id) {
+                    user = entry;
+                    return false;
+                }
+            });
+            return user;
+        },
+
+        get_category_terms: function(category, terms) {
+            terms = terms || this.terms;
+
+            if (category.length < 0) {
+                return terms;
             }
-        };
 
-        $('#place-ad-category').change(function() {
-            var category = $(this).val(),
-                categories, enabled;
-
-            if (category <= 0) {
-                return terms.show();
-            }
-
-            enabled = terms.filter(function() {
+            return terms.filter(function() {
                 categories = $.parseJSON($(this).attr('data-categories'));
                 return $.inArray(category, categories) > -1 || categories.length === 0;
             });
+        },
 
-            terms.hide(); enabled.show();
-            form.trigger('awpcp-payment-terms-updated');
-        }).change();
+        update_payment_methods: function(price) {
+            this.methods.closest('fieldset, p')[price > 0 ? 'show' : 'hide']();
+        },
 
-        terms.find(':radio').click(handle_radio_button_click).each(handle_radio_button_click);
+        update_payment_terms: function(user_id, category) {
+            var item = null, items, select, selected, total = 0;
 
-        form.bind('awpcp-payment-terms-updated', function() {
-            var total = 0,
-                methods = terms.find('input').filter(':checked').closest('tr');
-
-            if (methods.length === 0) {
-                methods = terms.filter(':visible');
-            }
-
-            methods.map(function() {
-                total += $(this).attr('data-price');
-            });
-
-            update_payment_methods(total);
-        });
-    });
+            // Payment Terms wrapper my be hidden, let's change that.
+            this.terms.closest('p').show();
 
 
-    // Update Ad Details fields related to user information everytime an
-    // user is selected in the users dropdown (available to administrators)
-    $(function() {
-        var form = $('#adpostform'),
-            name, email, state, city, website,
-            users, categories, cats,
-            terms, terms_parent,
-            items, item,
-            user, user_payment_terms;
+            // find Payment Terms allowed for selected user
+            user_id = parseInt(user_id, 10);
 
-        name = form.find('input[name=adcontact_name]');
-        email = form.find('input[name=adcontact_email]');
-        state = form.find('input[name=adcontact_state], select[name=adcontact_state]');
-        city = form.find('input[name=adcontact_city], select[name=adcontact_city]');
-        website = form.find('input[name=websiteurl]');
-
-        categories = form.find('[name=adcategory]');
-
-        terms = $('#place-ad-user-payment-terms');
-        terms_parent = terms.closest('p').hide();
-
-        var update_payment_terms = function(id, category) {
-            id = parseInt(id, 10);
-
-            if (isNaN(id) || id === 0) {
-                selector = '[value]';
+            if (isNaN(user_id) || user_id === 0) {
+                user = null;
+                selector = '[data-categories]';
             } else {
-                selector = '#payment-term-default, #payment-term-';
-                user_payment_terms = users.find('[value=' + id + ']').attr('data-payment-terms') || [];
-                selector+= user_payment_terms.split(',').join(', #payment-term-');
+                user = this.users.find('[value=' + user_id + ']');
+                terms = user.attr('data-payment-terms') || [];
+                selector = '#payment-term-default';
+                if (terms.length > 0) {
+                    selector += ', #payment-term-' + terms.split(',').join(', #payment-term-');
+                }
             }
+            items = this.terms.hide().filter(selector);
 
-            terms_parent.show();
 
-            item = null;
-            items = terms.find('option').hide().filter(selector);
-
-            if (category.length > 0) {
-                items = items.filter(function() {
-                    cats = $.parseJSON($(this).attr('data-categories'));
-                    return $.inArray(category, cats) > -1 || cats.length === 0;
-                });
-            }
+            // filter Payment Terms by category
+            items = this.get_category_terms(category, items);
 
             // two items: the default and one actual payment term
             if (items.length == 2) {
@@ -105,86 +83,204 @@
                 items.show();
             }
 
-            if (!terms.find(':selected').is(':visible') && item === null) {
-                terms.val('');
-            } else if (item !== null) {
-                terms.val(item.attr('value'));
+
+            // find current selected Payment Term and update form values
+            // if necessary.
+            // Payment Terms are either <option> or <tr> elements
+            if (this.terms.length > 0 && this.terms.get(0).tagName.toLowerCase() == 'option') {
+                selected = this.terms.find(':selected');
+                select = this.terms.closest('select');
+                if (!selected.is(':visible') && item === null) {
+                    select.val('');
+                } else if (item !== null) {
+                    select.val(item.attr('value'));
+                }
+            } else {
+                selected = this.terms.find('input').filter(':checked').filter(':visible').closest('tr');
+            }
+
+
+            // calculate total amount to paid and update Payment Methods
+            if (selected.length === 0) {
+                selected = this.terms.filter(':visible');
+            }
+
+            selected.map(function() {
+                total += parseFloat($(this).attr('data-price'));
+            });
+
+            this.update_payment_methods(total);
+        },
+
+        set_user_info: function(user, overwrite) {
+            overwrite = overwrite || false;
+
+            var self = this, current, passed, updated = {};
+
+            current = {
+                name: this.name.val(),
+                email: this.email.val(),
+                website: this.website.val(),
+                phone: this.phone.val(),
+                state: this.state.val(),
+                city: this.city.val()
+            },
+            passed = {
+                name: user.first_name + ' ' + user.last_name,
+                email: user.user_email,
+                website: user.user_url,
+                phone: user.phone,
+                state: user.state,
+                city: user.city
+            };
+
+            $.each(current, function(field, value) {
+                if (current[field].length > 0 && !overwrite) {
+                    updated[field] = current[field];
+                } else {
+                    updated[field] = passed[field] ? passed[field] : '';
+                }
+            });
+
+            this.name.val(updated.name);
+            this.email.val(updated.email);
+            this.website.val(updated.website);
+            this.phone.val(updated.phone);
+
+            // var field = this.state.filter(':visible');
+            // if (field.length > 0 && field[0].tagName.toLowerCase() == 'select') {
+            //     this.city.one('awpcp-update-region-options-completed', function(event) {
+            //         this.city.val(updated.city).change();
+            //     });
+            //     this.state.val(updated.state).change();
+            // } else {
+            //     this.state.val(updated.state).change();
+            //     this.city.val(updated.city);
+            // }
+            this.city.one('awpcp-update-region-options-completed', function(event) {
+                self.city.val(updated.city).change();
+            });
+            this.state.val(updated.state).change();
+        },
+
+        clean_user_info: function() {
+            this.name.val('');
+            this.email.val('');
+            this.website.val('');
+            this.phone.val('');
+            this.state.val('');
+            this.city.val('');
+        }
+    });
+
+    // Show/Hide Payment Terms when a Category is selected
+    // Show/Hide Payment Methods when a Payment Term is selected
+    $(function() {
+        var form = new $.AWPCP.PlaceAdForm('#awpcp-place-ad-payment-step-form', {
+            terms: '.js-awpcp-payment-term',
+            methods: '.js-awpcp-payment-method'
+        });
+
+        form.form.find('#place-ad-category').change(function() {
+            var category = $(this).val();
+            form.update_payment_terms(null, category);
+        }).change();
+
+        var fn = function(event) {
+            var radio = $(this);
+            if (radio.attr('checked')) {
+                form.update_payment_methods(radio.closest('tr').attr('data-price'));
             }
         };
-        
-        categories.change(function() {
-            if (users.length > 0) {
-                update_payment_terms(users.val(), $(this).val());
-            }
+        form.terms.find(':radio').click(fn).each(fn);
+    });
+
+
+    // Update Ad Details fields related to user information everytime an
+    // user is selected in the users dropdown (available to administrators)
+    $(function() {
+        var form = new $.AWPCP.PlaceAdForm('#adpostform', {
+            categories: '[name=adcategory]',
+            users: '#place-ad-user-id',
+            terms: '#place-ad-user-payment-terms option',
+            name: 'input[name=adcontact_name]',
+            email: 'input[name=adcontact_email]',
+            state: 'input[name=adcontact_state], select[name=adcontact_state]',
+            city: 'input[name=adcontact_city], select[name=adcontact_city]',
+            phone: 'input[name=adcontact_phone]',
+            website: 'input[name=websiteurl]'
         });
 
-        users = $('#place-ad-user-id').change(function() {
-            var id = users.val(),
-                payment_terms = null,
-                selector = null,
-                done = false;
+        form.terms.closest('p').hide();
 
-            if (id === 0) {
-                terms_parent.hide();
-            } else {
-                $.each(AWPCP_Users, function(k, user) {
-                    if (user.ID == id) {
-                        name.val(user.first_name + ' ' + user.last_name);
-                        email.val(user.user_email);
-                        website.val(user.user_url);
+        // handle per Fee characters allowed setting
+        form.terms.closest('select').change(function() {
+            var term = $('#payment-term-' + $(this).val()),
+                limit, event;
 
-                        var field = state.filter(':visible');
-                        if (field.length > 0 && field[0].tagName.toLowerCase() == 'select') {
-                            city.one('awpcp-update-region-options-completed', function() {
-                                city.val(user.city).change();
-                            });
-                            state.val(user.state).change();
-                        } else {
-                            state.val(user.state).change();
-                            city.val(user.city).change();
-                        }
+            if (term.length <= 0) { return; }
 
-                        update_payment_terms(id, categories.val());
+            limit = parseInt(term.attr('data-characters-allowed'), 10);
+            form.form.find('[name=characters_allowed]').val(limit);
 
-                        // show message about empty fields
-                        var _fields = [{name: 'First Name', value: user.first_name},
-                                   {name: 'Last Name', value: user.last_name},
-                                   {name: 'Email', value: user.user_email},
-                                   {name: 'Website', value: user.user_url},
-                                   {name: 'State', value: user.state},
-                                   {name: 'City', value: user.city}],
-                            empty_fields = [],
-                            message = $('<span class="error message"></span>');
-
-                        $.each(_fields, function(k, _field) {
-                            if (_field.value.length === 0) {
-                                empty_fields.push(_field.name);
-                            }
-                        });
-
-                        users.nextAll('br, span.message').remove();
-                        if (empty_fields.length > 0) {
-                            message.text('This user has empty profile fields for ' + empty_fields.join(', ') + '.');
-                            users.closest('.awpcp-form-spacer').append('<br/>').append(message);
-                        }
-
-                        done = true;
-                    }
-                    return !done;
-                });
-            }
-
-            if (id > 0 && !done) {
-                name.val('');
-                email.val('');
-                website.val('');
-                state.val('');
-                city.val('');
-            }
+            event = jQuery.Event("keydown");
+            form.form.find('[name=addetails]').trigger(event);
         });
 
-        if (users.length > 0) {
-            users.change();
+        form.categories.change(function() {
+            if (form.users.length <= 0) { return; }
+            form.update_payment_terms(form.users.val(), $(this).val());
+        });
+
+        form.users.bind('change awpcp-start', function(event) {
+            var user_id = parseInt(form.users.val(), 10),
+                overwrite = event.type != 'awpcp-start';
+
+            if (user_id === 0) {
+                form.terms.closest('p').hide();
+                return;
+            }
+
+            // attempt to update form fields with user's profile data
+            user = form.get_user_data(user_id);
+
+            if (user === null) {
+                form.clean_user_info();
+                return;
+            }
+
+            updated = form.set_user_info(user, overwrite);
+
+
+            // show message about empty fields
+            var fields = [{name: 'First Name', value: user.first_name},
+                           {name: 'Last Name', value: user.last_name},
+                           {name: 'Email', value: user.user_email},
+                           {name: 'Website', value: user.user_url},
+                           {name: 'Phone Number', value: user.phone},
+                           {name: 'State', value: user.state},
+                           {name: 'City', value: user.city}],
+                empty_fields = [],
+                message = $('<span class="error message"></span>');
+
+            $.each(fields, function(k, _field) {
+                if (_field.value.length === 0) {
+                    empty_fields.push(_field.name);
+                }
+            });
+
+            form.users.nextAll('br, span.message').remove();
+            if (empty_fields.length > 0) {
+                message.text('This user has empty profile fields for ' + empty_fields.join(', ') + '.');
+                form.users.closest('.awpcp-form-spacer').append('<br/>').append(message);
+            }
+
+            // update Payment Terms after a new user has been selected
+            form.update_payment_terms(user_id, form.categories.val());
+        });
+
+        if (form.users.length > 0) {
+            form.users.trigger('awpcp-start');
         }
     });
 })(jQuery);

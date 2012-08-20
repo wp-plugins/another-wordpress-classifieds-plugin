@@ -89,6 +89,60 @@ p.uploaderror {
 	height: 120px;
 }
 
+/* Listings */
+
+.wp-admin #showawpcpadpage {
+	overflow: hidden;
+}
+.wp-admin #showawpcpadpage .awpcp-title {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+.wp-admin #showawpcpadpage .showawpcpadpage {
+	margin-bottom: 10px;
+	line-height: 1.5em;
+}
+.wp-admin #showawpcpadpage label {
+	font-weight: bold;
+}
+.wp-admin #showawpcpadpage .awpcp-ad-primary-image a {
+	text-align: center;
+	display: block;
+}
+.wp-admin #showawpcpadpage #displayimagethumbs ul {
+	overflow: hidden;
+}
+.wp-admin #showawpcpadpage #displayimagethumbs ul li {
+	float: left;
+	margin-right: 15px
+}
+
+/* Debug Page */
+
+#awpcp-admin-debug .apostboxes table {
+	border-spacing: 0;
+	width: 100%;
+}
+#awpcp-admin-debug .apostboxes table thead th {
+	padding: 4px 0px;
+}
+#awpcp-admin-debug .apostboxes table tbody th {
+	padding: 6px 10px;
+	text-align: left;
+}
+#awpcp-admin-debug .apostboxes table tbody td {
+	padding: 6px 10px;
+}
+#awpcp-admin-debug .apostboxes table tbody td.align-center {
+	text-align: center;
+}
+#awpcp-admin-debug .apostboxes table tbody tr:nth-child(2n+1) {
+	background: #EFEFEF;
+}
+#awpcp-admin-debug .apostboxes table tbody tr:nth-child(2n) {
+	background: #F5F5F5;
+}
+
 
 /* User Ad Management Panel
  ---------------------------------------------------------------------------- */

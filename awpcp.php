@@ -3,7 +3,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. <strong>!!!IMPORTANT!!!</strong> Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 2.0.6
+ Version: 2.1.0
  Author: D. Rodenbaugh
  License: GPLv2 or any later version
  Author URI: http://www.skylineconsult.com
@@ -30,27 +30,12 @@
 
 if (preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) {
 	die('You are not allowed to call this page directly.');
-} 
-// Conditionally start session if not already active
-if(!isset($_SESSION)) {
-	@session_start();
 }
 
 
-// // I don't think this are needed, should always be defined.. don't they?
-// if (!defined('WP_CONTENT_DIR')) {
-// 	// no trailing slash, full paths only - WP_CONTENT_URL is defined further down
-// 	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); 
-// }
-// if (!defined('WP_CONTENT_URL')) {
-// 	// no trailing slash, full paths only - WP_CONTENT_URL is defined further down
-// 	define( 'WP_CONTENT_URL', get_option('siteurl') . '/wp-content'); 
-// }
-
-define('AWPCP_BASENAME', str_replace(basename(__FILE__), "", plugin_basename(__FILE__)));
-define('AWPCP_DIR', WP_CONTENT_DIR. '/plugins/' . AWPCP_BASENAME);
-define('AWPCP_URL', WP_CONTENT_URL. '/plugins/' . AWPCP_BASENAME);
-
+define('AWPCP_BASENAME', trailingslashit(basename(dirname(__FILE__))));
+define('AWPCP_DIR', WP_CONTENT_DIR . '/plugins/' . AWPCP_BASENAME);
+define('AWPCP_URL', WP_CONTENT_URL . '/plugins/' . AWPCP_BASENAME);
 
 // TODO: Why do we need a custom error handler?
 // Set custom error handler functions
@@ -94,16 +79,14 @@ global $wpdb; // XXX: do we need $wpdb this here? --@wvega
 global $awpcp_plugin_data;
 global $awpcp_db_version;
 
-global $pcontenturl;
+global $wpcontenturl;
 global $wpcontentdir;
 global $awpcp_plugin_path;
 global $awpcp_plugin_url;
-global $wpinc;
 global $imagespath;
 global $awpcp_imagesurl;
 
 global $nameofsite;
-global $siteurl;
 global $thisadminemail;
 
 
@@ -118,12 +101,10 @@ $wpcontenturl = WP_CONTENT_URL;
 $wpcontentdir = WP_CONTENT_DIR;
 $awpcp_plugin_path = AWPCP_DIR;
 $awpcp_plugin_url = AWPCP_URL;
-$wpinc = WPINC;
 $imagespath = $awpcp_plugin_path . 'images';
 $awpcp_imagesurl = $awpcp_plugin_url .'images';
 
 $nameofsite = get_option('blogname');
-$siteurl = get_option('siteurl');
 $thisadminemail = get_option('admin_email');
 
 
@@ -131,13 +112,30 @@ $thisadminemail = get_option('admin_email');
 // Common
 require_once(AWPCP_DIR . "debug.php");
 require_once(AWPCP_DIR . "functions.php");
+
+// conditionally start session if not already active.
+// done here because awpcp_get_current_domain is defined in functions.php
+if (!isset($_SESSION)) {
+	@session_set_cookie_params(0, '/', awpcp_get_current_domain(false, '.'), false, true);
+	@session_start();
+}
+
 require_once(AWPCP_DIR . "cron.php");
+
+// other resources
+require_once(AWPCP_DIR . "dcfunctions.php");
+require_once(AWPCP_DIR . "awpcp_search_widget.php");
+require_once(AWPCP_DIR . "functions_awpcp.php");
+require_once(AWPCP_DIR . "upload_awpcp.php");
 
 // API & Classes
 require_once(AWPCP_DIR . "classes/models/ad.php");
 require_once(AWPCP_DIR . "classes/models/payment-transaction.php");
+
 require_once(AWPCP_DIR . "classes/helpers/list-table.php");
+
 require_once(AWPCP_DIR . "classes/settings-api.php");
+
 require_once(AWPCP_DIR . "widget-latest-ads.php");
 
 // installation functions
@@ -151,12 +149,6 @@ require_once(AWPCP_DIR . "admin/user-panel.php");
 require_once(AWPCP_DIR . "frontend/payment-functions.php");
 require_once(AWPCP_DIR . "frontend/ad-functions.php");
 require_once(AWPCP_DIR . "frontend/shortcode.php");
-
-// other resources
-require_once(AWPCP_DIR . "dcfunctions.php");
-require_once(AWPCP_DIR . "awpcp_search_widget.php");
-require_once(AWPCP_DIR . "functions_awpcp.php");
-require_once(AWPCP_DIR . "upload_awpcp.php");
 
 // modules (in development)
 
@@ -184,7 +176,9 @@ class AWPCP {
 		$this->settings = new AWPCP_Settings_API();
 		$this->installer = AWPCP_Installer::instance();
 
-        register_activation_hook(__FILE__, array($this->installer, 'activate'));
+		$file = WP_CONTENT_DIR . '/plugins/' . basename(dirname(__FILE__)) . '/' . basename(__FILE__);
+        register_activation_hook($file, array($this->installer, 'activate'));
+
         add_action('plugins_loaded', array($this, 'setup'), 10);
 
         // register rewrite rules when the plugin file is loaded.
@@ -225,7 +219,7 @@ class AWPCP {
 			$this->panel = new AWPCP_User_Panel();
 			$this->pages = new AWPCP_Pages();
 
-			$this->check_for_premium_modules();
+			// $this->check_for_premium_modules();
 
 			add_action('init', array($this, 'init'));
 
@@ -246,6 +240,9 @@ class AWPCP {
 			if (!get_awpcp_option('awpcp_thickbox_disabled')) {
 				add_action('wp_head', 'awpcp_insert_thickbox', 10);
 			}
+			if (is_admin() && function_exists('add_thickbox')) {
+				add_action('admin_head', 'awpcp_insert_thickbox', 10);
+			}
 
 			add_filter('cron_schedules', 'awpcp_cron_schedules');
 
@@ -259,7 +256,6 @@ class AWPCP {
 
 			remove_action('wp_head', 'rel_canonical');
 			add_action('wp_head', 'awpcp_rel_canonical');
-			add_action('wp_head', 'awpcp_insert_facebook_meta');
 		}
 	}
 
@@ -288,7 +284,7 @@ class AWPCP {
 
 
 	/**
-	 * A good place to register all AWPCP standard scripts than can be
+	 * A good place to register all AWPCP standard scripts that can be
 	 * used form other sections.
 	 */
 	public function register_scripts() {
@@ -318,7 +314,7 @@ class AWPCP {
 
 	public function print_scripts() {
 		$options = array(
-			'ajaxurl' => admin_url('admin-ajax.php')
+			'ajaxurl' => awpcp_ajaxurl()
 		);
 
 		if (is_admin()) {
@@ -402,11 +398,11 @@ class AWPCP {
 	 * This function check if those new plugins are present and update the 
 	 * relevant global variables.
 	 */
-	public function check_for_premium_modules() {
-		global $hasregionsmodule;
+	// public function check_for_premium_modules() {
+	// 	global $hasregionsmodule;
 
-		$hasregionsmodule = $hasregionsmodule || defined('AWPCP_REGION_CONTROL_MODULE');
-	}
+	// 	$hasregionsmodule = $hasregionsmodule || defined('AWPCP_REGION_CONTROL_MODULE');
+	// }
 }
 
 global $awpcp;
@@ -430,12 +426,22 @@ define('AWPCPTHUMBSUPLOADURL', $wpcontenturl .'/' .$uploadfoldername .'/awpcp/th
 define('AWPCPTHUMBSUPLOADDIR', $wpcontentdir .'/' .$uploadfoldername .'/awpcp/thumbs/');
 define('MENUICO', $awpcp_imagesurl .'/menuico.png');
 
-$awpcpthumbsurl=AWPCPTHUMBSUPLOADURL;
+global $awpcpthumbsurl;
+global $hascaticonsmodule;
+global $hasregionsmodule;
+global $haspoweredbyremovalmodule;
+global $hasgooglecheckoutmodule;
+global $hasextrafieldsmodule;
+global $hasrssmodule;
+global $hasfeaturedadsmodule;
+
+$hasextrafieldsmodule = $hasextrafieldsmodule ? true : false;
+$hasregionsmodule = $hasregionsmodule ? true : false;
+
+$awpcpthumbsurl = AWPCPTHUMBSUPLOADURL;
 $hascaticonsmodule = 0;
-$hasregionsmodule = 0;
 $haspoweredbyremovalmodule = 0;
 $hasgooglecheckoutmodule = 0;
-$hasextrafieldsmodule = 0;
 $hasrssmodule = 0;
 $hasfeaturedadsmodule = 0;
 
@@ -443,6 +449,11 @@ $hasfeaturedadsmodule = 0;
 if (!defined('AWPCP_REGION_CONTROL_MODULE') && file_exists("$awpcp_plugin_path/awpcp_region_control_module.php")) {
 	require_once("$awpcp_plugin_path/awpcp_region_control_module.php");
 	$hasregionsmodule = 1;
+}
+
+if (!defined('AWPCP_EXTRA_FIELDS_MODULE') && file_exists("$awpcp_plugin_path/awpcp_extra_fields_module.php")) {
+	require("$awpcp_plugin_path/awpcp_extra_fields_module.php");
+	$hasextrafieldsmodule = 1;
 }
 
 if ( file_exists("$awpcp_plugin_path/awpcp_category_icons_module.php") )
@@ -459,11 +470,6 @@ if ( file_exists("$awpcp_plugin_path/awpcp_google_checkout_module.php") )
 {
 	require("$awpcp_plugin_path/awpcp_google_checkout_module.php");
 	$hasgooglecheckoutmodule=1;
-}
-if ( file_exists("$awpcp_plugin_path/awpcp_extra_fields_module.php") )
-{
-	require("$awpcp_plugin_path/awpcp_extra_fields_module.php");
-	$hasextrafieldsmodule=1;
 }
 if ( file_exists("$awpcp_plugin_path/awpcp_rss_module.php") )
 {
@@ -490,18 +496,21 @@ function awpcpjs() {
 }
 
 function awpcp_insert_thickbox() {
-	global $siteurl, $wpinc;
-	//	Echo OK here
-	echo "\n".'
+	if (is_admin()) {
+		add_thickbox();
+	} else {
+		$includes = includes_url();
 
-    <link rel="stylesheet" href="'.$siteurl.'/'.$wpinc.'/js/thickbox/thickbox.css" type="text/css" media="screen" />
+		echo "\n" . '
+
+    <link rel="stylesheet" href="' . $includes . '/js/thickbox/thickbox.css" type="text/css" media="screen" />
 
     <script type="text/javascript">
-    var tb_pathToImage = "'.$siteurl.'/'.$wpinc.'/js/thickbox/loadingAnimation.gif";
-    var tb_closeImage = "'.$siteurl.'/'.$wpinc.'/js/thickbox/tb-close.png";
+    var tb_pathToImage = "' . $includes . '/js/thickbox/loadingAnimation.gif";
+    var tb_closeImage = "' . $includes . '/js/thickbox/tb-close.png";
     </script>
-
-    ';
+    ';	
+	}
 }
 
 
@@ -579,52 +588,6 @@ function awpcp_addcss() {
 // PROGRAM FUNCTIONS
 
 
-// Add actions and filters etc
-// add_action('wp_head', 'awpcp_insert_facebook_meta');
-
-// The function to add the page meta and Facebook meta to the header of the index page
-// https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F108.166.84.26%2F%25253Fpage_id%25253D5%252526id%25253D3&t=Ad+in+Rackspace+1.8.9.4+(2)
-function awpcp_insert_facebook_meta() {
-	$output = '';
-
-	if ((isset($_REQUEST['id']) && $_REQUEST['id'] != '') || get_query_var('id') != '' ) {
-
-		$ad_id = awpcp_request_param('id');
-		if ( $ad_id == '' ) {
-			$ad_id = get_query_var('id');
-		}
-
-		global $wpdb;
-
-		$info = awpcp_get_ad_share_info($ad_id);
-
-		if (is_null($info)) {
-			return;
-		}
-
-		$charset = get_bloginfo('charset');
-
-		$output .= '<title>' . $info['title'] . '</title>' . PHP_EOL;
-		$output .= '<meta name="title" content="' . $info['title'] . '" />' . PHP_EOL;
-		$output .= '<meta name="description" content="' . htmlspecialchars($info['description'], ENT_QUOTES, $charset) . '" />' . PHP_EOL;
-		$output .= '<meta property="og:type" content="article" />' . PHP_EOL;
-		$output .= '<meta property="og:url" content="' . $info['url'] . '" />' . PHP_EOL;
-		$output .= '<meta property="og:title" content="' . $info['title'] . '" />' . PHP_EOL;
-		$output .= '<meta property="og:description" content="' . htmlspecialchars($info['description'], ENT_QUOTES, $charset) . '" />' . PHP_EOL;
-
-		foreach ($info['images'] as $k => $image) {
-			$output .=  '<meta property="og:image" content="' . $image . '" />' . PHP_EOL;
-			$output .=  '<link rel="image_src" href="' . $image . '" />' . PHP_EOL;
-		}
-
-		if (empty($info['images'])) {
-			$output .= '<meta property="og:image" content="' . AWPCP_URL . 'images/adhasnoimage.gif" />' . PHP_EOL;
-		}
-	}
-
-	echo $output;
-}
-
 
 function awpcp_add_rewrite_rules($rules) {
 	$pages = array('main-page-name', 
@@ -672,14 +635,14 @@ function awpcp_add_rewrite_rules($rules) {
 	}
 
 	if (isset($patterns['main-page-name'])) {
+		add_rewrite_rule('('.$patterns['main-page-name'].')/('.$categories_view.')',
+						 'index.php?pagename=$matches[1]&layout=2&cid='.$categories_view,
+						 'top');
 		add_rewrite_rule('('.$patterns['main-page-name'].')/(setregion)/(.+?)/(.+?)',
 						 'index.php?pagename=$matches[1]&regionid=$matches[3]&a=setregion',
 						 'top');
 		add_rewrite_rule('('.$patterns['main-page-name'].')/(classifiedsrss)',
 						 'index.php?pagename=$matches[1]&awpcp-action=rss',
-						 'top');
-		add_rewrite_rule('('.$patterns['main-page-name'].')/('.$categories_view.')',
-						 'index.php?pagename=$matches[1]&layout=2&cid='.$categories_view,
 						 'top');
 	}
 

@@ -46,7 +46,7 @@ function awpcp_opsconfig_fees() {
 			$create = true;
 		} else {
 		 	$query = "SELECT adterm_id,adterm_name,amount,rec_period,rec_increment,";
-		 	$query.= "imagesallowed,is_featured_ad_pricing FROM " . AWPCP_TABLE_ADFEES;
+		 	$query.= "imagesallowed,is_featured_ad_pricing,characters_allowed FROM " . AWPCP_TABLE_ADFEES;
 		 	$res = awpcp_query($query, __LINE__);
 
 		 	if (mysql_num_rows($res)) {
@@ -57,12 +57,16 @@ function awpcp_opsconfig_fees() {
 		}
 
 		if (!$create) {
+			$output .= "<form method=\"post\" id=\"awpcp_opsconfig_fees\">
+				<p style=\"padding:10px;\"><input class=\"button-primary\" type=\"submit\" name=\"addnewlistingfeeplan\" value=\"";
+			$output .= __("Add a new listing fee plan","AWPCP");
+			$output .= "\" /></p></form>";
 		 	$output .= "<ul style='width: 80%'>";
 		}
 
 		foreach ($terms as $term) {
 
-			list($adterm_id,$adterm_name,$amount,$rec_period,$rec_increment,$imagesallowed,$is_featured_ad_pricing,$categories) = $term;
+			list($adterm_id,$adterm_name,$amount,$rec_period,$rec_increment,$imagesallowed,$is_featured_ad_pricing,$characters_allowed,$categories) = $term;
 			$categories = explode(',', $categories);
 
 			$rec_increment_op = '';
@@ -90,13 +94,18 @@ function awpcp_opsconfig_fees() {
 		 	$awpcpfeeform.="<br/>";
 		 	$awpcpfeeform.="<input class=\"regular-text1\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"rec_period\" value=\"$rec_period\" /></p>";
 		 	$awpcpfeeform.="<p>";
+		 	$awpcpfeeform.=__("Term Increment","AWPCP");
+		 	$awpcpfeeform.="<br/>";
+		 	$awpcpfeeform.="<select name=\"rec_increment\" size=\"1\">$rec_increment_op</select></p>";
+		 	$awpcpfeeform.="<p>";
 		 	$awpcpfeeform.=__("Images Allowed","AWPCP");
 		 	$awpcpfeeform.="<br/>";
 		 	$awpcpfeeform.="<input class=\"regular-text1\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"imagesallowed\" value=\"$imagesallowed\" /></p>";
 		 	$awpcpfeeform.="<p>";
-		 	$awpcpfeeform.=__("Term Increment","AWPCP");
+		 	$awpcpfeeform.=__("Characters Allowed", "AWPCP");
 		 	$awpcpfeeform.="<br/>";
-		 	$awpcpfeeform.="<select name=\"rec_increment\" size=\"1\">$rec_increment_op</select></p>";
+		 	//$characters_allowed = 750;
+		 	$awpcpfeeform.="<input style='display:none' class=\"regular-text1\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"characters_allowed\" value=\"$characters_allowed\" /></p>";
 
 		 	if ($create) {
 				if ( function_exists('awpcp_featured_ads') ) {
@@ -106,7 +115,7 @@ function awpcp_opsconfig_fees() {
 				    $awpcpfeeform .= awpcp_price_cats();
 				}
 			
-				$awpcpfeeform.="<input class=\"button\" type=\"submit\" name=\"addnewfeesetting\" value=\"";
+				$awpcpfeeform.="<input class=\"button-primary\" type=\"submit\" name=\"addnewfeesetting\" value=\"";
 			 	$awpcpfeeform.=__("Add New Plan","AWPCP");
 			 	$awpcpfeeform.="\" />";
 			 	$awpcpfeeform.="</form>";
@@ -120,11 +129,11 @@ function awpcp_opsconfig_fees() {
 				    $awpcpfeeform .= awpcp_price_cats($categories, $adterm_id);
 				}
 
-				$awpcpfeeform.="<input class=\"button\" type=\"submit\" name=\"savefeesetting\" value=\"";
+				$awpcpfeeform.="<input class=\"button-primary\" type=\"submit\" name=\"savefeesetting\" value=\"";
 	 			$awpcpfeeform.=__("Update Plan","AWPCP");
 	 			$awpcpfeeform.="\" />";
 	 			$awpcpfeeform.="<input type=\"hidden\" name=\"adterm_id\" value=\"$adterm_id\">";
-	 			$awpcpfeeform.="<input class=\"button\" type=\"submit\" name=\"deletefeesetting\" value=\"";
+	 			$awpcpfeeform.="<input class=\"button-primary\" type=\"submit\" name=\"deletefeesetting\" value=\"";
 	 			$awpcpfeeform.=__("Delete Plan","AWPCP");
 	 			$awpcpfeeform.="\" />";
 		 		$awpcpfeeform.="</form>";
@@ -139,11 +148,7 @@ function awpcp_opsconfig_fees() {
 
 		if (!$create) {
 			$output .= "</ul>";
-			$output .= "<div style=\"clear:both;\"></div>
-				<form method=\"post\" id=\"awpcp_opsconfig_fees\">
-				<p style=\"padding:10px;\"><input class=\"button\" type=\"submit\" name=\"addnewlistingfeeplan\" value=\"";
-			$output .= __("Add a new listing fee plan","AWPCP");
-			$output .= "\" /></p></form>";
+			$output .= "<div style=\"clear:both;\"></div>";
 		}
 
 		$output .= "</div><br/>";

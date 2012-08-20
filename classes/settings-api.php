@@ -8,7 +8,7 @@ class AWPCP_Settings_API {
 	public $groups = array();
 	
 	public function AWPCP_Settings_API() {
-		$this->options = get_option($this->option);
+		$this->load();
 		$this->register_settings();
 	}
 
@@ -62,7 +62,7 @@ class AWPCP_Settings_API {
 						   'Role of users who can have admin access to classifieds. Choices: admin,editor');
 		$this->add_setting($key, 'awpcppagefilterswitch', 'Enable page filter', 
 						   'checkbox', 1, 
-						   'Uncheck this if you need to turn off the AWPCP page filter that prevents AWPCP classifieds children pages from showing up in your wp pages menu [you might need to do this if for example the AWPCP page filter is messing up your page menu. It means you will have to manually exclude the AWPCP children pages from showing in your page list. Some of the pages really should not be visible to your users by default]');
+						   'Uncheck this if you need to turn off the AWPCP page filter that prevents AWPCP classifieds children pages from showing up in your wp pages menu (You might need to do this if for example the AWPCP page filter is messing up your page menu. It means you will have to manually exclude the AWPCP children pages from showing in your page list. Some of the pages really should not be visible to your users by default).');
 		$this->add_setting($key, 'showlatestawpcpnews', 'Show latest AWPCP news', 
 						   'checkbox', 1, 'Allow AWPCP RSS.');
 
@@ -171,7 +171,7 @@ class AWPCP_Settings_API {
 		$this->add_setting($key, 'browse-categories-page-name', 'Browse Categories page', 
 						   'textfield', 'Browse Categories', 'Name for Browse Categories page.');
 		$this->add_setting($key, 'view-categories-page-name', 'View Categories page', 
-						   'textfield', 'View Categories', 'Name for categories view page. [ Dynamic Page ]');
+						   'textfield', 'View Categories', 'Name for categories view page. (Dynamic Page)');
 		$this->add_setting($key, 'payment-thankyou-page-name', 'Payment Thank You', 
 						   'textfield', 'Payment Thank You', 'Name for Payment Thank You page.');
 		$this->add_setting($key, 'payment-cancel-page-name', 'Payment Cancel page', 
@@ -215,7 +215,7 @@ class AWPCP_Settings_API {
 		$this->add_setting($key, 'disablependingads', 'Enable paid ads that are pending payment.', 
 						   'checkbox', 1, 'Enable paid ads that are pending payment.');
 		$this->add_setting($key, 'addurationfreemode', 'Free Ads expiration threshold', 
-						   'textfield', 0, 'Expire free ads after how many days? [0 for no expiration].');
+						   'textfield', 0, 'Expire free ads after how many days? (0 for no expiration).');
 		$this->add_setting($key, 'autoexpiredisabledelete', 'Disable expired ads instead of deleting them?', 
 						   'checkbox', 0, 'Check to disable.');
 
@@ -225,18 +225,18 @@ class AWPCP_Settings_API {
 								  'layout', 10, array($this, 'section'));
 
 		$this->add_setting($key, 'displayadthumbwidth', 'Thumbnail width', 
-						   'textfield', 80, 'Width for thumbnails in ad listings view [Only numerical value]');
+						   'textfield', 80, 'Width for thumbnails in ad listings view (numerical value only).');
 		$this->add_setting($key, 'allowhtmlinadtext', 'Allow HTML in Ad text', 
-							'checkbox', 0, 'Allow HTML in ad text [ Not recommended ]');
+							'checkbox', 0, 'Allow HTML in ad text (Not recommended).');
 		$this->add_setting($key, 'htmlstatustext', 'Display this text above ad detail text input box on ad post page',
 							'textarea', 'No HTML Allowed', '');
 		$this->add_setting($key, 'maxcharactersallowed', 'Maximun Ad length', 
-							'textfield', 750, 'Maximum Ad length in characters');
+							'textfield', 750, 'Maximum Free Ad length in characters');
 		$this->add_setting($key, 'displayadlayoutcode', 'Ad Listings page layout', 
 							'textarea', '<div class=\"\$awpcpdisplayaditems\"><div style=\"width:\$imgblockwidth;padding:5px;float:left;margin-right:20px;\">\$awpcp_image_name_srccode</div><div style=\"width:50%;padding:5px;float:left;\"><h4>\$ad_title</h4> \$addetailssummary...</div><div style=\"padding:5px;float:left;\"> \$awpcpadpostdate \$awpcp_city_display \$awpcp_state_display \$awpcp_display_adviews \$awpcp_display_price </div><div class=\"fixfloat\"></div></div><div class=\"fixfloat\"></div>', 
 							'Modify as needed to control layout of ad listings page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.');
 		$this->add_setting($key, 'awpcpshowtheadlayout', 'Single Ad page layout', 
-							'textarea', '<div id=\"showawpcpadpage\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"showawpcpadpage\">\$featureimg<label>Contact Information</label><br/><a href=\"\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location \$awpcpvisitwebsite</div>\$aditemprice \$awpcpextrafields \$showadsense1<div class=\"showawpcpadpage\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><span class=\"fixfloat\">\$tweetbtn \$sharebtn \$flagad</span>\$awpcpadviews \$showadsense3</div>', 
+							'textarea', '<div id=\"showawpcpadpage\"><div class=\"awpcp-title\">\$ad_title</div><br/><div class=\"showawpcpadpage\">\$featureimg<label>Contact Information</label><br/><a href=\"\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location \$awpcpvisitwebsite</div>\$aditemprice \$awpcpextrafields \$showadsense1<div class=\"showawpcpadpage\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><span class=\"fixfloat\">\$tweetbtn \$sharebtn \$flagad</span>\$awpcpadviews \$showadsense3</div>', 
 							'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.');
 
 		$radio_options = array('1' => __("Newest","AWPCP"),
@@ -299,13 +299,13 @@ class AWPCP_Settings_API {
 							'checkbox', 1, 'Activate PayPal?');
 		$this->add_setting($key, 'paypalemail', 'PayPal receiver email', 
 							'textfield', 'xxx@xxxxxx.xxx', 
-							'Email address for PayPal payments [if running in pay mode and if PayPal is activated]');
+							'Email address for PayPal payments (if running in pay mode and if PayPal is activated).');
 		$this->add_setting($key, 'paypalcurrencycode', 'PayPal currency code', 
 							'textfield', 'USD', 
 							'The currency in which you would like to receive your PayPal payments');
 		// $this->add_setting($key, 'paypalpaymentsrecurring', 'Use PayPal recurring payments?', 
 		// 					'checkbox', 0, 
-		// 					'Use recurring payments PayPal [ this feature is not fully automated or fully integrated. For more reliable results do not use recurring ');
+		// 					'Use recurring payments PayPal (this feature is not fully automated or fully integrated. For more reliable results do not use recurring).');
 
 		// Section: Payment Settings - Default
 
@@ -315,10 +315,10 @@ class AWPCP_Settings_API {
 							'checkbox', 1, 'Activate 2Checkout?');
 		$this->add_setting($key, '2checkout', '2Checkout account', 
 							'textfield', 'xxxxxxx', 
-							'Account for 2Checkout payments [if running in pay mode and if 2Checkout is activated]');
+							'Account for 2Checkout payments (if running in pay mode and if 2Checkout is activated)');
 		// $this->add_setting($key, 'twocheckoutpaymentsrecurring', 'Use 2Checkout recurring payments?', 
 		// 					'checkbox', 0, 
-		// 					'Use recurring payments 2Checkout [ this feature is not fully automated or fully integrated. For more reliable results do not use recurring ');
+		// 					'Use recurring payments 2Checkout (this feature is not fully automated or fully integrated. For more reliable results do not use recurring).');
 
 
 		// Group: Image
@@ -336,27 +336,73 @@ class AWPCP_Settings_API {
 		$this->add_setting($key, 'awpcp_thickbox_disabled', 'Turn off thickbox/lightbox?', 
 							'checkbox', 0, 
 							'Turn off the thickbox/lightbox if it conflicts with other elements of your site');
+		$this->add_setting($key, 'show-click-to-enlarge-link', 'Show click to enlarge link?',
+							'checkbox', 1, '');
 		$this->add_setting($key, 'imagesallowedfree', 'Number of images allowed in Free mode', 
 							'textfield', 4, 
 							'Number of Image Uploads Allowed (Free Mode)');
+
+		// Section: Image Settings - File Settings
+
+		$key = $this->add_section($group, __('Image File Settings', 'AWPCP'), 'image-file', 10, array($this, 'section'));
+
 		$this->add_setting($key, 'uploadfoldername', 'Uploads folder name', 
 							'textfield', 'uploads', 
-							'Upload folder name. [ Folder must exist and be located in your wp-content directory ]');
+							'Upload folder name. (Folder must exist and be located in your wp-content directory)');
 		$this->add_setting($key, 'maximagesize', 'Maximum file size per image', 
 							'textfield', '150000', 
 							'Maximum file size per image user can upload to system.');
 		$this->add_setting($key, 'minimagesize', 'Minimum file size per image', 
 							'textfield', '300', 
 							'Minimum file size per image user can upload to system');
-		$this->add_setting($key, 'imgthumbwidth', 'Minimum image width/height', 
-							'textfield', '125', 
-							'Minimum width/height for uploaded images (used for both).');
-		$this->add_setting($key, 'imgmaxwidth', 'Maxi image width', 
+		$this->add_setting($key, 'imgminwidth', 'Minimum image width', 
 							'textfield', '640', 
-							'Max width for images. Images wider than this are automatically resized upon upload.');
-		$this->add_setting($key, 'imgmaxheight', 'Max image height', 
+							'Minimum width for images.');
+		$this->add_setting($key, 'imgminheight', 'Minimum image height', 
 							'textfield', '480', 
-							'Max height for images. Images taller than this are automatically resized upon upload.');
+							'Minimum height for images.');
+		$this->add_setting($key, 'imgmaxwidth', 'Maximun image width', 
+							'textfield', '640', 
+							'Maximun width for images. Images wider than this are automatically resized upon upload.');
+		$this->add_setting($key, 'imgmaxheight', 'Maximun image height', 
+							'textfield', '480', 
+							'Maximun height for images. Images taller than this are automatically resized upon upload.');
+
+		// Section: Image Settings - Primary Images
+
+		$key = $this->add_section($group, __('Primary Image Settings', 'AWPCP'), 'primary-image', 10, array($this, 'section'));
+
+		$this->add_setting($key, 'primary-image-thumbnail-width', 'Thumbnail width (Primary Image)', 
+							'textfield', '200', 
+							'Width of the thumbnail for the primary image shown in Single Ad view.');
+		$this->add_setting($key, 'primary-image-thumbnail-height', 'Thumbnail height (Primary Image)', 
+							'textfield', '200', 
+							'Height of the thumbnail for the primary image shown in Single Ad view.');
+		$this->add_setting($key, 'crop-primary-image-thumbnails', 'Crop primary image thumbnails?', 
+							'checkbox', 1, 
+							_x('If you decide to crop thumbnails, images will match exactly the dimensions in the settings above but part of the image may be cropped out. If you decide to resize, image thumbnails will be resized to match the specified width and their height will be adjusted proportionally; depending on the uploaded images, thumbnails may have differnt heights.', 'settings', 'AWPCP'));
+
+		// Section: Image Settings - Thumbnails
+
+		$key = $this->add_section($group, __('Thumbnails Settings', 'AWPCP'), 'thumbnails', 10, array($this, 'section'));
+
+
+
+		$options = array(0 => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4);
+		$this->add_setting($key, 'display-thumbnails-in-columns', 
+							__('Number of columns of thumbnails to show in Show Ad page.', 'AWPCP'),
+							'select', 0,
+							__('Zero means there will be as many thumbnails as possible per row.', 'AWPCP'),
+							array('options' => $options));
+		$this->add_setting($key, 'imgthumbwidth', 'Thumbnail width', 
+							'textfield', '125', 
+							__('Width of the thumbnail images.', 'AWPCP'));
+		$this->add_setting($key, 'imgthumbheight', 'Thumbnail height', 
+							'textfield', '125', 
+							__('Height of the thumbnail images.', 'AWPCP'));
+		$this->add_setting($key, 'crop-thumbnails', 'Crop thumbnails images?', 
+							'checkbox', 1, 
+							_x('If you decide to crop thumbnails, images will match exactly the dimensions in the settings above but part of the image may be cropped out. If you decide to resize, image thumbnails will be resized to match the specified width and their height will be adjusted proportionally; depending on the uploaded images, thumbnails may have differnt heights.', 'settings', 'AWPCP'));
 
 
 		// Group: AdSense
@@ -371,10 +417,10 @@ class AWPCP_Settings_API {
 							'checkbox', 1, '');
 		$this->add_setting($key, 'adsense', 'AdSense code', 
 							'textarea', 'AdSense code', 
-							'Your AdSense code [ Best if 468 by 60 text or banner. ]');
+							'Your AdSense code (Best if 468x60 text or banner.)');
 		$this->add_setting($key, 'adsenseposition', 'Show AdSense at position', 
 							'textfield', '2', 
-							'Show AdSense at position: [ 1 - above ad text body ] [ 2 - under ad text body ] [ 3 - below ad images. ]');
+							'Show AdSense at position: 1 - above ad text body, 2 - under ad text body, 3 - below Ad images.');
 
 
 		// Group: Form Field
@@ -459,10 +505,10 @@ class AWPCP_Settings_API {
 							'checkbox', 0, 'Require user registration for replying to an Ad?');
 		$this->add_setting($key, 'postloginformto', 'Post login form to', 
 							'textfield', '', 
-							'Post login form to [Value should be the full URL to the wordpress login script. Example http://www.awpcp.com/wp-login.php <br/>[ **Only needed if registration is required and your login url is mod-rewritten ] ');
+							'Post login form to this URL. Value should be the full URL to the wordpress login script (e.g. http://www.awpcp.com/wp-login.php). <br/>**Only needed if registration is required and your login url is mod-rewritten.');
 		$this->add_setting($key, 'registrationurl', 'Location of registration page', 
 							'textfield', '', 
-							'Location of registraiton page [Value should be the full URL to the wordpress registration page. Example http://www.awpcp.com/wp-login.php?action=register **Only needed if registration is required and your login url is mod-rewritten ] ');
+							'Location of registraiton page. Value should be the full URL to the wordpress registration page (e.g. http://www.awpcp.com/wp-login.php?action=register). <br/>**Only needed if registration is required and your login url is mod-rewritten.');
 
 
 		// Group: Email
@@ -554,19 +600,19 @@ class AWPCP_Settings_API {
 
 		$this->add_setting($key, 'usesmtp', 'Enable external SMTP server', 
 							'checkbox', 0, 
-							'Enabled external SMTP server [ if emails not processing normally]');
+							'Enabled external SMTP server (if emails not processing normally).');
 		$this->add_setting($key, 'smtphost', 'SMTP host', 
 							'textfield', 'mail.example.com', 
-							'SMTP host [ if emails not processing normally]');
+							'SMTP host (if emails not processing normally).');
 		$this->add_setting($key, 'smtpport', 'SMTP port', 
 							'textfield', '25', 
-							'SMTP port [ if emails not processing normally]');
+							'SMTP port (if emails not processing normally).');
 		$this->add_setting($key, 'smtpusername', 'SMTP username', 
 							'textfield', 'smtp_username', 
-							'SMTP username [ if emails not processing normally]');
+							'SMTP username (if emails not processing normally).');
 		$this->add_setting($key, 'smtppassword', 'SMTP password', 
-							'textfield', '', 
-							'SMTP password [ if emails not processing normally]');
+							'password', '', 
+							'SMTP password (if emails not processing normally).');
 
 		// (\('(.*?)',(.*?),(.*?),.*?$)
 		// //\2\n\t\t$this->add_setting($key, '\2', , , \3, \4);\n\t\t\1
@@ -686,21 +732,26 @@ class AWPCP_Settings_API {
 	}
 
 	public function load() {
-		$this->options = get_option($this->option);
+		$options = get_option($this->option);
+		$this->options = is_array($options) ? $options : array();
 	}
 
-	public function textfield($args) {
+	public function textfield($args, $type='text') {
 		$setting = $args['setting'];
 
 		$value = esc_html(stripslashes($this->get_option($setting->name)));
 
 		$html = '<input id="'. $setting->name . '" class="regular-text" ';
-		$html.= 'value="' . $value . '" type="text" ';
+		$html.= 'value="' . $value . '" type="' . $type . '" ';
 		$html.= 'name="awpcp-options[' . $setting->name . ']" />';
 		$html.= strlen($setting->helptext) > 60 ? '<br/>' : '';
 		$html.= '<span class="description">' . $setting->helptext . '</span>';
 
 		echo $html;
+	}
+
+	public function password($args) {
+		return $this->textfield($args, 'password');
 	}
 
 	public function checkbox($args) {

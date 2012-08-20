@@ -430,7 +430,7 @@ class AWPCP_CSV_Importer {
 			$result = $test_import || $wpdb->query($sql);
 
 			if ($result === false) {
-				$msg = __("Could not save the information to the database for [%s] in row %d", 'AWPCP');
+				$msg = __("Could not save the information to the database for %s in row %d", 'AWPCP');
 				$errors[] = sprintf($msg, $entry['original'], $row);
 			}
 		}

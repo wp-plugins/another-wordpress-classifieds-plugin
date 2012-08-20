@@ -137,7 +137,6 @@ if (typeof jQuery != 'undefined') {
                     });
                 });
             });
-            console.log(event, link, row);
         });
 
         /* Region Control form fields and Region Selector */

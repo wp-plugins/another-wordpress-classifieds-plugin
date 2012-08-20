@@ -1,5 +1,6 @@
 <?php
 
+require_once(AWPCP_DIR . "frontend/meta.php");
 require_once(AWPCP_DIR . 'frontend/page-place-ad.php');
 require_once(AWPCP_DIR . 'frontend/page-show-ad.php');
 require_once(AWPCP_DIR . 'frontend/page-search-ads.php');
@@ -11,6 +12,8 @@ class AWPCP_Pages {
 	public $search_ads = null;
 
 	public function AWPCP_Pages() {
+		$this->meta = AWPCP_Meta::instance();
+		
 		$this->place_ad = new AWPCP_Place_Ad_Page();
 		$this->show_ad = new AWPCP_Show_Ad_Page();
 		$this->search_ads = new AWPCP_Search_Ads_Page();
@@ -21,7 +24,7 @@ class AWPCP_Pages {
 	}
 
 	public function init() {
-		add_filter('wp_title','awpcp_append_title', 10, 3);
+		// add_filter('wp_title','awpcp_append_title', 10, 3);
 
 		// add_shortcode('AWPCPPLACEAD','awpcpui_postformscreen');
 		add_shortcode('AWPCPPLACEAD', array($this->place_ad, 'dispatch'));
@@ -82,11 +85,11 @@ function awpcpui_editformscreen()
 
 // Set Contact Form Screen Configure
 
-function awpcpui_contactformscreen()
-{
-	//debug();
+function awpcpui_contactformscreen() {
 	global $contactpostform_content;
-	if (!isset($contactpostform_content) || empty($contactpostform_content)){$contactpostform_content=awpcpui_process_contact();}
+	if (!isset($contactpostform_content) || empty($contactpostform_content)){
+		$contactpostform_content = awpcpui_process_contact();
+	}
 	return $contactpostform_content;
 }
 
@@ -220,44 +223,36 @@ function awpcpui_process_contact() {
 
 	$pathvaluecontact=get_awpcp_option('pathvaluecontact');
 
-	if (isset($_REQUEST['a']) && !empty($_REQUEST['a']))
-	{
+	if (isset($_REQUEST['a']) && !empty($_REQUEST['a'])) {
 		$action=$_REQUEST['a'];
 	}
 
-	if (isset($_REQUEST['i']) && !empty($_REQUEST['i']))
-	{
+	if (isset($_REQUEST['i']) && !empty($_REQUEST['i'])) {
 		$adid=$_REQUEST['i'];
 	}
 
-	if (!isset($adid) || empty($adid))
-	{
-		if ( get_awpcp_option('seofriendlyurls') )
-		{
-			if (isset($permastruc) && !empty($permastruc))
-			{
+	if (!isset($adid) || empty($adid)) {
+		if ( get_awpcp_option('seofriendlyurls') ) {
+			if (isset($permastruc) && !empty($permastruc)) {
 
 				$adid = get_query_var('id');
 
 				$awpcpreplytoad_requested_url  = ( !empty($_SERVER['HTTPS'] ) && strtolower($_SERVER['HTTPS']) == 'on' ) ? 'https://' : 'http://';
 				$awpcpreplytoad_requested_url .= $_SERVER['HTTP_HOST'];
 				$awpcpreplytoad_requested_url .= $_SERVER['REQUEST_URI'];
-
 			}
 		}
 	}
 
 	if (get_awpcp_option('reply-to-ad-requires-registration') && !is_user_logged_in()) {
-		$msg = __('Only register users can reply to Ads. If you are already registered, please login below in order to reply to the Ad.', 'AWPCP');
-		return awpcp_user_login_form(awpcp_current_url(), $msg);
+		$message = __('Only register users can reply to Ads. If you are already registered, please login below in order to reply to the Ad.', 'AWPCP');
+		return awpcp_login_form($message, awpcp_current_url());
 	}
 
-	if ($action == 'contact')
-	{
+	if ($action == 'contact') {
 		$output .= load_ad_contact_form($adid,$sendersname,$checkhuman,$numval1,$numval2,$sendersemail,$contactmessage,$ermsg);
-	}
-	elseif ($action == 'docontact1')
-	{
+
+	} elseif ($action == 'docontact1') {
 		if (isset($_REQUEST['adid']) && !empty($_REQUEST['adid'])){$adid=clean_field($_REQUEST['adid']);} else {$adid='';}
 		if (isset($_REQUEST['sendersname']) && !empty($_REQUEST['sendersname'])){$sendersname=clean_field($_REQUEST['sendersname']);} else {$sendersname='';}
 		if (isset($_REQUEST['checkhuman']) && !empty($_REQUEST['checkhuman'])){$checkhuman=clean_field($_REQUEST['checkhuman']);} else {$checkhuman='';}
@@ -268,11 +263,10 @@ function awpcpui_process_contact() {
 
 		$output .= processadcontact($adid,$sendersname,$checkhuman,$numval1,$numval2,$sendersemail,$contactmessage,$ermsg='');
 
-	}
-	else
-	{
+	} else {
 		$output .= load_ad_contact_form($adid,$sendersname='',$checkhuman='',$numval1='',$numval2='',$sendersemail='',$contactmessage='',$ermsg='');
 	}
+
 	return $output;
 }
 
@@ -391,23 +385,21 @@ function awpcp_display_the_classifieds_page_body($awpcppagename) {
 
 	$output .= "</div>";
 	$removeLink = get_awpcp_option('removepoweredbysign');
-	if ( field_exists($field='removepoweredbysign') && !($removeLink) )
-	{
+
+	if ( field_exists($field='removepoweredbysign') && !($removeLink) ) {
 		$output .= "<p><font style=\"font-size:smaller\">";
 		$output .= __("Powered by ","AWPCP");
 		$output .= "<a href=\"http://www.awpcp.com\">Another Wordpress Classifieds Plugin</a> </font></p>";
-	}
-	elseif ( field_exists($field='removepoweredbysign') && ($removeLink) )
-	{
+	} elseif ( field_exists($field='removepoweredbysign') && ($removeLink) ) {
 
-	}
-	else
-	{
+	} else {
 //		$output .= "<p><font style=\"font-size:smaller\">";
 //		$output .= __("Powered by ","AWPCP");
 //		$output .= "<a href=\"http://www.awpcp.com\">Another Wordpress Classifieds Plugin</a> </font></p>";
 	}
+
 	$output .= "</div>";
+
 	return $output;
 }
 
@@ -639,45 +631,42 @@ function awpcp_menu_items() {
 function awpcp_display_classifieds_category_item($category, $class='toplevelitem') {
 	global $awpcp_imagesurl;
 
-	$permastruc = get_option('permalink_structure');
-	$awpcp_browsecats_pageid=awpcp_get_page_id_by_ref('browse-categories-page-name');
+	// $permastruc = get_option('permalink_structure');
+	// $awpcp_browsecats_pageid=awpcp_get_page_id_by_ref('browse-categories-page-name');
+
+	// // Category URL
+	// $modcatname1=cleanstring($category[1]);
+	// $modcatname1=add_dashes($modcatname1);
+
+	// $base_url = get_permalink($awpcp_browsecats_pageid);
+	// if (get_awpcp_option('seofriendlyurls')) {
+	// 	if (isset($permastruc) && !empty($permastruc)) {
+	// 		$url_browsecats = sprintf('%s/%s/%s', trim($base_url, '/'), $category[0], $modcatname1);
+	// 	} else {
+	// 		$params = array('a' => 'browsecat', 'category_id' => $category[0]);
+	// 		$url_browsecats = add_query_arg($params, $base_url);
+	// 	}
+	// } else {
+	// 	if (isset($permastruc) && !empty($permastruc)) {
+	// 		$params = array('category_id' => "$category[0]/$modcatname1");
+	// 		$url_browsecats = add_query_arg($params, $base_url);
+	// 	} else {
+	// 		$params = array('a' => 'browsecat', 'category_id' => $category[0]);
+	// 		$url_browsecats = add_query_arg($params, $base_url);
+	// 	}
+	// }
+	$url_browsecats = url_browsecategory($category[0]);
+
+	// Category icon
+	if (function_exists('get_category_icon')) {
+		$category_icon = get_category_icon($category[0]);
+	}
 
 	// Ads count
 	if (get_awpcp_option('showadcount') == 1) {
 		$ads_in_cat = '(' . total_ads_in_cat($category[0]) . ')';
 	} else {
 		$ads_in_cat = '';
-	}
-
-	// Category URL
-	$modcatname1=cleanstring($category[1]);
-	$modcatname1=add_dashes($modcatname1);
-
-	$base_url = get_permalink($awpcp_browsecats_pageid);
-	if (get_awpcp_option('seofriendlyurls')) {
-		if (isset($permastruc) && !empty($permastruc)) {
-			// $url_browsecats="$quers/$browsecatspagename/$category[0]/$modcatname1";
-			$url_browsecats = sprintf('%s/%s/%s', trim($base_url, '/'), $category[0], $modcatname1);
-		} else {
-			$params = array('a' => 'browsecat', 'category_id' => $category[0]);
-			// $url_browsecats="$quers/?page_id=$awpcp_browsecats_pageid&a=browsecat&category_id=$category[0]";
-			$url_browsecats = add_query_arg($params, $base_url);
-		}
-	} else {
-		if (isset($permastruc) && !empty($permastruc)) {
-			$params = array('category_id' => "$category[0]/$modcatname1");
-			// $url_browsecats="$quers/$browsecatspagename?category_id=$category[0]/$modcatname1";
-			$url_browsecats = add_query_arg($params, $base_url);
-		} else {
-			$params = array('a' => 'browsecat', 'category_id' => $category[0]);
-			// $url_browsecats="$quers/?page_id=$awpcp_browsecats_pageid&a=browsecat&category_id=$category[0]";
-			$url_browsecats = add_query_arg($params, $base_url);
-		}
-	}			
-
-	// Category icon
-	if (function_exists('get_category_icon')) {
-		$category_icon = get_category_icon($category[0]);
 	}
 
 	if (isset($category_icon) && !empty($category_icon)) {
@@ -814,36 +803,29 @@ function awpcp_display_the_classifieds_category($awpcppagename) {
 //	START FUNCTION: configure the page to display to user for purpose of editing images during ad editing process
 
 
-function editimages($adtermid,$adid,$adkey,$editemail)
-{
-	$output = '';
+function editimages($adtermid,$adid,$adkey,$editemail) {
 	global $wpdb;
+
 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
+	$output = '';
 
-	$savedemail=get_adposteremail($adid);
-	$transval='';
-	$imgstat='';
-	$awpcpuperror='';
+	$savedemail = get_adposteremail($adid);
+	$transval = '';
+	$imgstat = '';
+	$awpcpuperror = '';
 
-	if (strcasecmp($editemail, $savedemail) == 0)
-	{
+	if (strcasecmp($editemail, $savedemail) == 0) {
 
 		$imagecode="<h2>";
 		$imagecode.=__("Manage your ad images","AWPCP");
 		$imagecode.="</h2>";
 
-		if (!isset($adid) || empty($adid))
-		{
+		if (!isset($adid) || empty($adid)) {
 			$imagecode.=__("There has been a problem encountered. The system is unable to continue processing the task in progress. Please start over and if you encounter the problem again, please contact a system administrator.","AWPCP");
-		}
 
-		else
-		{
-
+		} else {
 			// First make sure images are allowed
-
-			if (get_awpcp_option('imagesallowdisallow') == 1)
-			{
+			if (get_awpcp_option('imagesallowdisallow') == 1) {
 				// Next figure out how many images user is allowed to upload
 
 				// if ((get_awpcp_option('freepay') == 1) && isset($adtermid) && $adtermid != 0)
@@ -866,22 +848,19 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 
 				// Next determine if the user has reached their image quota and act accordingly
 
-				if ($totalimagesuploaded >= 1)
-				{
+				if ($totalimagesuploaded >= 1) {
 
 					$imagecode.="<p>";
 					$imagecode.=__("Your images are displayed below. The total number of images you are allowed is","AWPCP");
 					$imagecode.=": $numimgsallowed</p>";
 
-					if (($numimgsallowed - $totalimagesuploaded) == 0)
-					{
+					if (($numimgsallowed - $totalimagesuploaded) == 0) {
 						$imagecode.="<p>";
 						$imagecode.=__("If you want to change your images you will first need to delete the current images","AWPCP");
 						$imagecode.="</p>";
 					}
 
-					if (get_awpcp_option('imagesapprove') == 1)
-					{
+					if (get_awpcp_option('imagesapprove') == 1) {
 						$imagecode.="<p>";
 						$imagecode.=__("Image approval is in effect so any new images you upload will not be visible to viewers until an admin has approved it","AWPCP");
 						$imagecode.="</p>";
@@ -889,17 +868,16 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 
 					// Display the current images
 
-					$imagecode.="<div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>";
+					$imagecode .= "<div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>";
+					$theimage = '';
 
-					$theimage='';
+					$query = "SELECT key_id,image_name,disabled FROM " . AWPCP_TABLE_ADPHOTOS . " ";
+					$query.= "WHERE ad_id='$adid' ORDER BY image_name ASC";
 
-
-					$query="SELECT key_id,image_name,disabled FROM ".$tbl_ad_photos." WHERE ad_id='$adid' ORDER BY image_name ASC";
 					$res = awpcp_query($query, __LINE__);
 
-					while ($rsrow=mysql_fetch_row($res))
-					{
-						list($ikey,$image_name,$disabled)=$rsrow;
+					while ($rsrow=mysql_fetch_row($res)) {
+						list($ikey,$image_name,$disabled) = $rsrow;
 
 						$ikey.="_";
 						$ikey.="$adid";
@@ -912,8 +890,7 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 
 						$transval='';
 
-						if ($disabled == 1)
-						{
+						if ($disabled == 1) {
 							$transval="class=\"imgtransparency\"";
 							$imgstat="<font style=\"font-size:smaller;\">";
 							$imgstat.=__("Disabled","AWPCP");
@@ -933,30 +910,25 @@ function editimages($adtermid,$adid,$adkey,$editemail)
 						$dellink="<a href=\"$href\">";
 						$dellink.=__("Delete","AWPCP");
 						$dellink.="</a>";
-						$theimage.="<li><a class=\"thickbox\" href=\"".AWPCPUPLOADURL."/$image_name\"><img $transval src=\"".AWPCPTHUMBSUPLOADURL."/$image_name\"/></a><br/>$dellink $imgstat</li>";
+
+						$large_image = awpcp_get_image_url($image_name, 'large');
+						$thumbnail = awpcp_get_image_url($image_name, 'thumbnail');
+						$theimage .= "<li><a class=\"thickbox\" href=\"" . $large_image . "\"><img $transval src=\"" . $thumbnail . "\"/></a><br/>$dellink $imgstat</li>";
 					}
 
 					$imagecode.=$theimage;
 					$imagecode.="</ul></div></div>";
 					$imagecode.="<div class=\"fixfloat\"></div>";
-				}
 
-				elseif ($totalimagesuploaded < 1)
-				{
+				} elseif ($totalimagesuploaded < 1) {
 					$imagecode.=__("You do not currently have any images uploaded. Use the upload form below to upload your images. If you do not wish to upload any images simply click the finish button. If uploading images, be careful not to click the finish button until after you've uploaded all your images","AWPCP");
 				}
 
-
-				if ($totalimagesuploaded < $numimgsallowed)
-				{
+				if ($totalimagesuploaded < $numimgsallowed) {
 					$max_image_size=get_awpcp_option('maximagesize');
-
 					$showimageuploadform=display_awpcp_image_upload_form($adid,$adtermid,$adkey,$adaction='editad',$nextstep='finish',$adpaymethod='',$awpcpuperror);
-				}
-				else
-				{
+				} else {
 					$showimageuploadform=display_awpcp_image_upload_form($adid,$adtermid,$adkey,$adaction='editad',$nextstep='finishnoform',$adpaymethod='',$awpcpuperror);
-
 				}
 
 			}

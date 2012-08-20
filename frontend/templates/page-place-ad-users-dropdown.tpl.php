@@ -33,7 +33,7 @@
         <?php $id = "{$term->type}-{$term->id}" ?>
         <?php $element_id = "payment-term-$id" ?>
 
-    <option id="<?php echo esc_attr($element_id) ?>" value="<?php echo esc_attr($id) ?>" data-categories="<?php echo esc_attr(json_encode($term->categories)) ?>" <?php echo $selected == $id ? 'selected="selected"' : '' ?>>
+    <option id="<?php echo esc_attr($element_id) ?>" value="<?php echo esc_attr($id) ?>" data-categories="<?php echo esc_attr(json_encode($term->categories)) ?>" data-characters-allowed=<?php echo esc_attr($term->characters_allowed) ?><?php echo $selected == $id ? 'selected="selected"' : '' ?>>
             <?php echo ucwords(str_replace('-', ' ', $term->type)) ?>: <?php echo $term->name ?>
     </option>
 

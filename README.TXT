@@ -3,16 +3,16 @@ Contributors: awpcp
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
-Tested up to: 3.3.1
-Last Updated: 2012-Jun-5
-Stable tag: tags/2.0.6
+Tested up to: 3.4.1
+Last Updated: 2012-Aug-20
+Stable tag: tags/2.1.0
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
 == Description ==
 Add a classified ads section to your Wordpress site, quickly and easily.  
 Lots of features, very configurable.  Easy to setup.  Great support.
-We're the #1 Wordpress Classified Ads Plugin: three+ years old and 120,000+ downloads!
+We're the #1 Wordpress Classified Ads Plugin: three+ years old and 140,000+ downloads!
 
 NEW modules:  Coupons/Discounts and Subscriptions!
 
@@ -33,6 +33,7 @@ Features:
     11. Ads can be flagged by community for bad/offensive content
     12. Ads can imported via CSV files
     13. Ads now support embedded videos
+    14. Ads can have character limits, supported by plans (different plans can have different limits)
  = Notification Features =
     1. Allow posters to be notified of expiring ads
     2. Allow admin to be notified when new ads are posted
@@ -60,7 +61,7 @@ Features:
     7. Anti-spam checks for all ads posted via Akismet.
     8. Flagged ads can be viewed separately to determine violations, and
        then deleted or unflagged.
-    9. **New Ad Management panel, visible by users and admins for easier
+    9. Ad Management panel, visible by users and admins for easier
        ad creation/editing/delete.
     10. Admin can post ads on behalf of other users with the ads displaying as
         if the user posted them initially
@@ -70,6 +71,7 @@ Features:
     3. Allow for different numbers of images to be posted with 
        paid ads vs. free ads
     4. Allow for image approval prior to posting
+    5. Allow users to have a primary image for their ad
  = Premium Modules (Add on modules, not included with free plugin) =
     1. Category Icons (adds small icons to give visual cues to 
        your user for each category in AWPCP)
@@ -204,6 +206,68 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 2.1.0 =
+ NEW: Allow users to download Debug info as an HTML file.
+ NEW: Add "Click to Enlarge Link" below primary image.
+ NEW: Allow Extra Fields to be showen in two or three columns.
+ NEW: Use primary image wherever a thumbnail would be shown.
+ NEW: Add a template for Reply to Ad email
+ NEW: Include Extra Field settings in Extra Fields section.
+ NEW: Migrate Extra Fields to be a standalone plugin.
+ NEW: Migrate Regions Control to be a standalone plugin.
+ NEW: Allow Extra Field to have custom order.
+ NEW: Add options to Featured Ads widget to show/hide Ad Title and Excerpt.
+ Bug: Fixed Facebook share link so it's not picket up by thickbox function
+ Bug: Fixed bug that removed umlauts from URLs
+ Bug: Fixed twitter share button to include Ad's title.
+ Bug: Fixed JS error in Search form.
+ Bug: Fixed Extra Fields display error in Select elements.
+ Bug: Fixed content type for RSS feed.
+ Bug: Fixed remove empty separators from Show Ad page title.
+ Bug: Fixed compatibility problem with YOAST SEO WordPress plugin.
+ Bug: Fixed preserve original information when editing an Ad.
+ Bug: Fixed Editing Ads as admin causes admin's info to be used in the Ad.
+ Bug: Fixed Removed backslashes from  Ad Title, Reply To Ad email, and Ad Details form, when there were erros in the information submitted.
+ Bug: Fixed Avoid showing validation errors when PayPal transaction is succesfully verified.
+ Bug: Fixed Updated POT file with several missing strings.
+ Bug: Fixed pagination when a category has been selected.
+ Bug: Fixed several MySQL strict-mode related problems.
+ Bug: Fixed Calculate new Ad expiration date base on current expiration date
+ Bug: Fixed Calculate Ad's end date from the moment admin approves Ad
+ Bug: Fixed thumbnail image src in Latest Ads widget.
+ Bug: Fixed Allow editors to access AWPCP admin panel if they are allowed to in AWPCP settings.
+ Bug: Fixed Use correct URL for home URL in emails.
+ Bug: Fixed integration with Subscription and Coupons modules.
+ Bug: Fixed Use blog language to set RSS Feed language
+ Bug: Fixed Terms of Service should not be required when editing an Ad
+ Bug: Use a password field for the SMTP Password setting
+ Bug: Include "Return to Listings" link in Renew Ad screen
+ Bug: Update button style in Fees admin screen
+ Bug: Update Add/Update Fee for appearances
+ Bug: Show Category name in Admin Ad View screen
+ Bug: Improve appearance of Admin Ad View screen
+ Bug: Add options to Latest Ads widget to show/hide Ad Title and Excerpt.
+ Bug: Allow to set character limit on a per Fee basis.
+ Bug: Remove website URL, passwords and email address from Debug info
+ Bug: Include field in Debug info to check PayPal connection status.
+ Bug: Include Renew Ad URL in Expired Ad email notification
+ Bug: Include a file of trusted CA authorities to prevent SSL verification issues with cURL, when validating a PayPal transaction.
+ Bug: Add settings to control width/height/crop settings of primary and thumbnail images.
+ Bug: Allow users to choose a primary image for the Ad.
+ Bug: Change CSS class for Ad Title from 'adtitle' to 'awpcp-title' to avoid problems with Ad blocking software.
+ Bug: Include site name (not AWPCP) in Ad Management panel's page title.
+ Bug: Renamed AWPCP Profile to Classifieds Profile.
+ Bug: Auto populate phone number field field using user's profile information
+ Bug: Removed Warning in Featured Ads module.
+ Bug: Open documentation link in a new tab
+ Bug: Fixed COLLATE and CHARSET in all premium modules.
+ Bug: Fixed do not show empty Extra Fields setting.
+ Bug: Fixed remove thickbox class from Featured Ad widget items.
+ Bug: Put "Featured Ad Pricing" label in front of the checkbox
+ Bug: Fixed Regions jQuery JavaScript error.
+ Bug: Include a "No Parent" option when adding or editing Regions.
+ Bug: Fixed Increase current_ad_count when an Ad is placed using a Subscription.
+ 
  = 2.0.6 =
  Bug: Extra fields rendered with .esc_attr
  Bug: Windows MySQL error when inserting new ad

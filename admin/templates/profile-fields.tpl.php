@@ -1,4 +1,4 @@
-<h3><?php _e('AWPCP Profile Info', 'AWPCP') ?></h3>
+<h3><?php _e('Classifieds Profile Info', 'AWPCP') ?></h3>
 <table class="form-table"><table class="form-table">
 	<tbody>
 		<?php /*<tr valign="top">
@@ -19,6 +19,15 @@
 				<span class="description"><?php _e('If not empty will override your WordPress email address.', 'AWPCP') ?></span>
 			</td>
 		</tr> */ ?>
+		<tr valign="top">
+			<th scope="row">
+				<label for="awpcp-profile-phone"><?php _e('Phone Number', 'AWPCP') ?></label>
+			</th>
+			<td>
+				<input id="awpcp-profile-phone" class="regular-text" type="text" name="awpcp-profile[phone]" value="<?php echo esc_attr(awpcp_array_data('phone', '', $profile)) ?>" />
+				<span class="description"></span>
+			</td>
+		</tr>
 		<tr valign="top">
 			<th scope="row">
 				<label for="awpcp-profile-address"><?php _e('Address', 'AWPCP') ?></label>

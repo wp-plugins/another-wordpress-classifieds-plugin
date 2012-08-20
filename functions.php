@@ -24,7 +24,7 @@ if (!function_exists('array_walk_recursive')) {
 	                $input[$key] = $value;
 	            }
 	        }
-	    }        
+	    }     
 	    return true;
 	}
 }
@@ -81,6 +81,42 @@ if (!function_exists('wp_trim_words')) {
 }
 
 
+function awpcp_esc_attr($text) {
+	// WP adds slashes to all request variables
+	$text = stripslashes($text);
+	// AWPCP adds more slashes
+	$text = stripslashes($text);
+	$text = esc_attr($text);
+	return $text;
+}
+
+function awpcp_esc_textarea($text) {
+	$text = stripslashes($text);
+	$text = stripslashes($text);
+	$text = esc_textarea($text);
+	return $text;
+}
+
+/**
+ * Returns the given date as MySQL date string, Unix timestamp or
+ * using a custom format.
+ *
+ * @since 2.0.7
+ * @param $format 	'mysql', 'timestamp', or first arguemnt for date() function.
+ */
+function awpcp_time($date, $format='mysql') {
+	if (is_null($date) || empty($date)) {
+		$date = current_time('timestamp');
+	} else if (is_string($date)) {
+		$date = strtotime($date);
+	} // else, we asume a timestamp
+
+	if ($format === 'mysql' || $format === 'timestamp')
+		return $format === 'mysql' ? date('Y-m-d H:i:s', $date) : $date;
+	return date($format, $date);
+}
+
+
 /**
  * Get a WP User. See awpcp_get_users for details.
  *
@@ -126,6 +162,7 @@ function awpcp_get_users($where='') {
 		$users[$k]->last_name = awpcp_get_property($data, 'last_name', '');
 		$users[$k]->username = awpcp_array_data('username', '', $profile);
 		$users[$k]->address = awpcp_array_data('address', '', $profile);
+		$users[$k]->phone = awpcp_array_data('phone', '', $profile);
 		$users[$k]->city = awpcp_array_data('city', '', $profile);
 		$users[$k]->state = awpcp_array_data('state', '', $profile);
 		$users[$k]->user_url = awpcp_get_property($data, 'user_url', '');
@@ -136,31 +173,48 @@ function awpcp_get_users($where='') {
 
 
 /**
+ * Returns a WP capability required to be considered an AWPCP admin.
+ *
+ * http://codex.wordpress.org/Roles_and_Capabilities#Capability_vs._Role_Table
+ *
+ * @since 2.0.7
+ */
+function awpcp_admin_capability() {
+	$roles = explode(',', get_awpcp_option('awpcpadminaccesslevel'));
+	if (in_array('editor', $roles))
+		return 'edit_pages';
+	// default to: only WP administrator users are AWPCP admins
+	return 'install_plugins';
+}
+
+
+/**
  * Check if current user is an Administrator according to
  * AWPCP settings.
  */
 function awpcp_current_user_is_admin() {
-	// global $curent_user;
-	// get_currentuserinfo();
-	// return awpcp_user_is_admin($curent_user->ID);
-	if (get_awpcp_option('awpcpadminaccesslevel') == 'admin') {
-		return current_user_can('install_plugins');
-	} else if (get_awpcp_option('awpcpadminaccesslevel') == 'editor') {
-		return current_user_can('edit_pages');
-	}
-
-	return current_user_can('install_plugins');
+	$capability = awpcp_admin_capability();
+	return current_user_can($capability);
 }
 
-// function awpcp_user_is_admin($id) {
-// 	if (get_awpcp_option('awpcpadminaccesslevel') == 'admin') {
-// 		return user_can($id, 'install_plugins');
-// 	} else if (get_awpcp_option('awpcpadminaccesslevel') == 'editor') {
-// 		return user_can($id, 'edit_pages');
-// 	}
 
-// 	return user_can($id, 'install_plugins');
-// }
+function awpcp_user_is_admin($id) {
+	$capability = awpcp_admin_capability();
+	return user_can($id, $capability);
+}
+
+
+function awpcp_get_grid_item_css_class($classes, $pos, $columns, $rows) {
+	if ($pos < $columns)
+		$classes[] = 'first-row';
+	if ($pos >= (($rows - 1) * $columns))
+		$classes[] = 'last-row';
+	if ($pos == 0 || $pos % $columns == 0)
+		$classes[] = 'first-column';
+	if (($pos + 1) % $columns == 0)
+		$classes[] = 'last-column';
+	return $classes;
+}
 
 
 function awpcp_get_categories() {
@@ -282,7 +336,108 @@ function awpcp_get_ad_number_allowed_images($ad_id) {
 
 
 /**
- * Inserts an menu item after one of the existing items.
+ */
+function awpcp_get_ad_images($ad_id) {
+	global $wpdb;
+
+	$query = "SELECT * FROM " . AWPCP_TABLE_ADPHOTOS . " ";
+	$query.= "WHERE ad_id=%d ORDER BY image_name ASC";
+
+	return $wpdb->get_results($wpdb->prepare($query, $ad_id));
+}
+
+/**
+ *
+ */
+function awpcp_get_image_url($image, $suffix='') {
+	static $uploads = array();
+
+	if (empty($uploads))
+		$uploads = array_shift(awpcp_setup_uploads_dir());
+
+	$images = trailingslashit(AWPCPUPLOADURL);
+	$thumbnails = trailingslashit(AWPCPTHUMBSUPLOADURL);
+
+	if (is_object($image))
+		$basename = $image->image_name;
+	if (is_string($image))
+		$basename = $image;
+
+	$original = $images . $basename;
+	$thumbnail = $thumbnails . $basename;
+	$part = empty($suffix) ? '.' : "-$suffix.";
+
+	$info = pathinfo($original);
+
+	if ($suffix == 'original') {
+		$alternatives = array($original);
+	} else if ($suffix == 'large') {
+		$alternatives = array(
+			str_replace(".{$info['extension']}", "$part{$info['extension']}", $original),
+			$original
+		);
+	} else {
+		$alternatives = array(
+			str_replace(".{$info['extension']}", "$part{$info['extension']}", $thumbnail),
+			$thumbnail,
+			$original
+		);
+	}
+
+	foreach ($alternatives as $imagepath) {
+		if (file_exists(str_replace(AWPCPUPLOADURL, $uploads, $imagepath))) {
+			return $imagepath;
+		}
+	}
+
+	return false;
+}
+
+
+/**
+ *
+ */
+function awpcp_set_ad_primary_image($ad_id, $image_id) {
+	global $wpdb;
+
+	$query = 'UPDATE ' . AWPCP_TABLE_ADPHOTOS . ' ';
+	$query.= "SET is_primary = 0 WHERE ad_id = %d";
+
+	if ($wpdb->query($wpdb->prepare($query, $ad_id)) === false)
+		return false;
+
+	$query = 'UPDATE ' . AWPCP_TABLE_ADPHOTOS . ' ';
+	$query.= 'SET is_primary = 1 WHERE ad_id = %d AND key_id = %d';
+	$query = $wpdb->prepare($query, $ad_id, $image_id);
+
+	return $wpdb->query($query) !== false;
+}
+
+
+/**
+ *
+ */
+function awpcp_get_ad_primary_image($ad_id) {
+	global $wpdb;
+
+	$query = 'SELECT * FROM ' . AWPCP_TABLE_ADPHOTOS . ' ';
+	$query.= 'WHERE ad_id = %d AND is_primary = 1';
+
+	$results = $wpdb->get_results($wpdb->prepare($query, $ad_id));
+
+	if (!empty($results)) return $results[0];
+
+	$query = 'SELECT * FROM ' . AWPCP_TABLE_ADPHOTOS . ' ';
+	$query.= 'WHERE ad_id = %d ORDER BY key_id LIMIT 0,1';
+
+	$results = $wpdb->get_results($wpdb->prepare($query, $ad_id));
+
+	return empty($results) ? null : $results[0];
+}
+
+
+/**
+ * Inserts a menu item after one of the existing items.
  *
  * This function should be used by plugins when handling
  * the awpcp_menu_items filter.
@@ -345,13 +500,100 @@ function awpcp_get_main_page_name() {
 }
 
 
+/**
+ * Always return the full URL, even if AWPCP main page
+ * is also the home page.
+ */
+function awpcp_get_main_page_url() {
+	$permalinks = get_option('permalink_structure');
+	$id = awpcp_get_page_id_by_ref('main-page-name');
+
+	if ($permalinks) {
+		$url = home_url(get_page_uri($id));
+	} else {
+		$url = add_query_arg('page_id', $id, home_url());
+	}
+
+	return user_trailingslashit($url);
+}
+
+
+/**
+ * Returns a link to an AWPCP page identified by $pagename.
+ *
+ * @since 2.0.7
+ */
 function awpcp_get_page_url($pagename) {
-	return get_permalink(awpcp_get_page_get_id(sanitize_title($pagename)));
+	return get_permalink(awpcp_get_page_id_by_ref($pagename));
+}
+
+
+/**
+ * Returns a link that can be used to initiate the Ad Renewal process.
+ *
+ * @since 2.0.7
+ */
+function awpcp_get_renew_ad_url($ad_id) {
+	if (get_awpcp_option('enable-user-panel') == 1) {
+		$url = awpcp_get_user_panel_url();
+		return add_query_arg(array('id' => $ad_id, 'action' => 'renew-ad'), $url);
+	} else {
+		$url = awpcp_get_page_url('renew-ad-page-name');
+		return add_query_arg(array('ad_id' => $ad_id), $url);
+	}
+}
+
+/**
+ * Returns a link to Ad Management (a.k.a User Panel).
+ *
+ * @since 2.0.7
+ */
+function awpcp_get_user_panel_url() {
+	return admin_url('admin.php?page=awpcp-panel');
 }
 
 
 function awpcp_current_url() {
 	return (is_ssl() ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+}
+
+/**
+ * Returns the domain used in the current request, optionally stripping
+ * the www part of the domain.
+ *
+ * @since 2.0.6
+ * @param $www 	boolean		true to include the 'www' part,
+ *							false to attempt to strip it.
+ */
+function awpcp_get_current_domain($www=true, $prefix='') {
+	$domain = awpcp_array_data('HTTP_HOST', '', $_SERVER);
+	if (empty($domain)) {
+		$domain = awpcp_array_data('SERVER_NAME', '', $_SERVER);
+	}
+
+	if (!$www && substr($domain, 0, 4) === 'www.') {
+		$domain = $prefix . substr($domain, 4);
+	}
+
+	return $domain;
+}
+
+/**
+ * Bulds WordPress ajax URL using the same domain used in the current request.
+ *
+ * @since 2.0.6
+ */
+function awpcp_ajaxurl() {
+	static $ajaxurl = false;
+
+	if ($ajaxurl === false) {
+		$url = admin_url('admin-ajax.php');
+		$url = 'http://unitypost.com/wp-admin/admin-ajax.php';
+		$parts = parse_url($url);
+		$ajaxurl = str_replace($parts['host'], awpcp_get_current_domain(), $url);
+	}
+
+	return $ajaxurl;
 }
 
 
@@ -423,6 +665,16 @@ function awpcp_print_messages() {
 add_action('admin_notices', 'awpcp_print_messages');
 
 
+/**
+ * @since 2.0.7
+ */
+function awpcp_table_exists($table) {
+    global $wpdb;
+    $result = $wpdb->get_var("SHOW TABLES LIKE '" . $table . "'");
+    return strcasecmp($result, $table) === 0;
+}
+
+
 /** Table Helper related functions 
  ---------------------------------------------------------------------------- */
 
@@ -434,28 +686,4 @@ function awpcp_register_column_headers($screen, $columns, $sortable=array()) {
 function awpcp_print_column_headers($screen, $id = true, $sortable=array()) {
 	$wp_list_table = new AWPCP_List_Table($screen, array(), $sortable);
 	$wp_list_table->print_column_headers($id);
-}
-
-
-function awpcp_user_login_form($redirect_to='', $message='') {
-	$post_url = get_awpcp_option('postloginformto');
-	if (empty($post_url)) {
-		$post_url = "$siteurl/wp-login.php";
-	}
-
-	$registration_url = get_awpcp_option('registrationurl');
-	if (empty($registration_url)) {
-		$registration_url="$siteurl/wp-login.php?action=register";
-	}
-
-	if (empty($message)) {
-		$message = __("Only registered users can post ads. If you are already registered, please login below in order to post your ad.", "AWPCP");
-	}
-
-	ob_start();
-		include(AWPCP_DIR . 'frontend/templates/user-login-form.tpl.php');
-		$html = ob_get_contents();
-	ob_end_clean();
-
-	return $html;
 }

@@ -1,5 +1,9 @@
 <?php
-if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You are not allowed to call this page directly.'); }
+
+if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) {
+	die('You are not allowed to call this page directly.');
+}
+
 ///
 ///
 // Another Wordpress Classifieds Plugin: This file: functions_awpcp.php
@@ -52,6 +56,9 @@ function add_slashes_recursive( $variable ) {
 	return $variable ;
 }
 
+/**
+ * @deprecated Use WP's stripslashes_deep()
+ */
 function strip_slashes_recursive( $variable )
 {
 	if ( is_string( $variable ) )
@@ -367,11 +374,8 @@ function awpcpisqueryempty($table, $where){
 }
 // START FUNCTION: Check if the admin has setup any listing fee options
 function adtermsset(){
-
 	global $wpdb;
-	$tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
-
-	$myreturn=!awpcpistableempty($tbl_ad_fees);
+	$myreturn = !awpcpistableempty(AWPCP_TABLE_ADFEES);
 	return $myreturn;
 }
 // END FUNCTION
@@ -380,16 +384,13 @@ function adtermsset(){
  * Get the product ID for 2 Checkout.. or something like that.
  */
 function get_2co_prodid($adterm_id) {
-
 	global $wpdb;
-	$tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
+
+	$query = "SELECT twoco_pid FROM " . AWPCP_TABLE_ADFEES . " WHERE adterm_id='$adterm_id'";
+	$res = awpcp_query($query, __LINE__);
 
 	$twoco_pid='';
-
-	$query="SELECT twoco_pid from ".$tbl_ad_fees." WHERE adterm_id='$adterm_id'";
-	$res = awpcp_query($query, __LINE__);
-	while ($rsrow=mysql_fetch_row($res))
-	{
+	while ($rsrow=mysql_fetch_row($res)) {
 		list($twoco_pid)=$rsrow;
 	}
 
@@ -782,8 +783,10 @@ function get_categorycheckboxes( $cats = array(), $adterm_id ) {
 		$sql = 'select categories from '.$tbl_fees.' where adterm_id = '.$adterm_id;
 		$catswithfees = $wpdb->get_var($sql);
 
-		if ('' != $catswithfees) {
+		if (!empty($catswithfees)) {
 			$catswithfees = explode(',', $catswithfees);
+		} else {
+			$catswithfees = array();
 		}
 	}
 
@@ -800,11 +803,9 @@ function get_categorycheckboxes( $cats = array(), $adterm_id ) {
 
 		$opstyle="class=\"checkboxparentcategory\"";
 
-		if( in_array($cat_ID, $catswithfees) )
-		{
+		if(in_array($cat_ID, $catswithfees)) {
 			$maincatoptionitem = "<input name='fee_cats[]' type='checkbox' $opstyle checked='checked' value='$cat_ID'> $cat_name<br/>";
-		}
-		else {
+		} else {
 			$maincatoptionitem = "<input name='fee_cats[]' type='checkbox' $opstyle value='$cat_ID'> $cat_name<br/>";
 		}
 
@@ -1039,9 +1040,14 @@ function images_exist() {
 	return $myreturn;
 }
 // END FUNCTION: Check if images exist in system
-// START FUNCTION: Eemove unwanted characters from string and setup for use with search engine friendly urls
-function cleanstring($text)
-{
+
+/**
+ * Remove unwanted characters from string and setup for use with search engine
+ * friendly urls.
+ * 
+ * @deprecated deprecated since 2.0.6. Use sanitize_title instead.
+ */
+function cleanstring($text) {
 	$code_entities_match = array(' ','--','&quot;','!','@','#','$','%','^','&','*','(',')','+','{','}','|',':','"','<','>','?','[',']','\\',';',"'",',','.','/','*','+','~','`','=');
 	$code_entities_replace = array('_','_','','','','','','','','','','','','','','','','','','','','','','','');
 	$text = str_replace($code_entities_match, $code_entities_replace, $text);
@@ -1050,6 +1056,8 @@ function cleanstring($text)
 	}
 	return $text;
 }
+
+
 // END FUNCTION: remove unwanted characters from string to be used in URL for search engine friendliness
 // START FUNCTION: replace underscores with dashes for search engine friendly urls
 function add_dashes($text) {
@@ -1063,25 +1071,6 @@ function add_dashes($text) {
 function clean_field($foo) {
 	//debug();
 	return add_slashes_recursive($foo);
-}
-
-
-/**
- * Always return the full URL, even if AWPCP main page
- * is also the home page.
- */
-function awpcp_get_main_page_url() {
-	$permalinks = get_option('permalink_structure');
-	$id = awpcp_get_page_id_by_ref('main-page-name');
-
-	if ($permalinks) {
-		$url = home_url(get_page_uri($id));
-		$url = user_trailingslashit($url);
-	} else {
-		$url = add_query_arg('page_id', $id, home_url());
-	}
-
-	return $url;
 }
 
 
@@ -1200,220 +1189,109 @@ function setup_url_structure($awpcpthepagename) {
 
 // END FUNCTION: setup structure of URLs based on if permalinks are on and SEO urls are turned on
 function url_showad($ad_id) {
-	$url_showad='';
-
-	// $awpcppage=get_currentpagename();
-	// $awpcppagename = sanitize_title($awpcppage, $post_ID='');
-	// $quers=setup_url_structure($awpcppagename);
-	$permastruc=get_option('permalink_structure');
-
-	// $showadspagename=sanitize_title(get_awpcp_option('show-ads-page-name'));
-	$awpcp_showad_pageid = awpcp_get_page_id_by_ref('show-ads-page-name');
-
-	$awpcpadcity=get_adcityvalue($ad_id);
-	$awpcpadstate=get_adstatevalue($ad_id);
-	$awpcpadcountry=get_adcountryvalue($ad_id);
-	$awpcpadcountyvillage=get_adcountyvillagevalue($ad_id);
-
-	$awpcpadtitle=get_adtitle($ad_id);
-	$modtitle=cleanstring($awpcpadtitle);
-	$modtitle=add_dashes($modtitle);
-
+	$modtitle = sanitize_title(get_adtitle($ad_id));
 	$seoFriendlyUrls = get_awpcp_option('seofriendlyurls');
+	$permastruc = get_option('permalink_structure');
 
-	$params = array('id' => $ad_id);
+	$awpcp_showad_pageid = awpcp_get_page_id_by_ref('show-ads-page-name');
 	$base_url = get_permalink($awpcp_showad_pageid);
 
+	$params = array('id' => $ad_id);
+
 	if( $seoFriendlyUrls ) {
 		if(isset($permastruc) && !empty($permastruc)) {
-			// $url_showad="$quers/$showadspagename/$ad_id/$modtitle";
-			$url_showad = sprintf('%s/%s/%s', trim($base_url, '/'), $ad_id, $modtitle);
+			$url = sprintf('%s/%s/%s', trim($base_url, '/'), $ad_id, $modtitle);
 		} else {
-			// $url_showad="$quers/?page_id=$awpcp_showad_pageid&id=$ad_id";
-			$url_showad = add_query_arg($params, $base_url);
+			$url = add_query_arg($params, $base_url);
 		}
 	} else {
-		$url_showad = add_query_arg($params, $base_url);
+		$url = add_query_arg($params, $base_url);
 	}
 
-	if( $seoFriendlyUrls ) {
-		if(isset($permastruc) && !empty($permastruc)) {
-			//_log("City as found: '".$awpcpadcity."'");
-			if( get_awpcp_option('showcityinpagetitle') && !empty($awpcpadcity) ) {
-				$url_showad.="/";
-				$url_showad.=cleanstring(add_dashes($awpcpadcity));
+	$city = get_adcityvalue($ad_id);
+	$state = get_adstatevalue($ad_id);
+	$country = get_adcountryvalue($ad_id);
+	$county = get_adcountyvillagevalue($ad_id);
+
+	if ($seoFriendlyUrls) {
+		if (isset($permastruc) && !empty($permastruc)) {
+			$parts = array();
+
+			if( get_awpcp_option('showcityinpagetitle') && !empty($city) ) {
+				$parts[] = sanitize_title($city);
 			}
-			if( get_awpcp_option('showstateinpagetitle') && !empty($awpcpadstate) ) {
-				$url_showad.="/";
-				$url_showad.=cleanstring(add_dashes($awpcpadstate));
+			if( get_awpcp_option('showstateinpagetitle') && !empty($state) ) {
+				$parts[] = sanitize_title($state);
 			}
-			if( get_awpcp_option('showcountryinpagetitle') && !empty($awpcpadcountry) ) {
-				$url_showad.="/";
-				$url_showad.=cleanstring(add_dashes($awpcpadcountry));
+			if( get_awpcp_option('showcountryinpagetitle') && !empty($country) ) {
+				$parts[] = sanitize_title($country);
 			}
-			if( get_awpcp_option('showcountyvillageinpagetitle') && !empty($awpcpadcountyvillage) ) {
-				$url_showad.="/";
-				$url_showad.=cleanstring(add_dashes($awpcpadcountyvillage));
+			if( get_awpcp_option('showcountyvillageinpagetitle') && !empty($county) ) {
+				$parts[] = sanitize_title($county);
 			}
 			if( get_awpcp_option('showcategoryinpagetitle') ) {
-				$awpcp_ad_category_id=get_adcategory($ad_id);
-				$awpcp_ad_category_name=cleanstring(add_dashes(get_adcatname($awpcp_ad_category_id)));
-
-				$url_showad.="/";
-				$url_showad.=$awpcp_ad_category_name;
+				$awpcp_ad_category_id = get_adcategory($ad_id);
+				$parts[] = sanitize_title(get_adcatname($awpcp_ad_category_id));
 			}
-			//Always append a slash (RSS module issue)
-			$url_showad.="/";
+
+			// always append a slash (RSS module issue)
+			$url = sprintf("%s%s", trailingslashit($url), join('/', $parts));
 		}
 	}
 
-	//_log("Returning URL: ".$url_showad);
-	return $url_showad;
+	return user_trailingslashit($url);
 }
 
 function url_browsecategory($cat_id) {
-	// $awpcppage=get_currentpagename();
-	// $awpcppagename = sanitize_title($awpcppage, $post_ID='');
-	// $quers=setup_url_structure($awpcppagename);
-	$permastruc=get_option('permalink_structure');
+	$permastruc = get_option('permalink_structure');
 
-	// $browsecatspagename=sanitize_title(get_awpcp_option('browse-categories-page-name'));
-	$awpcp_browsecats_pageid=awpcp_get_page_id_by_ref('browse-categories-page-name');
+	$awpcp_browsecats_pageid = awpcp_get_page_id_by_ref('browse-categories-page-name');
 
-	$awpcpcatname=get_adcatname($cat_id);
-	$modcatname=cleanstring($awpcpcatname);
-	$modcatname=add_dashes($modcatname);
+	$awpcpcatname = get_adcatname($cat_id);
+	$modcatname = sanitize_title($awpcpcatname);
 
 	$base_url = get_permalink($awpcp_browsecats_pageid);
 	if (get_awpcp_option('seofriendlyurls')) {
 		if (isset($permastruc) && !empty($permastruc)) {
-			// $url_browsecats="$quers/$browsecatspagename/$cat_id/$modcatname";
 			$url_browsecats = sprintf('%s/%s/%s', trim($base_url, '/'), $cat_id, $modcatname);
 		} else {
 			$params = array('a' => 'browsecat', 'category_id' => $cat_id);
-			// $url_browsecats="$quers/?page_id=$awpcp_browsecats_pageid&a=browsecat&category_id=$cat_id";
 			$url_browsecats = add_query_arg($params, $base_url);
 		}
 	} else {
 		if (isset($permastruc) && !empty($permastruc)) {
 			$params = array('category_id' => "$cat_id/$modcatname");
-			// $url_browsecats="$quers/$browsecatspagename?category_id=$cat_id/$modcatname";
 		} else {
 			$params = array('a' => 'browsecat', 'category_id' => $cat_id);
-			// $url_browsecats="$quers/?page_id=$awpcp_browsecats_pageid&a=browsecat&category_id=$cat_id";
 		}
 		$url_browsecats = add_query_arg($params, $base_url);
 	}
 
-	//_log("Returning cat URL: ".$url_browsecats);
-	return $url_browsecats;
+	return user_trailingslashit($url_browsecats);
 }
 
 function url_placead() {
-	// $awpcppage=get_currentpagename();
-	// $awpcppagename = sanitize_title($awpcppage);
-	// $quers=setup_url_structure($awpcppagename);
-	// $permastruc=get_option('permalink_structure');
-
-	// $placeadpagename=sanitize_title(get_awpcp_option('place-ad-page-name'));
-	$awpcp_placead_pageid=awpcp_get_page_id_by_ref('place-ad-page-name');
-
-	$url_placead = get_permalink($awpcp_placead_pageid);
-	// if( get_awpcp_option('seofriendlyurls') ) {
-	// 	if(isset($permastruc) && !empty($permastruc)) {
-	// 		$url_placead="$quers/$placeadpagename/";
-	// 	} else {
-	// 		$url_placead="$quers/?page_id=$awpcp_placead_pageid";
-	// 	}
-	// } else {
-	// 	if(isset($permastruc) && !empty($permastruc)) {
-	// 		$url_placead="$quers/$placeadpagename/";
-	// 	} else {
-	// 		$url_placead="$quers/?page_id=$awpcp_placead_pageid";
-	// 	}
-	// }
-
-	return $url_placead;
+	$url = get_permalink(awpcp_get_page_id_by_ref('place-ad-page-name'));
+	return user_trailingslashit($url);
 }
 
+/**
+ * @deprecated deprecated since 2.0.6.
+ */
 function url_classifiedspage() {
-	// $awpcppage=get_currentpagename();
-	// $awpcppagename = sanitize_title($awpcppage, $post_ID='');
-	// $quers=setup_url_structure($awpcppagename);
-	// $permastruc=get_option('permalink_structure');
-
-	$awpcp_pageid=awpcp_get_page_id_by_ref('main-page-name');
-
-	$url_classifiedspage = get_permalink($awpcp_pageid);
-	// if( get_awpcp_option('seofriendlyurls') ) {
-	// 	if(isset($permastruc) && !empty($permastruc)) {
-	// 		$url_classifiedspage="$quers/";
-	// 	} else {
-	// 		$url_classifiedspage="$quers/?page_id=$awpcp_pageid";
-	// 	}
-	// } else {
-	// 	if(isset($permastruc) && !empty($permastruc)) {
-	// 		$url_classifiedspage="$quers/";
-	// 	} else {
-	// 		$url_classifiedspage="$quers/?page_id=$awpcp_pageid";
-	// 	}
-	// }
-
-	return $url_classifiedspage;
+	// $url = get_permalink(awpcp_get_page_id_by_ref('main-page-name'));
+	// return $url;
+	return awpcp_get_main_page_url();
 }
 
 function url_searchads() {
-	// $awpcppage=get_currentpagename();
-	// $awpcppagename = sanitize_title($awpcppage);
-	// $quers=setup_url_structure($awpcppagename);
-	// $permastruc=get_option('permalink_structure');
-
-	// $searchadspagename=sanitize_title(get_awpcp_option('search-ads-page-name'));
-	$awpcp_searchads_pageid=awpcp_get_page_id_by_ref('search-ads-page-name');
-
-	$url_searchads = get_permalink($awpcp_searchads_pageid);
-	// if( get_awpcp_option('seofriendlyurls') ) {
-	// 	if(isset($permastruc) && !empty($permastruc)) {
-	// 		$url_searchads="$quers/$searchadspagename/";
-	// 	} else {
-	// 		$url_searchads="$quers/?page_id=$awpcp_searchads_pageid";
-	// 	}
-	// } else {
-	// 	if(isset($permastruc) && !empty($permastruc)) {
-	// 		$url_searchads="$quers/$searchadspagename/";
-	// 	} else {
-	// 		$url_searchads="$quers/?page_id=$awpcp_searchads_pageid";
-	// 	}
-	// }
-
-	return $url_searchads;
+	$url = get_permalink(awpcp_get_page_id_by_ref('search-ads-page-name'));
+	return $url;
 }
 
 function url_editad() {
-	// $awpcppage=get_currentpagename();
-	// $awpcppagename = sanitize_title($awpcppage);
-	// $quers=setup_url_structure($awpcppagename);
-	// $permastruc=get_option('permalink_structure');
-
-	$editadpagename=sanitize_title(get_awpcp_option('edit-ad-page-name'));
-	$awpcp_editad_pageid=awpcp_get_page_id_by_ref('edit-ad-page-name');
-
-	$url_editad = get_permalink($awpcp_editad_pageid);
-	// if( get_awpcp_option('seofriendlyurls') ) {
-	// 	if(isset($permastruc) && !empty($permastruc)) {
-	// 		$url_editad="$quers/$editadpagename/";
-	// 	} else {
-	// 		$url_editad="$quers/?page_id=$awpcp_editad_pageid";
-	// 	}
-	// } else {
-	// 	if(isset($permastruc) && !empty($permastruc)) {
-	// 		$url_editad="$quers/$editpagename/";
-	// 	} else {
-	// 		$url_editad="$quers/?page_id=$awpcp_editad_pageid";
-	// 	}
-	// }
-
-	return $url_editad;
+	$url = get_permalink(awpcp_get_page_id_by_ref('edit-ad-page-name'));
+	return $url;
 }
 
 // START FUNCTION: get the parent_id of the post
@@ -1442,13 +1320,12 @@ function get_awpcp_parent_page_name($awpcppageparentid) {
 
 
 
-// START FUNCTION: check if a specific database table exists
+/**
+ * @deprecated since 2.0.7
+ */ 
 function checkfortable($table) {
-	global $wpdb;
-	$tableexists = $wpdb->get_var("show tables like '$table'") == $table;
-	return $tableexists;
+	return awpcp_table_exists($table);
 }
-// END FUNCTION: check if a specific database table exists
 
 
 
@@ -1720,12 +1597,10 @@ function createdefaultcategory($idtomake,$titletocallit) {
 //////////////////////
 function massdeleteadsfromcategory($catid) {
 
-	global $wpdb,$nameofsite,$siteurl,$thisadminemail;
-	$tbl_ads = $wpdb->prefix . "awpcp_ads";
-	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
+	global $wpdb,$nameofsite, $thisadminemail;
 
 	// Get the IDs of the ads to be deleted
-	$query="SELECT ad_id FROM ".$tbl_ads." WHERE ad_category_id='$catid'";
+	$query="SELECT ad_id FROM ". AWPCP_TABLE_ADS ." WHERE ad_category_id='$catid'";
 	$res = awpcp_query($query, __LINE__);
 
 	$fordeletionid=array();
@@ -1742,7 +1617,7 @@ function massdeleteadsfromcategory($catid) {
 	$adstodelete=join("','",$fordeletionid);
 	// Delete the ad images
 
-	$query="SELECT image_name FROM ".$tbl_ad_photos." WHERE ad_id IN ('$adstodelete')";
+	$query="SELECT image_name FROM ". AWPCP_TABLE_ADPHOTOS ." WHERE ad_id IN ('$adstodelete')";
 	$res = awpcp_query($query, __LINE__);
 
 	for ($i=0;$i<mysql_num_rows($res);$i++) {
@@ -1756,11 +1631,11 @@ function massdeleteadsfromcategory($catid) {
 		}
 	}
 
-	$query="DELETE FROM ".$tbl_ad_photos." WHERE ad_id IN ('$adstodelete')";
+	$query="DELETE FROM ". AWPCP_TABLE_ADPHOTOS ." WHERE ad_id IN ('$adstodelete')";
 	@mysql_query($query);
 
 	// Delete the ads
-	$query="DELETE FROM ".$tbl_ads." WHERE ad_id IN ('$adstodelete')";
+	$query="DELETE FROM ". AWPCP_TABLE_ADS ." WHERE ad_id IN ('$adstodelete')";
 	@mysql_query($query);
 }
 
@@ -2367,12 +2242,19 @@ function is_at_least_awpcp_version($version)
 
 // add_filter('awpcp_single_ad_layout', 'awpcp_insert_tweet_button', 1, 3);
 function awpcp_insert_tweet_button($layout, $adid, $title) {
-	$adurl = url_showad($adid);
-	$button = 	'<div class="tw_button awpcp_tweet_button_div">';
-	$button .= 	'<a href="http://twitter.com/share?url='.$adurl.'" rel="nofollow" ' .
-			' class="twitter-share-button" target="_blank">'.
-			'Tweet This'.'</a>';
-	$button .= 	'</div>';
+	// $ad = AWPCP_Ad::find_by_id($adid);
+
+	$properties = array(
+		'url' => urlencode(url_showad($adid)),
+		'text' => urlencode($title)
+	);
+
+	$url = add_query_arg($properties, 'http://twitter.com/share');
+
+	$button = '<div class="tw_button awpcp_tweet_button_div">';
+	$button.= '<a href="' . $url . '" rel="nofollow" class="twitter-share-button" target="_blank">';
+	$button.= 'Tweet This'.'</a>';
+	$button.= '</div>';
 
 	$layout = str_replace('$tweetbtn', $button, $layout);
 
@@ -2409,13 +2291,7 @@ function awpcp_get_ad_share_info($id) {
 	if (!empty($images)) {
 
 		$uploads_dir = get_awpcp_option('uploadfoldername', 'uploads');
-
-		if ( is_multisite() ) {
-			$blog = get_blog_details(1);
-			$blogurl = $blog->siteurl;
-		} else {
-			$blogurl = get_site_url();
-		}
+		$blogurl = network_site_url();
 
 		foreach ($images as $image) {
 			$info['images'][] = $blogurl . '/wp-content/' . $uploads_dir . '/awpcp/' . $image['image_name'];
@@ -2447,9 +2323,7 @@ function awpcp_insert_share_button($layout, $adid, $title) {
 	// $href.= 't=' . urlencode($title);
 
 	$button = '<div class="tw_button awpcp_tweet_button_div">';
-	$button.= '<a href="' . $href . '" target="_blank">';
-	$button.= '<img class="awpcp_facebook_btn_img" src="'.$awpcp_plugin_url.'images/fbshare.png" alt="Share on Facebook" />';
-	$button.= '</a>';
+	$button.= '<a href="' . $href . '" class="facebook-share-button" title="Share on Facebook" target="_blank"></a>';
 	$button.= '</div>';
 
 	$layout = str_replace('$sharebtn', $button, $layout);

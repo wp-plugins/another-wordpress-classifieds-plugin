@@ -52,7 +52,7 @@ class AWPCP_Ad {
 		return AWPCP_Ad::find_by("ad_id = " . intval($id));
 	}
 
-	static function find_by($where) {
+	public static function find_by($where) {
 		$results = AWPCP_Ad::find($where);
 		if (!empty($results)) {
 			return $results[0];
@@ -61,9 +61,9 @@ class AWPCP_Ad {
 	}
 
 	/**
-	 * 
+	 * @since unknown
 	 */
-	static function find($where='1 = 1', $order='id', $offset=0, $results=10) {
+	public static function find($where='1 = 1', $order='id', $offset=0, $results=10) {
 		global $wpdb;
 
 		switch ($order) {
@@ -110,7 +110,7 @@ class AWPCP_Ad {
 		return $results;
 	}
 
-	static function count($where='1=1') {
+	public static function count($where='1=1') {
 		global $wpdb;
 
 		$query = "SELECT COUNT(*) FROM " . AWPCP_TABLE_ADS . " WHERE $where";
@@ -137,6 +137,34 @@ class AWPCP_Ad {
 		$ad = AWPCP_Ad::count($where);
 		
 		return $ad > 0;
+	}
+
+	function sanitize($data) {
+		$sanitized = $data;
+
+		// make sure dates are dates or NULL, Stric mode does not allow empty strings
+		$columns = array('ad_postdate', 'ad_last_updated', 'ad_startdate', 'ad_enddate', 'disabled_date');
+		$regexp = '/^\d{4}-\d{1,2}-\d{1,2}(\s\d{1,2}:\d{1,2}(:\d{1,2})?)?$/';
+		foreach ($columns as $column) {
+			$value = trim($sanitized[$column]);
+			if (preg_match($regexp, $value) !== 1) {
+				// Remove this column. Not a valid date or datetime and 
+				// WordPress does not handle NULL values very well: 
+				// http://core.trac.wordpress.org/ticket/15158
+				unset($sanitized[$column]);
+			} else {
+				$sanitized[$column] = $value;
+			}
+		}
+
+		// make sure values for int/tinyint columns are int
+		$columns = array('ad_id', 'adterm_id', 'ad_category_id', 'ad_category_parent_id',
+						 'ad_views', 'disabled', 'is_featured_ad', 'flagged', 'renew_email_sent');
+		foreach ($columns as $column) {
+			$sanitized[$column] = intval(trim($sanitized[$column]));
+		}
+
+		return $sanitized;
 	}
 
 	function save() {
@@ -178,6 +206,8 @@ class AWPCP_Ad {
 					'websiteurl' => $this->websiteurl,
 					'posterip' => $this->posterip);
 
+		$data = $this->sanitize($data);
+
 		if (empty($this->ad_id)) {
 			$result = $wpdb->insert(AWPCP_TABLE_ADS, $data);
 			$this->ad_id = $wpdb->insert_id;
@@ -198,16 +228,36 @@ class AWPCP_Ad {
 		return awpcp_get_fee_plan_name($this->ad_id, $this->adterm_id);
 	}
 
+	/**
+	 * @since 2.0.7
+	 */
+	function set_start_date($start_date) {
+		$this->ad_startdate = awpcp_time($start_date, 'mysql');
+	}
+
 	function get_start_date() {
 		if (!empty($this->ad_startdate))
 			return date('M d Y', strtotime($this->ad_startdate));
 		return '';
 	}
 
+	/**
+	 * @since 2.0.7
+	 */
+	function set_end_date($end_date) {
+		$this->ad_enddate = awpcp_time($end_date, 'mysql');
+	}
+
 	function get_end_date() {
 		if (!empty($this->ad_enddate))
 			return date('M d Y', strtotime($this->ad_enddate));
 		return '';
+	}
+
+	function get_disabled_date() {
+		if (!empty($this->disabled_date))
+			return $this->disabled_date;
+		return null;
 	}
 
 	function has_expired($date=null) {
@@ -230,6 +280,40 @@ class AWPCP_Ad {
 
 	function get_total_images_uploaded() {
 		return get_total_imagesuploaded($this->ad_id);
+	}
+
+	/**
+	 * Calculates Ad's end date basd on Ad's payment term.
+	 *
+	 * @since 2.0.7
+	 */
+	function calculate_end_date($start_date=null) {
+		if ($this->adterm_id > 0) {
+			$payment_term = awpcp_payment_terms('ad-term-fee', $this->adterm_id);
+		} else {
+			$payment_term = null;
+		}
+
+		if (is_null($payment_term)) {
+			$duration = get_awpcp_option('addurationfreemode');
+			$interval = 'DAY';
+		} else {
+			$payment_term_info = explode(' ', $payment_term->duration);
+			$duration = strtoupper(trim($payment_term_info[0]));
+			$interval = strtoupper(trim($payment_term_info[1]));
+		}
+
+		if (is_null($start_date) || empty($start_date)) {
+			$start_date = strtotime($this->ad_startdate);
+		} else if (is_string($start_date)) {
+			$start_date = strtotime($start_date);
+		} else {
+			// we asume a timestamp
+		}
+
+		$end_date = awpcp_calculate_end_date($duration, $interval, $start_date);
+
+		return apply_filters('awpcp-ad-calculate-end-date', $end_date, $start_date, &$this);
 	}
 }
 

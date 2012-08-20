@@ -20,7 +20,8 @@ class AWPCP_User_Panel {
 		}
 
 		$slug = 'awpcp-panel';
-		add_menu_page('AWPCP Ad Management Panel', 'Ad Management', 'read', 
+		$blog_title = get_bloginfo();
+		add_menu_page($blog_title . ' Ad Management Panel', 'Ad Management', 'read', 
 					  $slug, array($this->listings, 'dispatch'), MENUICO);
 
 		// Listings
@@ -36,7 +37,8 @@ class AWPCP_User_Panel_Listings {
 
 	public function AWPCP_User_Panel_Listings() {
 		$this->container_id = 'awpcp-ad-management-panel';
-		$this->page_title = __("AWPCP User Ad Management Panel - Listings","AWPCP");
+		$blog_title = get_bloginfo();
+		$this->page_title = $blog_title . __(" User Ad Management Panel - Listings","AWPCP");
 
 		add_action('init', array($this, 'init'));
 		add_action('wp_ajax_awpcp-panel-delete-ad', array($this, 'ajax'));
@@ -96,7 +98,7 @@ class AWPCP_User_Panel_Listings {
 		} else if ($action == 'edit-ad') {
 			$content = $this->edit_ad($id);
 
-		} else if (in_array($action, array('manage-images', 'add-image', 'deletepic'))) {
+		} else if (in_array($action, array('manage-images', 'add-image', 'deletepic', 'set-primary-image'))) {
 			$content = $this->manage_images($action);
 
 		} else if (in_array($action, array('list', 'lookupadby'))) {
@@ -322,9 +324,15 @@ class AWPCP_User_Panel_Listings {
 			$editemaul = awpcp_request_param('editemail');
 
 			$this->message = deletepic($picid, $adid, $adtermid, $adkey, $editemail, $force=true);
+
+		} elseif ($action == 'set-primary-image') {
+			$picid = awpcp_request_param('picid');
+			$adid = awpcp_request_param('adid');
+			awpcp_set_ad_primary_image($adid, $picid);
 		}
-		
-		$this->page_title = __("AWPCP User Ad Management Panel - Manage Images","AWPCP");
+
+		$blog_title = get_bloginfo();
+		$this->page_title = $blog_title . __(" User Ad Management Panel - Manage Images","AWPCP");
 
 		$_GET['page'] = 'Manage1'; // viewimages() test for this query arg
 		$content = viewimages('ad_id=' . $_REQUEST['id'], $approve=false,
@@ -355,6 +363,9 @@ class AWPCP_User_Panel_Profile_Data {
 	}
 
 	public function save($user_id) {
+		global $current_user;
+		get_currentuserinfo();
+		
 		if (!current_user_can('edit_user', $user_id)) {
 			return;
 		}

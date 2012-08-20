@@ -30,4 +30,4 @@
 <?php _e('Thank you for your business', 'AWPCP') ?>
 
 
-<?php echo $siteurl ?>
+<?php echo home_url() ?>

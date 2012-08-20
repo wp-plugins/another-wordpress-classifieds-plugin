@@ -4,10 +4,12 @@
 		function checkform() {
 			var the=document.myform;
 			if (the.keywordphrase.value==='') {
-				if ( (the.searchname.value==='') && (the.searchcity.value==='') &&
-					 (the.searchstate.value==='') && (the.searchcountry.value==='') &&
-					 (the.searchcountyvillage.value==='') && (the.searchcategory.value==='') &&
-					 (the.searchpricemin.value==='') && (the.searchpricemax.value==='') )
+				if ((the.searchname.value==='') && (the.searchcategory.value==='') &&
+					(the.searchpricemin.value==='') && (the.searchpricemax.value==='') &&
+					(!the.searchcity || the.searchcity.value==='') &&
+					(!the.searchstate || the.searchstate.value==='') && 
+					(!the.searchcountry || the.searchcountry.value==='') &&
+					(!the.searchcountyvillage || the.searchcountyvillage.value===''))
 				{
 					alert('<?php _e("You did not enter a keyword or phrase to search for. You must at the very least provide a keyword or phrase to search for","AWPCP") ?>');
 					the.keywordphrase.focus();

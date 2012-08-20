@@ -102,6 +102,80 @@ function awpcp_2checkout_checkout_form($form, $transaction) {
 }
 
 
+/**
+ * Verify data received from PayPal IPN notifications and returns PayPal's
+ * response.
+ *
+ * Request errors, if any, are returned by reference.
+ * 
+ * @since 2.0.7
+ */
+function awpcp_paypal_verify_received_data($data=array(), &$errors=array()) {
+	$content = 'cmd=_notify-validate';
+	foreach ($data as $key => $value) {
+		$value = urlencode(stripslashes($value));
+		$content .= "&$key=$value";
+	}
+
+	$response = 'ERROR';
+
+    if (in_array('curl', get_loaded_extensions())) {
+		if (get_awpcp_option('paylivetestmode') == 1) {
+			$paypal_url = "https://www.sandbox.paypal.com/cgi-bin/webscr";
+		} else {
+			$paypal_url = "https://www.paypal.com/cgi-bin/webscr";
+		}
+
+		$ch = curl_init($paypal_url);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_VERBOSE, true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+		curl_setopt($ch, CURLOPT_CAINFO, AWPCP_DIR . 'cacert.pem');
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $content);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response = curl_exec($ch);
+
+		if (curl_errno($ch)) {
+			$errors[] = sprintf('%d: %s', curl_errno($ch), curl_error($ch));
+		}
+
+		curl_close($ch);
+
+	} else {
+	    if (get_awpcp_option('paylivetestmode') == 1) {
+	        $paypallink = "ssl://www.sandbox.paypal.com";
+	    } else {
+	        $paypallink = "ssl://www.paypal.com";
+	    }
+
+	    // post back to PayPal system to validate
+	    $header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
+	    $header.= "Content-Type: application/x-www-form-urlencoded\r\n";
+	    $header.= "Content-Length: " . strlen($content) . "\r\n\r\n";
+	    $fp = fsockopen($paypallink, 443, $errno, $errstr, 30);
+
+		if ($fp) {
+		    fputs ($fp, $header . $content);
+
+		    while(!feof($fp)) {
+		        $line = fgets($fp, 1024);
+		        if (strcasecmp($line, "VERIFIED") == 0 || strcasecmp($line, "INVALID") == 0) {
+		        	$response = $line;
+		        	break;
+				}
+		    }
+
+		    fclose($fp);
+		} else {
+			$errors[] = sprintf('%d: %s', $errno, $errstr);
+		}
+	}
+
+	return $response;
+}
+
+
 function awpcp_paypal_verify_transaction($verified, $transaction) {
 	if ($verified || $transaction->get('payment-method') != 'paypal') {
 		return $verified;
@@ -112,66 +186,7 @@ function awpcp_paypal_verify_transaction($verified, $transaction) {
 	// already verified during the POST transaction the result 
 	// should be stored in the transaction's verified attribute
 	if (!empty($_POST)) {
-		
-		$data = 'cmd=_notify-validate';
-		foreach ($_POST as $key => $value) {
-			$value = urlencode(stripslashes($value));
-			$data .= "&$key=$value";
-		}
-
-		if (in_array('curl', get_loaded_extensions())) {
-			if (get_awpcp_option('paylivetestmode') == 1) {
-				$paypal_url = "https://www.sandbox.paypal.com/cgi-bin/webscr";
-			} else {
-				$paypal_url = "https://www.paypal.com/cgi-bin/webscr";
-			}
-
-			$ch = curl_init($paypal_url);
-			curl_setopt($ch, CURLOPT_POST, true);
-			curl_setopt($ch, CURLOPT_VERBOSE, true);
-			// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-			// curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-			// curl_setopt($ch, CURLOPT_CAINFO, AWPCP_DIR . '/cacert.pem');
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			$response = curl_exec($ch);
-			curl_close($ch);
-
-		} else {
-		    if (get_awpcp_option('paylivetestmode') == 1) {
-		        $paypallink = "ssl://www.sandbox.paypal.com";
-		    } else {
-		        $paypallink = "ssl://www.paypal.com";
-		    }
-
-		    // post back to PayPal system to validate
-		    $header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
-		    $header.= "Content-Type: application/x-www-form-urlencoded\r\n";
-		    $header.= "Content-Length: " . strlen($data) . "\r\n\r\n";
-		    $fp = fsockopen($paypallink, 443, $errno, $errstr, 30);
-		    $response = '';
-
-		    if ($fp) {
-		        fputs ($fp, $header . $data);
-
-		        $reply = '';
-		        $headerdone = false;
-		        while(!feof($fp)) {
-		            $line = fgets($fp);
-		            if (strcmp($line,"\r\n") == 0) {
-		                // read the header
-		                $headerdone=true;
-		            } elseif ($headerdone) {
-		                // header has been read. now read the contents
-		                $response.=$line;
-		            }
-		        }
-
-		        fclose($fp);
-		        $response = trim($response);
-		    }
-		}
-
+		$response = awpcp_paypal_verify_received_data($_POST);
 		$verified = strcasecmp($response, 'VERIFIED') === 0;
 	} else {
 		$verified = $transaction->get('verified', false);
@@ -187,12 +202,15 @@ function awpcp_paypal_verify_transaction($verified, $transaction) {
 		} else {
 			$msg = '<p>' . __("PayPal returned the following status from your payment: %s. %d payment variables were posted.",'AWPCP') . '</p>';
 			$msg = sprintf($msg, $response, count($_POST));
-			$msg.= '<p>'.__("If this status is not COMPLETED or VERIFIED, then you may need to wait a bit before your payment is approved, or contact PayPal directly as to the reason the payment is having a problem.",'AWPCP').'</p>';
+			$msg.= '<p>' . __("If this status is not COMPLETED or VERIFIED, then you may need to wait a bit before your payment is approved, or contact PayPal directly as to the reason the payment is having a problem.",'AWPCP').'</p>';
 		}
 
-		$msg.= '<p>'.__("If you have any further questions, please contact this site administrator.",'AWPCP').'</p>';
+		$msg.= '<p>' . __("If you have any further questions, please contact this site administrator.",'AWPCP').'</p>';
 
 		$transaction->errors[] = $msg;
+	} else {
+		// clean up previous errors
+		$transaction->errors = array();
 	}
 
 	$transaction->set('txn-id', awpcp_post_param('txn_id'));
@@ -1144,7 +1162,7 @@ function do_2checkout($custom,$x_amount,$x_item_number,$x_trans_id,$x_Login)
  * email the administrator and the user to notify that the payment process was aborted
  */
 function awpcp_abort_payment($message='', $transaction=null) {
-	global $nameofsite, $siteurl, $thisadminemail;
+	global $nameofsite, $thisadminemail;
 
 	$adminemailoverride = get_awpcp_option('awpcpadminemail');
 	if (isset($adminemailoverride) && !empty($adminemailoverride) && !(strcasecmp($thisadminemail, $adminemailoverride) == 0)) {
@@ -1203,7 +1221,7 @@ function awpcp_abort_payment($message='', $transaction=null) {
 function abort_payment($message, $ad_id, $transactionid, $gateway) {
 	//email the administrator and the user to notify that the payment process was aborted
 
-	global $nameofsite, $siteurl, $thisadminemail;
+	global $nameofsite, $thisadminemail;
 
 	$adminemailoverride = get_awpcp_option('awpcpadminemail');
 	if (isset($adminemailoverride) && !empty($adminemailoverride) && !(strcasecmp($thisadminemail, $adminemailoverride) == 0)) {
@@ -1219,8 +1237,8 @@ function abort_payment($message, $ad_id, $transactionid, $gateway) {
 		$message='';
 	}
 
-	$modtitle = cleanstring($listingtitle);
-	$modtitle = add_dashes($modtitle);
+	// $modtitle = cleanstring($listingtitle);
+	// $modtitle = add_dashes($modtitle);
 
 	$url_showad = url_showad($ad_id);
 	$adlink = "$url_showad";
@@ -1254,7 +1272,7 @@ function abort_payment($message, $ad_id, $transactionid, $gateway) {
 	$awpcpabortemailbody.= "$nameofsite";
 	$awpcpabortemailbody.= "
 ";
-	$awpcpabortemailbody.= "$siteurl";
+	$awpcpabortemailbody.= home_url();
 
 	$mailbodyadmindearadmin = __("Dear Administrator","AWPCP");
 	$mailbodyadminproblemencountered.= __("There was a problem encountered during a customer's attempt to submit payment for a classified ad listing","AWPCP");

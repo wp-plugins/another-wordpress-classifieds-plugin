@@ -15,4 +15,4 @@
 <?php endif ?>
 <?php echo $nameofsite?>
 
-<?php echo $siteurl ?>
+<?php echo home_url() ?>
