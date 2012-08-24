@@ -104,8 +104,7 @@ function awpcp_opsconfig_fees() {
 		 	$awpcpfeeform.="<p>";
 		 	$awpcpfeeform.=__("Characters Allowed", "AWPCP");
 		 	$awpcpfeeform.="<br/>";
-		 	//$characters_allowed = 750;
-		 	$awpcpfeeform.="<input style='display:none' class=\"regular-text1\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"characters_allowed\" value=\"$characters_allowed\" /></p>";
+		 	$awpcpfeeform.="<input class=\"regular-text1\" size=\"5\" type=\"text\" class=\"inputbox\" name=\"characters_allowed\" value=\"$characters_allowed\" /></p>";
 
 		 	if ($create) {
 				if ( function_exists('awpcp_featured_ads') ) {

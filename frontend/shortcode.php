@@ -132,47 +132,21 @@ function awpcpui_process($awpcppagename) {
 	if (isset($_REQUEST['a']) && !empty($_REQUEST['a'])) {
 		$action=$_REQUEST['a'];
 	}
-
+	
+	// TODO: this kind of requests should be handled in Region Control's own code
 	if (($action == 'setregion') || '' != get_query_var('regionid')) {
-		if ($hasregionsmodule ==  1)
-		{
-			if (isset($_REQUEST['regionid']) && !empty($_REQUEST['regionid']))
-			{
-				$theregionidtoset=$_REQUEST['regionid'];
-
-			}
-			else
-			{
-				$theregionidtoset= get_query_var('regionid') /*$awpcpsplitsetregionidPath[$pathsetregionid]*/ ;
+		if ($hasregionsmodule ==  1) {
+			if (isset($_REQUEST['regionid']) && !empty($_REQUEST['regionid'])) {
+				$region_id = $_REQUEST['regionid']; 
+			} else {
+				$region_id = get_query_var('regionid');
 			}
 
-
-			if ( isset($_SESSION['theactiveregionid']) )
-			{
-				unset($_SESSION['theactiveregionid']);
-			}
-
-			$_SESSION['theactiveregionid']=$theregionidtoset;
-
-			if (region_is_a_country($theregionidtoset))
-			{
-				$_SESSION['regioncountryID']=$theregionidtoset;
-			}
-
-			if (region_is_a_state($theregionidtoset))
-			{
-				$thestateparentid=get_theawpcpregionparentid($theregionidtoset);
-				$_SESSION['regioncountryID']=$thestateparentid;
-				$_SESSION['regionstatownID']=$theregionidtoset;
-			}
-
-			if (region_is_a_city($theregionidtoset))
-			{
-				$thecityparentid=get_theawpcpregionparentid($theregionidtoset);
-				$thestateparentid=get_theawpcpregionparentid($thecityparentid);
-				$_SESSION['regioncountryID']=$thestateparentid;
-				$_SESSION['regionstatownID']=$thecityparentid;
-				$_SESSION['regioncityID']=$theregionidtoset;
+			// double check module existence :\
+			if (class_exists('AWPCP_Region_Control_Module')) {
+				$region = awpcp_region_control_get_entry(array('id' => $region_id));
+				$regions = AWPCP_Region_Control_Module::instance();
+				$regions->set_location($region);
 			}
 		}
 
@@ -367,11 +341,6 @@ function awpcp_display_the_classifieds_page_body($awpcppagename) {
 		if (isset($_SESSION['theactiveregionid'])) {
 			$theactiveregionid = $_SESSION['theactiveregionid'];
 			$theactiveregionname = get_theawpcpregionname($theactiveregionid);
-			// $output .= "<h2>";
-			// $output .= __("You are currently browsing in ","AWPCP");
-			// $output .= "<b>$theactiveregionname</b></h2><SUP><a href=\"$quers/?a=unsetregion\">";
-			// $output .= __("Clear session for ","AWPCP");
-			// $output .= "$theactiveregionname</a></SUP>";
 		}
 
 		$output .= awpcp_region_control_selector();

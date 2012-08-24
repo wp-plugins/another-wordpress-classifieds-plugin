@@ -3,7 +3,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. <strong>!!!IMPORTANT!!!</strong> Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 2.1.0
+ Version: 2.1.1
  Author: D. Rodenbaugh
  License: GPLv2 or any later version
  Author URI: http://www.skylineconsult.com
@@ -90,10 +90,10 @@ global $nameofsite;
 global $thisadminemail;
 
 
-require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 // get_plugin_data accounts for about 2% of the cost of 
 // each request, defining the version manually is a less
 // expensive way.
+require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 $awpcp_plugin_data = get_plugin_data(__FILE__);
 $awpcp_db_version = $awpcp_plugin_data['Version'];
 
@@ -109,14 +109,21 @@ $thisadminemail = get_option('admin_email');
 
 
 
-// Common
+// common
 require_once(AWPCP_DIR . "debug.php");
 require_once(AWPCP_DIR . "functions.php");
 
 // conditionally start session if not already active.
 // done here because awpcp_get_current_domain is defined in functions.php
 if (!isset($_SESSION)) {
-	@session_set_cookie_params(0, '/', awpcp_get_current_domain(false, '.'), false, true);
+	// if we are in a subdomain, let PHP choose the right domain
+	if (strcmp(awpcp_get_current_domain(), awpcp_get_current_domain(false)) == 0) {
+		$domain = '';
+	// otherwise strip the www part
+	} else {
+		$domain = awpcp_get_current_domain(false, '.');
+	}
+	@session_set_cookie_params(0, '/', $domain, false, true);
 	@session_start();
 }
 

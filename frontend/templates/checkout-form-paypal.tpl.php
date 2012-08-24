@@ -32,6 +32,5 @@
 	<input type="hidden" name="sra" value="1" />
 
 	<?php $alt = __("Make payments with PayPal - it's fast, free and secure!","AWPCP") ?>
-	<input type="image" src="<?php echo $awpcp_imagesurl ?>/paypalbuynow.gif" 
-		   border="0" name="submit" alt="<?php echo $alt ?>" />
+	<input type="image" src="<?php echo $awpcp_imagesurl ?>/paypalbuynow.gif" border="0" name="submit" alt="<?php echo $alt ?>" />
 </form>

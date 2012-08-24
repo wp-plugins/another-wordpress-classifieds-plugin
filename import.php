@@ -20,6 +20,7 @@ class AWPCP_CSV_Importer {
 		"contact_phone" => "ad_contact_phone",
 		"website_url" => "websiteurl",
 		"city" => "ad_city",
+		"state" => 'ad_state',
 		"country" => "ad_country",
 		"county_village" => "ad_county_village",
 		"item_price" => "ad_item_price",
@@ -37,6 +38,7 @@ class AWPCP_CSV_Importer {
 		"contact_phone" => "varchar",
 		"website_url" => "varchar",
 		"city" => "varchar",
+		'state' => 'varchar',
 		"country" => "varchar",
 		"county_village" => "varchar",
 		"item_price" => "",
@@ -465,54 +467,68 @@ class AWPCP_CSV_Importer {
 	}
 
 	private function get_csv_data($fileName, $maxLimit=1000) {
-		$csvData = file_get_contents($fileName);
-		$order   = array("\r\n", "\n", "\r");
-		$csvData = str_replace($order, "\n", $csvData);
-		$rows = split ("[\n]", $csvData);
-		$i=0;
+		$ini = ini_get('auto_detect_line_endings');
+		ini_set('auto_detect_line_endings', true);
 
-		for($i=0; $i<count($rows) && $i<$maxLimit; $i++) {
-			$row = $rows[$i] . "\n";
-			$len = strlen($row);
-			$cell = '';
-			$col=0;
-			$escaped = false;
+		$data = array();
+		$csv = fopen($fileName, 'r');
 
-			for ($j=0; $j<$len; $j++) {
-				if ($row[$j] == '"') {
-					if ($j+1<$len && $row[$j+1] == '"') {
-						$cell .= $row[$j];
-						$j++;
-						continue;
-					}
-					$escaped = !$escaped;
-					continue;
-				}
-
-				if(!$escaped) {
-					// if($row[$j] == ',' || $row[$j] == ';' || $row[$j] == '\r' || $row[$j] == '\n' || $j==$len-1) {
-					if($row[$j] == ',' || $row[$j] == '\r' || $row[$j] == '\n' || $j==$len-1) {
-						if($j==$len-1) {
-							$cell .= $row[$j];
-						}
-						$data[$i][$col] = trim($cell, "\r\n");
-						$cell = '';
-						$col++;
-						$escaped = false;
-						continue;
-					}
-				}
-
-				$cell .= $row[$j];
-			}
-
-			// $cols = split ("[,|;]", $rows[$i]);
-			// for($j=0; $j<count($cols); $j++) {
-			//   $data[$i][$j] = $cols[$j];
-			// }
+		while ($row = fgetcsv($csv)) {
+			$data[] = $row;
 		}
 
+		ini_set('auto_detect_line_endings', $ini);
+
 		return $data;
+
+		// $csvData = file_get_contents($fileName);
+		// $order   = array("\r\n", "\n", "\r");
+		// $csvData = str_replace($order, "\n", $csvData);
+		// $rows = split ("[\n]", $csvData);
+		// $i=0;
+
+		// for($i=0; $i<count($rows) && $i<$maxLimit; $i++) {
+		// 	$row = $rows[$i] . "\n";
+		// 	$len = strlen($row);
+		// 	$cell = '';
+		// 	$col=0;
+		// 	$escaped = false;
+
+		// 	for ($j=0; $j<$len; $j++) {
+		// 		if ($row[$j] == '"') {
+		// 			if ($j+1<$len && $row[$j+1] == '"') {
+		// 				$cell .= $row[$j];
+		// 				$j++;
+		// 				continue;
+		// 			}
+		// 			$escaped = !$escaped;
+		// 			continue;
+		// 		}
+
+		// 		if(!$escaped) {
+		// 			// if($row[$j] == ',' || $row[$j] == ';' || $row[$j] == '\r' || $row[$j] == '\n' || $j==$len-1) {
+		// 			if($row[$j] == ',' || $row[$j] == '\r' || $row[$j] == '\n' || $j==$len-1) {
+		// 				if($j==$len-1) {
+		// 					$cell .= $row[$j];
+		// 				}
+		// 				$data[$i][$col] = trim($cell, "\r\n");
+		// 				$cell = '';
+		// 				$col++;
+		// 				$escaped = false;
+		// 				continue;
+		// 			}
+		// 		}
+
+		// 		$cell .= $row[$j];
+		// 	}
+
+		// 	// $cols = split ("[,|;]", $rows[$i]);
+		// 	// for($j=0; $j<count($cols); $j++) {
+		// 	//   $data[$i][$j] = $cols[$j];
+		// 	// }
+		// }
+
+		// return $data;
 	}
 
 	private function get_category_id($name) {
@@ -621,66 +637,49 @@ class AWPCP_CSV_Importer {
 		return false;
 	}
 
-	private function parse_date($val, $import_date_format, $date_separator, $time_separator, $format = "Y-m-d H:i:s") {
-		$datetime = new DateTime();
-		try {
-			if ($import_date_format == "us_date") {
-				$date = explode($date_separator, $val);
-				// var_dump($date);
-				if (!is_valid_date($date[0], $date[1], $date[2])) return null;
-				$datetime->setDate($date[2], $date[0], $date[1]);
-		    	// $datetime->setTime($time[0], $time[1], $time[2]);
-			} else if ($import_date_format == "uk_date") {
-				$date = explode($date_separator, $val);
-				// var_dump($date);
-				if (!is_valid_date($date[1], $date[0], $date[2])) return null;
-				$datetime->setDate($date[2], $date[1], $date[0]);
-		    	// $datetime->setTime($time[0], $time[1], $time[2]);
-			} else if ($import_date_format == "us_date_time") {
-				$date_time = explode(" ", $val);
-				$date = $date_time[0];
-				// var_dump($date);
-				$time = $date_time[1];
-				// var_dump($time);
-				$date = explode($date_separator, $date);
-				$time = explode($time_separator, $time);
-				if (!is_valid_date($date[0], $date[1], $date[2])) return null;
-				$datetime->setDate($date[2], $date[0], $date[1]);
-		    	$datetime->setTime($time[0], $time[1], $time[2]);
-			} else if ($import_date_format == "uk_date_time") {
-				$date_time = explode(" ", $val);
-				$date = $date_time[0];
-				// var_dump($date);
-				$time = $date_time[1];
-				// var_dump($time);
-				$date = explode($date_separator, $date);
-				$time = explode($time_separator, $time);
-				if (!is_valid_date($date[1], $date[0], $date[2])) return null;
-				$datetime->setDate($date[2], $date[1], $date[0]);
-		    	$datetime->setTime($time[0], $time[1], $time[2]);
-			} else {
-				$date = explode('/', $val);
-				$datetime->setDate($date[2], $date[0], $date[1]);
+	public function parse_date($val, $date_time_format, $date_separator, $time_separator, $format = "Y-m-d H:i:s") {
+		$date_formats = array(
+			'us_date' => array(
+				array('%m', '%d', '%y'), // support both two and four digits years
+				array('%m', '%d', '%Y'), 
+			),
+			'uk_date' => array(
+				array('%d', '%m', '%y'),
+				array('%d', '%m', '%Y'),
+			)
+		);
+
+		$date_formats['us_date_time'] = $date_formats['us_date'];
+		$date_formats['uk_date_time'] = $date_formats['uk_date'];
+
+		if (in_array($date_time_format, array('us_date_time', 'uk_date_time')))
+			$suffix = join($time_separator, array('%H', '%M', '%S'));
+		else
+			$suffix = '';
+
+		$date = null;
+		foreach ($date_formats[$date_time_format] as $_format) {
+			$_format = trim(sprintf("%s %s", join($date_separator, $_format), $suffix));
+			$parsed = strptime($val, $_format);
+			if ($parsed && empty($parsed['unparsed'])) {
+				$date = $parsed;
+				break;
 			}
+		}
+
+		if (is_null($date))
+			return null;
+
+		$datetime = new DateTime();
+
+		try {
+			$datetime->setDate($parsed['tm_year'] + 1900, $parsed['tm_mon'] + 1, $parsed['tm_mday']);
+			$datetime->setTime($parsed['tm_hour'], $parsed['tm_min'], $parsed['tm_sec']);
 		} catch (Exception $ex) {
 			echo "Exception: " . $ex->getMessage();
 		}
-		 
-		// $date = "2011/03/20";
-		// $date = explode("/", $date);
 
-		// $time = "07:16:17";
-		// $time = explode(":", $time);
-
-		// $tz_string = "America/Los_Angeles"; // Use one from list of TZ names http://php.net/manual/en/timezones.php
-		// $tz_object = new DateTimeZone($tz_string);
-
-
-		// $datetime->setTimezone($tz_object);
-		// $datetime->setDate($date[0], $date[1], $date[2]);
-		// $datetime->setTime($time[0], $time[1], $time[2]);
-	   
-	    return $datetime->format($format); // Prints "2011/03/20 07:16:17" 
+	    return $datetime->format($format);
 	}
 }
 

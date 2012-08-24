@@ -26,8 +26,7 @@
 		</p>
 
 		<p align="center">
-			<input name="login-submit" id="wp-submit" value="<?php _e("Log In","AWPCP"); ?>"
-				   class="submitbutton" tabindex="100" type="submit" />
+			<input name="login-submit" id="wp-submit" value="<?php _e("Log In","AWPCP"); ?>" class="submitbutton" tabindex="100" type="submit" />
 			<input name="redirect_to" value="<?php echo $redirect_to ?>" type="hidden" />
 			<input name="testcookie" value="1" type="hidden" />
 		</p>

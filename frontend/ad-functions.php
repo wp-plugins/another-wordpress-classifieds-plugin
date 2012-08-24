@@ -106,6 +106,7 @@ function awpcp_payment_terms_fees() {
 		$term->name = 'Free';
 		$term->price = 0;
 		$term->categories = array_filter(array(), 'intval');
+		$term->characters_allowed = get_awpcp_option('maxcharactersallowed');
 		$term->ads_allowed = 1;
 		$term->images_allowed = get_awpcp_option('imagesallowedfree');
 		$term->duration = $term->period . ' D';
@@ -1141,87 +1142,51 @@ function awpcpui_process_placead($post_url='') {
 			
 		$output .= deletead($adid,$adkey,$editemail);
 
-	} elseif (($action == 'setregion') || '' != get_query_var('regionid')) { /*($pathsetregionbeforevalue == 'setregion')*/
-		if ($hasregionsmodule ==  1)
-		{
-			if (isset($_REQUEST['regionid']) && !empty($_REQUEST['regionid']))
-			{
-				$theregionidtoset=$_REQUEST['regionid'];
-
-			}
-			else
-			{
-				$theregionidtoset= get_query_var('regionid'); // $awpcpsplitsetregionidPath[$pathsetregionid];
+	// TODO: this kind of requests should be handled in Region Control's own code
+	} elseif (($action == 'setregion') || '' != get_query_var('regionid')) {
+		if ($hasregionsmodule ==  1) {
+			if (isset($_REQUEST['regionid']) && !empty($_REQUEST['regionid'])) {
+				$region_id = $_REQUEST['regionid']; 
+			} else {
+				$region_id = get_query_var('regionid');
 			}
 
-
-			if ( isset($_SESSION['theactiveregionid']) )
-			{
-				unset($_SESSION['theactiveregionid']);
-			}
-
-			$_SESSION['theactiveregionid']=$theregionidtoset;
-
-			if (region_is_a_country($theregionidtoset))
-			{
-				$_SESSION['regioncountryID']=$theregionidtoset;
-			}
-
-			if (region_is_a_state($theregionidtoset))
-			{
-				$thestateparentid=get_theawpcpregionparentid($theregionidtoset);
-				$_SESSION['regioncountryID']=$thestateparentid;
-				$_SESSION['regionstatownID']=$theregionidtoset;
-			}
-
-			if (region_is_a_city($theregionidtoset))
-			{
-				$thecityparentid=get_theawpcpregionparentid($theregionidtoset);
-				$thestateparentid=get_theawpcpregionparentid($thecityparentid);
-				$_SESSION['regioncountryID']=$thestateparentid;
-				$_SESSION['regionstatownID']=$thecityparentid;
-				$_SESSION['regioncityID']=$theregionidtoset;
+			// double check module existence :\
+			if (class_exists('AWPCP_Region_Control_Module')) {
+				$region = awpcp_region_control_get_entry(array('id' => $region_id));
+				$regions = AWPCP_Region_Control_Module::instance();
+				$regions->set_location($region);
 			}
 		}
+
 	} elseif ($action == 'unsetregion') {
-		if ( isset($_SESSION['theactiveregionid']) )
-		{
+		if (isset($_SESSION['theactiveregionid'])) {
 			unset($_SESSION['theactiveregionid']);
 		}
 		$output .= awpcp_display_the_classifieds_page_body($awpcppagename);
 
-	} elseif ( $action == 'setsessionregionid' ) {
-		global $hasregionsmodule;
+	// XXX: this IF branch is no longer needed, action=setsesionregionid is no longer used
+	// } elseif ( $action == 'setsessionregionid' ) {
+	// 	global $hasregionsmodule;
 
-		if ($hasregionsmodule ==  1)
-		{
-			if (isset($_REQUEST['sessionregion']) && !empty($_REQUEST['sessionregion']) )
-			{
-				$sessionregionid=$_REQUEST['sessionregion'];
-			}
-			if (isset($_REQUEST['sessionregionIDval']) && !empty($_REQUEST['sessionregionIDval']) )
-			{
-				$sessionregionIDval=$_REQUEST['sessionregionIDval'];
-			}
+	// 	if ($hasregionsmodule ==  1) {
+	// 		if (isset($_REQUEST['sessionregion']) && !empty($_REQUEST['sessionregion']) ) {
+	// 			$sessionregionid=$_REQUEST['sessionregion'];
+	// 		}
+	// 		if (isset($_REQUEST['sessionregionIDval']) && !empty($_REQUEST['sessionregionIDval']) ) {
+	// 			$sessionregionIDval=$_REQUEST['sessionregionIDval'];
+	// 		}
 
-			if ($sessionregionIDval == 1)
-			{
-				$_SESSION['regioncountryID']=$sessionregionid;
-			}
+	// 		if ($sessionregionIDval == 1) {
+	// 			$_SESSION['regioncountryID']=$sessionregionid;
+	// 		} elseif ($sessionregionIDval == 2) {
+	// 			$_SESSION['regionstatownID']=$sessionregionid;
+	// 		} elseif ($sessionregionIDval == 3) {
+	// 			$_SESSION['regioncityID']=$sessionregionid;
+	// 		}
+	// 	}
 
-			elseif ($sessionregionIDval == 2)
-			{
-				$_SESSION['regionstatownID']=$sessionregionid;
-			}
-
-			elseif ($sessionregionIDval == 3)
-			{
-				$_SESSION['regioncityID']=$sessionregionid;
-			}
-		}
-
-
-		$output .= load_ad_post_form($adid='',$action,$awpcppagename='',$adtermid='',$editemail='',$adaccesskey='',$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$ad_county_village='',$ad_item_price='',$addetails='',$adpaymethod='',$offset='',$results='',$ermsg='',$websiteurl='',$checkhuman='',$numval1='',$numval2='');
+	// 	$output .= load_ad_post_form($adid='',$action,$awpcppagename='',$adtermid='',$editemail='',$adaccesskey='',$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$ad_county_village='',$ad_item_price='',$addetails='',$adpaymethod='',$offset='',$results='',$ermsg='',$websiteurl='',$checkhuman='',$numval1='',$numval2='');
 
 	} elseif ( $action == 'cregs' ) {
 
@@ -3362,7 +3327,7 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 
 	// TODO: what is this for?
 	if ('' == $adcategory) {
-		$adcategory = absint($_POST['adcat']);
+		$adcategory = absint(awpcp_array_data('adcat', 0, $_POST));
 	}
 
 	if (!awpcp_validate_ad_details($form_values, $form_errors, $adaction == 'editad')) {
@@ -3400,7 +3365,9 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 			$qdisabled="disabled=$disabled,";
 		}
 
-		$adcategory_parent_id=get_cat_parent_ID($adcategory);
+		// make sure we use integers
+		$adcategory = intval($adcategory);
+		$adcategory_parent_id = intval(get_cat_parent_ID($adcategory));
 
 		// This line is a hack to store decimal prices using 
 		// an INT column. It attempts to store 99.95 as 9995.
@@ -3417,7 +3384,7 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 		}
 
 		$query = "UPDATE " . AWPCP_TABLE_ADS . " ";
-		$query.= "SET ad_category_id='$adcategory', ad_category_parent_id='$adcategory_parent_id', ";
+		$query.= "SET ad_category_id=$adcategory, ad_category_parent_id=$adcategory_parent_id, ";
 		$query.= "ad_title='$adtitle', ad_details='$addetails', websiteurl='$websiteurl', ";
 		$query.= "ad_contact_phone='$adcontact_phone', ad_contact_name='$adcontact_name', ";
 		$query.= "ad_contact_email='$adcontact_email', ad_city='$adcontact_city', ad_state='$adcontact_state', ";
@@ -3425,11 +3392,12 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 		$query.= "ad_item_price='$itempriceincents', is_featured_ad=$is_featured_ad, ";
 		$query.= "$qdisabled $update_x_fields ad_last_updated=now(), ";
 		$query.= "user_id=$user_id WHERE ad_id='$adid' AND ad_key='$adkey'";
+
 		$res = awpcp_query($query, __LINE__);
 
 		if ($is_admin == 1 && is_admin()) {
 			$message=__("The ad has been edited successfully.", 'AWPCP');
-			$message.="<a href=\"?page=Manage1&offset=$offset&results=$results\">";
+			$message.=" <a href=\"?page=Manage1&offset=$offset&results=$results\">";
 			$message.=__("Back to view listings", 'AWPCP');
 			$message.="</a>";
 
@@ -4191,14 +4159,6 @@ function awpcp_display_ads($where, $byl, $hidepager, $grouporderby, $adorcat) {
 			if (isset($_SESSION['theactiveregionid'])) {
 				$theactiveregionid=$_SESSION['theactiveregionid'];
 				$theactiveregionname = addslashes(get_theawpcpregionname($theactiveregionid));
-
-				// $output .= "<h2>";
-				// $output .= __("You are currently browsing in ","AWPCP");
-				// $output .= ": $theactiveregionname</h2><SUP><a href=\"";
-				// $output .= $quers;
-				// $output .= "/?a=unsetregion\">";
-				// $output .= __("Clear session for ","AWPCP");
-				// $output .= "$theactiveregionname</a></SUP><br/>";
 			}
 
 			// Do not show Region Control form when showing Search Ads page
@@ -4262,7 +4222,7 @@ function awpcp_display_ads($where, $byl, $hidepager, $grouporderby, $adorcat) {
 			}
 
 			$awpcpmyresults=get_awpcp_option('adresultsperpage');
-			if (!isset($awpcpmyresults) || empty($awpcpmyresults)){$awpcpmyresults=10;}
+			if (!isset($awpcpmyresults) || empty($awpcpmyresults)) {$awpcpmyresults=10;}
 			$offset=(isset($_REQUEST['offset'])) ? (clean_field($_REQUEST['offset'])) : ($offset=0);
 			$results=(isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? clean_field($_REQUEST['results']) : ($results=$awpcpmyresults);
 
@@ -4283,7 +4243,7 @@ function awpcp_display_ads($where, $byl, $hidepager, $grouporderby, $adorcat) {
 					$grouporderby = str_replace('ORDER BY','', strtoupper($grouporderby));
 					$grouporder = 'ORDER BY is_featured_ad DESC, '.$grouporderby;
 			    } else {
-					$grouporder=$grouporderby;
+					$grouporder = $grouporderby;
 			    }
 
 			} else {

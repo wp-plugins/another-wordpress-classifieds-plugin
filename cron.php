@@ -196,7 +196,8 @@ function awpcp_ad_renewal_email() {
 		$body.= __('Title', 'AWPCP') . ": " . $ad->ad_title . "\n";
 		$body.= __('Posted on', 'AWPCP') . ": " . $ad->get_start_date() . "\n";
 		$body.= __('Expires on', 'AWPCP') . ": " . $ad->get_end_date() . "\n\n";
-		$body.= __('You can renew your Ad visiting this link:', 'AWPCP') . $href;
+		$text = __('You can renew your Ad visiting this link: %s', 'AWPCP');
+		$body.= sprintf($text, $href);
 
 		$result = awpcp_process_mail($thisadminemail, $ad->ad_contact_email, $subject, 
 						   $body, $nameofsite, $thisadminemail);

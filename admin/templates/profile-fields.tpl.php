@@ -1,5 +1,5 @@
 <h3><?php _e('Classifieds Profile Info', 'AWPCP') ?></h3>
-<table class="form-table"><table class="form-table">
+<table class="form-table">
 	<tbody>
 		<?php /*<tr valign="top">
 			<th scope="row">

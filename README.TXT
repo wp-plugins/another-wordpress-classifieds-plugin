@@ -4,8 +4,8 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
 Tested up to: 3.4.1
-Last Updated: 2012-Aug-20
-Stable tag: tags/2.1.0
+Last Updated: 2012-Aug-24
+Stable tag: tags/2.1.1
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
@@ -206,6 +206,22 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 2.1.1 =
+ NEW: Display characters allowed in Payment Step screen
+ NEW: Make Featured Ads widget take into account current selected Region
+ Bug: MySQL Strict mode error when editing an Ad.
+ Bug: Setting a location to a Region clears all sub-locations
+ Bug: template errors. Move split tags to the same line
+ Bug: Renew Ad template.
+ Bug: JS error related to missing fields in Ad Details form.
+ Bug: "Call Time Pass By Reference" PHP error in Ad class.
+ Bug: provide a fallback for esc_textarea function.
+ Bug: Remove extra HTML table tag.
+ Bug: redirection problem in Region Control selector.
+ Bug: SQL error in Region Control module.
+ Bug: MySQL Strict mode when installing Region Control module.
+ Bug: Fixed CSV import error with certain date formats.
+ 
  = 2.1.0 =
  NEW: Allow users to download Debug info as an HTML file.
  NEW: Add "Click to Enlarge Link" below primary image.

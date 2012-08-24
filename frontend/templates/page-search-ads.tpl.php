@@ -48,7 +48,8 @@
 	<?php if (get_awpcp_option('displaypostedbyfield') == 1): ?>
 		<p class='awpcp-form-spacer'>
 			<?php _e("For Ads Posted By","AWPCP") ?>
-			<br/><select name="searchname">
+			<br/>
+			<select name="searchname">
 				<option value=""><?php _e("Select Option","AWPCP"); ?></option>
 				<?php echo create_ad_postedby_list($searchname) ?>
 			</select>

@@ -37,6 +37,7 @@
 						<th>Payment Term</th>
 						<th>Ads Allowed</th>
 						<th>Images Allowed</th>
+						<th>Characters Allowed</th>
 						<th>Duration</th>
 						<th>Price</th>
 					</tr>
@@ -62,6 +63,7 @@
 						</td>
 						<td><?php echo $term->ads_allowed ?></td>
 						<td><?php echo $term->images_allowed ?></td>
+						<td><?php echo empty($term->characters_allowed) ? __('No Limit', 'AWPCP') : $term->characters_allowed ?></td>
 						<td><?php echo $term->duration ?></td>
 						<td><?php echo number_format($term->price, 2) ?></td>
 					</tr>

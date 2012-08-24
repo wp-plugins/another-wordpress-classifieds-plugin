@@ -313,7 +313,7 @@ class AWPCP_Ad {
 
 		$end_date = awpcp_calculate_end_date($duration, $interval, $start_date);
 
-		return apply_filters('awpcp-ad-calculate-end-date', $end_date, $start_date, &$this);
+		return apply_filters('awpcp-ad-calculate-end-date', $end_date, $start_date, $this);
 	}
 }
 

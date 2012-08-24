@@ -5,22 +5,26 @@
     $.AWPCP.PlaceAdForm = function(id, selectors) {
         this.id = id;
         this.form = $(id);
-
-        selectors = $.extend({ users: '', terms: '', methods: '' }, selectors);
-        this.users = this.form.find(selectors.users);
-        this.terms = this.form.find(selectors.terms);
-        this.methods = this.form.find(selectors.methods);
-        this.categories = this.form.find(selectors.categories);
-
-        this.name = this.form.find(selectors.name);
-        this.email = this.form.find(selectors.email);
-        this.website = this.form.find(selectors.website);
-        this.phone = this.form.find(selectors.phone);
-        this.state = this.form.find(selectors.state);
-        this.city = this.form.find(selectors.city);
+        this.selectors = $.extend({ users:'', terms:'', methods:'' }, selectors);
+        this.find_elements();
     };
 
     $.extend($.AWPCP.PlaceAdForm.prototype, {
+        find_elements: function() {
+            var selectors = this.selectors;
+            this.users = this.form.find(selectors.users);
+            this.terms = this.form.find(selectors.terms);
+            this.methods = this.form.find(selectors.methods);
+            this.categories = this.form.find(selectors.categories);
+
+            this.name = this.form.find(selectors.name);
+            this.email = this.form.find(selectors.email);
+            this.website = this.form.find(selectors.website);
+            this.phone = this.form.find(selectors.phone);
+            this.state = this.form.find(selectors.state);
+            this.city = this.form.find(selectors.city);
+        },
+
         get_user_data: function(user_id) {
             var user = null;
             $.each(AWPCP_Users, function(k, entry) {
@@ -33,6 +37,8 @@
         },
 
         get_category_terms: function(category, terms) {
+            var categories;
+
             terms = terms || this.terms;
 
             if (category.length < 0) {
@@ -51,6 +57,7 @@
 
         update_payment_terms: function(user_id, category) {
             var item = null, items, select, selected, total = 0;
+            var user, selector, terms;
 
             // Payment Terms wrapper my be hidden, let's change that.
             this.terms.closest('p').show();
@@ -77,7 +84,7 @@
             items = this.get_category_terms(category, items);
 
             // two items: the default and one actual payment term
-            if (items.length == 2) {
+            if (items.length === 2) {
                 item = items.filter(':not(#payment-term-default)').show();
             } else {
                 items.show();
@@ -117,6 +124,10 @@
 
             var self = this, current, passed, updated = {};
 
+            // quick fix to find the right City, State fields,
+            // the ones that are visible at this moment
+            this.find_elements();
+
             current = {
                 name: this.name.val(),
                 email: this.email.val(),
@@ -124,7 +135,7 @@
                 phone: this.phone.val(),
                 state: this.state.val(),
                 city: this.city.val()
-            },
+            };
             passed = {
                 name: user.first_name + ' ' + user.last_name,
                 email: user.user_email,
@@ -135,7 +146,7 @@
             };
 
             $.each(current, function(field, value) {
-                if (current[field].length > 0 && !overwrite) {
+                if (current[field] && current[field].length > 0 && !overwrite) {
                     updated[field] = current[field];
                 } else {
                     updated[field] = passed[field] ? passed[field] : '';
@@ -233,8 +244,10 @@
         });
 
         form.users.bind('change awpcp-start', function(event) {
-            var user_id = parseInt(form.users.val(), 10),
-                overwrite = event.type != 'awpcp-start';
+            var user,
+                user_id = parseInt(form.users.val(), 10),
+                overwrite = event.type != 'awpcp-start',
+                updated;
 
             if (user_id === 0) {
                 form.terms.closest('p').hide();

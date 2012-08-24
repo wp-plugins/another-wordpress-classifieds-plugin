@@ -52,6 +52,22 @@ if (!function_exists('wp_strip_all_tags')) {
 }
 
 
+if (!function_exists('esc_textarea')) {
+	/**
+	 * Escaping for textarea values.
+	 *
+	 * @since 3.1
+	 *
+	 * @param string $text
+	 * @return string
+	 */
+	function esc_textarea( $text ) {
+		$safe_text = htmlspecialchars( $text, ENT_QUOTES );
+		return apply_filters( 'esc_textarea', $safe_text, $text );
+	}
+}
+
+
 if (!function_exists('wp_trim_words')) {
 	/**
 	 * Trims text to a certain number of words.

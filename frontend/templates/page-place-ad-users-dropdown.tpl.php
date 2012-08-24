@@ -8,7 +8,7 @@
     <?php $selected = $user_id ?>
     <?php foreach ($users as $k => $user): ?>
     <option value="<?php echo esc_attr($user->ID) ?>" data-payment-terms="<?php echo esc_attr($user->payment_terms) ?>" <?php echo $selected == $user->ID ? 'selected="selected"' : '' ?>>
-            <?php echo $user->display_name ?>
+        <?php echo $user->display_name ?>
     </option>
     <?php endforeach ?>
 </select>
@@ -24,7 +24,7 @@
 <select id="place-ad-user-payment-terms" name="user_payment_term">
 
     <option id="payment-term-default" data-categories="<?php echo esc_attr(json_encode(array())) ?>" value="">
-            <?php _e('Select a Payment Term for this Ad', 'AWPCP') ?>
+        <?php _e('Select a Payment Term for this Ad', 'AWPCP') ?>
     </option>
 
     <?php $selected = $payment_term ?>
@@ -34,7 +34,7 @@
         <?php $element_id = "payment-term-$id" ?>
 
     <option id="<?php echo esc_attr($element_id) ?>" value="<?php echo esc_attr($id) ?>" data-categories="<?php echo esc_attr(json_encode($term->categories)) ?>" data-characters-allowed=<?php echo esc_attr($term->characters_allowed) ?><?php echo $selected == $id ? 'selected="selected"' : '' ?>>
-            <?php echo ucwords(str_replace('-', ' ', $term->type)) ?>: <?php echo $term->name ?>
+        <?php echo ucwords(str_replace('-', ' ', $term->type)) ?>: <?php echo $term->name ?>
     </option>
 
     <?php endforeach ?>
