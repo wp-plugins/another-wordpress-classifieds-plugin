@@ -45,6 +45,6 @@
 <?php endif ?>
 
 
-<script type="text/javascript">//<![CDATA[
-AWPCP_Users = <?php echo $json ?>
-//]]></script>
+<?php echo awpcp_inline_javascript_placeholder('users-dropdown', '<script type="text/javascript">//<![CDATA[
+AWPCP_Users = ' . $json . ';
+//]]></script>'); ?>

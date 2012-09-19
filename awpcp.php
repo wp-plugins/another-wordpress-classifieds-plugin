@@ -3,7 +3,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. <strong>!!!IMPORTANT!!!</strong> Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 2.1.1
+ Version: 2.1.2
  Author: D. Rodenbaugh
  License: GPLv2 or any later version
  Author URI: http://www.skylineconsult.com
@@ -14,16 +14,16 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- * 
+ *
  * dcfunctions.php and filop.class.php used with permission of Dan Caragea, http://datemill.com
  * AWPCP Classifieds icon set courtesy of http://www.famfamfam.com/lab/icons/silk/
  */
@@ -90,7 +90,7 @@ global $nameofsite;
 global $thisadminemail;
 
 
-// get_plugin_data accounts for about 2% of the cost of 
+// get_plugin_data accounts for about 2% of the cost of
 // each request, defining the version manually is a less
 // expensive way.
 require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
@@ -162,7 +162,7 @@ require_once(AWPCP_DIR . "frontend/shortcode.php");
 
 
 class AWPCP {
-	
+
 	// Admin section
 	public $admin = null;
 	// User Ad Management panel
@@ -208,14 +208,14 @@ class AWPCP {
 
 	/**
 	 * Single entry point for AWPCP plugin.
-	 * 
+	 *
 	 * This is functional but still a work in progress...
 	 */
 	public function setup() {
 		if (!$this->updated()) {
 			$this->installer->install();
 			// we can't call flush_rewrite_rules() because
-			// $wp_rewrite is not available yet. It is initialized 
+			// $wp_rewrite is not available yet. It is initialized
 			// after plugins_load hook is executed.
 			$this->flush_rewrite_rules = true;
 		}
@@ -263,6 +263,10 @@ class AWPCP {
 
 			remove_action('wp_head', 'rel_canonical');
 			add_action('wp_head', 'awpcp_rel_canonical');
+
+			// we need to dalay insertion of inline JavaScript to avoid problems
+			// with wpauotp and wptexturize functions
+			add_filter('the_content', 'awpcp_inline_javascript', 1000);
 		}
 	}
 
@@ -278,6 +282,9 @@ class AWPCP {
 		if ($this->flush_rewrite_rules) {
 			flush_rewrite_rules();
 		}
+
+		// global $wp_filter;
+		// debug($wp_filter);
 
 		$this->register_scripts();
 	}
@@ -295,10 +302,10 @@ class AWPCP {
 	 * used form other sections.
 	 */
 	public function register_scripts() {
-		// had to use false as the version number because otherwise the resulting URLs would 
+		// had to use false as the version number because otherwise the resulting URLs would
 		// throw 404 errors. Not sure why :S -@wvega
 
-		wp_register_script('awpcp-admin-general', 
+		wp_register_script('awpcp-admin-general',
 					AWPCP_URL . 'js/admin-general.js', array('jquery'), '1.0.0', true);
 
 		wp_register_script('awpcp-page-place-ad',
@@ -327,7 +334,7 @@ class AWPCP {
 		if (is_admin()) {
 			wp_localize_script('awpcp-admin-general', 'AWPCPAjaxOptions', $options);
 		} else {
-			// 
+			//
 		}
 	}
 
@@ -401,8 +408,8 @@ class AWPCP {
 
 
 	/**
-	 * As of version 2.0.6 premium module are all separated plugins. 
-	 * This function check if those new plugins are present and update the 
+	 * As of version 2.0.6 premium module are all separated plugins.
+	 * This function check if those new plugins are present and update the
 	 * relevant global variables.
 	 */
 	// public function check_for_premium_modules() {
@@ -483,7 +490,7 @@ if ( file_exists("$awpcp_plugin_path/awpcp_rss_module.php") )
 	require("$awpcp_plugin_path/awpcp_rss_module.php");
 	$hasrssmodule=1;
 }
-if (file_exists(WP_CONTENT_DIR . "/plugins/awpcp-featured-ads/awpcp_featured_ads.php")) 
+if (file_exists(WP_CONTENT_DIR . "/plugins/awpcp-featured-ads/awpcp_featured_ads.php"))
 {
 	$hasfeaturedadsmodule=1;
 }
@@ -491,7 +498,7 @@ if (file_exists(WP_CONTENT_DIR . "/plugins/awpcp-featured-ads/awpcp_featured_ads
 // Add css file and jquery codes to header
 function awpcpjs() {
 	global $awpcp_plugin_url;
-	
+
 	wp_enqueue_script('jquery');
 	wp_enqueue_script('jquery-form');
 
@@ -516,7 +523,7 @@ function awpcp_insert_thickbox() {
     var tb_pathToImage = "' . $includes . '/js/thickbox/loadingAnimation.gif";
     var tb_closeImage = "' . $includes . '/js/thickbox/tb-close.png";
     </script>
-    ';	
+    ';
 	}
 }
 
@@ -527,7 +534,7 @@ function awpcp_insert_thickbox() {
  *
  * This is no longer used after the Place Ad workflow changes.
  */
-// function maybe_redirect_new_ad() { 
+// function maybe_redirect_new_ad() {
 // 	global $wp_query;
 
 // 	$a = awpcp_post_param('a', '');
@@ -583,11 +590,11 @@ function exclude_awpcp_child_pages($excluded=array()) {
 function awpcp_addcss() {
 	$awpcpstylesheet="awpcpstyle.css";
 	$awpcpstylesheetie6="awpcpstyle-ie-6.css";
-	echo "\n".'<link rel="stylesheet" type="text/css" media="screen" href="'.AWPCP_URL.'css/'.$awpcpstylesheet.'" /> 
+	echo "\n".'<link rel="stylesheet" type="text/css" media="screen" href="'.AWPCP_URL.'css/'.$awpcpstylesheet.'" />
 			 <!--[if lte IE 6]><style type="text/css" media="screen">@import "'.AWPCP_URL.'css/'.$awpcpstylesheetie6.'";</style><![endif]-->
 			 ';
-	// load custom stylesheet if one exists in the wp-content/plugins directory: 
-	if (file_exists(WP_PLUGIN_DIR.'/awpcp_custom_stylesheet.css')) { 
+	// load custom stylesheet if one exists in the wp-content/plugins directory:
+	if (file_exists(WP_PLUGIN_DIR.'/awpcp_custom_stylesheet.css')) {
 	    echo "\n".'<link rel="stylesheet" type="text/css" media="screen" href="'.WP_PLUGIN_URL.'/awpcp_custom_stylesheet.css" />';
 	}
 
@@ -597,11 +604,11 @@ function awpcp_addcss() {
 
 
 function awpcp_add_rewrite_rules($rules) {
-	$pages = array('main-page-name', 
-				   'show-ads-page-name', 
-				   'reply-to-ad-page-name', 
-				   'browse-categories-page-name', 
-				   'payment-thankyou-page-name', 
+	$pages = array('main-page-name',
+				   'show-ads-page-name',
+				   'reply-to-ad-page-name',
+				   'browse-categories-page-name',
+				   'payment-thankyou-page-name',
 				   'payment-cancel-page-name');
 	$patterns = array();
 
@@ -695,14 +702,14 @@ function awpcp_rel_canonical() {
 	} else {
 		$link = url_showad($ad);
 	}
-	
+
 	echo "<link rel='canonical' href='$link' />\n";
 }
 
 
 /**
  * Overwrittes WP canonicalisation to ensure our rewrite rules
- * work, even when the main AWPCP page is also the front page or 
+ * work, even when the main AWPCP page is also the front page or
  * when the requested page slug is 'awpcp'.
  *
  * Required for the View Categories and Classifieds RSS rules to work
@@ -721,9 +728,9 @@ function awpcp_redirect_canonical($redirect_url, $requested_url) {
 
 	// do not redirect request to the front page, if AWPCP main page is
 	// the front page
-	} else if (is_page() && !is_feed() && isset($wp_query->queried_object) && 
+	} else if (is_page() && !is_feed() && isset($wp_query->queried_object) &&
 			  'page' == get_option('show_on_front') && $id == $wp_query->queried_object->ID &&
-			   $wp_query->queried_object->ID == get_option('page_on_front')) 
+			   $wp_query->queried_object->ID == get_option('page_on_front'))
 	{
 		$redirect_url = $requested_url;
 	}

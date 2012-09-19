@@ -1,6 +1,5 @@
 <?php
 
-
 function awpcp_user_can_post_ad() {
 	$is_admin = awpcp_current_user_is_admin();
 
@@ -18,7 +17,7 @@ function awpcp_user_can_post_ad() {
 
 	// Handle if user must be registered
 	if (get_awpcp_option('requireuserregistration') && !is_user_logged_in()) {
-		$message = __('Hi, You need to be a registered user to post Ads in this website. Please use the form below to login or register.', 'AWPCP');
+		$message = __('Hi, You need to be a registered user to post Ads in this website. Please use the form below to login or click the link to register.', 'AWPCP');
 		$output .= awpcp_login_form($message, $url_place_ad_page);
 		return $output;
 	}
@@ -58,7 +57,7 @@ function awpcp_get_fees() {
 
 
 /**
- * Returns an array of the defined Ad Term Fees if board is paid or a 
+ * Returns an array of the defined Ad Term Fees if board is paid or a
  * free Ad Term Fee if board is free.
  */
 function awpcp_payment_terms_fees() {
@@ -122,7 +121,7 @@ function awpcp_payment_terms_fees() {
 function awpcp_payment_terms($type=null, $id=null) {
 	$terms = awpcp_payment_terms_fees();
 	$terms = apply_filters('awpcp-payment-terms', $terms);
-	
+
 	if (!is_null($type) && !is_null($id)) {
 		$term = null;
 		foreach ($terms as $item) {
@@ -160,12 +159,13 @@ function awpcp_user_payment_terms($user_id) {
 
 
 function awpcp_payment_methods() {
-	$methods = array();
+	$methods = apply_filters('awpcp-payment-methods', array());
 
 	if (get_awpcp_option('activatepaypal') == 1) {
 		$method = new stdClass();
 		$method->slug = 'paypal';
 		$method->name = 'PayPal';
+		$method->icon = AWPCP_URL . 'images/payments-paypal.gif';
 		$method->description = '';
 		$methods[] = $method;
 	}
@@ -174,11 +174,13 @@ function awpcp_payment_methods() {
 		$method = new stdClass();
 		$method->slug = '2checkout';
 		$method->name = '2Checkout';
+		$method->icon = 'https://www.2checkout.com/images/paymentlogoshorizontal.png';
+		$method->icon = AWPCP_URL . 'images/payments-2checkout.png';
 		$method->description = '';
 		$methods[] = $method;
 	}
 
-	return apply_filters('awpcp-payment-methods', $methods);
+	return $methods;
 }
 
 
@@ -192,7 +194,7 @@ function awpcp_ad_term_fee_transaction_processed($texts, $txn) {
 	}
 
 	$status = $txn->get('payment-status');
-	if ($status === AWPCP_Payment_Transaction::$PAYMENT_STATUS_COMPLETED || 
+	if ($status === AWPCP_Payment_Transaction::$PAYMENT_STATUS_COMPLETED ||
 		$status === AWPCP_Payment_Transaction::$PAYMENT_STATUS_PENDING) {
 		$updated = 'buys + 1';
 		$condition = '';
@@ -248,7 +250,7 @@ function awpcp_get_ad_images_information($ad_id) {
 	if (get_awpcp_option('imagesallowdisallow') != 1) {
 		$images_allowed = 0;
 	} else {
-		$images_allowed = awpcp_get_ad_number_allowed_images($ad_id);	
+		$images_allowed = awpcp_get_ad_number_allowed_images($ad_id);
 	}
 
 	if ($images_allowed > 0) {
@@ -335,7 +337,7 @@ function awpcp_validate_ad_details($form_values=array(), &$form_errors=array(), 
 	}
 
 	// If country field is checked and required make sure country value was entered
-	if ((get_awpcp_option('displaycountryfield') == 1) && 
+	if ((get_awpcp_option('displaycountryfield') == 1) &&
 		(get_awpcp_option('displaycountryfieldreqop') == 1))
 	{
 		if (!isset($form_values['adcontact_country']) || empty($form_values['adcontact_country'])) {
@@ -344,7 +346,7 @@ function awpcp_validate_ad_details($form_values=array(), &$form_errors=array(), 
 	}
 
 	// If county/village field is checked and required make sure county/village value was entered
-	if ((get_awpcp_option('displaycountyvillagefield') == 1) && 
+	if ((get_awpcp_option('displaycountyvillagefield') == 1) &&
 		(get_awpcp_option('displaycountyvillagefieldreqop') == 1))
 	{
 		if (!isset($form_values['ad_county_village']) || empty($form_values['ad_county_village'])) {
@@ -365,7 +367,7 @@ function awpcp_validate_ad_details($form_values=array(), &$form_errors=array(), 
 	}
 
 	// If price field is checked and required make sure a price has been entered
-	if ((get_awpcp_option('displaypricefield') == 1) && 
+	if ((get_awpcp_option('displaypricefield') == 1) &&
 		(get_awpcp_option('displaypricefieldreqop') == 1))
 	{
 		if (!isset($form_values['ad_item_price']) || empty($form_values['ad_item_price'])) {
@@ -375,15 +377,15 @@ function awpcp_validate_ad_details($form_values=array(), &$form_errors=array(), 
 
 	// Make sure the item price is a numerical value
 	if (get_awpcp_option('displaypricefield') == 1) {
-		if (isset($form_values['ad_item_price']) && !empty($form_values['ad_item_price']) && 
-			!is_numeric($form_values['ad_item_price']) ) 
+		if (isset($form_values['ad_item_price']) && !empty($form_values['ad_item_price']) &&
+			!is_numeric($form_values['ad_item_price']) )
 		{
 			$form_errors[] = __("You have entered an invalid item price. Make sure your price contains numbers only. Please do not include currency symbols.","AWPCP");
 		}
 	}
 
 	// If website field is checked and required make sure website value was entered
-	if ((get_awpcp_option('displaywebsitefield') == 1) && 
+	if ((get_awpcp_option('displaywebsitefield') == 1) &&
 		(get_awpcp_option('displaywebsitefieldreqop') == 1))
 	{
 		if (!isset($form_values['websiteurl']) || empty($form_values['websiteurl'])) {
@@ -415,7 +417,7 @@ function awpcp_validate_ad_details($form_values=array(), &$form_errors=array(), 
 			$form_errors[] = __("Your ad was flagged as spam.  Please contact the administrator of this site.","AWPCP");
 		}
 	}
-	
+
 	if ($hasextrafieldsmodule == 1) {
 		//Allow backward compatibility with old extra fields, if they didn't upgrade:
 		if (function_exists('validate_extra_fields_form')) {
@@ -555,7 +557,7 @@ function awpcp_place_ad_checkout_step($form_values=array(), $form_errors=array()
 	$transaction->set('amount', $amount);
 
 	if ($amount <= 0) {
-		// A payment term with no ID means the board is free (no Ad Fees are being used). 
+		// A payment term with no ID means the board is free (no Ad Fees are being used).
 		// Subscriptions or other payment terms may be enabled, however.
 		if ($term->id <= 0) {
 			$transaction->set('free', true);
@@ -581,6 +583,8 @@ function awpcp_place_ad_checkout_step($form_values=array(), $form_errors=array()
 	$transaction->save();
 
 	$header = apply_filters('awpcp-place-ad-checkout-step-form-header', array(), $form_values, $transaction);
+	$text = __("Please click the button below to submit payment. You'll be asked to pay <strong>%0.2f</strong>", 'AWPCP');
+	$text = apply_filters('awpcp-place-ad-checkout-step-form-text', $text, $form_values, $transaction);
 	$checkout_form = apply_filters('awpcp-checkout-form', '', $transaction);
 
 	ob_start();
@@ -634,7 +638,7 @@ function awpcp_place_ad_details_step($form_values=array(), $form_errors=array(),
 		$adcategory=$category, $adcontact_city='', $adcontact_state='',
 		$adcontact_country='', $ad_county_village='', $ad_item_price='',
 		$addetails='', $adpaymethod='', $offset='', $results='', $ermsg='',
-		$websiteurl='', $checkhuman='', $numval1='', $numval2='', 
+		$websiteurl='', $checkhuman='', $numval1='', $numval2='',
 		$post_url='', $show_category_field=$show_category_field,
 		$transaction_id=$form_values['awpcp-txn']);
 
@@ -677,7 +681,7 @@ function awpcp_place_ad_save_details_step($form_values=array(), &$form_errors=ar
 
 	$ad_item_price = clean_field(awpcp_array_data('ad_item_price', '', $values));
 	$ad_item_price = $form_values['ad_item_price'] = str_replace(",", '', $ad_item_price);
-	
+
 	$addetails = $form_values['addetails'] = clean_field(awpcp_array_data('addetails', '', $values));
 	if (get_awpcp_option('allowhtmlinadtext') == 0){
 		$addetails = $form_values['addetails'] = strip_html_tags($addetails);
@@ -702,14 +706,14 @@ function awpcp_place_ad_save_details_step($form_values=array(), &$form_errors=ar
 	$user_id = $form_values['user_id'] = clean_field(awpcp_array_data('user_id', '', $values));
 	$user_payment_term = $form_values['user_payment_term'] = clean_field(awpcp_array_data('user_payment_term', '', $values));
 
-	// left empty because Featured Ads module will update its value after the 
+	// left empty because Featured Ads module will update its value after the
 	// Ad has been posted
     $is_featured_ad = $form_values['is_featured_ad'] = 0;
 
 	// Region data is stored escaped in the db. So the region with name "D'Zoure" is
 	// in the database as "D\'Zoure". The values coming from Regions dropdowns is expected
 	// to be already escaped. However, the users can also input their own regions.
-	// In order to take values from dropdowns as they come and to escape user input, 
+	// In order to take values from dropdowns as they come and to escape user input,
 	// we will first stripslashes and then add them again. Unscaped data should remain the
 	// same after the first operation and then become escaped after the second one.
 	//
@@ -727,7 +731,7 @@ function awpcp_place_ad_save_details_step($form_values=array(), &$form_errors=ar
 	$ad_county_village = clean_field(stripslashes(awpcp_array_data('adcontact_countyvillage', '', $values)));
 	$ad_county_village = $form_values['ad_county_village'] = strip_html_tags($ad_county_village);
 
-	
+
 	$output = processadstep1($form_values, $form_errors, $transaction, $edit);
 
 	return $output;
@@ -890,7 +894,7 @@ function display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction,$nex
 			$showimageuploadform.=__("Image slots available", "AWPCP");
 			$showimageuploadform.=" <b>$numimgsleft</b>";
 			$showimageuploadform.="</p>";
-			
+
 			$showimageuploadform.="<p>";
 			$showimageuploadform.=__("Max image size", "AWPCP");
 			$max_size = ($max_image_size/1000);
@@ -943,7 +947,7 @@ function display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction,$nex
 				 </div>";
 				$showimageuploadform.="$uploadinput";
 			}
-	
+
 			$showimageuploadform.="</p><p style=\"clear:both;text-align:center;\"><input type=\"submit\" value=\"";
 			$showimageuploadform.=__("Upload Selected Files","AWPCP");
 			$showimageuploadform.="\" class=\"button\" id=\"awpcp_buttonForm\" /></p>";
@@ -997,7 +1001,7 @@ function display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction,$nex
 				<input type=\"hidden\" name=\"adkey\" value=\"$adkey\" />
 				<input type=\"hidden\" name=\"adaction\" value=\"$adaction\" />
 				<input type=\"hidden\" name=\"adtermid\" value=\"$adterm_id\" />
-				<input type=\"hidden\" name=\"adpaymethod\" value=\"$adpaymethod\" />				
+				<input type=\"hidden\" name=\"adpaymethod\" value=\"$adpaymethod\" />
 				<input type=\"Submit\" class=\"button\" value=\"";
 	// if (($nextstep == 'payment') || ($nextstep == 'paymentnoform'))
 	// {
@@ -1012,7 +1016,7 @@ function display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction,$nex
 	// 	$finishbutton.=__("Finish","AWPCP");
 	// }
 	$finishbutton.=$clicktheword1;
-	
+
 	$finishbutton.="\" name=\"submit\" />
 				</form>";
 	$awpcp_image_upload_form.="$finishbutton";
@@ -1028,6 +1032,7 @@ function display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction,$nex
 
 
 function awpcpui_process_placead($post_url='') {
+
 	global $hasextrafieldsmodule;
 
 	$output = '';
@@ -1139,20 +1144,20 @@ function awpcpui_process_placead($post_url='') {
 		{
 			$editemail=$_REQUEST['editemail'];
 		}
-			
+
 		$output .= deletead($adid,$adkey,$editemail);
 
 	// TODO: this kind of requests should be handled in Region Control's own code
 	} elseif (($action == 'setregion') || '' != get_query_var('regionid')) {
 		if ($hasregionsmodule ==  1) {
 			if (isset($_REQUEST['regionid']) && !empty($_REQUEST['regionid'])) {
-				$region_id = $_REQUEST['regionid']; 
+				$region_id = $_REQUEST['regionid'];
 			} else {
 				$region_id = get_query_var('regionid');
 			}
 
 			// double check module existence :\
-			if (class_exists('AWPCP_Region_Control_Module')) {
+			if (method_exists('AWPCP_Region_Control_Module', 'set_location')) {
 				$region = awpcp_region_control_get_entry(array('id' => $region_id));
 				$regions = AWPCP_Region_Control_Module::instance();
 				$regions->set_location($region);
@@ -1207,8 +1212,6 @@ function awpcpui_process_placead($post_url='') {
 			unset($_SESSION['theactiveregionid']);
 		}
 
-
-
 		$output .= load_ad_post_form($adid,$action,$awpcppagename,$adtermid,$editemail='',$adaccesskey='',$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$offset='',$results='',$ermsg='',$websieurl='',$checkhuman='',$numval1='',$numval2='');
 
 	// Show Ad details and contact information form
@@ -1245,7 +1248,7 @@ function awpcpui_process_editad() {
 	if (isset($_REQUEST['a']) && !empty($_REQUEST['a'])) {
 		$action=$_REQUEST['a'];
 	}
-	
+
 	if ($action == 'editad') {
 		$output .= load_ad_edit_form($action,$awpcppagename,$usereditemail,$adaccesskey,$message);
 	}
@@ -1360,7 +1363,7 @@ function awpcpui_process_editad() {
 		// 	    $is_featured_ad = awpcp_featured_ad_checking2($adterm_id);
 		// 	}
 
-		
+
 
 		// $output .= processadstep1($adid,$adterm_id,$adkey,$editemail,$adtitle,$adcontact_name,$adcontact_phone,$adcontact_email,$adcategory,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$adpaymethod,$adaction,$awpcppagename,$offset,$results,$ermsg,$websiteurl,$checkhuman,$numval1,$numval2,$is_featured_ad);
 
@@ -1411,7 +1414,7 @@ function awpcpui_process_editad() {
 			$message='';
 
 			$awpcpsubmissionresultmessage =ad_success_email($theadid,$txn_id='',$theadkey,$message,$gateway='', false);
-				
+
 			$output .= "<div id=\"classiwrapper\">";
 			$output .= '<p class="ad_status_msg">';
 			$output .= $awpcpsubmissionresultmessage;
@@ -1479,13 +1482,17 @@ function awpcp_calculate_end_date($duration, $interval, $start_date) {
 
 /**
  * If an Ad was passed, calculates Ad End Date from current End Date.
- * If no Ad was passed, calculates Ad End Date as if Ad would have 
+ * If no Ad was passed, calculates Ad End Date as if Ad would have
  * been posted at the current time.
  *
  * TODO: Use the new $ad->calculate_end_date() method.
  */
 function awpcp_calculate_ad_end_date($duration, $interval='DAY', $ad=null) {
-	$start_date = is_null($ad) ? time() : strtotime($ad->ad_enddate);
+	$now = awpcp_time(null, 'timestamp');
+	$end_date = is_null($ad) ? $ad->ad_enddate : 0;
+	// if the Ad's end date is in the future, use that as starting point 
+	// for the new end date, else use current date.
+	$start_date = $end_date > $now ? $end_date : $now;
 	return awpcp_calculate_end_date($duration, $interval, $start_date);
 }
 
@@ -1495,7 +1502,7 @@ function awpcp_calculate_ad_end_date($duration, $interval='DAY', $ad=null) {
  *
  * @param $id	Ad ID.
  * @param $transaction	Payment Transaction associated to the Ad being posted
- * 
+ *
  * It must be possible to have more than one transaction associated to a single
  * Ad, for example, when an Ad has been posted AND renewed one or more times.
  */
@@ -1531,7 +1538,7 @@ function awpcp_renew_ad_form($content, $ad) {
 	}
 
 	if ($ad->adterm_id != 0) {
-		$payment_term = awpcp_payment_terms('ad-term-fee', $ad->adterm_id); 
+		$payment_term = awpcp_payment_terms('ad-term-fee', $ad->adterm_id);
 	} else {
 		$payment_term = null;
 	}
@@ -1737,15 +1744,15 @@ function awpcp_renew_ad_page() {
 /**
  * Return HTML for the Ad details and contact information form
  */
-function load_ad_post_form($adid='', $action='', $awpcppagename='', 
-			$adtermid='', $editemail='', $adaccesskey='', $adtitle='', 
-			$adcontact_name='', $adcontact_phone='', $adcontact_email='', 
-			$adcategory='', $adcontact_city='', $adcontact_state='', 
-			$adcontact_country='', $ad_county_village='', $ad_item_price='', 
-			$addetails='', $adpaymethod='', $offset='', $results='', 
-			$ermsg='', $websiteurl='', $checkhuman='', $numval1='', 
+function load_ad_post_form($adid='', $action='', $awpcppagename='',
+			$adtermid='', $editemail='', $adaccesskey='', $adtitle='',
+			$adcontact_name='', $adcontact_phone='', $adcontact_email='',
+			$adcategory='', $adcontact_city='', $adcontact_state='',
+			$adcontact_country='', $ad_county_village='', $ad_item_price='',
+			$addetails='', $adpaymethod='', $offset='', $results='',
+			$ermsg='', $websiteurl='', $checkhuman='', $numval1='',
 			$numval2='', $action_url='', $show_category_field=true,
-			$transaction_id='', $user_id='', $user_payment_term='') 
+			$transaction_id='', $user_id='', $user_payment_term='')
 {
 	global $wpdb, $hasregionsmodule;
 	global $hasgooglecheckoutmodule, $hasextrafieldsmodule;
@@ -1789,7 +1796,7 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 	}
 	// Handle if user must be registered
 	else if (get_awpcp_option('requireuserregistration') && !is_user_logged_in()) {
-		$message = __('Hi, You need to be a registered user to post Ads in this website. Please use the form below to login or register.', 'AWPCP');
+		$message = __('Hi, You need to be a registered user to post Ads in this website. Please use the form below to login or click the link to register.', 'AWPCP');
 		$output .= awpcp_login_form($message, $url_placeadpage);
 
 	// Handle Ad post form
@@ -1840,26 +1847,26 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 				$query.= ", ad_details, ad_key, websiteurl, user_id $x_fields_fetch ";
 				$query.= "FROM " . AWPCP_TABLE_ADS . " ";
 				$query.= "WHERE ad_id='$adid' AND ad_contact_email='$editemail' AND ad_key='$adaccesskey'";
-				
+
 				$res = awpcp_query($query, __LINE__);
 
 				while ($rsrow=mysql_fetch_row($res)) {
 					if (is_array($rsrow)) {
 						for($i=0; $i < count($rsrow); $i++) {
-							$rsrow[$i] = stripslashes($rsrow[$i]); 
+							$rsrow[$i] = stripslashes($rsrow[$i]);
 						}
 					}
 
-					list($adtitle, $adcontact_name, $adcontact_email, 
-						$adcategory, $adcontact_phone, $adcontact_city, 
-						$adcontact_state, $adcontact_country, $ad_county_village, 
-						$ad_item_price, $addetails, $adaccesskey, 
+					list($adtitle, $adcontact_name, $adcontact_email,
+						$adcategory, $adcontact_phone, $adcontact_city,
+						$adcontact_state, $adcontact_country, $ad_county_village,
+						$ad_item_price, $addetails, $adaccesskey,
 						$websiteurl, $user_id, $x_fields_list) = $rsrow;
 				}
 
 				$adtitle = stripslashes_deep($adtitle);
 				$addetails = stripslashes_deep($addetails);
-				
+
 				if (isset($ad_item_price) && !empty($ad_item_price)) {
 					$ad_item_price = ($ad_item_price/100);
 				} else {
@@ -1883,7 +1890,7 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 			}
 		}
 		// End if $action == 'editad'
-		
+
 		/////
 		// Retrieve the categories to populate the select list
 		/////
@@ -2027,7 +2034,7 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 		} else {
 			$checkhumancheck = '';
 		}
-		
+
 		$adtitleerrortxt=__("You did not fill out an ad title. The information is required","AWPCP");
 		$adcategoryerrortxt=__("You did not select an ad category. The information is required","AWPCP");
 		$adcontactemailerrortxt=__("Either you did not enter your email address or the email address you entered is not valid","AWPCP");
@@ -2042,7 +2049,7 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 			function checkform() {
 			    var the=document.adpostform;
 			    var checkemj = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
-			    
+
 			    if (the.adtitle.value==='') {
 				    alert('$adtitleerrortxt');
 				    the.adtitle.focus();
@@ -2063,7 +2070,7 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 		// JavaScript verificaiton for posting Ads on behalf of another user
 		if ($is_admin_user) {
 			$checktheform .= "
-				if (parseInt(the.user_id.value, 10) > 0 && the.user_payment_term && 
+				if (parseInt(the.user_id.value, 10) > 0 && the.user_payment_term &&
 					the.user_payment_term.value==='')
 				{
 					alert('$user_payment_term_error_text');
@@ -2120,7 +2127,7 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 			function textCounter(field, countfield, limitfield) {
 				// limit = 0 means no limit
 				var limit = limitfield.value;
-				
+
 				// if too long... trim it!
 				if (limit > 0 && field.value.length > limit) {
 					field.value = field.value.substring(0, limit);
@@ -2137,7 +2144,7 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 
 			function awpcp_toggle_visibility(id, item) {
 
-				if ( 0 == jQuery(item).attr('rel') ) { 
+				if ( 0 == jQuery(item).attr('rel') ) {
 					jQuery('#showhidepaybutton').hide();
 					return;
 				}
@@ -2155,12 +2162,12 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 
 			function awpcp_toggle_visibility_reverse(id, item) {
 
-			    if ( 0 == jQuery(item).attr('rel') ) { 
+			    if ( 0 == jQuery(item).attr('rel') ) {
 				    jQuery('#showhidepaybutton').hide();
 				    return;
 			    }
 
-			    if ( jQuery(id).is(':visible') ) { 
+			    if ( jQuery(id).is(':visible') ) {
 					jQuery('#'+id).hide();
 			    } else {
 					jQuery('#'+id).show();
@@ -2176,7 +2183,9 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 			$addetailsmaxlength = is_null($fee) ? false : $fee->characters_allowed;
 		}
 
-		if ($addetailsmaxlength === false) {
+		if ($addetailsmaxlength === false && !empty($adid)) {
+			$addetailsmaxlength = AWPCP_Ad::find_by_id($adid)->get_max_characters_allowed();
+		} else if ($addetailsmaxlength === false) {
 			$addetailsmaxlength = get_awpcp_option('maxcharactersallowed');
 		}
 
@@ -2185,7 +2194,7 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 		$readonlyacname='';
 		$readonlyacem='';
 
-		// if (get_awpcp_option('requireuserregistration') && 
+		// if (get_awpcp_option('requireuserregistration') &&
 		// 	is_user_logged_in() && !$is_admin_user) {
 		if ($action != 'editad' && is_user_logged_in()) {
 			$adcontact_name = trim($current_user->user_firstname . " " . $current_user->user_lastname);
@@ -2320,6 +2329,8 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 			$faction = 'action="' . $action_url . '"';
 		}
 
+		$checktheform = awpcp_inline_javascript_placeholder('place-ad', $checktheform);
+
 		$theformbody.="$checktheform $ermsg";
 		$theformbody.="<form method=\"post\" name=\"adpostform\" id=\"adpostform\" $faction onsubmit=\"return(checkform())\">";
 		$theformbody.="<input type=\"hidden\" name=\"adid\" value=\"$adid\" />";
@@ -2365,7 +2376,7 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 		} else if ($is_admin_user) {
 			$theformbody .= awpcp_render_users_dropdown($user_id, false);
 		}
-		
+
 		if (get_awpcp_option('displaywebsitefield') == 1) {
 			$label = _x('Website URL', 'Ad Details form', 'AWPCP');
 			$theformbody.="<p class='awpcp-form-spacer'>" . $label . "<br/><input type=\"text\" class=\"inputbox\" size=\"50\" name=\"websiteurl\" value=\"" . awpcp_esc_attr($websiteurl) . "\" /></p>";
@@ -2395,7 +2406,7 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 			// render Region form fields
 			$theformbody .=	awpcp_region_form_fields($region_control_query, $translations);
 		}
-		
+
 
 		if (get_awpcp_option('displaypricefield') == 1) {
 			$theformbody.="<p class='awpcp-form-spacer'>";
@@ -2433,12 +2444,12 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 			if (string_starts_with($tostext, 'http://', false) ||
 				string_starts_with($tostext, 'https://', false)) {
 				//Output as HTML link:
-				$output .= 
+				$output .=
 				    '<p id="awpcp-form-spacer"><a href="'.$tostext.'" target="_blank">'.__("Read our Terms of Service","AWPCP").'</a><br/>';
 
 			} else {
 				//Output text as block
-				$output .= 
+				$output .=
 				    '<p id="awpcp-form-spacer">'.__("Terms of service:","AWPCP").'<br/>'.
 				    '<textarea readonly="readonly" rows="5" cols="50" id="tos_box" name="tos_details">'.
 				    $tostext.
@@ -2516,7 +2527,7 @@ function load_ad_edit_form($action,$awpcppagename,$usereditemail,$adaccesskey,$m
 					var the=document.myform;
 			   		var checkemj = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
 
-					if (checkemj.test(the.editemail.value) == false) {					
+					if (checkemj.test(the.editemail.value) == false) {
 						alert('Either you did not enter your email address or the email address you entered is not valid.');
 						the.editemail.focus();
 						return false;
@@ -2543,10 +2554,12 @@ function load_ad_edit_form($action,$awpcppagename,$usereditemail,$adaccesskey,$m
 		$output .= "<div id=\"classiwrapper\">";
 		$output .= awpcp_menu_items();
 
-		if (isset($message) && !empty($message))
-		{
+		if (isset($message) && !empty($message)) {
 			$output .= $message;
 		}
+
+		$checktheform = awpcp_inline_javascript_placeholder('edit-ad', $checktheform);
+
 		$output .= $checktheform;
 		$output .= "<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">";
 		$output .= "<input type=\"hidden\" name=\"awpcppagename\" value=\"$awpcppagename\" />";
@@ -2614,14 +2627,14 @@ function resendadaccesskeyform($editemail,$awpcppagename) {
 					var the=document.myform;
 			   		var checkemj = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
 
-					if (checkemj.test(the.editemail.value) == false) {						alert('$awpcpresendemailerrortxt');
+					if (checkemj.test(the.editemail.value) == false) {
+						alert('$awpcpresendemailerrortxt');
 						the.editemail.focus();
 						return false;
 					}
 
 					return true;
 				}
-
 			</script>";
 
 	if (!isset($message) || empty($message))
@@ -2641,7 +2654,7 @@ function resendadaccesskeyform($editemail,$awpcppagename) {
 
 		while ($rsrow=mysql_fetch_row($res))
 		{
-			if ( is_array($rsrow) ) for($i=0; $i < count($rsrow); $i++) $rsrow[$i] = stripslashes($rsrow[$i]); 
+			if ( is_array($rsrow) ) for($i=0; $i < count($rsrow); $i++) $rsrow[$i] = stripslashes($rsrow[$i]);
 			list($adtitle,$adkey,$adpostername)=$rsrow;
 
 			$adtitlekeys[]="$adtitle: $adkey";
@@ -2658,7 +2671,7 @@ function resendadaccesskeyform($editemail,$awpcppagename) {
 			$awpcp_resendakeybody:
 
 			$totaladsfoundtext: $totaladsfound
-	
+
 	";
 
 
@@ -2671,7 +2684,7 @@ function resendadaccesskeyform($editemail,$awpcppagename) {
 			$resendakeymessage.="
 			$nameofsite
 			$home_url
-	
+
 	";
 
 			$subject="$awpcp_resendakeysubject";
@@ -2690,9 +2703,10 @@ function resendadaccesskeyform($editemail,$awpcppagename) {
 		{
 			$awpcpresendprocessresponse=__("There were no ads found registered with the email address provided","AWPCP");
 		}
-	}
-	else
-	{
+
+	} else {
+		$checktheform = awpcp_inline_javascript_placeholder('resend-access-key', $checktheform);
+
 		$awpcpresendprocessresponse="$checktheform";
 		$awpcpresendprocessresponse.="$message";
 		$awpcpresendprocessresponse.="<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">";
@@ -2808,10 +2822,13 @@ function load_ad_contact_form($adid,$sendersname,$checkhuman,$numval1,$numval2,$
 		$output .= "<p>";
 		$output .= __("You are responding to ","AWPCP");
 		$output .= "$thead</p>";
-		if (isset($message) && !empty($message))
-		{
+
+		if (isset($message) && !empty($message)) {
 			$output .= "$message";
 		}
+
+		$checktheform = awpcp_inline_javascript_placeholder('ad-contact', $checktheform);
+
 		$output .= $checktheform;
 		$output .= "<form method=\"post\" name=\"myform\" id=\"awpcpui_process\" onsubmit=\"return(checkform())\">";
 		$output .= "<input type=\"hidden\" name=\"adid\" value=\"$adid\" />";
@@ -2862,7 +2879,7 @@ function processadcontact($adid, $sendersname, $checkhuman, $numval1,
 	$output = '';
 	$adminemailoverride = get_awpcp_option('awpcpadminemail');
 
-	if (isset($adminemailoverride) && !empty($adminemailoverride) 
+	if (isset($adminemailoverride) && !empty($adminemailoverride)
 		&& !(strcasecmp($thisadminemail, $adminemailoverride) == 0)) {
 		$thisadminemail=$adminemailoverride;
 	}
@@ -2907,7 +2924,7 @@ function processadcontact($adid, $sendersname, $checkhuman, $numval1,
 			$sumwrongmsg.="</li>";
 		}
 	}
-	
+
 	if (!isset($contactmessage) || empty($contactmessage)) {
 		$error=true;
 		$contactmessagemsg="<li>";
@@ -2938,7 +2955,7 @@ function processadcontact($adid, $sendersname, $checkhuman, $numval1,
 			$spammsg.="</li>";
 		}
 	}
-	
+
 	if ($error) {
 		$ermsg="<p>";
 		$ermsg.=__("There has been an error found. Your message has not been sent. Please review the list of problems, correct them then try to send your message again","AWPCP");
@@ -3072,7 +3089,7 @@ function dosearch() {
 	if ( empty($searchpricemin) && !empty($searchpricemax) ) {
 		$searchpricemin=1;
 	}
-	
+
 	if ( !empty($keywordphrase) ) {
 		if (strlen($keywordphrase) < 4) {
 			$error=true;
@@ -3201,7 +3218,7 @@ function dosearch() {
 		}
 
 		if ($hasextrafieldsmodule == 1) {
-			// Is the extra fields module present with the required search builder function? 
+			// Is the extra fields module present with the required search builder function?
 			// If so call the "where clause" builder function
 			if (function_exists('build_extra_fields_search_where')) {
 			    $where .=  build_extra_fields_search_where();
@@ -3239,7 +3256,7 @@ function editadstep1($adaccesskey, $editemail, $awpcppagename) {
 
 	if (isset($adid) && !empty($adid)) {
 		$output .= load_ad_post_form($adid,$action='editad',$awpcppagename,$adtermid,$editemail,$adaccesskey,$adtitle='',$adcontact_name='',$adcontact_phone='',$adcontact_email='',$adcategory='',$adcontact_city='',$adcontact_state='',$adcontact_country='',$ad_county_village='',$ad_item_price='',$addetails='',$adpaymethod='',$offset,$results,$ermsg='',$websiteurl='',$checkhuman='',$numval1='',$numval2='');
-	
+
 	} else {
 		$message="<p class=\"messagealert\">";
 		$message.=__("The information you have entered does not match the information on file. Please make sure you are using the same email address you used to post your ad and the exact access key that was emailed to you when you posted your ad","AWPCP");
@@ -3259,11 +3276,11 @@ function editadstep1($adaccesskey, $editemail, $awpcppagename) {
 /**
  * Handles Place Ad - Step 1
  */
-// function processadstep1($adid, $adterm_id, $adkey, $editemail, $adtitle, 
-// 	$adcontact_name, $adcontact_phone, $adcontact_email, $adcategory, 
-// 	$adcontact_city, $adcontact_state, $adcontact_country, $ad_county_village, 
-// 	$ad_item_price, $addetails, $adpaymethod, $adaction, $awpcppagename, 
-// 	$offset, $results, $ermsg, $websiteurl, $checkhuman, $numval1, $numval2, 
+// function processadstep1($adid, $adterm_id, $adkey, $editemail, $adtitle,
+// 	$adcontact_name, $adcontact_phone, $adcontact_email, $adcategory,
+// 	$adcontact_city, $adcontact_state, $adcontact_country, $ad_county_village,
+// 	$ad_item_price, $addetails, $adpaymethod, $adaction, $awpcppagename,
+// 	$offset, $results, $ermsg, $websiteurl, $checkhuman, $numval1, $numval2,
 // 	$is_featured_ad, $transaction=null)
 function processadstep1($form_values=array(), &$form_errors=array(), $transaction=null, $edit=false) {
 
@@ -3300,7 +3317,7 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 	$checkhuman = awpcp_array_data('checkhuman', '', $form_values);
 	$numval1 = awpcp_array_data('numval1', '', $form_values);
 	$numval2 = awpcp_array_data('numval2', '', $form_values);
-			
+
 	$user_id = awpcp_array_data('user_id', 0, $form_values);
 	$user_payment_term = awpcp_array_data('user_payment_term', 0, $form_values);
 
@@ -3348,7 +3365,7 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 			$adcontact_email, $adcategory, $adcontact_city, $adcontact_state,
 			$adcontact_country, $ad_county_village, $ad_item_price,
 			$addetails, $adpaymethod, $offset, $results, $ermsg, $websiteurl,
-			$checkhuman, $numval1, $numval2, '', $show_category_field, $transaction_id, 
+			$checkhuman, $numval1, $numval2, '', $show_category_field, $transaction_id,
 			$user_id, $user_payment_term);
 	}
 
@@ -3369,10 +3386,10 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 		$adcategory = intval($adcategory);
 		$adcategory_parent_id = intval(get_cat_parent_ID($adcategory));
 
-		// This line is a hack to store decimal prices using 
+		// This line is a hack to store decimal prices using
 		// an INT column. It attempts to store 99.95 as 9995.
 		$itempriceincents = ($ad_item_price * 100);
-			
+
 		$update_x_fields = "";
 		if ($hasextrafieldsmodule == 1) {
 			$update_x_fields = do_x_fields_update();
@@ -3463,7 +3480,7 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 					// $transaction->set('payment-status', )
 					$transaction->set('free', false);
 				}
-			} 
+			}
 
 			if (strcmp($transaction->get('payment-term-type'), 'ad-term-fee') === 0) {
 				$adtermid = $transaction->get('payment-term-id');
@@ -3483,7 +3500,7 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 			$is_pending_payment = $payment_status == AWPCP_Payment_Transaction::$PAYMENT_STATUS_PENDING;
 
 			$disabled = awpcp_calculate_ad_disabled_state(null, $transaction);
-			
+
 			$txn_id = $transaction->get('txn-id', '');
 			$amount = $transaction->get('amount', 0);
 
@@ -3506,7 +3523,7 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 			$transaction->set('ad-id', $ad_id);
 			$transaction->set('completed', current_time('mysql'));
 			$transaction->save();
-			
+
 			// TODO: update hooked handlers
 			// Notify plugins an Ad has been placed
 			do_action('awpcp-place-ad', $ad_id, $transaction);
@@ -3583,7 +3600,7 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 // 		$output .= "</h2>";
 
 // 		$imagesforfree=get_awpcp_option('imagesallowedfree');
-		
+
 // 		if ($totalimagesuploaded < $imagesforfree)
 // 		{
 // 			$showimageuploadform=display_awpcp_image_upload_form($ad_id,$adterm_id,$adkey,$adaction,$nextstep='finish',$adpaymethod,$awpcpuperror='');
@@ -3616,13 +3633,13 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 // 		}
 
 
-		
-// 		// The code below was outside of this IF block and was 
+
+// 		// The code below was outside of this IF block and was
 // 		// being executed twice, with images or without them
 // 		// as stated in the comment. However, that was making the plugin
 // 		// sent two success emails to the user and two emails to the admin.
-// 		// When no images are posted the users is redirected to the Show Ad 
-// 		// page which sends the confirmation email. When images are posted the 
+// 		// When no images are posted the users is redirected to the Show Ad
+// 		// page which sends the confirmation email. When images are posted the
 // 		// functions handling the uploadas will send the email.
 // 		//
 // 		// I moved the code inside the IF block.
@@ -3630,7 +3647,7 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 // 		//Images or not, send the email:
 // 		$message=$awpcpadpostedmsg;
 // 		$awpcpsubmissionresultmessage = ad_success_email($ad_id,$txn_id='',$adkey,$awpcpadpostedmsg,$gateway='');
-			
+
 // 		$output .= "<div id=\"classiwrapper\">";
 // 		$output .= '<p class="ad_status_msg">';
 // 		$output .= $awpcpsubmissionresultmessage;
@@ -3805,7 +3822,7 @@ function processadstep3($adid, $adterm_id, $key, $adpaymethod) {
  *
  * @param $picid int The id of the image to delete.
  * @param $adid int The id of the Ad the image belongs to.
- * @param $force boolean True if image should be deleted even if curent 
+ * @param $force boolean True if image should be deleted even if curent
  * 						 user is not admin.
  */
 function deletepic($picid,$adid,$adtermid,$adkey,$editemail,$force=false)
@@ -3815,7 +3832,7 @@ function deletepic($picid,$adid,$adtermid,$adkey,$editemail,$force=false)
 	$savedemail=get_adposteremail($adid);
 	$editemail = str_replace('-', '@', $editemail);
 
-	// XXX: an user with the same email as the user who posted the Ad 
+	// XXX: an user with the same email as the user who posted the Ad
 	// can delete an image. This is how Ads and Users are associated.
 	if ((strcasecmp($editemail, $savedemail) == 0) || ($isadmin == 1 ))
 	{
@@ -4134,15 +4151,15 @@ function awpcp_display_ads($where, $byl, $hidepager, $grouporderby, $adorcat) {
 	__("*** NOTE:  The next two strings are for currency formatting:  1,000.00 where comma is used for currency place holders and the period for decimal separation.  Change the next two strings for your preferred price formatting.  (this string is just a note)***","AWPCP");
 	$currencySep = __(",", "AWPCP");
 	$decimalPlace = __(".","AWPCP");
-	
-	// filters to provide alternative method of storing custom layouts (e.g. can be outside of this plugin's directory) 
+
+	// filters to provide alternative method of storing custom layouts (e.g. can be outside of this plugin's directory)
 	if ( has_action('awpcp_browse_ads_template_action') || has_filter('awpcp_browse_ads_template_filter') ) {
 		do_action('awpcp_browse_ads_template_action');
 		$output = apply_filters('awpcp_browse_ads_template_filter');
 		return;
 
-	} else if (file_exists("$awpcp_plugin_path/awpcp_display_ads_my_layout.php") && 
-			   get_awpcp_option('activatemylayoutdisplayads')) 
+	} else if (file_exists("$awpcp_plugin_path/awpcp_display_ads_my_layout.php") &&
+			   get_awpcp_option('activatemylayoutdisplayads'))
 	{
 		include("$awpcp_plugin_path/awpcp_display_ads_my_layout.php");
 
@@ -4170,7 +4187,7 @@ function awpcp_display_ads($where, $byl, $hidepager, $grouporderby, $adorcat) {
 				isset($_POST['a']) && $_POST['a'] == 'dosearch') {
 				// do nothing
 			} else {
-				$output .= awpcp_region_control_selector();	
+				$output .= awpcp_region_control_selector();
 			}
 		}
 
@@ -4211,7 +4228,7 @@ function awpcp_display_ads($where, $byl, $hidepager, $grouporderby, $adorcat) {
 			$showcategories.="</p>";
 			$pager1='';
 			$pager2='';
-			
+
 		} else {
 			$awpcp_image_display_list=array();
 
@@ -4289,7 +4306,7 @@ function awpcp_display_ads($where, $byl, $hidepager, $grouporderby, $adorcat) {
 				$awpcpadstate=get_adstatevalue($ad_id);
 				$awpcpadcountry=get_adcountryvalue($ad_id);
 				$awpcpadcountyvillage=get_adcountyvillagevalue($ad_id);
-	
+
 				$url_showad=url_showad($ad_id);
 				if (isset($permastruc) && !empty($permastruc)) {
 					// $url_browsecats = "$quers/$browsecatspagename/$category_id/";
@@ -4336,7 +4353,7 @@ function awpcp_display_ads($where, $byl, $hidepager, $grouporderby, $adorcat) {
 							$awpcp_image_name_srccode="<img src=\"". awpcp_get_image_url($image, 'thumbnail') . "\" border=\"0\" style=\"float:left;margin-right:25px;\" width=\"$displayadthumbwidth\" alt=\"$modtitle\"/>";
 						} else {
 							$awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" style=\"float:left;margin-right:25px;\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\"/>";
-						}							
+						}
 					} else {
 						$awpcp_image_name_srccode="<img src=\"$awpcp_imagesurl/adhasnoimage.gif\" width=\"$displayadthumbwidth\" border=\"0\" alt=\"$modtitle\"/>";
 					}
@@ -4402,7 +4419,7 @@ function awpcp_display_ads($where, $byl, $hidepager, $grouporderby, $adorcat) {
 					$awpcpdisplaylayoutcode=str_replace("\$ad_categoryname","$tcname",$awpcpdisplaylayoutcode);
 					$awpcpdisplaylayoutcode=str_replace("\$ad_contactname","$modcontactname",$awpcpdisplaylayoutcode);
 					$awpcpdisplaylayoutcode=str_replace("\$url_showad","$url_showad",$awpcpdisplaylayoutcode);
-					
+
 					if (function_exists('awpcp_featured_ads')) {
 					    $awpcpdisplaylayoutcode = awpcp_featured_ad_class($ad_id, $awpcpdisplaylayoutcode);
 					}
@@ -4416,8 +4433,8 @@ function awpcp_display_ads($where, $byl, $hidepager, $grouporderby, $adorcat) {
 							<div style=\"width:50%;padding:5px;float:left;\"><h4>$ad_title </h4> " . $addetailssummary . "...</div>
 							<div style=\"padding:5px;float:left;\"> $awpcpadpostdate $awpcp_city_display $awpcp_state_display $awpcp_display_adviews $awpcp_display_price $awpcpextrafields</div>
 							<span class=\"fixfloat\">$tweetbtn $sharebtn $flagad</span>
-							</div>	
-							<div class=\"fixfloat\"></div>				
+							</div>
+							<div class=\"fixfloat\"></div>
 							";
 				}
 
@@ -4499,10 +4516,10 @@ function awpcp_display_ads($where, $byl, $hidepager, $grouporderby, $adorcat) {
 
 /**
  * Handles AWPCPSHOWAD shortcode.
- * 
+ *
  * @param $adid An Ad ID.
- * @param $omitmenu 
- * @param $preview true if the function is used to show an ad just after 
+ * @param $omitmenu
+ * @param $preview true if the function is used to show an ad just after
  *				   it was posted to the website.
  * @param $send_email if true and $preview=true, a success email will be send
  * 					  to the admin and poster user.
@@ -4510,9 +4527,9 @@ function awpcp_display_ads($where, $byl, $hidepager, $grouporderby, $adorcat) {
  * @return Show Ad page content.
  */
 function showad($adid, $omitmenu, $preview=false, $send_email=true) {
-	
+
 	global $wpdb, $awpcp_plugin_path, $hasextrafieldsmodule;
-	
+
 	$preview = $preview === true || 'preview' == awpcp_array_data('adstatus', '', $_GET);
 
 	$seoFriendlyUrls = get_awpcp_option('seofriendlyurls');
@@ -4555,7 +4572,7 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 
 	//_log("Displaying ad: " . $adid);
 	if (isset($adid) && !empty($adid)) {
-		// filters to provide alternative method of storing custom layouts (e.g. can be outside of this plugin's directory) 
+		// filters to provide alternative method of storing custom layouts (e.g. can be outside of this plugin's directory)
 		if ( has_action('awpcp_single_ad_template_action') || has_filter('awpcp_single_ad_template_filter') ) {
 			do_action('awpcp_single_ad_template_action');
 			$output = apply_filters('awpcp_single_ad_template_filter');
@@ -4614,7 +4631,7 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 			}
 			while ($rsrow=mysql_fetch_row($res))
 			{
-				if ( is_array($rsrow) ) for($i=0; $i < count($rsrow); $i++) $rsrow[$i] = stripslashes($rsrow[$i]); 
+				if ( is_array($rsrow) ) for($i=0; $i < count($rsrow); $i++) $rsrow[$i] = stripslashes($rsrow[$i]);
 				list($ad_title,$adcontact_name,$adcontact_phone,$adcontact_city,$adcontact_state,$adcontact_country,$ad_county_village,$ad_item_price,$addetails,$websiteurl,$ad_postdate,$ad_startdate,$disabled)=$rsrow;
 			}
 
@@ -4632,7 +4649,7 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 			$adcontact_city=stripslashes_deep($adcontact_city);
 			$ad_county_village=stripslashes_deep($ad_county_village);
 			$adcontact_state=stripslashes_deep($adcontact_state);
-						
+
 			if (!isset($adcontact_name) || empty($adcontact_name)){$adcontact_name="";}
 			if (!isset($adcontact_phone) || empty($adcontact_phone))
 			{
@@ -4747,7 +4764,7 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 				$awpcpvisitwebsite="<br/><a $awpcprelnofollow href=\"$websiteurl\" target='_blank'>";
 				$awpcpvisitwebsite.=__("Visit Website","AWPCP");
 				$awpcpvisitwebsite.="</a>";
-			} 
+			}
 
 			$featureimg='';
 			$allowImages = get_awpcp_option('imagesallowdisallow');
@@ -4807,11 +4824,11 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 			if ($adsensePosition == 1)
 			{
 				$showadsense1="$showadsense";
-			} 
+			}
 			else if ($adsensePosition == 2)
 			{
 				$showadsense2="$showadsense";
-			} 
+			}
 			else if ($adsensePosition == 3)
 			{
 				$showadsense3="$showadsense";
@@ -4833,9 +4850,9 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 
 			$flagad = '<a id="flag_ad_link" href="#" onclick="return flag_ad('.$adid.')">'.__('Flag ad', 'AWPCP').'</a>';
 
-			$flag_script = " 
+			$flag_script = "
 				<script>
-				 function flag_ad(a) { 
+				 function flag_ad(a) {
 					var flagit = confirm('".__('Are you sure you want to flag this ad?','AWPCP')."');
 					if ( flagit == true) {
 					    do_flag_ad(a);
@@ -4843,19 +4860,21 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 					}
 					return false;
 				 }
-				 function do_flag_ad(a) { 
+				 function do_flag_ad(a) {
 				    var url = '".AWPCP_URL."flag_ad.php';
 				    var n = '".wp_create_nonce('flag_ad')."';
 				    jQuery.get( url, {'a': a, 'n': n }, function(data) {
-					if ( 1 == data ) { 
+					if ( 1 == data ) {
 						alert('".__('This ad has been flagged','AWPCP')."');
-					} else { 
+					} else {
 						alert('".__('An error occurred while trying to flag the ad','AWPCP')."');
 					}
 				    });
 				    return false;
 				}
 				</script>";
+
+			$flag_script = awpcp_inline_javascript_placeholder('flag-script', $flag_script);
 
 			$addetails = nl2br($addetails);
 
@@ -4900,9 +4919,8 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 				}
 
 				$awpcpshowthead=$flag_script.$awpcpshowtheadlayout;
-			}
-			else
-			{
+
+			} else {
 				$awpcpshowthead=$flag_script."
 									<div id=\"showawpcpadpage\">
 									<div class=\"adtitle\">$ad_title</div><br/>
@@ -4965,7 +4983,7 @@ function awpcp_login_form($message=null, $redirect_to='/') {
 
 	ob_start();
 		include(AWPCP_DIR . 'frontend/templates/login_form.tpl.php');
-		$content = ob_get_contents(); 
+		$content = ob_get_contents();
 	ob_end_clean();
 
 	return $content;
@@ -4984,7 +5002,7 @@ function awpcp_user_payment_terms_sort($a, $b) {
 /**
  * Render the users dropdown used to post an Ad on behalf of another user.
  *
- * @param $user_id 		ID of selected user. Set to false to select none 
+ * @param $user_id 		ID of selected user. Set to false to select none
  * 						of the users in the dropdown.
  */
 function awpcp_render_users_dropdown($user_id='', $payment_term='') {

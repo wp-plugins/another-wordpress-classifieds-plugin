@@ -102,6 +102,7 @@
                 } else if (item !== null) {
                     select.val(item.attr('value'));
                 }
+                select.change();
             } else {
                 selected = this.terms.find('input').filter(':checked').filter(':visible').closest('tr');
             }
@@ -168,7 +169,7 @@
             //     this.state.val(updated.state).change();
             //     this.city.val(updated.city);
             // }
-            this.city.one('awpcp-update-region-options-completed', function(event) {
+            this.city.one('awpcp-update-region-options-completed', function() {
                 self.city.val(updated.city).change();
             });
             this.state.val(updated.state).change();
@@ -197,7 +198,7 @@
             form.update_payment_terms(null, category);
         }).change();
 
-        var fn = function(event) {
+        var fn = function() {
             var radio = $(this);
             if (radio.attr('checked')) {
                 form.update_payment_methods(radio.closest('tr').attr('data-price'));
@@ -234,7 +235,7 @@
             limit = parseInt(term.attr('data-characters-allowed'), 10);
             form.form.find('[name=characters_allowed]').val(limit);
 
-            event = jQuery.Event("keydown");
+            event = jQuery.Event('keydown');
             form.form.find('[name=addetails]').trigger(event);
         });
 
@@ -246,7 +247,7 @@
         form.users.bind('change awpcp-start', function(event) {
             var user,
                 user_id = parseInt(form.users.val(), 10),
-                overwrite = event.type != 'awpcp-start',
+                overwrite = event.type !== 'awpcp-start',
                 updated;
 
             if (user_id === 0) {

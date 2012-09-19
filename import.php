@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 class AWPCP_CSV_Importer {
 
@@ -29,6 +29,8 @@ class AWPCP_CSV_Importer {
 		'username' => 'user_id'
 	);
 
+	private $ignored = array('ad_id', 'id');
+
 	private $types = array(
 		"title" => "varchar",
 		"details" => "varchar",
@@ -47,7 +49,7 @@ class AWPCP_CSV_Importer {
 		'username' => '',
 		"images" => "varchar"
 	);
-			   
+
 	private $auto_columns = array(
 		"is_featured_ad" => 0,
 		"disabled" => 0,
@@ -58,7 +60,7 @@ class AWPCP_CSV_Importer {
 		"ad_last_updated" => "?",
 		"ad_key" => ""
 	);
-			   
+
 	private $auto_columns_types = array(
 		"is_featured_ad" => "",
 		"disabled" => "",
@@ -131,7 +133,7 @@ class AWPCP_CSV_Importer {
 		$ncols = count($header);
 		$nrows = count($parsed);
 
-		// if we are assigned an user to the Ads, make sure that column 
+		// if we are assigned an user to the Ads, make sure that column
 		// is being considered
 		if ($this->options['assign-user'] && !in_array('username', $header)) {
 			array_push($header, 'username');
@@ -183,7 +185,7 @@ class AWPCP_CSV_Importer {
 		}
 
 		// accepted columns are standard Ads columns + extra fields columns
-		$accepted = array_merge(array_keys($this->types), array_keys($this->extra_fields));
+		$accepted = array_merge(array_keys($this->types), array_keys($this->extra_fields), $this->ignored);
 		$unknown = array_diff($header, $accepted);
 
 		if (!empty($unknown)) {
@@ -213,7 +215,7 @@ class AWPCP_CSV_Importer {
 			$columns = array();
 			$values = array();
 			$placeholders = array();
-			
+
 			$email = awpcp_array_data('contact_email', '', $data);
 			$category = awpcp_array_data('category_name', '', $data);
 			$category = $this->get_category_id($category);
@@ -243,7 +245,7 @@ class AWPCP_CSV_Importer {
 					$errors[] = $msg;
 					break;
 				}
-				
+
 				$placeholders[] = empty($this->types[$key]) ? '%d' : '%s';
 				$values[] = $value;
 				$columns[] = $column;
@@ -345,7 +347,7 @@ class AWPCP_CSV_Importer {
 		list($images_dir, $thumbs_dir) = awpcp_setup_uploads_dir();
 		$import_dir = str_replace('thumbs', 'import', $thumbs_dir);
 		$import_dir = $import_dir . $current_user->ID . '-' . time();
-	
+
 		$owner = fileowner($images_dir);
 
 		if (!is_dir($import_dir)) {
@@ -376,7 +378,7 @@ class AWPCP_CSV_Importer {
 				continue;
 
 			// Don't extract the OS X-created __MACOSX directory files
-			if ('__MACOSX/' === substr($file['filename'], 0, 9)) 
+			if ('__MACOSX/' === substr($file['filename'], 0, 9))
 				continue;
 
 			if ($fh = fopen(trailingslashit($import_dir) . $file['filename'], 'w')) {
@@ -570,7 +572,7 @@ class AWPCP_CSV_Importer {
 		if ($key == "item_price") {
 			// numeric validation
 			if (is_numeric($val)) {
-				// AWPCP stores Ad prices using an INT column (WTF!!) so we need to 
+				// AWPCP stores Ad prices using an INT column (WTF!!) so we need to
 				// store 99.95 as 9995 and 99 as 9900.
 				return $val * 100;
 			} else {
@@ -594,7 +596,7 @@ class AWPCP_CSV_Importer {
 				$this->rejected[$row_num] = true;
 			} else {
 				// TODO: validation
-				$val = $this->parse_date($start_date, "", $date_sep, $time_sep); // $start_date;
+				$val = $this->parse_date($start_date, 'uk_date', $date_sep, $time_sep); // $start_date;
 			}
 			return $val;
 		} else if ($key == "end_date") {
@@ -614,7 +616,7 @@ class AWPCP_CSV_Importer {
 				$this->rejected[$row_num] = true;
 			} else {
 				// TODO: validation
-				$val = $this->parse_date($end_date, "", $date_sep, $time_sep); // $end_date;
+				$val = $this->parse_date($end_date, 'uk_date', $date_sep, $time_sep); // $end_date;
 			}
 			return $val;
 		} else if ($key == "ad_postdate") {
@@ -623,13 +625,13 @@ class AWPCP_CSV_Importer {
 				$val = $date->format('Y-m-d');
 			} else {
 				// TODO: validation
-				$val = $this->parse_date($start_date, "", $date_sep, $time_sep, 'Y-m-d'); // $start_date;
+				$val = $this->parse_date($start_date, 'uk_date', $date_sep, $time_sep, 'Y-m-d'); // $start_date;
 			}
 			return $val;
 		} else if ($key == "ad_last_updated") {
 			$date = new DateTime();
 			// $date->setTimezone( $timezone );
-			$val = $date->format( 'Y-m-d' ); 
+			$val = $date->format( 'Y-m-d' );
 			return $val;
 		} else if (!empty($val)) {
 			return $val;
@@ -641,7 +643,7 @@ class AWPCP_CSV_Importer {
 		$date_formats = array(
 			'us_date' => array(
 				array('%m', '%d', '%y'), // support both two and four digits years
-				array('%m', '%d', '%Y'), 
+				array('%m', '%d', '%Y'),
 			),
 			'uk_date' => array(
 				array('%d', '%m', '%y'),
@@ -745,7 +747,7 @@ function awpcp_validate_extra_field($name, $value, $row, $validate, $type, $opti
 
 			// extra fields multiple values are stored serialized
 			$value = maybe_serialize($list);
-			
+
 			break;
 
 		default:
@@ -803,7 +805,7 @@ function awpcp_validate_extra_field($name, $value, $row, $validate, $type, $opti
 	if (!empty($_errors)) {
 		return $_errors;
 	}
-	
+
 	return $value;
 }
 

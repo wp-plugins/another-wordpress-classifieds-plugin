@@ -105,7 +105,11 @@
 						</tr>
 						<tr>
 							<th scope="row"><?php _e('cURL', 'debug page', 'AWPCP') ?></th>
-							<td><?php echo in_array('curl', get_loaded_extensions()) ? 'Installed' : 'Not Installed' ?></td>
+							<td><?php echo in_array('curl', get_loaded_extensions()) ? __('Installed') : __('Not Installed') ?></td>
+						</tr>
+						<tr>
+							<th scope="row"><?php _e("cURL's alternate CA info (cacert.pem)", 'debug page', 'AWPCP') ?></th>
+							<td><?php echo file_exists(AWPCP_DIR . 'cacert.pem') ? 'Exists' : 'Missing' ?></td>
 						</tr>
 						<tr>
 							<th scope="row"><?php _e('PayPal Connection', 'debug page', 'AWPCP') ?></th>

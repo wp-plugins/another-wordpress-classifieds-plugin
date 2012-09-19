@@ -1,36 +1,46 @@
+<!-- XXX: Recurring Payments are not supported, the following form sends information
+     for a Add to Cart operation -->
 <form action="<?php echo $paypal_url ?>" method="post">
-	<?php if ($is_recurring): ?>
-	<input type="hidden" name="cmd" value="_xclick-subscriptions" />
-	<input type="hidden" name="a3" value="<?php echo $amount ?>" />
-	<input type="hidden" name="p3" value="<?php echo $item->increment ?>" />
-	<input type="hidden" name="t3" value="<?php echo $item->period ?>" />
-	<?php else: ?>
-	<input type="hidden" name="cmd" value="_xclick" />
-	<?php endif ?>
+    <input type="hidden" value="2" name="rm">
+    <input type="hidden" value="_cart" name="cmd">
+    <input type="hidden" value="utf-8" name="charset">
+    <input type="hidden" value="<?php echo get_awpcp_option('paypalemail') ?>" name="business">
+	<input type="hidden" value="<?php echo $currency ?>" name="currency_code" />
+	<input type="hidden" value="<?php echo $custom ?>" name="custom" />
+
+	<input type="hidden" value="<?php echo $return_url ?>" name="return" />
+	<input type="hidden" value="<?php echo $notify_url ?>" name="notify_url" />
+	<input type="hidden" value="<?php echo $cancel_url ?>" name="cancel_return" />
+
+	<input type="hidden" value="<?php echo $item->name ?>" name="item_name_1" />
+	<input type="hidden" value="<?php echo $item->id ?>" name="item_number_1" />
+	<input type="hidden" value="<?php echo $amount ?>" name="amount_1" />
+    <input type="hidden" value="1" name="quantity_1">
+
+	<input type="hidden" value="1" name="no_shipping" />
+	<input type="hidden" value="1" name="no_note" />
+    <input type="hidden" value="1" name="upload">
 
 	<?php if ($is_test_mode_enabled): ?>
 	<input type="hidden" name="test_ipn" value="1" />
 	<?php endif ?>
 
-	<input type="hidden" name="business" value="<?php echo get_awpcp_option('paypalemail') ?>" />
-	<input type="hidden" name="no_shipping" value="1" />
-
-	<input type="hidden" name="return" value="<?php echo $return_url ?>" />
-	<input type="hidden" name="notify_url" value="<?php echo $notify_url ?>" />
-	<input type="hidden" name="cancel_return" value="<?php echo $cancel_url ?>" />
-
-	<input type="hidden" name="no_note" value="1" />
-	<input type="hidden" name="quantity" value="1" />
-	<input type="hidden" name="no_shipping" value="1" />
-	<input type="hidden" name="rm" value="2" />
-	<input type="hidden" name="item_name" value="<?php echo $item->name ?>" />
-	<input type="hidden" name="item_number" value="<?php echo $item->id ?>" />
-	<input type="hidden" name="amount" value="<?php echo $amount ?>" />
-	<input type="hidden" name="currency_code" value="<?php echo $currency ?>" />
-	<input type="hidden" name="custom" value="<?php echo $custom ?>" />
-	<input type="hidden" name="src" value="1" />
-	<input type="hidden" name="sra" value="1" />
+    <?php $text = _x('Return to %s', 'paypal-checkout-form', 'AWPCP'); ?>
+    <input type="hidden" value="<?php echo sprintf($text, get_bloginfo('name')) ?>" name="cbt">
 
 	<?php $alt = __("Make payments with PayPal - it's fast, free and secure!","AWPCP") ?>
-	<input type="image" src="<?php echo $awpcp_imagesurl ?>/paypalbuynow.gif" border="0" name="submit" alt="<?php echo $alt ?>" />
+	<input type="image" src="<?php echo $awpcp_imagesurl ?>/payments-paypal-checkout-express.gif" border="0" name="submit" alt="<?php echo $alt ?>" />
+
+	<?php /*if ($is_recurring): ?>
+	<input type="hidden" name="cmd" value="_xclick-subscriptions" />
+	<input type="hidden" name="a3" value="<?php echo $amount ?>" />
+	<input type="hidden" name="p3" value="<?php echo $item->increment ?>" />
+	<input type="hidden" name="t3" value="<?php echo $item->period ?>" />
+	<input type="hidden" name="src" value="1" />
+	<input type="hidden" name="sra" value="1" />
+	<input type="hidden" name="no_note" value="1" />
+	<?php else: ?>
+	<!-- <input type="hidden" name="cmd" value="_xclick" /> -->
+	<input type="hidden" name="cmd" value="_cart" />
+	<?php endif*/ ?>
 </form>

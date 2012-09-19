@@ -1,7 +1,7 @@
-<?php 
+<?php
 
 class AWPCP_Ad {
-	
+
 	static function from_object($object) {
 		$ad = new AWPCP_Ad;
 
@@ -122,20 +122,20 @@ class AWPCP_Ad {
 	/**
 	 * Finds out if the Ad identified by $id belongs to the user
 	 * whose information is stored in $user.
-	 * 
+	 *
 	 * @param $id int Ad id
 	 * @param $user array See get_currentuserinfo()
 	 */
 	static function belongs_to_user($id, $user_id) {
 		global $wpdb;
-		
+
 		if (empty($id) && empty($user_id)) {
 			return false;
 		}
 
 		$where = $wpdb->prepare("ad_id = %d AND user_id = %d", $id, $user_id);
 		$ad = AWPCP_Ad::count($where);
-		
+
 		return $ad > 0;
 	}
 
@@ -148,8 +148,8 @@ class AWPCP_Ad {
 		foreach ($columns as $column) {
 			$value = trim($sanitized[$column]);
 			if (preg_match($regexp, $value) !== 1) {
-				// Remove this column. Not a valid date or datetime and 
-				// WordPress does not handle NULL values very well: 
+				// Remove this column. Not a valid date or datetime and
+				// WordPress does not handle NULL values very well:
 				// http://core.trac.wordpress.org/ticket/15158
 				unset($sanitized[$column]);
 			} else {
@@ -262,7 +262,7 @@ class AWPCP_Ad {
 
 	function has_expired($date=null) {
 		$end_date = strtotime(date('Y-m-d', strtotime($this->ad_enddate)));
-		$date = is_null($date) ? strtotime(date('Y-m-d', time())) : $date;		
+		$date = is_null($date) ? strtotime(date('Y-m-d', time())) : $date;
 		return $end_date < $date;
 	}
 
@@ -280,6 +280,20 @@ class AWPCP_Ad {
 
 	function get_total_images_uploaded() {
 		return get_total_imagesuploaded($this->ad_id);
+	}
+
+	/**
+	 * Returns the number of characters allowed for this Ad.
+	 *
+	 * @since 2.1.2
+	 */
+	function get_max_characters_allowed() {
+		$chars = get_awpcp_option('maxcharactersallowed');
+		if (intval($this->adterm_id) > 0) {
+			$fee = awpcp_get_fee($this->adterm_id);
+			$chars = is_null($fee) ? $chars : $fee->characters_allowed;
+		}
+		return apply_filters('awpcp-ad-max-characters-allowed', $chars, $this);
 	}
 
 	/**

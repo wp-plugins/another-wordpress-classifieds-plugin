@@ -67,7 +67,7 @@
 							</th>
 							<td>
 								<input id="awpcp-importer-csv-file" type="file" name="import" id="import" />
-								<br/><span class="error"><?php echo awpcp_array_data('import', '', $form_errors) ?></span>
+								<br/><?php echo awpcp_form_error('import', $form_errors) ?>
 							</td>
 						</tr>
 						<tr>
@@ -76,7 +76,7 @@
 							</th>
 							<td>
 								<input id="awpcp-importer-zip-file" type="file" name="import_zip" id="import_zip" />
-								<br/><span class="error"><?php echo awpcp_array_data('import_zip', '', $form_errors) ?></span>
+								<br/><?php echo awpcp_form_error('import_zip', $form_errors) ?>
 							</td>
 						</tr>
 
@@ -87,7 +87,7 @@
 							</th>
 							<td>
 								<input id="awpcp-importer-start-date" type="text" name="startDate" value="<?php echo esc_attr($start_date) ?>" />
-								<br/><span class="error"><?php echo awpcp_array_data('startDate', '', $form_errors) ?></span>
+								<br/><br/><?php echo awpcp_form_error('startDate', $form_errors) ?>
 							</td>
 						</tr>
 						<tr>
@@ -96,7 +96,7 @@
 							</th>
 							<td>
 								<input id="awpcp-importer-end-date" type="text" name="endDate" value="<?php echo esc_attr($end_date) ?>" />
-								<br/><span class="error"><?php echo awpcp_array_data('endDate', '', $form_errors) ?></span>
+								<br/><br/><?php echo awpcp_form_error('endDate', $form_errors) ?>
 							</td>
 						</tr>
 						<tr>
@@ -104,7 +104,7 @@
 								<?php _e('Date Format', 'AWPCP') ?>
 							</th>
 							<td>
-								<br/><span class="error"><?php echo awpcp_array_data('date_fmt', '', $form_errors) ?></span>
+								<br/><br/><?php echo awpcp_form_error('date_fmt', $form_errors) ?>
 								<input id="awpcp-importer-format-us-date" type="radio" name="date_fmt" 
 									   value="us_date" <?php if ($import_date_format == "us_date") echo "checked"; ?> />
 								<label for="awpcp-importer-format-us-date">
@@ -137,17 +137,17 @@
 								<label for="awpcp-importer-date-separator"><?php _e('Date Separator', 'AWPCP') ?></label>
 								<input id="awpcp-importer-date-separator" type="text" maxlength="1" size="1" 
 									   name="sep_date" value="<?php echo esc_attr($date_sep); ?>" />
-								<br/><span class="error"><?php echo awpcp_array_data('sep_date', '', $form_errors) ?></span>
+								<br/><br/><?php echo awpcp_form_error('sep_date', $form_errors) ?>
 
 								<label for="awpcp-importer-time-separator"><?php _e('Time Separator', 'AWPCP') ?></label>
 								<input id="awpcp-importer-time-separator" type="text" maxlength="1" size="1" 
 									   name="sep_time" value="<?php echo esc_attr($time_sep); ?>" />
-								<br/><span class="error"><?php echo awpcp_array_data('sep_time', '', $form_errors) ?></span>
+								<br/><br/><?php echo awpcp_form_error('sep_time', $form_errors) ?>
 
 								<label for="awpcp-importer-image-separator"><?php _e('Image Separator', 'AWPCP') ?></label>
 								<input id="awpcp-importer-image-separator" type="text" maxlength="1" size="1" 
 									   name="sep_image" value=";" disabled="disabled" /> <?php _e('(semi-colon)', 'AWPCP') ?>
-								<br/><span class="error"><?php echo awpcp_array_data('sep_image', '', $form_errors) ?></span>
+								<br/><br/><?php echo awpcp_form_error('sep_image', $form_errors) ?>
 							</td>
 						</tr>
 						<tr>
@@ -159,7 +159,7 @@
 									<option value=1 <?php if ($auto_cat == "1") echo 'selected="selected"'; ?>><?php _e('Auto create Categories', 'AWPCP') ?></option>
 									<option value=0 <?php if ($auto_cat == "0") echo 'selected="selected"'; ?>><?php _e('Generate errors if Category not found', 'AWPCP') ?></option>
 								</select><br/>
-								<span class="error"><?php echo awpcp_array_data('auto_cat', '', $form_errors) ?></span>
+								<?php echo awpcp_form_error('auto_cat', $form_errors) ?>
 							</td>
 						</tr>
 						<tr>
@@ -171,7 +171,7 @@
 									   <?php echo $assign_user == 1 ? 'checked="checked"' : '' ?> />
 								<label for="awpcp-importer-auto-assign-user"><?php _e('Assign Ads to an user?', 'AWPCP') ?></label><br/>
 								<span class="description"><?php _e("If unchecked, Ads won't be associated to an user.", 'AWPCP') ?></span>
-								<br/><span class="error"><?php echo awpcp_array_data('assign-user', '', $form_errors) ?></span>
+								<br/><br/><?php echo awpcp_form_error('assign_user', $form_errors) ?>
 							</td>
 						</tr>
 						<tr>
@@ -188,7 +188,7 @@
 								<?php endforeach ?>
 								</select><br/>
 								<span class="description"><?php _e("Ads will be associated to this user if the username column is not present in the CSV file, there is no user with that username and we couldn't find an user with the contact_email address specified in the CSV file.", 'AWPCP') ?></span>
-								<br/><span class="error"><?php echo awpcp_array_data('user', '', $form_errors) ?></span>
+								<br/><br/><?php echo awpcp_form_error('user', $form_errors) ?>
 							</td>
 						</tr>
 					</tbody>

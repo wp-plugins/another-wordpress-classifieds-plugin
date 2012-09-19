@@ -10,7 +10,7 @@ function awpcp_humanize_payment_term_duration($period, $increment) {
 		case 'M':
 			return _n('Month', 'Months', $period, 'AWPCP');
 		case 'Y':
-			return _n('Years', 'Year', $period, 'AWPCP');
+			return _n('Year', 'Years', $period, 'AWPCP');
 	}
 }
 
@@ -33,6 +33,19 @@ function awpcp_payment_urls($transaction) {
 	}
 
 	return array($return_url, $notify_url, $cancel_url);
+}
+
+
+function awpcp_payments_methods_form($selected=null, $heading=null) {
+	$heading = !is_null($heading) ? $heading : __('Payment Methods');
+	$methods = awpcp_payment_methods();
+
+	ob_start();
+		include(AWPCP_DIR . 'frontend/templates/payment-payment-methods-options.tpl.php');
+		$html = ob_get_contents();
+	ob_end_clean();
+
+	return $html;
 }
 
 
@@ -103,11 +116,99 @@ function awpcp_2checkout_checkout_form($form, $transaction) {
 
 
 /**
+ * Verify data received from PayPal IPN notifications using cURL and
+ * returns PayPal's response.
+ *
+ * Request errors, if any, are returned by reference.
+ *
+ * @since 2.1.1
+ */
+function awpcp_paypal_verify_recevied_data_with_curl($postfields='', $cainfo=true, &$errors=array()) {
+	if (get_awpcp_option('paylivetestmode') == 1) {
+		$paypal_url = "https://www.sandbox.paypal.com/cgi-bin/webscr";
+	} else {
+		$paypal_url = "https://www.paypal.com/cgi-bin/webscr";
+	}
+
+	$ch = curl_init($paypal_url);
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_VERBOSE, true);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Host: www.paypal.com'));
+
+	if ($cainfo)
+		curl_setopt($ch, CURLOPT_CAINFO, AWPCP_DIR . 'cacert.pem');
+
+	$result = curl_exec($ch);
+	if (in_array($result, array('VERIFIED', 'INVALID'))) {
+		$response = $result;
+	} else {
+		$response = 'ERROR';
+	}
+
+	if (curl_errno($ch)) {
+		$errors[] = sprintf('%d: %s', curl_errno($ch), curl_error($ch));
+	}
+
+	curl_close($ch);
+
+	return $response;
+}
+
+
+/**
+ * Verify data received from PayPal IPN notifications using fsockopen and
+ * returns PayPal's response.
+ *
+ * Request errors, if any, are returned by reference.
+ *
+ * @since 2.1.1
+ */
+function awpcp_paypal_verify_received_data_with_fsockopen($content, &$errors=array()) {
+    if (get_awpcp_option('paylivetestmode') == 1) {
+        $paypallink = "ssl://www.sandbox.paypal.com";
+    } else {
+        $paypallink = "ssl://www.paypal.com";
+    }
+
+	$response = 'ERROR';
+
+    // post back to PayPal system to validate
+    $header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
+    $header.= "Host: www.paypal.com\r\n";
+    $header.= "Content-Type: application/x-www-form-urlencoded\r\n";
+    $header.= "Content-Length: " . strlen($content) . "\r\n\r\n";
+    $fp = fsockopen($paypallink, 443, $errno, $errstr, 30);
+
+	if ($fp) {
+	    fputs ($fp, $header . $content);
+
+	    while(!feof($fp)) {
+	        $line = fgets($fp, 1024);
+	        if (strcasecmp($line, "VERIFIED") == 0 || strcasecmp($line, "INVALID") == 0) {
+	        	$response = $line;
+	        	break;
+			}
+	    }
+
+	    fclose($fp);
+	} else {
+		$errors[] = sprintf('%d: %s', $errno, $errstr);
+	}
+
+	return $response;
+}
+
+
+/**
  * Verify data received from PayPal IPN notifications and returns PayPal's
  * response.
  *
  * Request errors, if any, are returned by reference.
- * 
+ *
  * @since 2.0.7
  */
 function awpcp_paypal_verify_received_data($data=array(), &$errors=array()) {
@@ -118,59 +219,17 @@ function awpcp_paypal_verify_received_data($data=array(), &$errors=array()) {
 	}
 
 	$response = 'ERROR';
+	if (in_array('curl', get_loaded_extensions())) {
+		// try using custom CA information -- included with the plugin
+		$response = awpcp_paypal_verify_recevied_data_with_curl($content, true, $errors);
 
-    if (in_array('curl', get_loaded_extensions())) {
-		if (get_awpcp_option('paylivetestmode') == 1) {
-			$paypal_url = "https://www.sandbox.paypal.com/cgi-bin/webscr";
-		} else {
-			$paypal_url = "https://www.paypal.com/cgi-bin/webscr";
-		}
-
-		$ch = curl_init($paypal_url);
-		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_VERBOSE, true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-		curl_setopt($ch, CURLOPT_CAINFO, AWPCP_DIR . 'cacert.pem');
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $content);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$response = curl_exec($ch);
-
-		if (curl_errno($ch)) {
-			$errors[] = sprintf('%d: %s', curl_errno($ch), curl_error($ch));
-		}
-
-		curl_close($ch);
-
-	} else {
-	    if (get_awpcp_option('paylivetestmode') == 1) {
-	        $paypallink = "ssl://www.sandbox.paypal.com";
-	    } else {
-	        $paypallink = "ssl://www.paypal.com";
-	    }
-
-	    // post back to PayPal system to validate
-	    $header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
-	    $header.= "Content-Type: application/x-www-form-urlencoded\r\n";
-	    $header.= "Content-Length: " . strlen($content) . "\r\n\r\n";
-	    $fp = fsockopen($paypallink, 443, $errno, $errstr, 30);
-
-		if ($fp) {
-		    fputs ($fp, $header . $content);
-
-		    while(!feof($fp)) {
-		        $line = fgets($fp, 1024);
-		        if (strcasecmp($line, "VERIFIED") == 0 || strcasecmp($line, "INVALID") == 0) {
-		        	$response = $line;
-		        	break;
-				}
-		    }
-
-		    fclose($fp);
-		} else {
-			$errors[] = sprintf('%d: %s', $errno, $errstr);
-		}
+		// try using default CA information -- installed in the server
+		if (strcmp($response, 'ERROR') === 0)
+			$response = awpcp_paypal_verify_recevied_data_with_curl($content, false, $errors);
 	}
+
+	if (strcmp($response, 'ERROR') === 0)
+		$response = awpcp_paypal_verify_received_data_with_fsockopen($content, $errors);
 
 	return $response;
 }
@@ -182,8 +241,8 @@ function awpcp_paypal_verify_transaction($verified, $transaction) {
 	}
 
 	// PayPal can redirect users using a GET request and issuing
-	// a POST request in the background. If the transaction was 
-	// already verified during the POST transaction the result 
+	// a POST request in the background. If the transaction was
+	// already verified during the POST transaction the result
 	// should be stored in the transaction's verified attribute
 	if (!empty($_POST)) {
 		$response = awpcp_paypal_verify_received_data($_POST);
@@ -225,22 +284,73 @@ function awpcp_2checkout_verify_transaction($verified, $transaction) {
 	}
 
 	$x_response_code = awpcp_post_param('x_response_code');
-	$x_twocorec = awpcp_posta_param('x_twocorec');
+	$x_twocorec = awpcp_post_param('x_twocorec');
 
-	$transaction->set('txn-id', awpcp_posta_param('x_trans_id'));
+	$transaction->set('txn-id', awpcp_post_param('x_trans_id'));
 
 	if ($x_response_code == 1 || $x_twocorec == 1) {
+		$transaction->errors = array();
 		return true;
+
+	} else {
+		$msg=__("There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment via 2Checkout. If you have not tried to make a payment and you are viewing this message, it means this message has been sent in error and can be disregarded.","AWPCP");
+		$transaction->errors[] = $msg;
+		// TODO: fix email function
+		// $output .= abort_payment_no_email($msg,$ad_id,$txn_id,$gateway);
+
+		return false;
 	}
-
-	$msg=__("There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment via 2Checkout. If you have not tried to make a payment and you are viewing this message, it means this message has been sent in error and can be disregarded.","AWPCP");
-	$transaction->errors[] = $msg;
-	// TODO: fix email function
-	// $output .= abort_payment_no_email($msg,$ad_id,$txn_id,$gateway);
-
-	return false;
 }
 
+
+// IPN Transaction Variables
+// =========================
+// mc_gross:9.99
+// item_mpn1:
+// protection_eligibility:Ineligible
+// item_count_unit1:0
+// item_number1:1
+// payer_id:R3ASW6QJ8SQQ4
+// tax:0.00
+// payment_date:14:10:17 Sep 14, 2012 PDT
+// item_tax_rate1:0
+// payment_status:Pending
+// charset:windows-1252
+// item_tax_rate_double1:0.00
+// mc_shipping:0.00
+// mc_handling:0.00
+// first_name:Test
+// notify_version:3.6
+// custom:cb6af2bcf28e839ef86815fa6b94aa40
+// payer_status:verified
+// business:seller_1322798280_biz@wvega.com
+// num_cart_items:1
+// mc_handling1:0.00
+// payer_email:buyer_1322798237_per@wvega.com
+// verify_sign:ACUe-E7Hjxmeel8FjYAtjnx-yjHAAIHUJHpSXwaTb7k46pAQD8LmuEuX
+// mc_shipping1:0.00
+// tax1:0.00
+// item_style_number1:
+// item_plu1:
+// txn_id:9HW512285G673932D
+// payment_type:echeck
+// last_name:User
+// item_isbn1:
+// receiver_email:seller_1322798280_biz@wvega.com
+// item_name1:30 Day Listing
+// quantity1:1
+// pending_reason:echeck
+// receiver_id:ZGR5CTRDFHXVA
+// txn_type:cart
+// item_model_number1:
+// mc_currency:USD
+// mc_gross_1:9.99
+// item_taxable1:N
+// residence_country:US
+// test_ipn:1
+// transaction_subject:cb6af2bcf28e839ef86815fa6b94aa40
+// payment_gross:9.99
+// form_charset:UTF-8
 
 function awpcp_paypal_validate_transaction($valid, $transaction) {
 	if ($valid || $transaction->get('payment-method') != 'paypal') {
@@ -248,21 +358,25 @@ function awpcp_paypal_validate_transaction($valid, $transaction) {
 	}
 
 	// PayPal can redirect users using a GET request and issuing
-	// a POST request in the background. If the transaction was 
-	// already verified during the POST transaction the result 
+	// a POST request in the background. If the transaction was
+	// already verified during the POST transaction the result
 	// should be stored in the transaction's validated attribute
 	if (empty($_POST)) {
 		return $transaction->get('validated', false);
 	}
 
-	$item_name = awpcp_post_param('item_name');
-	$item_name = awpcp_post_param('item_name');
-	$item_number = awpcp_post_param('item_number');
-	$receiver_email = awpcp_post_param('receiver_email');
 	$business = awpcp_post_param('business');
-	$quantity = awpcp_post_param('quantity');
 	$mc_gross = $mcgross = number_format(awpcp_post_param('mc_gross'), 2);
 	$payment_gross = number_format(awpcp_post_param('payment_gross'), 2);
+	$txn_id = awpcp_post_param('txn_id');
+	$txn_type = awpcp_post_param('txn_type');
+	$custom = awpcp_post_param('custom');
+	$receiver_email = awpcp_post_param('receiver_email');
+
+	// this variables are not used for verification purposes
+	$item_name = awpcp_post_param('item_name');
+	$item_number = awpcp_post_param('item_number');
+	$quantity = awpcp_post_param('quantity');
 	$mc_fee = awpcp_post_param('mc_fee');
 	$tax = awpcp_post_param('tax');
 	$payment_currency = awpcp_post_param('mc_currency');
@@ -270,8 +384,6 @@ function awpcp_paypal_validate_transaction($valid, $transaction) {
 	$payment_status = awpcp_post_param('payment_status');
 	$payment_type = awpcp_post_param('payment_type');
 	$payment_date = awpcp_post_param('payment_date');
-	$txn_id = awpcp_post_param('txn_id');
-	$txn_type = awpcp_post_param('txn_type');
 	$first_name = awpcp_post_param('first_name');
 	$last_name = awpcp_post_param('last_name');
 	$payer_email = awpcp_post_param('payer_email');
@@ -282,7 +394,6 @@ function awpcp_paypal_validate_transaction($valid, $transaction) {
 	$address_country = awpcp_post_param('address_country');
 	$address_country_code = awpcp_post_param('address_country_code');
 	$residence_country = awpcp_post_param('residence_country');
-	$custom = awpcp_post_param('custom');
 
 
 	// handle Subscription (PayPal Subscriptions) payments
@@ -293,7 +404,7 @@ function awpcp_paypal_validate_transaction($valid, $transaction) {
 		return true;
 	}
 
-	// handle regular payments 
+	// handle regular payments
 
 	$amount = number_format($transaction->get('amount'), 2);
 	if ($amount != $mc_gross && $amount != $payment_gross) {
@@ -301,7 +412,7 @@ function awpcp_paypal_validate_transaction($valid, $transaction) {
 		$transaction->errors[] = $msg;
 		$transaction->set('payment-status', AWPCP_Payment_Transaction::$PAYMENT_STATUS_INVALID);
 		awpcp_abort_payment($msg, $transaction);
-		return false;	
+		return false;
 	}
 
 	$paypal_email = get_awpcp_option('paypalemail');
@@ -320,7 +431,7 @@ function awpcp_paypal_validate_transaction($valid, $transaction) {
 		$transaction->errors[] = $msg;
 		$transaction->set('payment-status', AWPCP_Payment_Transaction::$PAYMENT_STATUS_INVALID);
 		awpcp_abort_payment($msg, $transaction);
-		return false;	
+		return false;
 	}
 
 	if (strcasecmp($payment_status, 'Completed') === 0) {
@@ -330,13 +441,13 @@ function awpcp_paypal_validate_transaction($valid, $transaction) {
 		$transaction->set('payment-status', AWPCP_Payment_Transaction::$PAYMENT_STATUS_PENDING);
 
 	} else if (strcasecmp($payment_status, 'Refunded') === 0 ||
-			   strcasecmp($payment_status, "Reversed") == 0 || 
-			   strcasecmp($payment_status, "Partially-Refunded") == 0 || 
-			   strcasecmp($payment_status, "Canceled_Reversal") == 0 || 
-			   strcasecmp($payment_status, "Denied") == 0 || 
-			   strcasecmp($payment_status, "Expired") == 0 || 
-			   strcasecmp($payment_status, "Failed") == 0 || 
-			   strcasecmp($payment_status, "Voided") == 0) 
+			   strcasecmp($payment_status, "Reversed") == 0 ||
+			   strcasecmp($payment_status, "Partially-Refunded") == 0 ||
+			   strcasecmp($payment_status, "Canceled_Reversal") == 0 ||
+			   strcasecmp($payment_status, "Denied") == 0 ||
+			   strcasecmp($payment_status, "Expired") == 0 ||
+			   strcasecmp($payment_status, "Failed") == 0 ||
+			   strcasecmp($payment_status, "Voided") == 0)
 	{
 		$transaction->set('payment-status', AWPCP_Payment_Transaction::$PAYMENT_STATUS_FAILED);
 
@@ -367,7 +478,7 @@ function awpcp_2checkout_validate_transaction($valid, $transaction) {
 	$x_Address = awpcp_post_param('x_Address');
 	$x_Email = awpcp_post_param('x_Email');
 	$x_Phone = awpcp_post_param('x_Phone');
-	$x_Login = awpcp_post_param('x_Phone');
+	$x_Login = awpcp_post_param('x_login');
 	$demo = awpcp_post_param('demo');
 	$x_response_code= awpcp_post_param('x_response_code');
 	$x_response_reason_code = awpcp_post_param('x_response_reason_code');
@@ -386,7 +497,7 @@ function awpcp_2checkout_validate_transaction($valid, $transaction) {
 		$transaction->errors[] = $msg;
 		$transaction->set('payment-status', AWPCP_Payment_Transaction::$PAYMENT_STATUS_INVALID);
 		awpcp_abort_payment($msg, $transaction);
-		return false;	
+		return false;
 	}
 
 	if (strcasecmp($x_Login, get_awpcp_option('2checkout')) !== 0) {
@@ -404,7 +515,7 @@ function awpcp_2checkout_validate_transaction($valid, $transaction) {
 		$transaction->errors[] = $msg;
 		$transaction->set('payment-status', AWPCP_Payment_Transaction::$PAYMENT_STATUS_INVALID);
 		awpcp_abort_payment($msg, $transaction);
-		return false;	
+		return false;
 	}
 
 	$transaction->set('payment-status', AWPCP_Payment_Transaction::$PAYMENT_STATUS_COMPLETED);
@@ -464,8 +575,8 @@ function awpcp_2checkout_validate_transaction($valid, $transaction) {
 //  * @param $payment_period Time period for recurring payments in days [1,90].
 //  */
 // // TODO: what to do with recurring payments?
-// function awpcp_paypal_payment_button($item_id, $item_name, $amount, 
-// 					$payment_period='', $context='', $params=array()) 
+// function awpcp_paypal_payment_button($item_id, $item_name, $amount,
+// 					$payment_period='', $context='', $params=array())
 // {
 // 	global $awpcp_imagesurl;
 
@@ -697,7 +808,7 @@ function awpcp_displaypaymentbutton_twocheckout($adid,$custom,$adterm_name,$adte
 
 
 function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
-				   $quantity, $mcgross, $payment_gross, $txn_id, $custom, $txn_type) 
+				   $quantity, $mcgross, $payment_gross, $txn_id, $custom, $txn_type)
 {
 
 	$output = '';
@@ -709,9 +820,9 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 	$pbizid = get_awpcp_option('paypalemail');
 
 	// Configure the data that will be needed for use depending on conditions met
-	
+
 	// Split the data returned in $custom
-	
+
 	$adidkey = $custom;
 	$adkeyelements = explode("_", $adidkey);
 	$ad_id=$adkeyelements[0];
@@ -720,21 +831,21 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 	$ad_id=clean_field($ad_id);
 	$key=clean_field($key);
 
-	
+
 	// Get the item ID in order to calculate length of term
-	
+
 
 	$adtermid=$item_number;
 
-	
+
 	// Set the value of field: premiumstart
-	
+
 
 	$ad_startdate=mktime();
 
-	
+
 	// Determine when ad term ends based on start time and term length
-	
+
 	//addurationfreemode
 	$days = get_num_days_in_term($adtermid);
 	$term_duration = awpcp_get_term_duration($adtermid);
@@ -744,7 +855,7 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 	$increment = $mysql_periods[$term_duration['increment']];
 
 	// Bypass amount email dupeid checks if this is a cancellation notification
-	
+
 	$awpcp_ipn_is_cancellation = false;
 	$awpcp_subscr_cancel="subscr-cancel";
 	if (strcasecmp($txn_type, $awpcp_subscr_cancel) == 0)
@@ -755,9 +866,9 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 	}
 	else
 	{
-		
+
 		// Make sure the incoming payment amount received matches at least one of the payment ids in the system
-		
+
 		$myamounts=array();
 
 		$query="SELECT amount FROM ".$tbl_ad_fees."";
@@ -770,7 +881,7 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 		//
 		// If the incoming payment amount does not match the system amounts
 		//
-		$amount_matches = in_array(number_format($mcgross,2),$myamounts) || 
+		$amount_matches = in_array(number_format($mcgross,2),$myamounts) ||
 						  in_array(number_format($payment_gross,2),$myamounts);
 		$amount_matches = apply_filters('awpcp_payment_amount_matches', $amount_matches, $mcgross, 'paypal');
 
@@ -857,7 +968,7 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 		//Enable the images, if they were previously disabled
 		$query="UPDATE ".$tbl_ad_photos." set disabled=0 WHERE ad_id='$ad_id'";
 		$res2 = awpcp_query($query, __LINE__);
-		
+
 		if (isset($item_number) && !empty($item_number))
 		{
 			$query="UPDATE ".$tbl_ad_fees." SET buys=buys+1 WHERE adterm_id='".clean_field($item_number)."'";
@@ -880,13 +991,13 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 		do_action('awpcp_edit_ad');
 
 	}
-	elseif (strcasecmp($payment_status, "Refunded") == 0 || 
-		strcasecmp($payment_status, "Reversed") == 0 || 
-		strcasecmp($payment_status, "Partially-Refunded") == 0 || 
-		strcasecmp($payment_status, "Canceled_Reversal") == 0 || 
-		strcasecmp($payment_status, "Denied") == 0 || 
-		strcasecmp($payment_status, "Expired") == 0 || 
-		strcasecmp($payment_status, "Failed") == 0 || 
+	elseif (strcasecmp($payment_status, "Refunded") == 0 ||
+		strcasecmp($payment_status, "Reversed") == 0 ||
+		strcasecmp($payment_status, "Partially-Refunded") == 0 ||
+		strcasecmp($payment_status, "Canceled_Reversal") == 0 ||
+		strcasecmp($payment_status, "Denied") == 0 ||
+		strcasecmp($payment_status, "Expired") == 0 ||
+		strcasecmp($payment_status, "Failed") == 0 ||
 		strcasecmp($payment_status, "Voided") == 0 )
 	{
 		///////////
@@ -903,7 +1014,7 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 				$res = awpcp_query($query, __LINE__);
 			}
 		}
-			
+
 		$message=__("Payment status has been changed to refunded","AWPCP");
 		$awpcpshowadsample=0;
 		$awpcppaymentresultmessage=ad_paystatus_change_email($ad_id,$txn_id,$key,$message,$gateway);
@@ -942,7 +1053,7 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 		//Dis/enable the images, if they were previously disabled
 		$query="UPDATE ".$tbl_ad_photos." set disabled='$disabled' WHERE ad_id='$ad_id'";
 		$res2 = awpcp_query($query, __LINE__);
-		
+
 		if (isset($item_number) && !empty($item_number))
 		{
 			$query="UPDATE ".$tbl_ad_fees." SET buys=buys+1 WHERE adterm_id='".clean_field($item_number)."'";
@@ -962,7 +1073,7 @@ function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
 
 		do_action('awpcp_disable_ad');
 	}
-		
+
 	$output .= "<div id=\"classiwrapper\">";
 	$output .= '<p class="ad_status_msg">';
 	$output .= $awpcppaymentresultmessage;
@@ -994,7 +1105,7 @@ function do_2checkout($custom,$x_amount,$x_item_number,$x_trans_id,$x_Login)
 	$pbizid=get_awpcp_option('2checkout');
 
 	// Configure the data that will be needed for use depending on conditions met
-	
+
 	// Split the data returned in $custom
 	$adidkey = $custom;
 	$adkeyelements = explode("_", $adidkey);
@@ -1002,18 +1113,18 @@ function do_2checkout($custom,$x_amount,$x_item_number,$x_trans_id,$x_Login)
 	$key=$adkeyelements[1];
 	$pproc=$adkeyelements[2];
 
-		
+
 	$ad_id=clean_field($ad_id);
 	$key=clean_field($key);
 
-	
+
 	// Get the item ID in order to calculate length of term
 	$adtermid=$x_item_number;
 
 	// Set the value of field: premiumstart
 	$ad_startdate=mktime();
 
-	
+
 	// Determine when ad term ends based on start time and term length
 	$days = get_num_days_in_term($adtermid);
 	$term_duration = awpcp_get_term_duration($adtermid);
@@ -1021,7 +1132,7 @@ function do_2checkout($custom,$x_amount,$x_item_number,$x_trans_id,$x_Login)
 
 	$duration = $term_duration['duration'];
 	$increment = $mysql_periods[$term_duration['increment']];
-	
+
 	// Make sure the incoming payment amount received matches at least one of the payment ids in the system
 	$myamounts=array();
 
@@ -1046,9 +1157,9 @@ function do_2checkout($custom,$x_amount,$x_item_number,$x_trans_id,$x_Login)
 		do_action('awpcp_edit_ad');
 	}
 
-	
+
 	// If the amount matches
-	
+
 
 	////////
 	// Compare the incoming receiver ID with the system receiver ID
@@ -1124,7 +1235,7 @@ function do_2checkout($custom,$x_amount,$x_item_number,$x_trans_id,$x_Login)
 	// TODO: no matter what, the Ad is always posted with payment_status set
 	// to Complete. This surely is a bug...
 	do_action('awpcp_edit_ad');
-	
+
 	if (isset($item_number) && !empty($item_number))
 	{
 		$query="UPDATE ".$tbl_ad_fees." SET buys=buys+1 WHERE adterm_id='".clean_field($x_item_number)."'";
@@ -1187,9 +1298,9 @@ function awpcp_abort_payment($message='', $transaction=null) {
 			$awpcpabortemailbody = ob_get_contents();
 		ob_end_clean();
 
-		@awpcp_process_mail($awpcpsenderemail=$thisadminemail, 
+		@awpcp_process_mail($awpcpsenderemail=$thisadminemail,
 			$awpcpreceiveremail=$adposteremail, $awpcpemailsubject=$awpcpabortemailsubjectuser,
-			$awpcpemailbody=$awpcpabortemailbody, $awpcpsendername=$nameofsite, 
+			$awpcpemailbody=$awpcpabortemailbody, $awpcpsendername=$nameofsite,
 			$awpcpreplytoemail=$thisadminemail);
 	}
 
@@ -1200,8 +1311,8 @@ function awpcp_abort_payment($message='', $transaction=null) {
 		$mailbodyadmin = ob_get_contents();
 	ob_end_clean();
 
-	@awpcp_process_mail($awpcpsenderemail=$thisadminemail, 
-		$awpcpreceiveremail=$thisadminemail, $awpcpemailsubject=$subjectadmin, 
+	@awpcp_process_mail($awpcpsenderemail=$thisadminemail,
+		$awpcpreceiveremail=$thisadminemail, $awpcpemailsubject=$subjectadmin,
 		$awpcpemailbody=$mailbodyadmin, $awpcpsendername=$nameofsite,
 		$awpcpreplytoemail=$thisadminemail);
 
@@ -1367,7 +1478,7 @@ function awpcp_cancelpayment() {
 		if (isset($permastruc) && !empty($permastruc))
 		{
 
-			/* delete: 
+			/* delete:
 			$awpcpcancelpayment_requested_url  = ( !empty($_SERVER['HTTPS'] ) && strtolower($_SERVER['HTTPS']) == 'on' ) ? 'https://' : 'http://';
 			$awpcpcancelpayment_requested_url .= $_SERVER['HTTP_HOST'];
 			$awpcpcancelpayment_requested_url .= $_SERVER['REQUEST_URI'];
@@ -1376,7 +1487,7 @@ function awpcp_cancelpayment() {
 			$awpcpsplitcancelpaymentPath = preg_split ('/\//', $awpcpparsedcancelpaymentURL['path'], 0, PREG_SPLIT_NO_EMPTY);
 
 			$ad_id_key=$awpcpsplitcancelpaymentPath[$pathvaluecancelpayment];
-			*/ 
+			*/
 
 			$ad_id_key = get_query_var('i');
 
@@ -1419,7 +1530,6 @@ function awpcp_cancelpayment() {
 	$custom.="_";
 	$custom.="$key";
 
-
 	$custompp="$custom";
 	$custompp.="_PP";
 	$custom2ch="$custom";
@@ -1431,15 +1541,14 @@ function awpcp_cancelpayment() {
 	$showpaybutton2checkout=awpcp_displaypaymentbutton_twocheckout($ad_id,$custom2ch,$adterm_name,$adterm_id,$key,$amount,$recperiod,$permastruc,$quers,$paymentthankyoupageid,$paymentcancelpageid,$paymentthankyoupagename,$paymentcancelpagename,$base);
 
 	global $hasgooglecheckoutmodule;
-	if ($hasgooglecheckoutmodule == 1)
-	{
+	if ($hasgooglecheckoutmodule == 1) {
 		$showpaybuttongooglecheckout=awpcp_displaypaymentbutton_googlecheckout($ad_id,$customgch,$adterm_name,$adterm_id,$key,$amount,$recperiod,$permastruc,$quers,$paymentthankyoupageid,$paymentcancelpageid,$paymentthankyoupagename,$paymentcancelpagename,$base);
 	}
 
 	$output .= __("You have chosen to cancel the payment process. Your ad cannot be activated until you pay the listing fee. You can click the link below to delete your ad information, or you can click the button to make your payment now","AWPCP");
 
 
-	$savedemail=get_adposteremail($ad_id);
+	$savedemail = get_adposteremail($ad_id);
 	$ikey="$ad_id";
 	$ikey.="_";
 	$ikey.="$key";
@@ -1448,7 +1557,7 @@ function awpcp_cancelpayment() {
 
 	$url_deletead = get_permalink($placeadpageid);
 	$url_deletead = add_query_arg(array('a' => 'deletead', 'k' => $ikey), $url_deletead);
-	
+
 	$output .= "<p><a href=\"$url_deletead\">";
 	$output .= __("Delete Ad Details","AWPCP");
 	$output .= "</a></p>";
@@ -1499,8 +1608,8 @@ function paymentthankyou() {
 	$output = '';
 
 	// Was commented and set to be deleted. However this variables is needed
-	// in the code below in order to extract payment information from URL. 
-	// Also is very unsafe to extract such info from URL, but that's all we 
+	// in the code below in order to extract payment information from URL.
+	// Also is very unsafe to extract such info from URL, but that's all we
 	// have.
 	$pathvaluepaymentthankyou=get_awpcp_option('pathvaluepaymentthankyou');
 
@@ -1521,7 +1630,7 @@ function paymentthankyou() {
 	{
 		if (isset($permastruc) && !empty($permastruc))
 		{
-			/* delete: 
+			/* delete:
 			$awpcppaymentthankyou_requested_url  = ( !empty($_SERVER['HTTPS'] ) && strtolower($_SERVER['HTTPS']) == 'on' ) ? 'https://' : 'http://';
 			$awpcppaymentthankyou_requested_url .= $_SERVER['HTTP_HOST'];
 			$awpcppaymentthankyou_requested_url .= $_SERVER['REQUEST_URI'];
@@ -1544,12 +1653,12 @@ function paymentthankyou() {
 	}
 
 	// identify payments handler
-	if ((isset($_POST['x_response_code']) && !empty($_POST['x_response_code'])) || 
+	if ((isset($_POST['x_response_code']) && !empty($_POST['x_response_code'])) ||
 		(isset($_POST['x_twocorec']) && !empty($_POST['x_twocorec']))) {
 		$awpcpayhandler="twocheckout";
 	}
-	if ((isset($_POST['custom']) && !empty($_POST['custom'])) && 
-	    (isset($_POST['txn_type']) && !empty($_POST['txn_type'])) && 
+	if ((isset($_POST['custom']) && !empty($_POST['custom'])) &&
+	    (isset($_POST['txn_type']) && !empty($_POST['txn_type'])) &&
 	    (isset($_POST['txn_id']) && !empty($_POST['txn_id']))) {
 		$awpcpayhandler="paypal";
 	}
@@ -1599,7 +1708,7 @@ function paymentthankyou() {
 		// read the post from PayPal system and add 'cmd'
 		$req = 'cmd=_notify-validate';
 
-		
+
 
 		foreach ($_POST as $key => $value) {
 			$value = urlencode(stripslashes($value));

@@ -47,10 +47,10 @@
 
 	<?php endforeach ?>
 
-		<script type="text/javascript">
+	<?php echo awpcp_inline_javascript_placeholder('region-control-form-fields-ajaxurl', '<script type="text/javascript">
 		//<![CDATA[
 			var AWPCP = AWPCP || {};
-			AWPCP.ajaxurl = '<?php echo awpcp_ajaxurl() ?>';
+			AWPCP.ajaxurl = "' . awpcp_ajaxurl() . '";
 		//]]>
-		</script>
+		</script>'); ?>
 	</div>

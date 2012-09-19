@@ -10,7 +10,7 @@ class AWPCP_Payment_Transaction {
 	public static $PAYMENT_STATUS_SUBSCRIPTION_CANCELED = 'Canceled';
 
 	private $attributes = array('__items__' => array());
-	
+
 	public $id;
 	public $errors = array();
 
@@ -20,7 +20,7 @@ class AWPCP_Payment_Transaction {
 		$this->errors = awpcp_array_data('__errors__', array(), $attributes);
 	}
 
-	public static function find_by_id($id) {		
+	public static function find_by_id($id) {
 		$attributes = get_option("awpcp-payment-transaction-$id", null);
 		if (is_null($attributes)) {
 			return null;

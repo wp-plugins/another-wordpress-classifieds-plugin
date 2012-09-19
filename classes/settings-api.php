@@ -57,9 +57,11 @@ class AWPCP_Settings_API {
 						   'textarea', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 
 						   'The welcome text for your classified page on the user side');
 		
-		$this->add_setting($key, 'awpcpadminaccesslevel', 'Role of admin users', 
-						   'textfield', 'admin', 
-						   'Role of users who can have admin access to classifieds. Choices: admin,editor');
+        $options = array('admin' => 'Administrator', 'admin,editor' => 'Administrator & Editor');
+        $this->add_setting($key, 'awpcpadminaccesslevel', 'Role of admin users', 
+                           'radio', 'admin', 
+                           'Role of WordPress users who can have admin access to Classifieds.',
+                           array('options' => $options));
 		$this->add_setting($key, 'awpcppagefilterswitch', 'Enable page filter', 
 						   'checkbox', 1, 
 						   'Uncheck this if you need to turn off the AWPCP page filter that prevents AWPCP classifieds children pages from showing up in your wp pages menu (You might need to do this if for example the AWPCP page filter is messing up your page menu. It means you will have to manually exclude the AWPCP children pages from showing in your page list. Some of the pages really should not be visible to your users by default).');
@@ -760,11 +762,11 @@ class AWPCP_Settings_API {
 		$value = intval($this->get_option($setting->name));
 
 		$html = '<input type="hidden" value="0" name="awpcp-options['. $setting->name .']" />';
-		$html.= '<label for="'. $setting->name . '">';
 		$html.= '<input id="'. $setting->name . '" value="1" ';
 		$html.= 'type="checkbox" name="awpcp-options[' . $setting->name . ']" ';
 		$html.= $value ? 'checked="checked" />' : ' />';
-		$html.= '<span class="description">' . $setting->helptext . '</span>';
+		$html.= '<label for="'. $setting->name . '">';
+		$html.= '&nbsp;<span class="description">' . $setting->helptext . '</span>';
 		$html.= '</label>';
 
 		echo $html;
@@ -798,7 +800,7 @@ class AWPCP_Settings_API {
 				$html.= '<option value="' . $value . '">' . $label . '</option>';
 			}
 		}
-		$html.='</select><br/>';
+		$html.= '</select><br/>';
 		$html.= '<span class="description">' . $setting->helptext . '</span>';
 
 		echo $html;
@@ -812,7 +814,10 @@ class AWPCP_Settings_API {
 
 		$html = '';
 		foreach ($options as $value => $label) {
-			$html.= '<input type="radio" value="' . $value . '" ';
+			$id = "{$setting->name}-$value";
+			$label = ' <label for="' . $id . '">' . $label . '</label>';
+
+			$html.= '<input id="' . $id . '"type="radio" value="' . $value . '" ';
 			$html.= 'name="awpcp-options['. $setting->name .']" ';
 			if ($value == $current) {
 				$html.= 'checked="checked" />' . $label;
@@ -821,7 +826,7 @@ class AWPCP_Settings_API {
 			}
 			$html.= '<br/>';
 		}
-		$html.= '<br/><span class="description">' . $setting->helptext . '</span>';
+		$html.= '<span class="description">' . $setting->helptext . '</span>';
 
 		echo $html;
 	}

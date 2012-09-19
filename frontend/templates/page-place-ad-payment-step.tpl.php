@@ -81,27 +81,9 @@
 			<span class="awpcp-error"><?php echo $error ?></span>
 			<?php endif ?>
 
-			<table class="awpcp-table">
-				<thead>
-					<tr>
-						<th>Payment Method</th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php $selected = awpcp_array_data('payment-method', '', $form_values) ?>
-					<?php $selected = empty($selected) ? array_shift(awpcp_get_properties($payment_methods, 'slug')) : $selected ?>
-					<?php foreach ($payment_methods as $method): ?>
-					<tr class="js-awpcp-payment-method">
-						<td>
-							<?php $id = "payment-method-{$method->slug}" ?>
-							<input id="<?php echo $id ?>" type="radio" name="payment-method" value="<?php echo esc_attr($method->slug) ?>" <?php echo $method->slug == $selected ? 'checked="checked"' : '' ?> />
-							<label for="<?php echo $id ?>"><strong><?php echo $method->name ?></strong></label><br/>
-							<?php echo $method->description ?>
-						</td>
-					</tr>
-					<?php endforeach ?>
-				</tbody>
-			</table>
+			<?php $selected = awpcp_array_data('payment-method', '', $form_values) ?>
+			<?php $selected = empty($selected) ? array_shift(awpcp_get_properties($payment_methods, 'slug')) : $selected ?>
+			<?php echo awpcp_payments_methods_form($selected) ?>
 		</fieldset>
 
 		<p class="form-submit">

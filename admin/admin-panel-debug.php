@@ -1,7 +1,7 @@
 <?php
 
 class AWPCP_Admin_Debug {
-	
+
 	public function AWPCP_Admin_Debug() {
 		add_action('init', array($this, 'download'));
 	}
@@ -10,8 +10,14 @@ class AWPCP_Admin_Debug {
 	}
 
 	private function blacklisted($setting) {
-		$blacklisted = array('awpcpadminemail', 'paypalemail', '2checkout', 'tos',
-							 'smtphost', 'smtpport', 'smtpusername', 'smtppassword');
+		$blacklisted = array(
+			'awpcpadminemail', 'tos',
+			'paypalemail',
+			'2checkout',
+			'smtphost', 'smtpport', 'smtpusername', 'smtppassword',
+			'googlecheckoutmerchantID',
+			'authorize.net-login-id', 'authorize.net-transaction-key'
+		);
 		return in_array($setting, $blacklisted);
 	}
 
@@ -20,7 +26,7 @@ class AWPCP_Admin_Debug {
 		static $email_regexp = '';
 
 		if (empty($hosts_regexp)) {
-			$hosts = array_unique(array(parse_url(home_url(), PHP_URL_HOST), 
+			$hosts = array_unique(array(parse_url(home_url(), PHP_URL_HOST),
 						   				parse_url(site_url(), PHP_URL_HOST)));
 			$hosts_regexp = '/' . preg_quote(join('|', $hosts), '/') . '/';
 			$email_regexp = '/[_a-z0-9-+]+(\.[_a-z0-9-+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})/';
@@ -92,7 +98,7 @@ class AWPCP_Admin_Debug {
 
 	/**
 	 * Handler for the Classifieds->Debug AWPCP Admin page.
-	 * 
+	 *
 	 * @since unknown
 	 */
 	public function dispatch() {

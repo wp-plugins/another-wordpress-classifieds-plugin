@@ -1,6 +1,6 @@
 <div id="classiwrapper" class="awpcp-page-search-ads">
 
-	<script type="text/javascript">
+	<?php echo awpcp_inline_javascript_placeholder('search-ads', "<script type=\"text/javascript\">
 		function checkform() {
 			var the=document.myform;
 			if (the.keywordphrase.value==='') {
@@ -11,14 +11,14 @@
 					(!the.searchcountry || the.searchcountry.value==='') &&
 					(!the.searchcountyvillage || the.searchcountyvillage.value===''))
 				{
-					alert('<?php _e("You did not enter a keyword or phrase to search for. You must at the very least provide a keyword or phrase to search for","AWPCP") ?>');
+					alert('" . __("You did not enter a keyword or phrase to search for. You must at the very least provide a keyword or phrase to search for", "AWPCP") . "');
 					the.keywordphrase.focus();
 					return false;
 				}
 			}
 			return true;
 		}
-	</script>
+	</script>"); ?>
 	
 	<?php echo awpcp_menu_items() ?>
 

@@ -24,14 +24,18 @@ class AWPCP_Search_Widget extends WP_Widget {
 	}
 
 	function widget($args, $instance) {
-		extract( $args );
+		extract($args);
+
 		$title = $instance['title'].'<br/><span class="widgetstitle">'.$instance['subtitle'].'</span>';
+
 		//echo $before_widget; if(!empty($title)) { $before_title . $title . $after_title; }
 		echo $before_widget . $before_title . $title . $after_title;
 		echo '<div align="center"><form method=\'post\' action="'.url_searchads().'"><input type="hidden" name="a" value="dosearch"/>';
 
+		$keywordphrase = awpcp_post_param('keywordphrase');
+
 		if ($instance['show_keyword'] == 1) {
-			echo __('Search by keyword', "AWPCP").'<br/><input type="text"  name="keywordphrase" value="'.$_POST['keywordphrase'].'"><br/>';
+			echo __('Search by keyword', "AWPCP").'<br/><input type="text"  name="keywordphrase" value="' . $keywordphrase . '"><br/>';
 		}
 		if ($instance['show_by'] == 1) {
 			$this->ads_sel(__('Find ads by ', "AWPCP"),'ad_contact_name','searchname');

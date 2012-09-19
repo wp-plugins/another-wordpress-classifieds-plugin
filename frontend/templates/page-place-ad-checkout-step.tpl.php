@@ -9,8 +9,9 @@
 		<?php echo $part ?>
 	<?php endforeach ?>
 
-	<?php $text = __("Please click the button below to submit payment. You'll be asked to pay <strong>%0.2f</strong>", 'AWPCP'); ?>
+	<?php if ($text): ?>
 	<p><?php echo sprintf($text, $transaction->get('amount')) ?></p>
+	<?php endif ?>
 
 	<?php echo $checkout_form ?>
 </div>

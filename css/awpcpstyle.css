@@ -80,7 +80,7 @@ table.listcatsc tr.special td { border-bottom: 1px solid #ff0000;  }
 
 .postaclassified a { font-size:14px; color:#444444; }
 
-.scbox { border:1px solid #dddddd; } 
+.scbox { border:1px solid #dddddd; }
 .scbutton { border:1px dotted #dddddd; background:#cccccc; font-size:14px; color:#444444; }
 
 .classisearch { float:right; }
@@ -258,7 +258,7 @@ padding:0;
 
 #displayimagethumbswrapper #displayimagethumbs li.first-column {
 	clear: both;
-} 
+}
 
 
 .classimenu1 {
@@ -273,7 +273,7 @@ table.displayads td { width:33%;font-size: 12px; border: none; background-color:
 vertical-align: middle; font-weight: bold; }
 table.displayads tr.special td { border-bottom: 1px solid #dddddd;  }
 
-		
+
 table.displayads .displayadsicell{
 background:none;
 border:none;
@@ -325,8 +325,8 @@ text-decoration:underline;
 }
 
 #alphabarwrapper ul#alphabar { margin:0; padding:0px 0px 25px 0px;list-style-type:none;float:left; }
-#alphabarwrapper #alphabar li { list-style:none; list-style-type:none; float:left;padding:5px;text-align:center;background:#f1f1f1;margin:0px 2px 2px 0px; } 
-#alphabarwrapper #alphabar li a { text-decoration:none;font-weight:normal;font-size:small; } 
+#alphabarwrapper #alphabar li { list-style:none; list-style-type:none; float:left;padding:5px;text-align:center;background:#f1f1f1;margin:0px 2px 2px 0px; }
+#alphabarwrapper #alphabar li a { text-decoration:none;font-weight:normal;font-size:small; }
 #alphabarwrapper { padding:5px;  }
 #alphabarwrapper h3 { margin:0; padding:0; border-bottom:#f3f3f3; font-size:small; text-transform:uppercase; }
 
@@ -399,9 +399,9 @@ img.awpcpbrowseadsimg  { width:60px; }
 p.maincategoryclass {
 	background:#eeeeee;
 	text-align:center;
-	padding-bottom:10px; 
-	padding-top:10px; 
-	margin: 0 0 3px 0; 
+	padding-bottom:10px;
+	padding-top:10px;
+	margin: 0 0 3px 0;
 }
 
 .categoryicon {
@@ -449,16 +449,32 @@ label {font-weight:bold;}
     width: 57px;
 }
 
-#js_error { 
-color:#cf0000; 
-border: 1px dotted #cc0000; 
-background-color: #fee; 
-text-align:center; 
+#js_error {
+color:#cf0000;
+border: 1px dotted #cc0000;
+background-color: #fee;
+text-align:center;
 margin-bottom: 12px !important;
 padding-top: 5px !important;
 }
 
 
+/* AWPCP Mesages */
+
+.awpcp-message {
+	border: 1px solid #CCC;
+	color: #555;
+	margin: 10px 0;
+	padding: 10px;
+}
+.updated {
+	background-color: #FFFBCC;
+	border-color: #E6DB55;
+}
+.error {
+	background-color: #FFEBE8;
+	border-color: #CC0000;
+}
 
 /* Ad Posted Styles */
 
@@ -480,10 +496,16 @@ p.ad_status_msg {
     padding: 6px 10px 6px 0;
 	text-align: left;
 }
-.awpcp-table th { 
+.awpcp-table th {
 }
 .awpcp-table td {
 	border-top: 1px solid #DDDDDD;
+}
+
+/* AWPCP Payment Methods Table styles */
+
+.awpcp-payment-methods-table tr td {
+	vertical-align: middle;
 }
 
 
@@ -494,7 +516,8 @@ p.ad_status_msg {
 	margin: 0 0 10px;
 	padding: 10px;
 }
-#awpcp-region-control-selector .legend {
+#awpcp-region-control-selector .legend,
+#awpcp-region-control-selector .help-text {
 	margin-bottom: 10px;
 }
 #awpcp-region-control-selector .awpcp-form-spacer {

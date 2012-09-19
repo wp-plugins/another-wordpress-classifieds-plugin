@@ -25,7 +25,7 @@ class AWPCP_Payment_ThankYou_Page {
 
 	public function dispatch() {
 		global $wp_query;
-		
+
 		$transaction_id = awpcp_array_data('awpcp-txn', '', $wp_query->query_vars);
 
 		$transaction_id_msg = '<br/><br/>';
@@ -85,7 +85,11 @@ class AWPCP_Payment_ThankYou_Page {
 		{
 			$text = __("Your Payment has been processed succesfully. However, the payment gateway didn't return a payment status that allows us to continue with the checkout process. Please contact the website admin to solve this issue.", 'AWPCP');
 			$text.= '<br/><br/>';
-			$text.= sprintf(__('The payment status was set to %s', 'AWPCP'), $payment_status);
+			if (empty($transaction->errors)) {
+				$text.= sprintf(__('The payment status was set to %s.', 'AWPCP'), $payment_status);
+			} else {
+				$text.= join('<br/><br/>', $transaction->errors);
+			}
 
 			$texts = array('title' => __('Payment Failed'), 'subtitle' => '', 'text' => $text);
 

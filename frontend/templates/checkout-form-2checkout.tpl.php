@@ -11,7 +11,7 @@
 	<input type="hidden" name="id_type" value="1" />
 	<input type="hidden" name="fixed" value="Y" />
 	<input type="hidden" name="pay_method" value="CC" />
-	<input type="hidden" name="x_Receipt_Link_URL" value="<?php echo $return_url ?>" />
+	<input type="hidden" name="x_receipt_link_url" value="<?php echo $return_url ?>" />
 	<input type="hidden" name="x_invoice_num" value="1" />
 	<input type="hidden" name="x_amount" value="<?php echo $amount ?>" />
 	<input type="hidden" name="c_prod" value="<?php echo $item->id ?>" />

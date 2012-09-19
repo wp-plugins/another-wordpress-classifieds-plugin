@@ -769,17 +769,16 @@ class AWPCP_Installer {
         global $wpdb;
         global $awpcp;
         
-        // Change Ad's title CSS class to avoid problems with Ad Blocker extensions
+        // change Ad's title CSS class to avoid problems with Ad Blocker extensions
         $value = $awpcp->settings->get_option('awpcpshowtheadlayout');
         $value = preg_replace('/<div class="adtitle">/', '<div class="awpcp-title">', $value);
         $awpcp->settings->update_option('awpcpshowtheadlayout', $value);
 
-        // Insert new field ad_item_price into awpcp_ads table
         if (!$this->column_exists(AWPCP_TABLE_ADPHOTOS, 'is_primary')) {
             $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADPHOTOS . "  ADD `is_primary` TINYINT(1) NOT NULL DEFAULT 0");
         }
 
-        // Add character limit to Fee plans
+        // add character limit to Fee plans
         if (!$this->column_exists(AWPCP_TABLE_ADFEES, 'characters_allowed')) {
             $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADFEES . "  ADD `characters_allowed` INT(1) NOT NULL DEFAULT 0");
         }

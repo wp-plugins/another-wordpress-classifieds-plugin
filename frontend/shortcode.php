@@ -143,7 +143,7 @@ function awpcpui_process($awpcppagename) {
 			}
 
 			// double check module existence :\
-			if (class_exists('AWPCP_Region_Control_Module')) {
+			if (method_exists('AWPCP_Region_Control_Module', 'set_location')) {
 				$region = awpcp_region_control_get_entry(array('id' => $region_id));
 				$regions = AWPCP_Region_Control_Module::instance();
 				$regions->set_location($region);
@@ -219,7 +219,7 @@ function awpcpui_process_contact() {
 	}
 
 	if (get_awpcp_option('reply-to-ad-requires-registration') && !is_user_logged_in()) {
-		$message = __('Only register users can reply to Ads. If you are already registered, please login below in order to reply to the Ad.', 'AWPCP');
+		$message = __('Only registered users can reply to Ads. If you are already registered, please login below in order to reply to the Ad.', 'AWPCP');
 		return awpcp_login_form($message, awpcp_current_url());
 	}
 

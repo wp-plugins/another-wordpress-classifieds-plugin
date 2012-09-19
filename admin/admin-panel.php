@@ -2262,6 +2262,7 @@ function awpcp_savefees() {
 	    } else {
 		    $is_featured_ad_pricing = 0;
 	    }
+	    $is_featured_ad_pricing = intval($is_featured_ad_pricing);
 
 	    if (function_exists('awpcp_price_cats')) {
 			$fee_cats = awpcp_price_cats_fees();

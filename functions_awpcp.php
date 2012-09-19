@@ -28,7 +28,8 @@ function sqlerrorhandler($ERROR, $QUERY, $PHPFILE, $LINE) {
 	define("SQLMESSAGE", $ERROR);
 	define("SQLERRORLINE", $LINE);
 	define("SQLERRORFILE", $PHPFILE);
-	trigger_error("(SQL)", E_USER_ERROR);
+	// debugp($ERROR, $QUERY, $PHPFILE, $LINE);
+	trigger_error("(SQL) $ERROR", E_USER_ERROR);
 }
 
 /**

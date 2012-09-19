@@ -3,9 +3,9 @@ Contributors: awpcp
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
-Tested up to: 3.4.1
-Last Updated: 2012-Aug-24
-Stable tag: tags/2.1.1
+Tested up to: 3.4.2
+Last Updated: 2012-Sep-18
+Stable tag: tags/2.1.2
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
@@ -206,6 +206,23 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 2.1.2 =
+ NEW: Allow for regions control region box to be collapsible
+ NEW: Make Region Control Sidelist collapsible
+ NEW: Redesign region selector widget to use less space
+ Bug: Regions Module selector is not working on all sites
+ Bug: wpautop and wptexturize break AWPCP's inline JavaScript
+ Bug: PayPal certificate verification issues
+ Bug: CSV Importer does not show useful error messages when upload fails.
+ Bug: Add radio fields to choose which Roles have AWPCP admin access.
+ Bug: Conflict between Region Sidelist and Region Selector
+ Bug: awpcp_ajaxurl is returning the wrong URL
+ Bug: Show images/icons (instead of just text) to identify the supported payment methods.
+ Bug: Use cURL both with and without bundled CA to solve certificate verification issues.
+ Bug: Fix Fatal error in 2Checkout validation function.
+ Bug: Avoid creating Extra Fields named with WP Reserved Words
+ Bug: Fix Google Checkout validation and verification module.
+
  = 2.1.1 =
  NEW: Display characters allowed in Payment Step screen
  NEW: Make Featured Ads widget take into account current selected Region

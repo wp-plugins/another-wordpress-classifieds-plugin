@@ -1,9 +1,9 @@
-<?php 
+<?php
 
 class AWPCP_Search_Ads_Page {
 	// true if the shortcode handler was executed
 	public $active = false;
-	
+
 	public function AWPCP_Search_Ads_Page() {
 		// used to get list of relevant Regions in Search Ads page
 		// to update dropdowns
@@ -19,16 +19,12 @@ class AWPCP_Search_Ads_Page {
 
 	public function init() {
 		add_filter('awpcp-display-ads-before-list', array($this, 'show_return_link'));
-		
-		$src = AWPCP_URL . 'js/region-control.js';
-		wp_register_script('awpcp-region-control', $src, array('jquery'), '1.1', true);
 	}
 
 	public function print_scripts() {
 		if (!$this->active) {
 			return;
 		}
-		wp_print_scripts('awpcp-region-control');
 		wp_print_scripts('awpcp-extra-fields');
 	}
 
@@ -91,7 +87,7 @@ class AWPCP_Search_Ads_Page {
 		$searchadspageid = awpcp_get_page_id_by_ref('search-ads-page-name');
 
 		$url = get_permalink($searchadspageid);
-		
+
 		$region = '';
 		if ($hasregionsmodule == 1) {
 			if (isset($_SESSION['regioncityID']) && !empty($_SESSION['regioncityID'])) {
