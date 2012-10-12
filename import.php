@@ -17,6 +17,7 @@ class AWPCP_CSV_Importer {
 		"contact_name" => "ad_contact_name",
 		"contact_email" => "ad_contact_email",
 		"category_name" => "ad_category_id",
+		"category_parent" => "ad_category_parent_id",
 		"contact_phone" => "ad_contact_phone",
 		"website_url" => "websiteurl",
 		"city" => "ad_city",
@@ -31,12 +32,14 @@ class AWPCP_CSV_Importer {
 
 	private $ignored = array('ad_id', 'id');
 
+	// empty string to indicate integers :\
 	private $types = array(
 		"title" => "varchar",
 		"details" => "varchar",
 		"contact_name" => "varchar",
 		"contact_email" => "varchar",
-		"category_name" => "varchar",
+		"category_name" => "",
+		"category_parent" => "",
 		"contact_phone" => "varchar",
 		"website_url" => "varchar",
 		"city" => "varchar",
@@ -218,30 +221,45 @@ class AWPCP_CSV_Importer {
 
 			$email = awpcp_array_data('contact_email', '', $data);
 			$category = awpcp_array_data('category_name', '', $data);
-			$category = $this->get_category_id($category);
+			list($category_id, $category_parent_id) = $this->get_category_id($category);
 
-			if ($category == 0) {
-				$msg = __('Category name not found at row number %d', 'AWPCP');
-				$msg = sprintf($msg, $row);
-				$errors[] = $msg;
-			}
+			// if ($category == 0) {
+			// 	$msg = __('Category name not found at row number %d', 'AWPCP');
+			// 	$msg = sprintf($msg, $row);
+			// 	$this->rejected[$row] = true;
+			// 	$errors[] = $msg;
+			// 	break;
+			// }
 
 			foreach ($this->columns as $key => $column) {
-				if (!in_array($key, $header)) continue;
-
 				$value = awpcp_array_data($key, '', $data);
 
+				$_errors = array();
 				if ($key == 'username') {
-					$value = awpcp_csv_importer_get_user_id($value, $email, $row, $errors, $messages);
+					$value = awpcp_csv_importer_get_user_id($value, $email, $row, $_errors, $messages);
 				} else if ($key == 'category_name') {
-					$value = $category;
+					$value = $category_id;
+				} else if ($key == 'category_parent') {
+					$value = $category_parent_id;
 				} else {
-					$value = $this->parse($value, $key, $row, $errors);
+					$value = $this->parse($value, $key, $row, $_errors);
 				}
 
-				if (empty($value) && in_array($key, $this->required)) {
-					$msg = __('Required value missing at row number: %d');
-					$msg = sprintf($msg, $row);
+				// if there was an error getting a value for this field,
+				// but the field wasn't included in the CSV, skip and mark
+				// the row as good
+				if ($value === false && !in_array($key, $header)) {
+					$this->rejected[$row] = false;
+					continue;
+				}
+
+				$errors = array_merge($errors, $_errors);
+
+				// missing value, mark row as bad
+				if (strlen($value) === 0 && in_array($key, $this->required)) {
+					$msg = __('Required value <em>%s</em> missing at row number: %d');
+					$msg = sprintf($msg, $key, $row);
+					$this->rejected[$row] = true;
 					$errors[] = $msg;
 					break;
 				}
@@ -539,24 +557,24 @@ class AWPCP_CSV_Importer {
 		$auto = $this->options['autocreate-categories'];
 		$test = $this->options['test-import'];
 
-		$sql = 'SELECT category_id FROM ' . AWPCP_TABLE_CATEGORIES . ' ';
+		$sql = 'SELECT category_id, category_parent_id FROM ' . AWPCP_TABLE_CATEGORIES . ' ';
 		$sql.= 'WHERE category_name = %s';
 		$sql = $wpdb->prepare($sql, $name);
 
-		$id = $wpdb->get_var($sql);
+		$category = $wpdb->get_row($sql, ARRAY_N);
 
-		if (!$id && $auto && !$test) {
+		if (is_null($category) && $auto && !$test) {
 			$sql = 'INSERT INTO ' . AWPCP_TABLE_CATEGORIES . ' ';
 			$sql.= '(category_parent_id, category_name, category_order) VALUES (0, %s, 0)';
 			$sql = $wpdb->prepare($sql, $name);
 
 			$wpdb->query($sql);
 
-			return $wpdb->insert_id;
-		} else if ($id) {
-			return $id;
+			return array($wpdb->insert_id, 0);
+		} else if (!is_null($category)) {
+			return $category;
 		} else if ($auto && $test) {
-			return 5;
+			return array(5, 0);
 		}
 
 		return false;
@@ -572,7 +590,7 @@ class AWPCP_CSV_Importer {
 		if ($key == "item_price") {
 			// numeric validation
 			if (is_numeric($val)) {
-				// AWPCP stores Ad prices using an INT column (WTF!!) so we need to
+				// AWPCP stores Ad prices using an INT column (WTF!) so we need to
 				// store 99.95 as 9995 and 99 as 9900.
 				return $val * 100;
 			} else {
@@ -596,7 +614,7 @@ class AWPCP_CSV_Importer {
 				$this->rejected[$row_num] = true;
 			} else {
 				// TODO: validation
-				$val = $this->parse_date($start_date, 'uk_date', $date_sep, $time_sep); // $start_date;
+				$val = $this->parse_date($start_date, 'us_date', $date_sep, $time_sep); // $start_date;
 			}
 			return $val;
 		} else if ($key == "end_date") {
@@ -616,7 +634,7 @@ class AWPCP_CSV_Importer {
 				$this->rejected[$row_num] = true;
 			} else {
 				// TODO: validation
-				$val = $this->parse_date($end_date, 'uk_date', $date_sep, $time_sep); // $end_date;
+				$val = $this->parse_date($end_date, 'us_date', $date_sep, $time_sep); // $end_date;
 			}
 			return $val;
 		} else if ($key == "ad_postdate") {
@@ -625,7 +643,7 @@ class AWPCP_CSV_Importer {
 				$val = $date->format('Y-m-d');
 			} else {
 				// TODO: validation
-				$val = $this->parse_date($start_date, 'uk_date', $date_sep, $time_sep, 'Y-m-d'); // $start_date;
+				$val = $this->parse_date($start_date, 'us_date', $date_sep, $time_sep, 'Y-m-d'); // $start_date;
 			}
 			return $val;
 		} else if ($key == "ad_last_updated") {

@@ -105,6 +105,7 @@
 						<th><?php _e('Fee Plan', 'AWPCP') ?></th>
 						<th><?php _e('Start Date', 'AWPCP') ?></th>
 						<th><?php _e('End Date', 'AWPCP') ?></th>
+						<th><?php _e('Renewed', 'AWPCP') ?></th>
 						<?php /*<th></th><!-- featured head/conditional on module existence -->*/ ?>
 						<th><?php _e('Status', 'AWPCP') ?></th>
 						<th><?php _e('Payment Status', 'AWPCP') ?></th>
@@ -159,7 +160,7 @@
 						<td><?php echo $item->get_fee_plan_name() ?></td>
 						<td><?php echo $item->get_start_date() ?></td>
 						<td><?php echo $item->get_end_date() ?></td>
-						
+						<td><?php echo $item->get_renewed_date() ?></td>
 						<?php /*<td><!-- featured note --></td>*/ ?>
 
 						<td><?php echo $item->disabled == 0 ? __('Enabled', 'AWPCP') : __('Disabled', 'AWPCP') ?></td>

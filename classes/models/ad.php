@@ -34,8 +34,11 @@ class AWPCP_Ad {
 
 		$ad->is_featured_ad = $object->is_featured_ad;
 		$ad->flagged = $object->flagged;
+
 		$ad->disabled = $object->disabled;
 		$ad->disabled_date = $object->disabled_date;
+
+		$ad->renewed_date = $object->renewed_date;
 		$ad->renew_email_sent = $object->renew_email_sent;
 
 		$ad->websiteurl = $object->websiteurl;
@@ -63,7 +66,7 @@ class AWPCP_Ad {
 	/**
 	 * @since unknown
 	 */
-	public static function find($where='1 = 1', $order='id', $offset=0, $results=10) {
+	public static function find($where='1 = 1', $order='id', $offset=false, $results=false) {
 		global $wpdb;
 
 		switch ($order) {
@@ -85,6 +88,9 @@ class AWPCP_Ad {
 			case 'oldest':
 				$order = "ad_startdate ASC";
 				break;
+			case 'renewed':
+				$order = 'renewed_date DESC, ad_startdate DESC';
+				break;
 			case 'featured':
 				$order = "is_featured_ad DESC, ad_startdate DESC";
 				break;
@@ -98,7 +104,10 @@ class AWPCP_Ad {
 		}
 
 		$query = "SELECT * FROM " . AWPCP_TABLE_ADS . " WHERE $where ";
-		$query.= "ORDER BY $order LIMIT $offset,$results";
+		$query.= "ORDER BY $order ";
+
+		if ($offset !== false && $results !== false)
+			$query.= "LIMIT $offset,$results";
 
 		$items = $wpdb->get_results($query);
 		$results = array();
@@ -117,6 +126,10 @@ class AWPCP_Ad {
 		$n = $wpdb->get_var($query);
 
 		return $n !== FALSE ? $n : 0;
+	}
+
+	public static function generate_key() {
+		return md5(sprintf('%s%s%d', AUTH_KEY, uniqid('', true), rand(1, 1000)));
 	}
 
 	/**
@@ -142,8 +155,9 @@ class AWPCP_Ad {
 	function sanitize($data) {
 		$sanitized = $data;
 
-		// make sure dates are dates or NULL, Stric mode does not allow empty strings
-		$columns = array('ad_postdate', 'ad_last_updated', 'ad_startdate', 'ad_enddate', 'disabled_date');
+		// make sure dates are dates or NULL, MySQL Strict mode does not allow empty strings
+		$columns = array('ad_postdate', 'ad_last_updated', 'ad_startdate', 'ad_enddate',
+						 'disabled_date', 'renewed_date');
 		$regexp = '/^\d{4}-\d{1,2}-\d{1,2}(\s\d{1,2}:\d{1,2}(:\d{1,2})?)?$/';
 		foreach ($columns as $column) {
 			$value = trim($sanitized[$column]);
@@ -201,7 +215,9 @@ class AWPCP_Ad {
 					'flagged' => $this->flagged,
 					'disabled' => $this->disabled,
 					'disabled_date' => $this->disabled_date,
+
 					'renew_email_sent' => $this->renew_email_sent,
+					'renewed_date' => $this->renewed_date,
 
 					'websiteurl' => $this->websiteurl,
 					'posterip' => $this->posterip);
@@ -256,8 +272,14 @@ class AWPCP_Ad {
 
 	function get_disabled_date() {
 		if (!empty($this->disabled_date))
-			return $this->disabled_date;
-		return null;
+			return date('M d Y', strtotime($this->disabled_date));
+		return '';
+	}
+
+	function get_renewed_date() {
+		if (!empty($this->renewed_date))
+			return date('M d Y', strtotime($this->renewed_date));
+		return '';
 	}
 
 	function has_expired($date=null) {
@@ -270,6 +292,74 @@ class AWPCP_Ad {
 		$threshold = get_awpcp_option('ad-renew-email-threshold');
 		$date = strtotime(date('Y-m-d', strtotime(sprintf('today + %d days', $threshold))));
 		return $this->has_expired($date);
+	}
+
+	/**
+	 * Calculates Ad's end date based on Ad's payment term.
+	 *
+	 * Ad's end date will be calculated using $start_date as starting point. If
+	 * no $start_date is provided, Ad's start date will be used.
+	 *
+	 * @param $start_date	string or timestamp
+	 * @since 2.0.7
+	 */
+	function calculate_end_date($start_date=null) {
+		if ($this->adterm_id > 0) {
+			$payment_term = awpcp_payment_terms('ad-term-fee', $this->adterm_id);
+		} else {
+			$payment_term = null;
+		}
+
+		if (is_null($payment_term)) {
+			$duration = get_awpcp_option('addurationfreemode');
+			$interval = 'DAY';
+		} else {
+			$duration = $payment_term->period;
+			$interval = $payment_term->increment;
+		}
+
+		if (is_null($start_date) || empty($start_date)) {
+			$start_date = strtotime($this->ad_startdate);
+		} else if (is_string($start_date)) {
+			$start_date = strtotime($start_date);
+		} else {
+			// we asume a timestamp
+		}
+
+		$end_date = awpcp_calculate_end_date($duration, $interval, $start_date);
+
+		return apply_filters('awpcp-ad-calculate-end-date', $end_date, $start_date, $this);
+	}
+
+	function renew($end_date=false) {
+		if ($end_date === false) {
+			$now = awpcp_time(null, 'timestamp');
+			// if the Ad's end date is in the future, use that as starting point
+			// for the new end date, else use current date.
+			$start_date = $this->ad_enddate > $now ? $this->ad_enddate : $now;
+			$this->set_end_date($this->calculate_end_date($start_date));
+		} else {
+			$this->set_end_date($end_date);
+		}
+
+		$this->renew_email_sent = false;
+		$this->renewed_date = current_time('mysql');
+
+		// if Ad is disabled lets see if we can enable it
+		if ($this->disabled) {
+			$this->disabled = awpcp_calculate_ad_disabled_state($this->ad_id);
+		}
+
+		// if Ad is enabled, enable images
+		if ( ! $this->disabled) {
+			$images = AWPCP_Image::find_by_ad_id($this->ad_id);
+			foreach ($images as $image) {
+				$image->disabled = false;
+				$image->save();
+			}
+		}
+
+		return true;
 	}
 
 	function get_payment_status() {
@@ -288,46 +378,17 @@ class AWPCP_Ad {
 	 * @since 2.1.2
 	 */
 	function get_max_characters_allowed() {
-		$chars = get_awpcp_option('maxcharactersallowed');
 		if (intval($this->adterm_id) > 0) {
 			$fee = awpcp_get_fee($this->adterm_id);
 			$chars = is_null($fee) ? $chars : $fee->characters_allowed;
+		} else {
+			$chars = get_awpcp_option('maxcharactersallowed');
 		}
 		return apply_filters('awpcp-ad-max-characters-allowed', $chars, $this);
 	}
 
-	/**
-	 * Calculates Ad's end date basd on Ad's payment term.
-	 *
-	 * @since 2.0.7
-	 */
-	function calculate_end_date($start_date=null) {
-		if ($this->adterm_id > 0) {
-			$payment_term = awpcp_payment_terms('ad-term-fee', $this->adterm_id);
-		} else {
-			$payment_term = null;
-		}
-
-		if (is_null($payment_term)) {
-			$duration = get_awpcp_option('addurationfreemode');
-			$interval = 'DAY';
-		} else {
-			$payment_term_info = explode(' ', $payment_term->duration);
-			$duration = strtoupper(trim($payment_term_info[0]));
-			$interval = strtoupper(trim($payment_term_info[1]));
-		}
-
-		if (is_null($start_date) || empty($start_date)) {
-			$start_date = strtotime($this->ad_startdate);
-		} else if (is_string($start_date)) {
-			$start_date = strtotime($start_date);
-		} else {
-			// we asume a timestamp
-		}
-
-		$end_date = awpcp_calculate_end_date($duration, $interval, $start_date);
-
-		return apply_filters('awpcp-ad-calculate-end-date', $end_date, $start_date, $this);
+	function get_remaining_characters_count() {
+		return max($this->get_max_characters_allowed() - strlen($this->ad_details), 0);
 	}
 }
 

@@ -3,7 +3,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. <strong>!!!IMPORTANT!!!</strong> Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 2.1.2
+ Version: 2.1.3
  Author: D. Rodenbaugh
  License: GPLv2 or any later version
  Author URI: http://www.skylineconsult.com
@@ -137,6 +137,8 @@ require_once(AWPCP_DIR . "upload_awpcp.php");
 
 // API & Classes
 require_once(AWPCP_DIR . "classes/models/ad.php");
+require_once(AWPCP_DIR . "classes/models/category.php");
+require_once(AWPCP_DIR . "classes/models/image.php");
 require_once(AWPCP_DIR . "classes/models/payment-transaction.php");
 
 require_once(AWPCP_DIR . "classes/helpers/list-table.php");
@@ -177,7 +179,7 @@ class AWPCP {
 	// TODO: I want to register all plugin scripts here, enqueue on demand in each page.
 	// is that a good idea? -@wvega
 
-	public function AWPCP() {
+	public function __construct() {
 		// we need to instatiate this here, because some options are
 		// consulted before plugins_loaded...
 		$this->settings = new AWPCP_Settings_API();
@@ -267,6 +269,7 @@ class AWPCP {
 			// we need to dalay insertion of inline JavaScript to avoid problems
 			// with wpauotp and wptexturize functions
 			add_filter('the_content', 'awpcp_inline_javascript', 1000);
+			add_filter('admin_footer', 'awpcp_print_inline_javascript', 1000);
 		}
 	}
 
@@ -601,15 +604,26 @@ function awpcp_addcss() {
 }
 // PROGRAM FUNCTIONS
 
-
+/**
+ * Return an array of refnames for pages associated with one or more
+ * rewrite rules.
+ *
+ * @since 2.1.3
+ * @return array Array of page refnames.
+ */
+function awpcp_pages_with_rewrite_rules() {
+	return array(
+		'main-page-name',
+		'show-ads-page-name',
+		'reply-to-ad-page-name',
+		'browse-categories-page-name',
+		'payment-thankyou-page-name',
+		'payment-cancel-page-name'
+	);
+}
 
 function awpcp_add_rewrite_rules($rules) {
-	$pages = array('main-page-name',
-				   'show-ads-page-name',
-				   'reply-to-ad-page-name',
-				   'browse-categories-page-name',
-				   'payment-thankyou-page-name',
-				   'payment-cancel-page-name');
+	$pages = awpcp_pages_with_rewrite_rules();
 	$patterns = array();
 
 	foreach ($pages as $refname) {
@@ -720,20 +734,35 @@ function awpcp_rel_canonical() {
 function awpcp_redirect_canonical($redirect_url, $requested_url) {
 	global $wp_query;
 
-	$id = awpcp_get_page_id_by_ref('main-page-name');
+	$ids = awpcp_get_page_ids_by_ref(awpcp_pages_with_rewrite_rules());
 
-	// do not redirect direct requests to AWPCP main page
-	if (is_page() && !empty($_GET['page_id']) && $id == $_GET['page_id']) {
+	// do not redirect requests to AWPCP pages with rewrite rules
+	if (is_page() && in_array(awpcp_request_param('page_id', 0), $ids)) {
 		$redirect_url = $requested_url;
 
-	// do not redirect request to the front page, if AWPCP main page is
-	// the front page
+	// do not redirect requests to the front page, if any of the AWPCP pages
+	// with rewrite rules is the front page
 	} else if (is_page() && !is_feed() && isset($wp_query->queried_object) &&
-			  'page' == get_option('show_on_front') && $id == $wp_query->queried_object->ID &&
+			  'page' == get_option('show_on_front') && in_array($wp_query->queried_object->ID, $ids) &&
 			   $wp_query->queried_object->ID == get_option('page_on_front'))
 	{
 		$redirect_url = $requested_url;
 	}
+
+	// $id = awpcp_get_page_id_by_ref('main-page-name');
+
+	// // do not redirect direct requests to AWPCP main page
+	// if (is_page() && !empty($_GET['page_id']) && $id == $_GET['page_id']) {
+	// 	$redirect_url = $requested_url;
+
+	// // do not redirect request to the front page, if AWPCP main page is
+	// // the front page
+	// } else if (is_page() && !is_feed() && isset($wp_query->queried_object) &&
+	// 		  'page' == get_option('show_on_front') && $id == $wp_query->queried_object->ID &&
+	// 		   $wp_query->queried_object->ID == get_option('page_on_front'))
+	// {
+	// 	$redirect_url = $requested_url;
+	// }
 
 	return $redirect_url;
 }

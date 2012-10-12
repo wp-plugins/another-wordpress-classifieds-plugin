@@ -5,6 +5,7 @@ require_once(AWPCP_DIR . 'frontend/page-place-ad.php');
 require_once(AWPCP_DIR . 'frontend/page-show-ad.php');
 require_once(AWPCP_DIR . 'frontend/page-search-ads.php');
 require_once(AWPCP_DIR . 'frontend/page-browse-ads.php');
+require_once(AWPCP_DIR . 'frontend/page-browse-cat.php');
 require_once(AWPCP_DIR . 'frontend/page-payment-thank-you.php');
 require_once(AWPCP_DIR . 'frontend/page-cancel-payment.php');
 
@@ -13,10 +14,12 @@ class AWPCP_Pages {
 
 	public function AWPCP_Pages() {
 		$this->meta = AWPCP_Meta::instance();
-		
+
 		$this->place_ad = new AWPCP_Place_Ad_Page();
 		$this->show_ad = new AWPCP_Show_Ad_Page();
 		$this->search_ads = new AWPCP_Search_Ads_Page();
+		$this->browse_ads = new AWPCP_BrowseAdsPage();
+		$this->browse_cat = new AWPCP_BrowseCatPage();
 		$this->payment_thank_you = new AWPCP_Payment_ThankYou_Page();
 		$this->cancel_payment = new AWPCP_Cancel_Payment_Page();
 
@@ -24,22 +27,21 @@ class AWPCP_Pages {
 	}
 
 	public function init() {
-		// add_filter('wp_title','awpcp_append_title', 10, 3);
-
-		// add_shortcode('AWPCPPLACEAD','awpcpui_postformscreen');
 		add_shortcode('AWPCPPLACEAD', array($this->place_ad, 'dispatch'));
 		add_shortcode('AWPCPSEARCHADS', array($this->search_ads, 'dispatch'));
 		add_shortcode('AWPCPPAYMENTTHANKYOU', array($this->payment_thank_you, 'dispatch'));
 		add_shortcode('AWPCPCANCELPAYMENT', array($this->cancel_payment, 'dispatch'));
-		
+		add_shortcode('AWPCPBROWSEADS', array($this->browse_ads, 'dispatch'));
+		add_shortcode('AWPCPBROWSECATS', array($this->browse_cat, 'dispatch'));
+
 		add_shortcode('AWPCPCLASSIFIEDSUI', 'awpcpui_homescreen');
 		add_shortcode('AWPCPSHOWAD','showad');
 		// TODO: write an update script to update this shortcode
 		add_shortcode('AWPCP-RENEW-AD','awpcp_renew_ad_page');
-		add_shortcode('AWPCPBROWSEADS','awpcpui_browseadsscreen');
 		add_shortcode('AWPCPEDITAD','awpcpui_editformscreen');
 		add_shortcode('AWPCPREPLYTOAD','awpcpui_contactformscreen');
-		add_shortcode('AWPCPBROWSECATS','awpcpui_browsecatsscreen');
+
+		add_shortcode('AWPCPSHOWCAT', array($this->browse_cat, 'shortcode'));
 
 		do_action('awpcp_setup_shortcode');
 	}
@@ -103,28 +105,14 @@ function awpcpui_contactformscreen() {
 // 	return $paymentthankyou_content;
 // }
 
-// Set Browse Cats Screen
-
-function awpcpui_browsecatsscreen()
-{
-	//debug();
-	global $browsecats_content;
-	if (!isset($browsecats_content) || empty($browsecats_content)){$browsecats_content=awpcpui_process_browsecats();}
-	return $browsecats_content;
-}
-
-
-
-
-
 
 function awpcpui_process($awpcppagename) {
 	global $hasrssmodule, $hasregionsmodule, $awpcp_plugin_url;
 
 	$output = '';
-	$action='';
+	$action = '';
 
-	$awpcppage=get_currentpagename();
+	$awpcppage = get_currentpagename();
 	if (!isset($awpcppagename) || empty($awpcppagename)) {
 		$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 	}
@@ -132,12 +120,12 @@ function awpcpui_process($awpcppagename) {
 	if (isset($_REQUEST['a']) && !empty($_REQUEST['a'])) {
 		$action=$_REQUEST['a'];
 	}
-	
+
 	// TODO: this kind of requests should be handled in Region Control's own code
 	if (($action == 'setregion') || '' != get_query_var('regionid')) {
 		if ($hasregionsmodule ==  1) {
 			if (isset($_REQUEST['regionid']) && !empty($_REQUEST['regionid'])) {
-				$region_id = $_REQUEST['regionid']; 
+				$region_id = $_REQUEST['regionid'];
 			} else {
 				$region_id = get_query_var('regionid');
 			}
@@ -245,65 +233,11 @@ function awpcpui_process_contact() {
 }
 
 
-
-function awpcpui_process_browsecats() {
-	global $hasregionsmodule;
-
-	$output = '';
-	$action='';
-
-	if (isset($_REQUEST['category_id']) && !empty($_REQUEST['category_id'])) {
-		$adcategory = intval($_REQUEST['category_id']);
-	} else {
-		$adcategory = intval(get_query_var('cid'));
-	}
-
-	if (isset($_REQUEST['a']) && !empty($_REQUEST['a'])) {
-		$action=$_REQUEST['a'];
-	}
-
-	if (!isset($action) || empty($action)){
-		$action="browsecat";
-	}
-
-	if (($action == 'browsecat')) {
-		if ($adcategory == -1 || empty($adcategory)) {
-			$where="";
-		} else {
-			$where="(ad_category_id='".$adcategory."' OR ad_category_parent_id='".$adcategory."') AND disabled =0";
-		}
-	} elseif (!isset($action)) {
-		if (isset($adcategory) ) {
-			if ($adcategory == -1 || empty($adcategory)) {
-				$where="";
-			} else {
-				$where="(ad_category_id='".$adcategory."' OR ad_category_parent_id='".$adcategory."') AND disabled =0";
-			}
-		} else {
-			$where="";
-		}
-	} else {
-		$where="";
-	}
-
-	if ($adcategory == -1) {
-		$output .= "<p><b>";
-		$output .= __("No specific category was selected for browsing so you are viewing listings from all categories","AWPCP");
-		$output .= "</b></p>";
-	}
-
-	$grouporderby = get_group_orderby();
-
-	$output .= awpcp_display_ads($where,$byl='',$hidepager='',$grouporderby,$adorcat='cat');
-	return $output;
-}
-
-
 function awpcp_load_classifieds($awpcppagename) {
 	$output = '';
 	if (get_awpcp_option('main_page_display') == 1) {
-		//Display latest ads on mainpage
-		$grouporderby=get_group_orderby();
+		// display latest ads on mainpage
+		$grouporderby = get_group_orderby();
 		$output .= awpcp_display_ads($where='',$byl=1,$hidepager='',$grouporderby,$adorcat='ad');
 	} else {
 		$output .= awpcp_display_the_classifieds_page_body($awpcppagename);
@@ -311,8 +245,6 @@ function awpcp_load_classifieds($awpcppagename) {
 
 	return $output;
 }
-
-
 
 
 //	START FUNCTION: show the classifieds page body
@@ -327,9 +259,6 @@ function awpcp_display_the_classifieds_page_body($awpcppagename) {
 		$awpcppagename = sanitize_title($awpcppage, $post_ID='');
 	}
 
-	$quers=setup_url_structure($awpcppagename);
-	$permastruc=get_option('permalink_structure');
-
 	$output .= "<div id=\"classiwrapper\">";
 	$uiwelcome=strip_slashes_recursive(get_awpcp_option('uiwelcome'));
 	$output .= "<div class=\"uiwelcome\">$uiwelcome</div>";
@@ -342,12 +271,10 @@ function awpcp_display_the_classifieds_page_body($awpcppagename) {
 			$theactiveregionid = $_SESSION['theactiveregionid'];
 			$theactiveregionname = get_theawpcpregionname($theactiveregionid);
 		}
-
 		$output .= awpcp_region_control_selector();
 	}
-	$output .= "
-					<div class=\"classifiedcats\">
-				";
+
+	$output .= "<div class=\"classifiedcats\">";
 
 	//Display the categories
 	$output .= awpcp_display_the_classifieds_category($awpcppagename);
@@ -647,12 +574,18 @@ function awpcp_display_classifieds_category_item($category, $class='toplevelitem
 	return $cat_icon . '<a class="' . $class . '" href="' . $url_browsecats . '">' . $category[1] . '</a> ' . $ads_in_cat;
 }
 
-
-function awpcp_display_the_classifieds_category($awpcppagename) {
+/**
+ * TODO: separate categories layout in a function that can be used in other places
+ * without all the noise.
+ * @param  [type]  $awpcppagename [description]
+ * @param  integer $parent        [description]
+ * @return [type]                 [description]
+ */
+function awpcp_display_the_classifieds_category($awpcppagename, $parent=0, $sidebar=true) {
 	global $wpdb;
 	global $awpcp_imagesurl;
 	global $hasregionsmodule;
-	
+
 	$tbl_ad_categories = $wpdb->prefix . "awpcp_categories";
 
 	$usingsidelist=0;
@@ -669,8 +602,10 @@ function awpcp_display_the_classifieds_category($awpcppagename) {
 
 	$table_cols = 1;
 	$query = "SELECT category_id,category_name FROM ". AWPCP_TABLE_CATEGORIES ." ";
-	$query.= "WHERE category_parent_id=0 AND category_name <> '' ";
+	$query.= "WHERE category_parent_id=%d AND category_name <> '' ";
 	$query.= "ORDER BY category_order,category_name ASC";
+	$query = $wpdb->prepare($query, $parent);
+
 	$res = awpcp_query($query, __LINE__);
 
 	$columns = get_awpcp_option('view-categories-columns', 2);
@@ -679,20 +614,9 @@ function awpcp_display_the_classifieds_category($awpcppagename) {
 		$i = 0;
 
 		// For use with regions module if sidelist is enabled
-		if ($hasregionsmodule ==  1) {
+		if ($sidebar && $hasregionsmodule ==  1) {
 			if (get_awpcp_option('showregionssidelist')) {
 				$awpcpregions_sidepanel = awpcp_region_control_render_sidelist();
-				// $awpcp_regions_sidelisted_type2=awpcp_regions_sidelisted_type2();
-				// $awpcp_regions_sidelisted_type3=awpcp_regions_sidelisted_type3();
-				// $awpcp_regions_sidelisted_type4=awpcp_regions_sidelisted_type4();
-				// $awpcp_regions_sidelisted_type5=awpcp_regions_sidelisted_type5();
-
-				// $awpcpregions_sidepanel = "<div class=\"awpcpcatlayoutright\"><ul>";
-				// $awpcpregions_sidepanel.= "$awpcp_regions_sidelisted_type2";
-				// $awpcpregions_sidepanel.= "$awpcp_regions_sidelisted_type3";
-				// $awpcpregions_sidepanel.= "$awpcp_regions_sidelisted_type4";
-				// $awpcpregions_sidepanel.= "$awpcp_regions_sidelisted_type5";
-				// $awpcpregions_sidepanel.= "</ul></div>";
 				$usingsidelist=1;
 			}
 		}
@@ -772,22 +696,17 @@ function awpcp_display_the_classifieds_category($awpcppagename) {
 //	START FUNCTION: configure the page to display to user for purpose of editing images during ad editing process
 
 
-function editimages($adtermid,$adid,$adkey,$editemail) {
+function editimages($adtermid, $adid, $adkey, $editemail) {
 	global $wpdb;
 
-	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 	$output = '';
 
-	$savedemail = get_adposteremail($adid);
-	$transval = '';
 	$imgstat = '';
 	$awpcpuperror = '';
 
-	if (strcasecmp($editemail, $savedemail) == 0) {
+	if (strcasecmp($editemail, get_adposteremail($adid)) == 0) {
 
-		$imagecode="<h2>";
-		$imagecode.=__("Manage your ad images","AWPCP");
-		$imagecode.="</h2>";
+		$imagecode = '<h2>' . __('Manage your Ad images','AWPCP') . '</h2>';
 
 		if (!isset($adid) || empty($adid)) {
 			$imagecode.=__("There has been a problem encountered. The system is unable to continue processing the task in progress. Please start over and if you encounter the problem again, please contact a system administrator.","AWPCP");
@@ -796,29 +715,13 @@ function editimages($adtermid,$adid,$adkey,$editemail) {
 			// First make sure images are allowed
 			if (get_awpcp_option('imagesallowdisallow') == 1) {
 				// Next figure out how many images user is allowed to upload
-
-				// if ((get_awpcp_option('freepay') == 1) && isset($adtermid) && $adtermid != 0)
-				// {
-				// 	$numimgsallowed=get_numimgsallowed($adtermid);
-				// }
-				// elseif ((!get_awpcp_option('freepay')) && (ad_term_id_set($adid)))
-				// {
-				// 	$numimgsallowed=get_numimgsallowed($adtermid);
-				// }
-				// else
-				// {
-				// 	$numimgsallowed=get_awpcp_option('imagesallowedfree');
-				// }
 				$numimgsallowed = awpcp_get_ad_number_allowed_images($adid, $adtermid);
 
 				// Next figure out how many (if any) images the user has previously uploaded
-
-				$totalimagesuploaded=get_total_imagesuploaded($adid);
+				$totalimagesuploaded = get_total_imagesuploaded($adid);
 
 				// Next determine if the user has reached their image quota and act accordingly
-
 				if ($totalimagesuploaded >= 1) {
-
 					$imagecode.="<p>";
 					$imagecode.=__("Your images are displayed below. The total number of images you are allowed is","AWPCP");
 					$imagecode.=": $numimgsallowed</p>";
@@ -829,14 +732,14 @@ function editimages($adtermid,$adid,$adkey,$editemail) {
 						$imagecode.="</p>";
 					}
 
-					if (get_awpcp_option('imagesapprove') == 1) {
+					$admin_must_approve = get_awpcp_option('imagesapprove');
+					if ($admin_must_approve == 1) {
 						$imagecode.="<p>";
 						$imagecode.=__("Image approval is in effect so any new images you upload will not be visible to viewers until an admin has approved it","AWPCP");
 						$imagecode.="</p>";
 					}
 
 					// Display the current images
-
 					$imagecode .= "<div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>";
 					$theimage = '';
 
@@ -848,41 +751,44 @@ function editimages($adtermid,$adid,$adkey,$editemail) {
 					while ($rsrow=mysql_fetch_row($res)) {
 						list($ikey,$image_name,$disabled) = $rsrow;
 
-						$ikey.="_";
-						$ikey.="$adid";
-						$ikey.="_";
-						$ikey.="$adtermid";
-						$ikey.="_";
-						$ikey.="$adkey";
-						$ikey.="_";
-						$ikey.="$editemail";
-
-						$transval='';
-
-						if ($disabled == 1) {
-							$transval="class=\"imgtransparency\"";
-							$imgstat="<font style=\"font-size:smaller;\">";
-							$imgstat.=__("Disabled","AWPCP");
-							$imgstat.="</font>";
-						}
-
-						// XXX: unused
-						if (!isset($awpcppagename) || empty($awpcppagename) ) {
-							$awpcppage=get_currentpagename();
-							$awpcppagename = sanitize_title($awpcppage);
-						}
+						$ikey = sprintf(join('_', array($ikey, $adid, $adtermid, $adkey, $editemail)));
+						$ikey = str_replace('@', '-', $ikey);
+						$actions = array();
 
 						$editadpageid = awpcp_get_page_id_by_ref('edit-ad-page-name');
 						$url_editpage = get_permalink($editadpageid);
-						$href = add_query_arg(array('a' => 'dp', 'k' => str_replace('@','-',$ikey)), $url_editpage);
 
-						$dellink="<a href=\"$href\">";
-						$dellink.=__("Delete","AWPCP");
-						$dellink.="</a>";
+						$href = add_query_arg(array('a' => 'dp', 'k' => str_replace('@','-',$ikey)), $url_editpage);
+						$actions[] = sprintf('<a href="%s">%s</a>', $href, _x('Delete', 'edit ad', 'AWPCP'));
+
+						$transval = '';
+						if ((awpcp_current_user_is_admin() || !$admin_must_approve) && $disabled == 1) {
+							$transval = 'class="imgtransparency"';
+							$href = add_query_arg(array('a' => 'enable-picture', 'k' => $ikey), $url_editpage);
+							$actions[] = sprintf('<a href="%s">%s</a>', $href, _x('Enable', 'edit ad', 'AWPCP'));
+						} else if (awpcp_current_user_is_admin() || !$admin_must_approve) {
+							$href = add_query_arg(array('a' => 'disable-picture', 'k' => $ikey), $url_editpage);
+							$actions[] = sprintf('<a href="%s">%s</a>', $href, _x('Disable', 'edit ad', 'AWPCP'));
+						} else if ($disabled == 1) {
+							$transval = 'class="imgtransparency"';
+							$actions[] = '<font style="font-size:smaller;">' . __('Disabled','AWPCP') . '</font>';
+						}
+
+						// XXX: unused
+						// if (!isset($awpcppagename) || empty($awpcppagename) ) {
+						// 	$awpcppage=get_currentpagename();
+						// 	$awpcppagename = sanitize_title($awpcppage);
+						// }
 
 						$large_image = awpcp_get_image_url($image_name, 'large');
 						$thumbnail = awpcp_get_image_url($image_name, 'thumbnail');
-						$theimage .= "<li><a class=\"thickbox\" href=\"" . $large_image . "\"><img $transval src=\"" . $thumbnail . "\"/></a><br/>$dellink $imgstat</li>";
+
+						$theimage .= "<li>";
+						$theimage .= "<a class=\"thickbox\" href=\"" . $large_image . "\">";
+						$theimage .= "<img $transval src=\"" . $thumbnail . "\"/>";
+						$theimage .= "</a>";
+						$theimage .= sprintf("<br/>%s", join(' | ', $actions));
+						$theimage .= "</li>";
 					}
 
 					$imagecode.=$theimage;

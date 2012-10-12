@@ -98,7 +98,7 @@ class AWPCP_User_Panel_Listings {
 		} else if ($action == 'edit-ad') {
 			$content = $this->edit_ad($id);
 
-		} else if (in_array($action, array('manage-images', 'add-image', 'deletepic', 'set-primary-image'))) {
+		} else if (in_array($action, array('manage-images', 'add-image', 'deletepic', 'set-primary-image', 'approvepic', 'rejectpic'))) {
 			$content = $this->manage_images($action);
 
 		} else if (in_array($action, array('list', 'lookupadby'))) {
@@ -207,12 +207,14 @@ class AWPCP_User_Panel_Listings {
 		// sort ads by...
 		$sort_modes = array('mostrecent' => false, 
 							'oldest' => false,
+							'renewed' => false,
 					   		'titleaz' => false, 
 					   		'titleza' => false, 
 					   		'awaitingapproval' => false, 
 					   		'flagged' => false);
 		$sort_names = array('mostrecent' => __('Newest', 'AWPCP'), 
 							 'oldest' => __('Oldest', 'AWPCP'),
+							 'renewed' => __('Renewed Date', 'AWPCP'),
 					   		 'titleaz' => __('Title A-Z', 'AWPCP'), 
 					   		 'titleza' => __('Title Z-A', 'AWPCP'), 
 					   		 'awaitingapproval' => __('Awaiting Approval', 'AWPCP'), 
@@ -316,8 +318,13 @@ class AWPCP_User_Panel_Listings {
 	}
 
 	public function manage_images($action='') {
+		$is_admin = awpcp_current_user_is_admin();
+		$admin_must_approve = get_awpcp_option('imagesapprove');
+		$approve = ($is_admin || !$admin_must_approve);
+
+		$picid = awpcp_request_param('picid');
+
 		if ($action == 'deletepic') {
-			$picid = awpcp_request_param('picid');
 			$adid = awpcp_request_param('adid');
 			$adtermid = awpcp_request_param('adtermid');
 			$adtermid = awpcp_request_param('adkey');
@@ -326,17 +333,27 @@ class AWPCP_User_Panel_Listings {
 			$this->message = deletepic($picid, $adid, $adtermid, $adkey, $editemail, $force=true);
 
 		} elseif ($action == 'set-primary-image') {
-			$picid = awpcp_request_param('picid');
 			$adid = awpcp_request_param('adid');
 			awpcp_set_ad_primary_image($adid, $picid);
+
+		} elseif ($approve && in_array($action, array('approvepic', 'rejectpic'))) {
+			$image = AWPCP_Image::find_by_id($picid);
+			if (is_object($image)) {
+				if ($action == 'approvepic') {
+					$image->disabled = false;
+					$image->save();
+				} else if ($action == 'rejectpic') {
+					$image->disabled = true;
+					$image->save();
+				}
+			}
 		}
 
 		$blog_title = get_bloginfo();
 		$this->page_title = $blog_title . __(" User Ad Management Panel - Manage Images","AWPCP");
 
 		$_GET['page'] = 'Manage1'; // viewimages() test for this query arg
-		$content = viewimages('ad_id=' . $_REQUEST['id'], $approve=false,
-							  $delete_image_form_action=$this->url);
+		$content = viewimages('ad_id=' . $_REQUEST['id'], $approve, $delete_image_form_action=$this->url);
 
 		return $content;
 	}

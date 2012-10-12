@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 class WP_Skeleton_Logger {
     static $instance = null;
@@ -16,7 +16,7 @@ class WP_Skeleton_Logger {
         add_action('wp_footer', array($this, 'show'));
     }
 
-    public function instance() {
+    public static function instance() {
         if (is_null(WP_Skeleton_Logger::$instance)) {
             WP_Skeleton_Logger::$instance = new WP_Skeleton_Logger();
         }

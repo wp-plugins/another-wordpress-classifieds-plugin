@@ -993,45 +993,57 @@ function category_is_child($catid) {
 	}
 	return $myreturn;
 }
+
 // END FUNCTION: check if a category is a child
-// START FUNCTION: Check how many ads a category contains
+
+// TODO: cache the results of this function
 function total_ads_in_cat($catid) {
-	global $wpdb,$hasregionsmodule;
-	$tbl_ads = $wpdb->prefix . "awpcp_ads";
-	$totaladsincat='';
-	$filter='';
+    global $wpdb,$hasregionsmodule;
+    $tbl_ads = $wpdb->prefix . "awpcp_ads";
+    $totaladsincat='';
+    $filter='';
 
-	// the name of the disablependingads setting gives the wrong meaning,
-	// it actually means "Enable Paid Ads that are Pendings payment", so when 
-	// the setting has a value of 1, pending Ads should NOT be excluded.
-	// I'll change the next condition considering the above
-	if((get_awpcp_option('disablependingads') == 0) && (get_awpcp_option('freepay') == 1)){
-		$filter=" AND (payment_status != 'Pending' AND payment_status != 'Unpaid')";
-	}/* else {
-		// never allow Unpaid Ads
-		$filter=" AND payment_status != 'Unpaid' ";
-	}*/
+    // the name of the disablependingads setting gives the wrong meaning,
+    // it actually means "Enable Paid Ads that are Pendings payment", so when
+    // the setting has a value of 1, pending Ads should NOT be excluded.
+    // I'll change the next condition considering the above
+    if((get_awpcp_option('disablependingads') == 0) && (get_awpcp_option('freepay') == 1)){
+        $filter = " AND (payment_status != 'Pending' AND payment_status != 'Unpaid')";
+    }/* else {
+        // never allow Unpaid Ads
+        $filter = " AND payment_status != 'Unpaid' ";
+    }*/
 
-	if($hasregionsmodule == 1) {
-		if( isset($_SESSION['theactiveregionid']) ) {
-			$theactiveregionid=$_SESSION['theactiveregionid'];
-			$theactiveregionname=addslashes(get_theawpcpregionname($theactiveregionid));
+    // TODO: ideally there would be a function to get all visible Ads
+    // and modules, like Regions, would use hooks to include their own
+    // conditions.
+    if ($hasregionsmodule == 1) {
+        if (isset($_SESSION['theactiveregionid'])) {
+            $theactiveregionid = $_SESSION['theactiveregionid'];
 
-			$filter.="AND (ad_city='$theactiveregionname' OR ad_state='$theactiveregionname' OR ad_country='$theactiveregionname' OR ad_county_village='$theactiveregionname')";
-		}
-	}
+            if (function_exists('awpcp_regions_api')) {
+            	$regions = awpcp_regions_api();
+            	$filter .= ' AND ' . $regions->sql_where($theactiveregionid);
+            } else {
+            	$theactiveregionname = addslashes(get_theawpcpregionname($theactiveregionid));
+            	$filter .= "AND (ad_city='$theactiveregionname' OR ad_state='$theactiveregionname' OR ad_country='$theactiveregionname' OR ad_county_village='$theactiveregionname')";
+            }
+        }
+    }
 
-	$query = "SELECT count(*) FROM " . AWPCP_TABLE_ADS . " ";
-	$query.= "WHERE (ad_category_id='$catid' OR ad_category_parent_id='$catid') ";
-	// $query.= "AND disabled = 0 AND (flagged IS NULL OR flagged =0) $filter";
-	$query.= "AND disabled = 0 $filter";
+    // TODO: at some point we should start using the Category model.
+    $query = "SELECT count(*) FROM " . AWPCP_TABLE_ADS . " ";
+    $query.= "WHERE (ad_category_id='$catid' OR ad_category_parent_id='$catid') ";
+    // $query.= "AND disabled = 0 AND (flagged IS NULL OR flagged =0) $filter";
+    $query.= "AND disabled = 0 $filter";
 
-	$res = awpcp_query($query, __LINE__);
-	while ($rsrow=mysql_fetch_row($res)) {
-		list($totaladsincat)=$rsrow;
-	}
-	return $totaladsincat;
+    $res = awpcp_query($query, __LINE__);
+    while ($rsrow=mysql_fetch_row($res)) {
+        list($totaladsincat)=$rsrow;
+    }
+    return $totaladsincat;
 }
+
 // END FUNCTION: check how many ads are in a category
 // START FUNCTION: Check if there are any ads in the system
 function images_exist() {
@@ -1045,7 +1057,7 @@ function images_exist() {
 /**
  * Remove unwanted characters from string and setup for use with search engine
  * friendly urls.
- * 
+ *
  * @deprecated deprecated since 2.0.6. Use sanitize_title instead.
  */
 function cleanstring($text) {
@@ -1102,6 +1114,23 @@ function awpcp_get_page_id_by_ref($refname) {
 	} else {
 		return false;
 	}
+}
+
+/**
+ * Return the IDs of WP pages associated with AWPCP pages.
+ *
+ * @return array Array of Page IDs
+ */
+function awpcp_get_page_ids_by_ref($refnames) {
+	global $wpdb;
+
+	$refnames = (array) $refnames;
+	$query = 'SELECT id FROM ' . AWPCP_TABLE_PAGES . ' ';
+
+	if (!empty($refnames))
+		$query = sprintf("%s WHERE page IN ('%s')", $query, join("','", $refnames));
+
+	return $wpdb->get_col($query);
 }
 
 
@@ -1244,24 +1273,22 @@ function url_showad($ad_id) {
 }
 
 function url_browsecategory($cat_id) {
-	$permastruc = get_option('permalink_structure');
+	$permalinks = get_option('permalink_structure');
+	$base_url = awpcp_get_page_url('browse-categories-page-name');
 
-	$awpcp_browsecats_pageid = awpcp_get_page_id_by_ref('browse-categories-page-name');
+	$cat_name = get_adcatname($cat_id);
+	$cat_slug = sanitize_title($cat_name);
 
-	$awpcpcatname = get_adcatname($cat_id);
-	$modcatname = sanitize_title($awpcpcatname);
-
-	$base_url = get_permalink($awpcp_browsecats_pageid);
 	if (get_awpcp_option('seofriendlyurls')) {
-		if (isset($permastruc) && !empty($permastruc)) {
-			$url_browsecats = sprintf('%s/%s/%s', trim($base_url, '/'), $cat_id, $modcatname);
+		if (!empty($permalinks)) {
+			$url_browsecats = sprintf('%s/%s/%s', trim($base_url, '/'), $cat_id, $cat_slug);
 		} else {
 			$params = array('a' => 'browsecat', 'category_id' => $cat_id);
 			$url_browsecats = add_query_arg($params, $base_url);
 		}
 	} else {
-		if (isset($permastruc) && !empty($permastruc)) {
-			$params = array('category_id' => "$cat_id/$modcatname");
+		if (!empty($permalinks)) {
+			$params = array('category_id' => "$cat_id/$cat_slug");
 		} else {
 			$params = array('a' => 'browsecat', 'category_id' => $cat_id);
 		}
@@ -1272,27 +1299,22 @@ function url_browsecategory($cat_id) {
 }
 
 function url_placead() {
-	$url = get_permalink(awpcp_get_page_id_by_ref('place-ad-page-name'));
-	return user_trailingslashit($url);
+	return user_trailingslashit(awpcp_get_page_url('place-ad-page-name'));
 }
 
 /**
  * @deprecated deprecated since 2.0.6.
  */
 function url_classifiedspage() {
-	// $url = get_permalink(awpcp_get_page_id_by_ref('main-page-name'));
-	// return $url;
 	return awpcp_get_main_page_url();
 }
 
 function url_searchads() {
-	$url = get_permalink(awpcp_get_page_id_by_ref('search-ads-page-name'));
-	return $url;
+	return user_trailingslashit(awpcp_get_page_url('search-ads-page-name'));
 }
 
 function url_editad() {
-	$url = get_permalink(awpcp_get_page_id_by_ref('edit-ad-page-name'));
-	return $url;
+	return user_trailingslashit(awpcp_get_page_url('edit-ad-page-name'));
 }
 
 // START FUNCTION: get the parent_id of the post
@@ -2311,17 +2333,17 @@ function awpcp_insert_share_button($layout, $adid, $title) {
 
 	$href = 'http://www.facebook.com/sharer.php?';
 	$href.= 's=100';
+
+	foreach ($info['images'] as $k => $image) {
+		$href.= '&p[images][' . $k . ']=' . urlencode($image);
+	}
+
+	// put them after the image URLs to avoid conflict with lightbox plugins
+	// https://github.com/drodenbaugh/awpcp/issues/310
+	// http://www.awpcp.com/forum/viewtopic.php?f=4&t=3470&p=15358#p15358
 	$href.= '&p[url]=' . urlencode($info['url']);
 	$href.= '&p[title]=' . urlencode($title);
 	$href.= '&p[summary]=' . urlencode($info['description']);
-
-	foreach ($info['images'] as $k => $image) {
-		$href.= '&p[images][' . $k . ']=' . urlencode($image); 
-	}
-
-	// $href = 'http://www.facebook.com/sharer.php?';
-	// $href.= 'u=' . urlencode($info['url']) . '&';
-	// $href.= 't=' . urlencode($title);
 
 	$button = '<div class="tw_button awpcp_tweet_button_div">';
 	$button.= '<a href="' . $href . '" class="facebook-share-button" title="Share on Facebook" target="_blank"></a>';

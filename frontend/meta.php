@@ -14,7 +14,7 @@ class AWPCP_Meta {
         add_action('template_redirect', array($this, 'init'));
     }
 
-    public function instance() {
+    public static function instance() {
         if (is_null(self::$instance))
             self::$instance = new AWPCP_Meta();
         return self::$instance;

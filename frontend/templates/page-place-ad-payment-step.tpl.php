@@ -3,7 +3,7 @@
 	<?php echo awpcp_menu_items() ?>
 	<?php endif ?>
 
-	<h2><?php _e('Select Payment/Category') ?></h2>
+	<h2><?php _e('Select Payment/Category', 'AWPCP') ?></h2>
 
 	<?php foreach ($header as $part): ?>
 	<p><?php echo $part ?></p>
@@ -11,11 +11,11 @@
 
 	<form id="awpcp-place-ad-payment-step-form" method="post">
 		<fieldset>
-			<h3><?php _e('Please select a Category for your Ad') ?></h3>
+			<h3><?php _e('Please select a Category for your Ad', 'AWPCP') ?></h3>
 
 			<label for="place-ad-category">Ad Category</label>
 			<select id="place-ad-category" name="category">
-				<option value="0"><?php _e('Select a Category') ?></option>
+				<option value="0"><?php _e('Select a Category', 'AWPCP') ?></option>
 				<?php echo get_categorynameidall(awpcp_array_data('category', '', $form_values)); ?>
 			</select>
 			<?php $error = awpcp_array_data('category', '', $form_errors); ?>
@@ -34,12 +34,12 @@
 			<table class="awpcp-table">
 				<thead>
 					<tr>
-						<th>Payment Term</th>
-						<th>Ads Allowed</th>
-						<th>Images Allowed</th>
-						<th>Characters Allowed</th>
-						<th>Duration</th>
-						<th>Price</th>
+						<th><?php __('Payment Term', 'AWPCP') ?></th>
+						<th><?php __('Ads Allowed', 'AWPCP') ?></th>
+						<th><?php __('Images Allowed', 'AWPCP') ?></th>
+						<th><?php __('Characters Allowed', 'AWPCP') ?></th>
+						<th><?php __('Duration', 'AWPCP') ?></th>
+						<th><?php __('Price', 'AWPCP') ?></th>
 					</tr>
 				</thead>
 				<tbody>

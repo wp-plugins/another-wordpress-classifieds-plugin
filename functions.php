@@ -765,20 +765,24 @@ function awpcp_set_ad_primary_image($ad_id, $image_id) {
 
 
 /**
+ * Get the primary image of the given Ad.
  *
+ * @param  int	$ad_id	Ad's ID
+ * @return object	an StdClass object representing an image
  */
+// TODO: eventually move this to AWPCP_Ad
 function awpcp_get_ad_primary_image($ad_id) {
 	global $wpdb;
 
 	$query = 'SELECT * FROM ' . AWPCP_TABLE_ADPHOTOS . ' ';
-	$query.= 'WHERE ad_id = %d AND is_primary = 1';
+	$query.= 'WHERE ad_id = %d AND is_primary = 1 AND disabled = 0';
 
 	$results = $wpdb->get_results($wpdb->prepare($query, $ad_id));
 
 	if (!empty($results)) return $results[0];
 
 	$query = 'SELECT * FROM ' . AWPCP_TABLE_ADPHOTOS . ' ';
-	$query.= 'WHERE ad_id = %d ORDER BY key_id LIMIT 0,1';
+	$query.= 'WHERE ad_id = %d AND disabled = 0 ORDER BY key_id LIMIT 0,1';
 
 	$results = $wpdb->get_results($wpdb->prepare($query, $ad_id));
 
@@ -855,10 +859,9 @@ function awpcp_get_main_page_name() {
  * is also the home page.
  */
 function awpcp_get_main_page_url() {
-	$permalinks = get_option('permalink_structure');
 	$id = awpcp_get_page_id_by_ref('main-page-name');
 
-	if ($permalinks) {
+	if (get_option('permalink_structure')) {
 		$url = home_url(get_page_uri($id));
 	} else {
 		$url = add_query_arg('page_id', $id, home_url());
@@ -871,10 +874,16 @@ function awpcp_get_main_page_url() {
 /**
  * Returns a link to an AWPCP page identified by $pagename.
  *
+ * Always return the full URL, even if the page is set as
+ * the homepage.
+ *
+ * The returned URL always has a trailing slash.
+ *
  * @since 2.0.7
  */
 function awpcp_get_page_url($pagename) {
-	return get_permalink(awpcp_get_page_id_by_ref($pagename));
+	$url = home_url(get_page_uri(awpcp_get_page_id_by_ref($pagename)));
+	return trailingslashit($url);
 }
 
 
@@ -886,11 +895,13 @@ function awpcp_get_page_url($pagename) {
 function awpcp_get_renew_ad_url($ad_id) {
 	if (get_awpcp_option('enable-user-panel') == 1) {
 		$url = awpcp_get_user_panel_url();
-		return add_query_arg(array('id' => $ad_id, 'action' => 'renew-ad'), $url);
+		$url = add_query_arg(array('id' => $ad_id, 'action' => 'renew-ad'), $url);
 	} else {
 		$url = awpcp_get_page_url('renew-ad-page-name');
-		return add_query_arg(array('ad_id' => $ad_id), $url);
+		$url = add_query_arg(array('ad_id' => $ad_id), $url);
 	}
+
+	return user_trailingslashit($url);
 }
 
 /**
@@ -986,6 +997,22 @@ function awpcp_get_properties($objects, $property, $default='') {
 	return $results;
 }
 
+/**
+ * Parses 'yes', 'true', 'no', 'false', 0, 1 into bool values.
+ *
+ * @since  2.1.3
+ * @param  mixed	$value	value to parse
+ * @return bool
+ */
+function awpcp_parse_bool($value) {
+	$lower = strtolower($value);
+	if ($lower === 'true' || $lower === 'yes')
+		return true;
+	if ($lower === 'false' || $lower === 'no')
+		return false;
+	return $value ? true : false;
+}
+
 
 function awpcp_flash($message) {
 	$messages = get_option('awpcp-messages', array());
@@ -1070,6 +1097,9 @@ function awpcp_print_column_headers($screen, $id = true, $sortable=array()) {
 /** Temporary solution to avoid breaking inline scripts due to wpauotp and wptexturize
  ---------------------------------------------------------------------------- */
 
+/**
+ * @since  2.1.2
+ */
 function awpcp_inline_javascript_placeholder($name, $script) {
 	global $awpcp;
 
@@ -1078,9 +1108,12 @@ function awpcp_inline_javascript_placeholder($name, $script) {
 
 	$awpcp->inline_scripts[$name] = $script;
 
-	return "<AWPCPScript>$name</AWPCPScript>";
+	return "<AWPCPScript style='display:none'>$name</AWPCPScript>";
 }
 
+/**
+ * @since  2.1.2
+ */
 function awpcp_inline_javascript($content) {
 	global $awpcp;
 
@@ -1088,8 +1121,22 @@ function awpcp_inline_javascript($content) {
 		return $content;
 
 	foreach ($awpcp->inline_scripts as $name => $script) {
-		$content = preg_replace("{<AWPCPScript>$name</AWPCPScript>}", $script, $content);
+		$content = preg_replace("{<AWPCPScript style='display:none'>$name</AWPCPScript>}", $script, $content);
 	}
 
 	return $content;
+}
+
+/**
+ * @since  2.1.3
+ */
+function awpcp_print_inline_javascript() {
+	global $awpcp;
+
+	if (!isset($awpcp->inline_scripts) || !is_array($awpcp->inline_scripts))
+		return;
+
+	foreach ($awpcp->inline_scripts as $name => $script) {
+		echo $script;
+	}
 }

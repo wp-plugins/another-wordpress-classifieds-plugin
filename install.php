@@ -17,7 +17,7 @@ define('AWPCP_TABLE_PAGENAME', $wpdb->prefix . "awpcp_pagename");
 class AWPCP_Installer {
 
     private static $instance = null;
-    
+
     private function AWPCP_Installer() {
         // pass
     }
@@ -124,6 +124,7 @@ class AWPCP_Installer {
             `flagged` TINYINT(1) NOT NULL DEFAULT 0,
             `user_id` INT(10) DEFAULT NULL,
             `renew_email_sent` TINYINT(1) NOT NULL DEFAULT 0,
+            `renewed_date` DATETIME,
             FULLTEXT KEY `titdes` (`ad_title`,`ad_details`),
             PRIMARY KEY  (`ad_id`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
@@ -283,9 +284,12 @@ class AWPCP_Installer {
         if (version_compare($oldversion, '2.0.7') < 0) {
             $this->upgrade_to_2_0_7($oldversion);
         }
+        if (version_compare($oldversion, '2.1.3') < 0) {
+            $this->upgrade_to_2_1_3($oldversion);
+        }
 
         do_action('awpcp_upgrade', $oldversion, $newversion);
-        
+
         return update_option("awpcp_db_version", $newversion);
     }
 
@@ -768,7 +772,7 @@ class AWPCP_Installer {
     private function upgrade_to_2_0_7($version) {
         global $wpdb;
         global $awpcp;
-        
+
         // change Ad's title CSS class to avoid problems with Ad Blocker extensions
         $value = $awpcp->settings->get_option('awpcpshowtheadlayout');
         $value = preg_replace('/<div class="adtitle">/', '<div class="awpcp-title">', $value);
@@ -788,6 +792,14 @@ class AWPCP_Installer {
         foreach ($fees as $fee) {
             $sql = 'UPDATE ' . AWPCP_TABLE_ADFEES . ' SET characters_allowed = %d WHERE adterm_id = %d';
             $wpdb->query($wpdb->prepare($sql, $characters_allowed, $fee->adterm_id));
+        }
+    }
+
+    private function upgrade_to_2_1_3($version) {
+        global $wpdb;
+
+        if (!$this->column_exists(AWPCP_TABLE_ADS, 'renewed_date')) {
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `renewed_date` DATETIME");
         }
     }
 }

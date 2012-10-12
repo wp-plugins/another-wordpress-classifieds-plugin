@@ -105,14 +105,16 @@ function init_awpcpsbarwidget() {
 	}
 
 	// Register Widgets
-	// register_sidebar_widget('AWPCP Latest Ads', 'widget_awpcplatestads');
-	wp_register_sidebar_widget('awpcp-latest-ads', __('AWPCP Latest Ads', 'AWPCP'), 'widget_awpcplatestads');
-
-	// register_widget_control('AWPCP Latest Ads', 'widget_awpcplatestads_options', 350, 120);
-	$options = array('width' => 350, 'height' => 120, 'id_base' => 'awpcp-latest-ads');
-	wp_register_widget_control('awpcp-latest-ads', __('AWPCP Latest Ads', 'AWPCP'), 'widget_awpcplatestads_options', $options);
+    $name = __('AWPCP Latest Ads', 'AWPCP');
+    $options = array('width' => 350, 'height' => 120, 'id_base' => 'awpcp-latest-ads');
+	wp_register_sidebar_widget('awpcp-latest-ads', $name, 'widget_awpcplatestads');
+	wp_register_widget_control('awpcp-latest-ads', $name, 'widget_awpcplatestads_options', $options);
 }
 
+/**
+ * XXX: is it necessary to consider active region when showing
+ *      latest Ads widget?
+ */
 function awpcp_sidebar_headlines($limit, $showimages, $showblank, $show_title, $show_excerpt) {
     $output = '';
     global $wpdb,$awpcp_imagesurl;

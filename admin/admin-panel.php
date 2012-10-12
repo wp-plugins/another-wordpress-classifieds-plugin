@@ -1105,7 +1105,8 @@ function awpcp_manage_viewlistings() {
 		} elseif ($laction == 'approvead') {
 			$ad = AWPCP_Ad::find_by_id($actonid);
 
-			if (($ad->disabled && is_null($ad->get_disabled_date())) || $ad->has_expired()) {
+			$disabled_date = $ad->get_disabled_date();
+			if (($ad->disabled && empty($disabled_date)) || $ad->has_expired()) {
 				$ad->set_start_date(current_time('mysql'));
 				$ad->set_end_date($ad->calculate_end_date());
 			    $ad->save();
@@ -1403,6 +1404,10 @@ function awpcp_manage_viewlistings() {
 				{
 					$orderby="ad_startdate ASC";
 				}
+				else if ($sortby == 'renewed')
+				{
+					$orderby="renewed_date DESC, ad_startdate DESC";
+				}
 				elseif ($sortby == 'featured')
 				{
 					$orderby="is_featured_ad DESC, ad_startdate DESC";
@@ -1424,38 +1429,39 @@ function awpcp_manage_viewlistings() {
 
 			$items=array();
 
-			$query="SELECT ad_id,ad_category_id,ad_title,ad_contact_name,ad_contact_phone,ad_city,ad_state,ad_country,ad_county_village,ad_details,ad_postdate,disabled,payment_status,is_featured_ad,ad_startdate, ad_enddate, adterm_id FROM $from WHERE $where ORDER BY $orderby LIMIT $offset,$results";
+			$query = "SELECT ad_id, ad_category_id, ad_title, ad_contact_name ";
+			$query.= "     , ad_contact_phone, ad_city, ad_state, ad_country ";
+			$query.= "     , ad_county_village, ad_details, ad_postdate, disabled ";
+			$query.= "     , payment_status, is_featured_ad, ad_startdate, ad_enddate ";
+			$query.= "     , adterm_id, renewed_date ";
+			$query.= "FROM $from WHERE $where ORDER BY $orderby LIMIT $offset,$results";
 
-			$res = awpcp_query($query, __LINE__);
+			$ads = $wpdb->get_results($query);
 
-			// loop to show ads
-			while ($rsrow=mysql_fetch_row($res))
-			{
+			foreach ($ads as $result) {
 
-				if ( is_array( $rsrow ) ) for( $i=0; $i < count($rsrow); $i++ ) $rsrow[$i] = stripslashes( $rsrow[$i] ); 
-
-				$ad_id=$rsrow[0];
-				// $modtitle=cleanstring($rsrow[2]);
-				// $modtitle=add_dashes($modtitle);
-				$tcname=get_adcatname($rsrow[1]);
-				// $modcatname=cleanstring($tcname);
-				// $modcatname=add_dashes($modcatname);
-				$category_id=$rsrow[1];
-				$category_name=get_adcatname($category_id);
-				$disabled=$rsrow[11];
-				$paymentstatus=$rsrow[12];
-				$is_featured = $rsrow[13];
-				$ad_start = $rsrow[14];
-				$ad_end = $rsrow[15];
-				$ad_term_id = $rsrow[16];
+				$ad_id = $result->ad_id;
+				$ad_term_id = $result->adterm_id;
+				$category_id = $result->ad_category_id;
+				$category_name = get_adcatname($category_id);
+				$tcname = $category_name;
+				$disabled = $result->disabled;
+				$paymentstatus = $result->payment_status;
+				$is_featured = $result->is_featured_ad;
+				$ad_start = $result->ad_startdate;
+				$ad_end = $result->ad_enddate;
+				$ad_renewed_date = $result->renewed_date;
 
 				$fee_plan_name = awpcp_get_fee_plan_name($ad_id, $ad_term_id);
 
-				if ('' != $ad_start) $ad_start = date( 'M d Y', strtotime($ad_start) );
-				if ('' != $ad_end) $ad_end = date( 'M d, Y' ,strtotime($ad_end) );
+				if ('' != $ad_start)
+					$ad_start = date('M d Y', strtotime($ad_start));
+				if ('' != $ad_end)
+					$ad_end = date('M d, Y' ,strtotime($ad_end));
+				if ('' != $ad_renewed_date)
+					$ad_renewed_date = date('M d, Y' ,strtotime($ad_renewed_date));
 
-				if (!isset($paymentstatus) || empty($paymentstatus))
-				{
+				if (!isset($paymentstatus) || empty($paymentstatus)) {
 					$paymentstatus="N/A";
 				}
 
@@ -1468,7 +1474,7 @@ function awpcp_manage_viewlistings() {
 				$awpcpwppostpageid = awpcp_get_page_id_by_ref('main-page-name');
 
 				$ad_checkbox = "<input type=\"checkbox\" name=\"awpcp_ads_to_action[]\" value=\"$ad_id\" />";
-				$ad_title = "<a href=\"?page=Manage1&action=viewad&id=$ad_id&offset=$offset&results=$results\">" . stripslashes($rsrow[2]) . "</a>";
+				$ad_title = "<a href=\"?page=Manage1&action=viewad&id=$ad_id&offset=$offset&results=$results\">" . stripslashes($result->ad_title) . "</a>";
 
 				$handlelink="<a class=\"trash\" href=\"?page=Manage1&action=deletead&id=$ad_id&offset=$offset&results=$results\">";
 				$handlelink.=__("Delete","AWPCP");
@@ -1476,7 +1482,7 @@ function awpcp_manage_viewlistings() {
 				$handlelink.=__("Edit","AWPCP");
 				$handlelink.="</a>";
 
-				if ( 'flagged' == $sortby ) { 
+				if ( 'flagged' == $sortby ) {
 				    $handlelink .= ' | <a href="?page=Manage1&sortby=flagged&action=unflagad&id='.$ad_id.'&offset='.$offset.'&results='.$results.'">Unflag</a>';
 				}
 
@@ -1548,11 +1554,10 @@ function awpcp_manage_viewlistings() {
 						$viewimages = __("No Images", "AWPCP") . " (<a href=\"?page=Manage1&action=viewimages&id=$ad_id&sortby=$sortby\">";
 						$viewimages.=__("Add","AWPCP");
 						$viewimages.="</a>)";
-					    
 					}
 
 					//$imagesnote="<td> $viewimages</td>";
-					$imagesnote =  ' | ' . $viewimages; 
+					$imagesnote =  ' | ' . $viewimages;
 				}
 				else {$imagesnotehead="";$imagesnote="";}
 
@@ -1571,13 +1576,14 @@ function awpcp_manage_viewlistings() {
 				}
 
 				$startend_date_head = '<th>Fee Plan</th><th>Start Date</th><th>End Date</th>';
-
 				$startend_date = '<td>'.$fee_plan_name.'</td><td>'.$ad_start.'</td><td>'.$ad_end.'</td>';
+
+				$renewed_date_head = '<th>' . __('Renewed', 'AWPCP') . '</th>';
+				$renewed_date = '<td>' . $ad_renewed_date . '</td>';
 
 				$items[]="<tr><th scope=\"row\">$ad_checkbox</th><td class=\"displayadscell\" width=\"200\">$ad_title</td>
 					<td> $approvelink $makefeaturedlink $handlelink  $imagesnote  </td>
-					$paymentstatus $startend_date$featured_note</tr>";
-
+					$paymentstatus $startend_date $renewed_date $featured_note</tr>";
 
 				$opentable="<table class=\"widefat fixed\"><thead><tr>";
 				$opentable.="<th style=\"width:18px\"><input type=\"checkbox\" onclick=\"CheckAllAds()\" /></th>";
@@ -1585,7 +1591,7 @@ function awpcp_manage_viewlistings() {
 				$opentable.=__("Ad Headline","AWPCP");
 				$opentable.="</th><th style=\"width:25%\">";
 				$opentable.=__("Manage Ad","AWPCP");
-				$opentable.="</th>$paymentstatushead $startend_date_head $featured_head</tr></thead>";
+				$opentable.="</th>$paymentstatushead $startend_date_head $renewed_date_head $featured_head</tr></thead>";
 				$closetable="</table>";
 
 
@@ -1621,7 +1627,7 @@ function awpcp_manage_viewlistings() {
 			#listingsops { padding:10px; }
 			#adssort { padding:10px; height:150px;}
 			#listingsops .deletechekedbuttom { width:30%; float:left;margin:5px 0px 5px 0px;}
-			#listingsops .sortadsby { width:60%; float:left;margin:5px 0px 5px 0px;}
+			#listingsops .sortadsby { width:70%; float:left;margin:5px 0px 5px 0px;}
 			#listingsops .sortadsby a { 	text-decoration:none; }
 			#listingsops .sortadsby a:hover { text-decoration:underline;	}
 			#lookupadsby { padding:10px; }
@@ -1662,104 +1668,62 @@ function awpcp_manage_viewlistings() {
 			$output .= __("Sort Ads By","AWPCP");
 			$output .= ": ";
 
-			if ($sortby == 'mostrecent')
-			{
-				$output .= "<b>| ";
-				$output .= __("Newest","AWPCP");
-				$output .= " |</b>";
-			}
-			else
-			{
-				$output .= "<a href=\"?page=Manage1&sortby=mostrecent\">";
-				$output .= __("Newest","AWPCP");
-				$output .= "</a>";
-			}
-			if ($sortby == 'oldest')
-			{
-				$output .= "<b> | ";
-				$output .= __("Oldest","AWPCP");
-				$output .= " |</b>";
-			}
-			else
-			{
-				$output .= " <a href=\"?page=Manage1&sortby=oldest\">";
-				$output .= __("Oldest","AWPCP");
-				$output .= "</a>";
-			}
-			$output .= "&nbsp;&nbsp;&nbsp;&nbsp;";
-			if ($sortby == 'titleza')
-			{
-				$output .= "<b>| ";
-				$output .= __("Title Z-A","AWPCP");
-				$output .= " |</b>";
-			}
-			else
-			{
-				$output .= "<a href=\"?page=Manage1&sortby=titleza\">";
-				$output .= __("Title Z-A","AWPCP");
-				$output .= "</a>";
-			}
-			$output .= "&nbsp;&nbsp;&nbsp;&nbsp;";
-			if ($sortby == 'titleaz')
-			{
-				$output .= "<b>| ";
-				$output .= __("Title A-Z","AWPCP");
-				$output .= " |</b>";
-			}
-			else
-			{
-				$output .= "<a href=\"?page=Manage1&sortby=titleaz\">";
-				$output .= __("Title A-Z","AWPCP");
-				$output .= "</a>";
-			}
-			$output .= "&nbsp;&nbsp;&nbsp;&nbsp;";
-			if (get_awpcp_option('adapprove') == 1)
-			{
-				if ($sortby == 'awaitingapproval')
-				{
-					$output .= "<b>| ";
-					$output .= __("Awaiting Approval","AWPCP");
-					$output .= " |</b>";
-				}
-				else
-				{
-					$output .= "<a href=\"?page=Manage1&sortby=awaitingapproval\">";
-					$output .= __("Awaiting Approval","AWPCP");
-					$output .= "</a>";
-				}
-			}
-			$output .= "&nbsp;&nbsp;&nbsp;&nbsp;";
-			if (get_awpcp_option('freepay') == 1)
-			{
-				if ($sortby == 'paidfirst')
-				{
-					$output .= "<b>| ";
-					$output .= __("Paid Ads First","AWPCP");
-					$output .= " |</b>";
-				}
-				else
-				{
-					$output .= "<a href=\"?page=Manage1&sortby=paidfirst\">";
-					$output .= __("Paid Ads First","AWPCP");
-					$output .= "</a>";
-				}
-
+			$sorts = array();
+			if ($sortby == 'mostrecent') {
+				$sorts[] = "<b>" . __("Newest","AWPCP") . "</b>";
+			} else {
+				$sorts[] = "<a href=\"?page=Manage1&sortby=mostrecent\">" . __("Newest","AWPCP") . "</a>";
 			}
 
-			if ($sortby == 'flagged')
-			{
-				$output .= "<b> | ";
-				$output .= __("Flagged Ads","AWPCP");
-				$output .= " |</b>";
+			if ($sortby == 'oldest') {
+				$sorts[] = "<b>" . __("Oldest","AWPCP") . "</b>";
+			} else {
+				$sorts[] = "<a href=\"?page=Manage1&sortby=oldest\">" . __("Oldest","AWPCP") . "</a>";
 			}
-			else
-			{
-				if ($flagged_cnt > 0) $style = ' style="color:#cf0000" '; else $style = '';
-				$output .= " | <a href=\"?page=Manage1&sortby=flagged\" $style>";
-				$output .= __("Flagged Ads","AWPCP");
-				$output .= ' ('.$flagged_cnt.')';
-				$output .= "</a>";
+
+			$label = __("Renewed Date","AWPCP");
+			if ($sortby == 'renewed') {
+				$sorts[] = "<b>" . $label . "</b>";
+			} else {
+				$sorts[] = "<a href=\"?page=Manage1&sortby=renewed\">" . $label . "</a>";
 			}
+
+			if ($sortby == 'titleza') {
+				$sorts[] = "<b>" . __("Title Z-A","AWPCP") . "</b>";
+			} else {
+				$sorts[] = "<a href=\"?page=Manage1&sortby=titleza\">" . __("Title Z-A","AWPCP") . "</a>";
+			}
+
+			if ($sortby == 'titleaz') {
+				$sorts[] = "<b>" . __("Title A-Z","AWPCP") . "</b>";
+			} else {
+				$sorts[] = "<a href=\"?page=Manage1&sortby=titleaz\">" . __("Title A-Z","AWPCP") . "</a>";
+			}
+
+			if (get_awpcp_option('adapprove') == 1) {
+				if ($sortby == 'awaitingapproval') {
+					$sorts[] = "<b>" . __("Awaiting Approval","AWPCP") . "</b>";
+				} else {
+					$sorts[] = "<a href=\"?page=Manage1&sortby=awaitingapproval\">" . __("Awaiting Approval","AWPCP"). "</a>";
+				}
+			}
+
+			if (get_awpcp_option('freepay') == 1) {
+				if ($sortby == 'paidfirst') {
+					$sorts[] = "<b>" . __("Paid Ads First","AWPCP") . "</b>";
+				} else {
+					$sorts[] = "<a href=\"?page=Manage1&sortby=paidfirst\">" . __("Paid Ads First","AWPCP") . "</a>";
+				}
+			}
+
+			if ($sortby == 'flagged') {
+				$sorts[] = "<b>" . __("Flagged Ads","AWPCP") . "</b>";
+			} else {
+				$style = $flagged_cnt > 0 ? ' style="color:#cf0000" ' : '';
+				$sorts[] = "<a href=\"?page=Manage1&sortby=flagged\" $style>" . __("Flagged Ads","AWPCP") . " ($flagged_cnt)</a>";
+			}
+
+			$output .= join(' | ', $sorts);
 
 			if (function_exists('awpcp_featured_ads')) { 
 			    $output .= awpcp_make_featured_sort($sortby);
@@ -1809,7 +1773,7 @@ function viewimages($where, $approve=true, $delete_image_form_action=null) {
 
 	$from="$tbl_ad_photos";
 
-	if ( '' != $_GET['id'] ) { 
+	if ( '' != $_GET['id'] ) {
 		$sql = 'select ad_title from ' . $wpdb->prefix . 'awpcp_ads where ad_id ="'.absint( $_GET['id'] ).'"';
 		$ad_title = $wpdb->get_var( $sql );
 	}
@@ -2203,40 +2167,77 @@ function maketheclassifiedsubpage($theawpcppagename,$awpcpwppostpageid,$awpcpsho
 // Handle adding a listing fee plan
 /////////////////
 // add_action('plugins_loaded', 'awpcp_addfees', 1);
+function awpcp_sanitize_fee($data) {
+	$sanitized = array();
+	$sanitized['adterm_id'] = awpcp_request_param('adterm_id');
+	$sanitized['adterm_name'] = awpcp_request_param('adterm_name');
+	$sanitized['amount'] = (float) awpcp_request_param('amount', 0.0);
+	$sanitized['rec_period'] = (int) awpcp_request_param('rec_period', 30);
+	$sanitized['rec_increment'] = awpcp_request_param('rec_increment', 'D');
+	$sanitized['imagesallowed'] = (int) awpcp_request_param('imagesallowed', 0);
+	$sanitized['characters_allowed'] = (int) awpcp_request_param('characters_allowed', 0);
+
+    if (function_exists('awpcp_featured_ads')) {
+	    $sanitized['is_featured_ad_pricing'] = (int) awpcp_featured_ad_parms();
+    } else {
+	    $sanitized['is_featured_ad_pricing'] = 0;
+    }
+
+    if (function_exists('awpcp_price_cats')) {
+		$sanitized['fee_cats'] = awpcp_price_cats_fees();
+    } else {
+		$sanitized['fee_cats'] = '';
+    }
+
+    return $sanitized;
+}
+
+function awpcp_validate_fee($data, &$errors=array()) {
+	if (empty($data['adterm_name']))
+		$errors['adterm_name'] = _x('You must provide a name for the Fee plan.', 'add/edit fee', 'AWPCP');
+
+	if ($data['amount'] < 0.0)
+		$errors['amount'] = _x('Amount must be greater or equal than zero.', 'add/edit fee', 'AWPCP');
+
+	if ($data['rec_period'] < 0)
+		$errors['rec_period'] = _x('Term Duration must be a positive integer or zero.', 'add/edit fee', 'AWPCP');
+
+	if ($data['imagesallowed'] < 0)
+		$errors['imagesallowed'] = _x('Images Allowed must be a positive integer or zero.', 'add/edit fee', 'AWPCP');
+
+	if ($data['characters_allowed'] < 0)
+		$errors['characters_allowed'] = _x('Characters Allowed must be a positive integer or zero.', 'add/edit fee', 'AWPCP');
+
+	return empty($errors);
+}
+
+
 function awpcp_addfees() {
 	global $wpdb;
 	global $message;
 
     if (isset($_REQUEST['addnewfeesetting']) && !empty($_REQUEST['addnewfeesetting'])) {
-	    $adterm_name=stripslashes(clean_field($_REQUEST['adterm_name']));
-	    $amount=clean_field($_REQUEST['amount']);
-	    $rec_period=clean_field($_REQUEST['rec_period']);
-	    $rec_increment=clean_field($_REQUEST['rec_increment']);
-	    $imagesallowed=clean_field($_REQUEST['imagesallowed']);
-	    $characters_allowed = awpcp_request_param('characters_allowed');
+    	$data = awpcp_sanitize_fee($_REQUEST);
+    	$errors = array();
 
-	    if (function_exists('awpcp_featured_ads')) {
-		    $is_featured_ad_pricing = awpcp_featured_ad_parms();
-	    } else {
-		    $is_featured_ad_pricing = 0;
-	    }
+    	if (awpcp_validate_fee($data, $errors)) {
+    		extract($data);
 
-	    if (function_exists('awpcp_price_cats')) {
-			$fee_cats = awpcp_price_cats_fees();
-	    } else {
-			$fee_cats = '';
-	    }
+			if (function_exists('awpcp_price_cats')) {
+				$query = "INSERT INTO " . AWPCP_TABLE_ADFEES . " SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing, categories='$fee_cats', characters_allowed=$characters_allowed";
+			} else {
+				$query = "INSERT INTO " . AWPCP_TABLE_ADFEES . " SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing, characters_allowed=$characters_allowed";
+			}
+			$res = awpcp_query($query, __LINE__);
 
-	    if (function_exists('awpcp_price_cats')) {
-			$query = "INSERT INTO " . AWPCP_TABLE_ADFEES . " SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing, categories='$fee_cats', characters_allowed=$characters_allowed";
-	    } else { 
-			$query = "INSERT INTO " . AWPCP_TABLE_ADFEES . " SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment',imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing, characters_allowed=$characters_allowed";
-	    }
-
-	    $res = awpcp_query($query, __LINE__);
-	    $message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
-	    $message.=__("The item has been added","AWPCP");
-	    $message.="!</div>";
+			$message = awpcp_print_message(__('The item has been added.', 'add fee', 'AWPCP'));
+		} else {
+			$messages = array();
+			foreach ($errors as $error) {
+				$messages[] = awpcp_print_message($error, array('error'));
+			}
+			$message = join('', $messages);
+		}
     }
 }
 //////////////////
@@ -2249,38 +2250,27 @@ function awpcp_savefees() {
 	global $message;
 
     if (isset($_REQUEST['savefeesetting']) && !empty($_REQUEST['savefeesetting'])) {
-	    $adterm_id=clean_field($_REQUEST['adterm_id']);
-	    $adterm_name=stripslashes(clean_field($_REQUEST['adterm_name']));
-	    $amount=clean_field($_REQUEST['amount']);
-	    $rec_period=clean_field($_REQUEST['rec_period']);
-	    $rec_increment=clean_field($_REQUEST['rec_increment']);
-	    $imagesallowed=clean_field($_REQUEST['imagesallowed']);
-	    $characters_allowed = awpcp_request_param('characters_allowed', 0);
+    	$data = awpcp_sanitize_fee($_REQUEST);
+    	$errors = array();
 
-	    if (function_exists('awpcp_featured_ads')) {
-		    $is_featured_ad_pricing = awpcp_featured_ad_parms();
-	    } else {
-		    $is_featured_ad_pricing = 0;
-	    }
-	    $is_featured_ad_pricing = intval($is_featured_ad_pricing);
+    	if (awpcp_validate_fee($data, $errors)) {
+    		extract($data);
 
-	    if (function_exists('awpcp_price_cats')) {
-			$fee_cats = awpcp_price_cats_fees();
-	    } else { 
-			$fee_cats = '';
-	    }
+		    if (function_exists('awpcp_price_cats')) {
+				$query = "UPDATE " . AWPCP_TABLE_ADFEES . " SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing, characters_allowed=$characters_allowed, categories='$fee_cats' WHERE adterm_id='$adterm_id'";
+		    } else {
+				$query = "UPDATE " . AWPCP_TABLE_ADFEES . " SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing, characters_allowed=$characters_allowed WHERE adterm_id='$adterm_id'";
+		    }
+			$res = awpcp_query($query, __LINE__);
 
-	    if (function_exists('awpcp_price_cats')) {
-			$query = "UPDATE " . AWPCP_TABLE_ADFEES . " SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing, characters_allowed=$characters_allowed, categories='$fee_cats' WHERE adterm_id='$adterm_id'";
-	    } else { 
-			$query = "UPDATE " . AWPCP_TABLE_ADFEES . " SET adterm_name='$adterm_name',amount='$amount',recurring=1,rec_period='$rec_period',rec_increment='$rec_increment', imagesallowed='$imagesallowed', is_featured_ad_pricing=$is_featured_ad_pricing, characters_allowed=$characters_allowed WHERE adterm_id='$adterm_id'";
-	    }
-
-	    $res = awpcp_query($query, __LINE__);
-
-	    $message="<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
-	    $message.=__("The item has been updated","AWPCP");
-	    $message.="!</div>";
+			$message = awpcp_print_message(__('The item has been updated.', 'add fee', 'AWPCP'));
+		} else {
+			$messages = array();
+			foreach ($errors as $error) {
+				$messages[] = awpcp_print_message($error, array('error'));
+			}
+			$message = join('', $messages);
+		}
     }
 }
 

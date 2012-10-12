@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 require_once(AWPCP_DIR . 'import.php');
 
@@ -30,7 +30,7 @@ class AWPCP_Admin_CSV_Importer {
 		$import_date_format = awpcp_post_param("date_fmt", 'us_date');
 		$date_sep = awpcp_post_param("sep_date", '/');
 		$time_sep = awpcp_post_param("sep_time", ':');
-		$auto_cat = awpcp_post_param("auto_cat", 1);
+		$auto_cat = awpcp_post_param("auto_cat", 0);
 		$assign_user = awpcp_post_param('assign_user', 0);
 		$assigned_user = intval(awpcp_post_param('user', 0));
 
@@ -44,7 +44,7 @@ class AWPCP_Admin_CSV_Importer {
 		$form_errors = array();
 
 		$importer = null;
-		
+
 		if (!empty($import_type)) {
 
 			$msg = __('There was an error with your CSV file: %s', 'AWPCP');
@@ -70,7 +70,7 @@ class AWPCP_Admin_CSV_Importer {
 					$form_errors['import_zip'] = sprintf($msg, __('Please upload a valid ZIP file.', 'AWPCP'));
 				}
 			}
-			
+
 			if (!empty($start_date)) {
 				$date_arr = explode("/", $start_date);
 				if (!is_valid_date($date_arr[0], $date_arr[1], $date_arr[2])) {
@@ -79,7 +79,7 @@ class AWPCP_Admin_CSV_Importer {
 					$form_errors['startDate'] = __('Invalid Start Date -- Year Must be of Four Digit.', 'AWPCP');
 				}
 			}
-			
+
 			if (!empty($end_date)) {
 				$date_arr = explode("/", $end_date);
 				if (!is_valid_date($date_arr[0], $date_arr[1], $date_arr[2])) {
@@ -88,7 +88,7 @@ class AWPCP_Admin_CSV_Importer {
 					$form_errors['endDate'] = __('Invalid End Date -- Year Must be of Four Digit.', 'AWPCP');
 				}
 			}
-				
+
 			if (empty($form_errors)) {
  				if (empty($errors)) {
 					$csv = $_FILES['import']['tmp_name'];

@@ -37,7 +37,7 @@ function awpcp_payment_urls($transaction) {
 
 
 function awpcp_payments_methods_form($selected=null, $heading=null) {
-	$heading = !is_null($heading) ? $heading : __('Payment Methods');
+	$heading = !is_null($heading) ? $heading : __('Payment Methods', 'AWPCP');
 	$methods = awpcp_payment_methods();
 
 	ob_start();
