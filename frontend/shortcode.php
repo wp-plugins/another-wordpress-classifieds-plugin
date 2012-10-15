@@ -343,7 +343,7 @@ function awpcp_menu_items() {
 	$awpcp_searchads_pageid=awpcp_get_page_id_by_ref('search-ads-page-name');
 	$awpcp_browsecats_pageid=awpcp_get_page_id_by_ref('browse-categories-page-name');
 
-	// we don't use get_permalink to because it will return the homepage URL
+	// we don't use get_permalink because it will return the homepage URL
 	// if the main AWPCP page happens to be also the front page, and that 
 	// will break our rewrite rules
 	if (!empty($permastruc)) {

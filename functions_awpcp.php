@@ -1217,7 +1217,6 @@ function setup_url_structure($awpcpthepagename) {
 	return $quers;
 }
 
-// END FUNCTION: setup structure of URLs based on if permalinks are on and SEO urls are turned on
 function url_showad($ad_id) {
 	$modtitle = sanitize_title(get_adtitle($ad_id));
 	$seoFriendlyUrls = get_awpcp_option('seofriendlyurls');

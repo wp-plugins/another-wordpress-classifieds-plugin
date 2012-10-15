@@ -877,13 +877,20 @@ function awpcp_get_main_page_url() {
  * Always return the full URL, even if the page is set as
  * the homepage.
  *
- * The returned URL always has a trailing slash.
+ * The returned URL has no trailing slash.
  *
  * @since 2.0.7
  */
 function awpcp_get_page_url($pagename) {
-	$url = home_url(get_page_uri(awpcp_get_page_id_by_ref($pagename)));
-	return trailingslashit($url);
+	$id = awpcp_get_page_id_by_ref($pagename);
+
+	if (get_option('permalink_structure')) {
+		$url = home_url(get_page_uri($id));
+	} else {
+		$url = add_query_arg('page_id', $id, home_url());
+	}
+
+	return rtrim($url, '/');
 }
 
 

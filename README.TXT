@@ -4,8 +4,8 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
 Tested up to: 3.4.2
-Last Updated: 2012-Oct-12
-Stable tag: tags/2.1.3
+Last Updated: 2012-Oct-15
+Stable tag: tags/2.1.3.1
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
@@ -207,6 +207,9 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 2.1.3.1 =
+ Bug: Fixed problem with category links where a 404 error would appear when AWPCP pages are used on the front of a site
+ 
  = 2.1.3 =
  NEW: Added shortcode for display of single categories of ads:  [AWPCPSHOWCAT id=4 children=true] where id is the category, children says whether to display child categories of this category or not (allowed values:  true, false, yes, no, 0, 1)
  NEW: Send email when Ad is successfully renewed.
