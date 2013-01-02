@@ -86,4 +86,32 @@ class AWPCP_Image {
 
         return $result === false ? false : true;
     }
+
+    public function delete() {
+        global $wpdb;
+
+        $filenames = array(
+            AWPCPUPLOADDIR . "/{$this->name}",
+            AWPCPTHUMBSUPLOADDIR . "/{$this->name}"
+        );
+
+        foreach ($filenames as $filename) {
+            if (file_exists($filename)) @unlink($filename);
+        }
+
+        $query = 'DELETE FROM ' . AWPCP_TABLE_ADPHOTOS . ' WHERE key_id = %d';
+        $result = $wpdb->query($wpdb->prepare($query, $this->id));
+
+        return $result === false ? false : true;
+    }
+
+    public function disable() {
+        $this->disabled = 1;
+        return $this->save();
+    }
+
+    public function enable() {
+        $this->disabled = 0;
+        return $this->save();
+    }
 }

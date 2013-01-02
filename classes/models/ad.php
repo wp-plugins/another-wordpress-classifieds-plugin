@@ -47,6 +47,10 @@ class AWPCP_Ad {
 		return $ad;
 	}
 
+	public static function find_by_category_id($id) {
+		return self::find(sprintf('ad_category_id = %d', (int) $id));
+	}
+
 	public static function find_by_user_id($id) {
 		return AWPCP_Ad::find_by("user_id = " . intval($id));
 	}
@@ -152,7 +156,7 @@ class AWPCP_Ad {
 		return $ad > 0;
 	}
 
-	function sanitize($data) {
+	protected function sanitize($data) {
 		$sanitized = $data;
 
 		// make sure dates are dates or NULL, MySQL Strict mode does not allow empty strings
@@ -181,7 +185,7 @@ class AWPCP_Ad {
 		return $sanitized;
 	}
 
-	function save() {
+	public function save() {
 		global $wpdb;
 
 		$data = array('ad_id' => $this->ad_id,
@@ -232,6 +236,53 @@ class AWPCP_Ad {
 		}
 
 		return $result;
+	}
+
+	public function delete() {
+		global $wpdb;
+
+		do_action('awpcp_before_delete_ad', $this);
+
+		$images = AWPCP_Image::find_by_ad_id($this->ad_id);
+		foreach ($images as $image) {
+			$image->delete();
+		}
+
+		$query = 'DELETE FROM ' . AWPCP_TABLE_ADS . ' WHERE ad_id = %d';
+		$result = $wpdb->query($wpdb->prepare($query, $this->ad_id));
+
+		do_action('awpcp_delete_ad', $this);
+
+		return $result === false ? false : true;
+	}
+
+	public function disable() {
+		$images = AWPCP_Image::find_by_ad_id($this->ad_id);
+		foreach ($images as $image) {
+			$image->disable();
+		}
+
+		$this->disabled = 1;
+		$this->disabled_date = current_time('mysql');
+		$this->save();
+
+		do_action('awpcp_disable_ad', $this);
+
+		return true;
+	}
+
+	public function enable() {
+		$images = AWPCP_Image::find_by_ad_id($this->ad_id);
+		foreach ($images as $image) {
+			$image->enable();
+		}
+
+		$this->disabled = 0;
+		$this->save();
+
+		do_action('awpcp_approve_ad', $this);
+
+		return true;
 	}
 
 	function get_category_name() {
@@ -346,17 +397,8 @@ class AWPCP_Ad {
 		$this->renewed_date = current_time('mysql');
 
 		// if Ad is disabled lets see if we can enable it
-		if ($this->disabled) {
-			$this->disabled = awpcp_calculate_ad_disabled_state($this->ad_id);
-		}
-
-		// if Ad is enabled, enable images
-		if ( ! $this->disabled) {
-			$images = AWPCP_Image::find_by_ad_id($this->ad_id);
-			foreach ($images as $image) {
-				$image->disabled = false;
-				$image->save();
-			}
+		if ($this->disabled || ! awpcp_calculate_ad_disabled_state($this->ad_id)) {
+			$this->enable();
 		}
 
 		return true;

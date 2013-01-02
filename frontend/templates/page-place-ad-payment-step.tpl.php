@@ -34,12 +34,12 @@
 			<table class="awpcp-table">
 				<thead>
 					<tr>
-						<th><?php __('Payment Term', 'AWPCP') ?></th>
-						<th><?php __('Ads Allowed', 'AWPCP') ?></th>
-						<th><?php __('Images Allowed', 'AWPCP') ?></th>
-						<th><?php __('Characters Allowed', 'AWPCP') ?></th>
-						<th><?php __('Duration', 'AWPCP') ?></th>
-						<th><?php __('Price', 'AWPCP') ?></th>
+						<th><?php _e('Payment Term', 'AWPCP') ?></th>
+						<th><?php _e('Ads Allowed', 'AWPCP') ?></th>
+						<th><?php _e('Images Allowed', 'AWPCP') ?></th>
+						<th><?php _e('Characters Allowed', 'AWPCP') ?></th>
+						<th><?php _e('Duration', 'AWPCP') ?></th>
+						<th><?php _e('Price', 'AWPCP') ?></th>
 					</tr>
 				</thead>
 				<tbody>

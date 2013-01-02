@@ -146,7 +146,7 @@
                 city: user.city
             };
 
-            $.each(current, function(field, value) {
+            $.each(current, function(field) {
                 if (current[field] && current[field].length > 0 && !overwrite) {
                     updated[field] = current[field];
                 } else {

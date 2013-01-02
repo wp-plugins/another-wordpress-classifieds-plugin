@@ -17,10 +17,6 @@
 			</ul>
 <?php endif ?>
 
-	<link rel="stylesheet" href="<?php echo AWPCP_URL ?>js/datepicker/cupertino/jquery-ui-1.8.16.custom.css"/>
-	<script type='text/javascript' src='<?php echo site_url(); ?>/wp-includes/js/jquery/jquery.js?ver=1.6.1'></script>
-    <script type='text/javascript' src='<?php echo AWPCP_URL ?>js/datepicker/jquery-ui-1.8.16.datepicker.min.js'></script>
-
 			<?php if (!empty($messages)): ?>
 				<h3>Messages</h3>
 				<ul>

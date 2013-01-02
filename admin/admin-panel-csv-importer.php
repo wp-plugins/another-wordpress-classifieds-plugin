@@ -4,6 +4,11 @@ require_once(AWPCP_DIR . 'import.php');
 
 class AWPCP_Admin_CSV_Importer {
 
+	public function scripts() {
+		wp_enqueue_style('awpcp-jquery-ui');
+  		wp_enqueue_script('awpcp-jquery-ui-datepicker');
+	}
+
 	public function dispatch() {
 		global $awpcp_plugin_path;
 		global $start_date;

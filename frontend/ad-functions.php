@@ -50,7 +50,7 @@ function awpcp_get_fees() {
 	global $wpdb;
 
 	$sql = 'SELECT * FROM ' . AWPCP_TABLE_ADFEES . ' ORDER BY adterm_name ASC';
-	$results = $wpdb->get_results($wpdb->prepare($sql));
+	$results = $wpdb->get_results($sql);
 
 	return is_array($results) ? $results : array();
 }
@@ -204,8 +204,8 @@ function awpcp_ad_term_fee_transaction_processed($texts, $txn) {
 	}
 
 	$sql = 'UPDATE ' . AWPCP_TABLE_ADFEES . " SET buys = $updated ";
-	$sql.= 'WHERE adterm_id = ' . intval($term_id) . ' ' . $condition;
-	$wpdb->query($wpdb->prepare($sql));
+	$sql.= 'WHERE adterm_id = %d ' . $condition;
+	$wpdb->query($wpdb->prepare($sql, intval($term_id)));
 
 	// TODO: send email?
 	return $texts;
@@ -332,7 +332,7 @@ function awpcp_validate_ad_details($form_values=array(), &$form_errors=array(), 
 		(get_awpcp_option('displaystatefieldreqop') == 1))
 	{
 		if (!isset($form_values['adcontact_state']) || empty($form_values['adcontact_state'])) {
-			$form_errors[] = __("You did not enter your state. Your state is required","AWPCP");
+			$form_errors[] = __("You did not enter your state. Your state is required", "AWPCP");
 		}
 	}
 
@@ -1600,20 +1600,6 @@ function awpcp_renew_ad_page() {
 		$transaction->set('amount', $amount);
 
 		if ($amount <= 0) {
-			// // TODO: combine this code with the code in the renew_ad_form hook
-			// $ad->set_end_date($ad->calculate_end_date(current_time('mysql')));
-			// $ad->renew_email_sent = false;
-
-			// // if Ads is disabled lets see if we can enable it
-			// $disabled = $ad->disabled;
-			// if ($disabled) {
-			// 	$ad->disabled = awpcp_calculate_ad_disabled_state($ad->ad_id);
-			// }
-
-			// if ($disabled !== $ad->disabled) {
-			// 	$ad->disabled_date = current_time('mysql');
-			// }
-
 			$ad->renew();
 			$ad->save();
 
@@ -2349,10 +2335,18 @@ function load_ad_post_form($adid='', $action='', $awpcppagename='',
 			$theformbody.="<br/><input size=\"50\" type=\"text\" class=\"inputbox\" name=\"adcontact_phone\" value=\"" . awpcp_esc_attr($adcontact_phone) . "\" /></p>";
 		}
 
-		$region_control_query = array('country' => $adcontact_country, 'state' => $adcontact_state,
-						    		  'city' => $adcontact_city, 'county' => $ad_county_village);
-		$translations = array('country' => 'adcontact_country', 'state' => 'adcontact_state',
-							  'city' => 'adcontact_city', 'county' => 'adcontact_countyvillage');
+		$region_control_query = array(
+			'country' => $adcontact_country,
+			'state' => $adcontact_state,
+			'city' => $adcontact_city,
+			'county' => $ad_county_village
+		);
+		$translations = array(
+			'country' => 'adcontact_country',
+			'state' => 'adcontact_state',
+			'city' => 'adcontact_city',
+			'county' => 'adcontact_countyvillage'
+		);
 		if ($hasregionsmodule) {
 			// render Region Control form fields
 			$theformbody .=	awpcp_region_control_form_fields($region_control_query, $translations);
@@ -3288,7 +3282,6 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 	// TODO: does it works?
 	if ($adaction == 'delete') {
 		$output .= deletead($adid, $adkey, $editemail);
-		do_action('awpcp_delete_ad');
 
 	} else if ($adaction == 'editad') {
 		$qdisabled='';
@@ -3315,6 +3308,9 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 		if ($user_id === 0 || empty($user_id)) {
 			$user_id = 'user_id'; // do not change
 		}
+
+		$ad = AWPCP_Ad::find_by_id($adid);
+		do_action('awpcp_before_edit_ad', $ad);
 
 		$query = "UPDATE " . AWPCP_TABLE_ADS . " ";
 		$query.= "SET ad_category_id=$adcategory, ad_category_parent_id=$adcategory_parent_id, ";
@@ -3358,7 +3354,8 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 			}
 		}
 
-		do_action('awpcp_edit_ad', $adid);
+		$ad = AWPCP_Ad::find_by_id($adid);
+		do_action('awpcp_edit_ad', $ad);
 
 	} else {
 		// Begin processing new ad
@@ -3442,7 +3439,7 @@ function processadstep1($form_values=array(), &$form_errors=array(), $transactio
 
 			// TODO: update hooked handlers
 			// Notify plugins an Ad has been placed
-			do_action('awpcp-place-ad', $ad_id, $transaction);
+			do_action('awpcp-place-ad', AWPCP_Ad::find_by_id($ad_id), $transaction);
 		}
 
 		return awpcp_place_ad_upload_images_step(array('ad_id' => $ad_id));
@@ -3807,162 +3804,133 @@ function deletead($adid, $adkey, $editemail, $force=false, &$errors=array()) {
 
 	$isadmin = checkifisadmin() || $force;
 
-
 	if (get_awpcp_option('onlyadmincanplaceads') && ($isadmin != 1)) {
-		$awpcpreturndeletemessage = __("You do not have permission to perform the function you are trying to perform. Access to this page has been denied","AWPCP");
-		$errors[] = $awpcpreturndeletemessage;
+		$message = __("You do not have permission to perform the function you are trying to perform. Access to this page has been denied","AWPCP");
+		$errors[] = $message;
 
 	} else {
-		global $wpdb,$nameofsite;
+		global $wpdb, $nameofsite;
+
 		$tbl_ads = $wpdb->prefix . "awpcp_ads";
 		$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 		$savedemail=get_adposteremail($adid);
-		if ((strcasecmp($editemail, $savedemail) == 0) || ($isadmin == 1 ))
-		{
-			// Delete ad image data from database and delete images from server
 
-			$query="SELECT image_name FROM ".$tbl_ad_photos." WHERE ad_id='$adid'";
-			$res = awpcp_query($query, __LINE__);
+		if ((strcasecmp($editemail, $savedemail) == 0) || ($isadmin == 1 )) {
+			$ad = AWPCP_Ad::find_by_id($adid);
+			$ad->delete();
 
-			for ($i=0;$i<mysql_num_rows($res);$i++)
-			{
-				$photo=mysql_result($res,$i,0);
-				if (file_exists(AWPCPUPLOADDIR.'/'.$photo))
-				{
-					@unlink(AWPCPUPLOADDIR.'/'.$photo);
-				}
-				if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo))
-				{
-					@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
-				}
-			}
-
-			do_action('awpcp_before_delete_ad', $adid);
-
-			$query="DELETE FROM ".$tbl_ad_photos." WHERE ad_id='$adid'";
-			$res = awpcp_query($query, __LINE__);
-
-			// Now delete the ad
-			$query="DELETE FROM  ".$tbl_ads." WHERE ad_id='$adid'";
-			$res = awpcp_query($query, __LINE__);
-
-			if (($isadmin == 1) && is_admin())
-			{
-				$message=__("The ad has been deleted","AWPCP");
+			if (($isadmin == 1) && is_admin()) {
+				$message=__("The Ad has been deleted","AWPCP");
 				return $message;
+			} else {
+				$message=__("Your Ad details and any photos you have uploaded have been deleted from the system","AWPCP");
+				$errors[] = $message;
 			}
-
-			else
-			{
-				$awpcpreturndeletemessage=__("Your ad details and any photos you have uploaded have been deleted from the system","AWPCP");
-				$errors[] = $awpcpreturndeletemessage;
-			}
-		}
-		else
-		{
-			$awpcpreturndeletemessage=__("Problem encountered. Cannot complete  request","AWPCP");
-			$errors[] = $awpcpreturndeletemessage;
+		} else {
+			$message=__("Problem encountered. Cannot complete  request","AWPCP");
+			$errors[] = $message;
 		}
 	}
 
 	$output .= "<div id=\"classiwrapper\">";
 	$output .= awpcp_menu_items();
 	$output .= "<p>";
-	$output .= $awpcpreturndeletemessage;
+	$output .= $message;
 	$output .= "</p>";
 	$output .= "</div>";
+
 	return $output;
 }
 
-
+// TODO: restore all email messages
 
 //	START FUNCTION: Send out notifications that listing has been successfully posted
 
 /**
  * Email the administrator and the user to notify that the payment process was aborted.
  */
-function ad_paystatus_change_email($ad_id,$transactionid,$key,$message,$gateway) {
-	global $nameofsite, $thisadminemail;
+// function ad_paystatus_change_email($ad_id,$transactionid,$key,$message,$gateway) {
+// 	global $nameofsite, $thisadminemail;
 
-	$home_url = home_url();
+// 	$home_url = home_url();
 
-	$adminemailoverride=get_awpcp_option('awpcpadminemail');
-	if (isset($adminemailoverride) && !empty($adminemailoverride) && !(strcasecmp($thisadminemail, $adminemailoverride) == 0))
-	{
-		$thisadminemail=$adminemailoverride;
-	}
-	$awpcppage=get_currentpagename();
-	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
-	$permastruc=get_option(permalink_structure);
-	$quers=setup_url_structure($awpcppagename);
-	if (!isset($message) || empty($message)){ $message='';}
+// 	$adminemailoverride=get_awpcp_option('awpcpadminemail');
+// 	if (isset($adminemailoverride) && !empty($adminemailoverride) && !(strcasecmp($thisadminemail, $adminemailoverride) == 0))
+// 	{
+// 		$thisadminemail=$adminemailoverride;
+// 	}
+// 	$awpcppage=get_currentpagename();
+// 	$awpcppagename = sanitize_title($awpcppage, $post_ID='');
+// 	$permastruc=get_option(permalink_structure);
+// 	$quers=setup_url_structure($awpcppagename);
+// 	if (!isset($message) || empty($message)){ $message='';}
 
-	// $modtitle=cleanstring($listingtitle);
-	// $modtitle=add_dashes($modtitle);
+// 	// $modtitle=cleanstring($listingtitle);
+// 	// $modtitle=add_dashes($modtitle);
 
-	$url_showad=url_showad($ad_id);
-	$adlink="$url_showad";
+// 	$url_showad=url_showad($ad_id);
+// 	$adlink="$url_showad";
 
-	$adposteremail=get_adposteremail($ad_id);
-	$admostername=get_adpostername($ad_id);
-	$listingtitle=get_adtitle($ad_id);
-	$awpcpabortemailsubjectuser=get_awpcp_option('paymentabortedsubjectline');
+// 	$adposteremail=get_adposteremail($ad_id);
+// 	$admostername=get_adpostername($ad_id);
+// 	$listingtitle=get_adtitle($ad_id);
+// 	$awpcpabortemailsubjectuser=get_awpcp_option('paymentabortedsubjectline');
 
-	$subjectadmin=__("Listing payment status change notification","AWPCP");
-	$awpcpabortemailbodyadditionadets=__("Additional Details","AWPCP");
-	$awpcpabortemailbodytransid.=__("Transaction ID","AWPCP");
+// 	$subjectadmin=__("Listing payment status change notification","AWPCP");
+// 	$awpcpabortemailbodyadditionadets=__("Additional Details","AWPCP");
+// 	$awpcpabortemailbodytransid.=__("Transaction ID","AWPCP");
 
 
 
-	$mailbodyadmindearadmin=__("Dear Administrator","AWPCP");
-	$mailbodyadminproblemencountered.=__("A listing in the system has been updated with a payment status change","AWPCP");
+// 	$mailbodyadmindearadmin=__("Dear Administrator","AWPCP");
+// 	$mailbodyadminproblemencountered.=__("A listing in the system has been updated with a payment status change","AWPCP");
 
-	$mailbodyadmin="
-	$mailbodyadmindearadmin
+// 	$mailbodyadmin="
+// 	$mailbodyadmindearadmin
 
-	$mailbodyadminproblemencountered
+// 	$mailbodyadminproblemencountered
 
-	$awpcpabortemailbodyadditionadets
-";
+// 	$awpcpabortemailbodyadditionadets
+// ";
 
-	$mailbodyadmin.="
-";
-	$mailbodyadmin.=$message;
-	$mailbodyadmin.="
-";
-	$mailbodyadmin.=__("Listing Title","AWPCP");
-	$mailbodyadmin.=": $listingtitle";
-	$mailbodyadmin.="
-";
-	$mailbodyadmin.=__("Listing ID","AWPCP");
-	$mailbodyadmin.="$ad_id";
-	$mailbodyadmin.="
-";
-	$mailbodyadmin.=__("Listing URL","AWPCP");
-	$mailbodyadmin.=": $adlink";
-	$mailbodyadmin.="
-";
-	if (isset($transactionid) && !empty($transactionid))
-	{
-		$mailbodyadmin.=__("Payment transaction ID","AWPCP");
-		$mailbodyadmin.=": $transactionid";
-		$mailbodyadmin.="
-";
-	}
-	$mailbodyadmin.="
-";
-	$mailbodyadmin.="
-	$nameofsite
-	$home_url
-";
+// 	$mailbodyadmin.="
+// ";
+// 	$mailbodyadmin.=$message;
+// 	$mailbodyadmin.="
+// ";
+// 	$mailbodyadmin.=__("Listing Title","AWPCP");
+// 	$mailbodyadmin.=": $listingtitle";
+// 	$mailbodyadmin.="
+// ";
+// 	$mailbodyadmin.=__("Listing ID","AWPCP");
+// 	$mailbodyadmin.="$ad_id";
+// 	$mailbodyadmin.="
+// ";
+// 	$mailbodyadmin.=__("Listing URL","AWPCP");
+// 	$mailbodyadmin.=": $adlink";
+// 	$mailbodyadmin.="
+// ";
+// 	if (isset($transactionid) && !empty($transactionid))
+// 	{
+// 		$mailbodyadmin.=__("Payment transaction ID","AWPCP");
+// 		$mailbodyadmin.=": $transactionid";
+// 		$mailbodyadmin.="
+// ";
+// 	}
+// 	$mailbodyadmin.="
+// ";
+// 	$mailbodyadmin.="
+// 	$nameofsite
+// 	$home_url
+// ";
 
-	// email admin
-	@awpcp_process_mail($awpcpsenderemail=$thisadminemail,$awpcpreceiveremail=$thisadminemail,$awpcpemailsubject=$subjectadmin, $awpcpemailbody=$mailbodyadmin, $awpcpsendername=$nameofsite,$awpcpreplytoemail=$thisadminemail);
+// 	// email admin
+// 	@awpcp_process_mail($awpcpsenderemail=$thisadminemail,$awpcpreceiveremail=$thisadminemail,$awpcpemailsubject=$subjectadmin, $awpcpemailbody=$mailbodyadmin, $awpcpsendername=$nameofsite,$awpcpreplytoemail=$thisadminemail);
 
-	do_action('awpcp_edit_ad');
-	return $message;
+// 	do_action('awpcp_edit_ad');
+// 	return $message;
 
-}
+// }
 
 
 // TODO: update other ad_success_email calls

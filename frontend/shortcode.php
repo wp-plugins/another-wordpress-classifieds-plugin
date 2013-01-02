@@ -1,6 +1,8 @@
 <?php
 
 require_once(AWPCP_DIR . "frontend/meta.php");
+require_once(AWPCP_DIR . "frontend/shortcode-raw.php");
+
 require_once(AWPCP_DIR . 'frontend/page-place-ad.php');
 require_once(AWPCP_DIR . 'frontend/page-show-ad.php');
 require_once(AWPCP_DIR . 'frontend/page-search-ads.php');
@@ -8,6 +10,7 @@ require_once(AWPCP_DIR . 'frontend/page-browse-ads.php');
 require_once(AWPCP_DIR . 'frontend/page-browse-cat.php');
 require_once(AWPCP_DIR . 'frontend/page-payment-thank-you.php');
 require_once(AWPCP_DIR . 'frontend/page-cancel-payment.php');
+
 
 class AWPCP_Pages {
 	public $search_ads = null;
@@ -22,6 +25,9 @@ class AWPCP_Pages {
 		$this->browse_cat = new AWPCP_BrowseCatPage();
 		$this->payment_thank_you = new AWPCP_Payment_ThankYou_Page();
 		$this->cancel_payment = new AWPCP_Cancel_Payment_Page();
+
+		// fix for theme conflict with ThemeForest themes.
+		new AWPCP_RawShortcode();
 
 		add_action('init', array($this, 'init'));
 	}

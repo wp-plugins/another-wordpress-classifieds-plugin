@@ -1,15 +1,16 @@
-if (typeof jQuery !== 'undefined') {
+/*global AWPCPAjaxOptions:true */
 
-(function($, undefined) {
+if (jQuery !== undefined) {
+    (function($, undefined) {
 
-    $(function() {
-        var guide = $('#quick-start-guide-notice');
-            cancel = guide.find('.button');
-            submit = guide.find('.button-primary'),
-            url = guide.attr('data-url'),
+        $(function() {
+            var guide = $('#quick-start-guide-notice'),
+                cancel = guide.find('.button'),
+                submit = guide.find('.button-primary');
 
-            onSuccess = function(redirect) {
-                $.ajax(AWPCPAjaxOptions.ajaxurl, {
+            var onSuccess = function() {
+                $.ajax({
+                    url: AWPCPAjaxOptions.ajaxurl,
                     type: 'POST',
                     data: {
                         'action': 'disable-quick-start-guide-notice'
@@ -22,15 +23,14 @@ if (typeof jQuery !== 'undefined') {
                 });
             };
 
-        submit.click(function(event) {
-            onSuccess(true);
+            submit.click(function() {
+                onSuccess();
+            });
+
+            cancel.click(function() {
+                onSuccess();
+            });
         });
 
-        cancel.click(function(event) {
-            onSuccess(false);
-        });
-    });
-
-})(jQuery);
-
+    })(jQuery);
 }

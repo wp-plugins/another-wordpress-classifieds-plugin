@@ -3,9 +3,9 @@ Contributors: awpcp
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
-Tested up to: 3.4.2
-Last Updated: 2012-Oct-15
-Stable tag: tags/2.1.3.1
+Tested up to: 3.5
+Last Updated: 2013-Jan-3
+Stable tag: tags/2.2
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
@@ -207,6 +207,22 @@ Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 [Plugin documentation](http://www.awpcp.com/about-2/)
 
 == Changelog ==
+ = 2.2 =
+ NEW: Official Spanish translation added to AWPCP
+ NEW: Added jQuery to plugin for formal regions support
+ NEW: Allow Sidelist to show Regions from any level.
+ Bug: Fixed PHP warning for WP 3.5 about wpdb::prepare
+ Bug: Fixed Renew Ad link trailing slash problem
+ Bug: Fixed payment table headers for Place Ad payment page
+ Bug: Moved session_start to an init hook to reduce plugin conflicts
+ Bug: Image upload bug where filename was being improperly truncated for thumbnails
+ Bug: Added defensive code to handle conflict with Themeforest-based themes that use wpautop improperly, causing double-break output on AWPCP pages
+ Bug: Fixed Regions Ajax conflict.
+ Bug: Fixed cache problem that caused sidelisted regions not to appear.
+ Bug: Store regions ad count in database to improve module performance.
+ Bug: Move Regions CSS and JS to external files.
+ Bug: Replace region parent dropdown fields with autocomplete fields.
+
  = 2.1.3.1 =
  Bug: Fixed problem with category links where a 404 error would appear when AWPCP pages are used on the front of a site
  

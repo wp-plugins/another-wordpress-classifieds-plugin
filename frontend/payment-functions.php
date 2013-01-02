@@ -130,14 +130,17 @@ function awpcp_paypal_verify_recevied_data_with_curl($postfields='', $cainfo=tru
 		$paypal_url = "https://www.paypal.com/cgi-bin/webscr";
 	}
 
-	$ch = curl_init($paypal_url);
-	curl_setopt($ch, CURLOPT_POST, true);
-	curl_setopt($ch, CURLOPT_VERBOSE, true);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Host: www.paypal.com'));
+    $ch = curl_init($paypal_url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_VERBOSE, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Connection: Close'));
+    curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+    curl_setopt($ch, CURLOPT_FORBID_REUSE, 1);
 
 	if ($cainfo)
 		curl_setopt($ch, CURLOPT_CAINFO, AWPCP_DIR . 'cacert.pem');
@@ -169,19 +172,20 @@ function awpcp_paypal_verify_recevied_data_with_curl($postfields='', $cainfo=tru
  */
 function awpcp_paypal_verify_received_data_with_fsockopen($content, &$errors=array()) {
     if (get_awpcp_option('paylivetestmode') == 1) {
-        $paypallink = "ssl://www.sandbox.paypal.com";
+        $host = "www.sandbox.paypal.com";
     } else {
-        $paypallink = "ssl://www.paypal.com";
+        $host = "www.paypal.com";
     }
 
 	$response = 'ERROR';
 
     // post back to PayPal system to validate
-    $header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
-    $header.= "Host: www.paypal.com\r\n";
+    $header = "POST /cgi-bin/webscr HTTP/1.1\r\n";
+    $header.= "Host: $host\r\n";
+    $header.= "Connection: close\r\n";
     $header.= "Content-Type: application/x-www-form-urlencoded\r\n";
     $header.= "Content-Length: " . strlen($content) . "\r\n\r\n";
-    $fp = fsockopen($paypallink, 443, $errno, $errstr, 30);
+    $fp = fsockopen("ssl://$host", 443, $errno, $errstr, 30);
 
 	if ($fp) {
 	    fputs ($fp, $header . $content);
@@ -807,288 +811,288 @@ function awpcp_displaypaymentbutton_twocheckout($adid,$custom,$adterm_name,$adte
 
 
 
-function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
-				   $quantity, $mcgross, $payment_gross, $txn_id, $custom, $txn_type)
-{
+// function do_paypal($payment_status, $item_name, $item_number, $receiver_email,
+// 				   $quantity, $mcgross, $payment_gross, $txn_id, $custom, $txn_type)
+// {
 
-	$output = '';
-	global $wpdb;
-	$tbl_ads = $wpdb->prefix . "awpcp_ads";
-	$tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
-	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
-	$gateway = "Paypal";
-	$pbizid = get_awpcp_option('paypalemail');
+// 	$output = '';
+// 	global $wpdb;
+// 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
+// 	$tbl_ad_fees = $wpdb->prefix . "awpcp_adfees";
+// 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
+// 	$gateway = "Paypal";
+// 	$pbizid = get_awpcp_option('paypalemail');
 
-	// Configure the data that will be needed for use depending on conditions met
+// 	// Configure the data that will be needed for use depending on conditions met
 
-	// Split the data returned in $custom
+// 	// Split the data returned in $custom
 
-	$adidkey = $custom;
-	$adkeyelements = explode("_", $adidkey);
-	$ad_id=$adkeyelements[0];
-	$key=$adkeyelements[1];
-	$pproc=$adkeyelements[2];
-	$ad_id=clean_field($ad_id);
-	$key=clean_field($key);
-
-
-	// Get the item ID in order to calculate length of term
+// 	$adidkey = $custom;
+// 	$adkeyelements = explode("_", $adidkey);
+// 	$ad_id=$adkeyelements[0];
+// 	$key=$adkeyelements[1];
+// 	$pproc=$adkeyelements[2];
+// 	$ad_id=clean_field($ad_id);
+// 	$key=clean_field($key);
 
 
-	$adtermid=$item_number;
+// 	// Get the item ID in order to calculate length of term
 
 
-	// Set the value of field: premiumstart
+// 	$adtermid=$item_number;
 
 
-	$ad_startdate=mktime();
+// 	// Set the value of field: premiumstart
 
 
-	// Determine when ad term ends based on start time and term length
-
-	//addurationfreemode
-	$days = get_num_days_in_term($adtermid);
-	$term_duration = awpcp_get_term_duration($adtermid);
-	$mysql_periods = array('D' => 'DAY', 'W' => 'WEEK', 'M' => 'MONTH', 'Y' => 'YEAR');
-
-	$duration = $term_duration['duration'];
-	$increment = $mysql_periods[$term_duration['increment']];
-
-	// Bypass amount email dupeid checks if this is a cancellation notification
-
-	$awpcp_ipn_is_cancellation = false;
-	$awpcp_subscr_cancel="subscr-cancel";
-	if (strcasecmp($txn_type, $awpcp_subscr_cancel) == 0)
-	{
-		// this is a cancellation notification so no need to run validation check on amount transaction id etc
-		$awpcp_ipn_is_cancellation = 1;
-		do_action('awpcp_disable_ad');
-	}
-	else
-	{
-
-		// Make sure the incoming payment amount received matches at least one of the payment ids in the system
-
-		$myamounts=array();
-
-		$query="SELECT amount FROM ".$tbl_ad_fees."";
-		$res = awpcp_query($query, __LINE__);
-
-		while ($rsrow=mysql_fetch_row($res))
-		{
-			$myamounts[]=number_format($rsrow[0],2);
-		}
-		//
-		// If the incoming payment amount does not match the system amounts
-		//
-		$amount_matches = in_array(number_format($mcgross,2),$myamounts) ||
-						  in_array(number_format($payment_gross,2),$myamounts);
-		$amount_matches = apply_filters('awpcp_payment_amount_matches', $amount_matches, $mcgross, 'paypal');
-
-		if (!$amount_matches) {
-			$message=__("The amount you have paid does not match any of our listing fee amounts. Please contact us to clarify the problem.","AWPCP");
-			$awpcpshowadsample = 0;
-			$awpcppaymentresultmessage = abort_payment($message,$ad_id,$txn_id,$gateway);
-
-			do_action('awpcp_disable_ad');
-		}
-		// If the amount matches
-		////////
-		// Compare the incoming receiver email with the system receiver email
-		/////////
-
-		/////////
-		// If the emails do not match
-		/////////
-
-		if (!(strcasecmp($receiver_email, $pbizid) == 0)) {
-			$message=__("There was an error processing your transaction. If funds have been deducted from your account they have not been processed to our account. You will need to contact PayPal about the matter.","AWPCP");
-			$awpcpshowadsample=0;
-			$awpcppaymentresultmessage=abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
-		}
-
-		/////////
-		// If the emails do match
-		/////////
+// 	$ad_startdate=mktime();
 
 
-		//////////////////////////
-		// Check for duplicate transaction ID
-		//////////////////////////
+// 	// Determine when ad term ends based on start time and term length
 
-		//////////
-		// If the transaction ID is a duplicate of an ID already in the system
-		/////////
+// 	//addurationfreemode
+// 	$days = get_num_days_in_term($adtermid);
+// 	$term_duration = awpcp_get_term_duration($adtermid);
+// 	$mysql_periods = array('D' => 'DAY', 'W' => 'WEEK', 'M' => 'MONTH', 'Y' => 'YEAR');
 
-		if (isdupetransid($txn_id)) {
-			$message=__("It appears this transaction has already been processed. If you do not see your ad in the system please contact the site adminstrator for assistance.","AWPCP");
-			$awpcpshowadsample=0;
-			$awpcppaymentresultmessage=abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
-		}
+// 	$duration = $term_duration['duration'];
+// 	$increment = $mysql_periods[$term_duration['increment']];
 
-		///////////
-		// If the transaction ID is not a duplicate proceed with processing the transaction
-		///////////
+// 	// Bypass amount email dupeid checks if this is a cancellation notification
 
-	}
+// 	$awpcp_ipn_is_cancellation = false;
+// 	$awpcp_subscr_cancel="subscr-cancel";
+// 	if (strcasecmp($txn_type, $awpcp_subscr_cancel) == 0)
+// 	{
+// 		// this is a cancellation notification so no need to run validation check on amount transaction id etc
+// 		$awpcp_ipn_is_cancellation = 1;
+// 		do_action('awpcp_disable_ad');
+// 	}
+// 	else
+// 	{
 
-	///////////////////////////
-	// Begin updating based on payment status
-	///////////////////////////
+// 		// Make sure the incoming payment amount received matches at least one of the payment ids in the system
 
-	if (strcasecmp($payment_status, "Completed") == 0)
-	{
-		///////////
-		//Set the ad start and end date and save the transaction ID (this will be changed reset upon manual admin approval if ad approval is in effect)
-		///////////
+// 		$myamounts=array();
 
-		if (get_awpcp_option('adapprove') == 1)
-		{
-			$disabled=1;
-		}
-		else
-		{
-			$disabled=0;
-		}
+// 		$query="SELECT amount FROM ".$tbl_ad_fees."";
+// 		$res = awpcp_query($query, __LINE__);
 
-		if ($awpcp_ipn_is_cancellation == 1)
-		{
-			$query="UPDATE  ".$tbl_ads." SET payment_status='$payment_status' WHERE ad_id='$ad_id' AND ad_key='$key'";
-		}
-		else
-		{
-			$query = "UPDATE  ".$tbl_ads." SET adterm_id='".clean_field($item_number)."',";
-			$query.= "ad_startdate=NOW(), ad_enddate=NOW()+INTERVAL $duration $increment, ";
-			$query.= "ad_transaction_id='$txn_id', payment_status='$payment_status', ";
-			$query.= "payment_gateway='Paypal', disabled='$disabled', ";
-			$query.= "ad_fee_paid='".clean_field($mcgross)."', renew_email_sent=0 ";
-			$query.= "WHERE ad_id='$ad_id' AND ad_key='$key'";
-		}
-		$res = awpcp_query($query, __LINE__);
-		//Enable the images, if they were previously disabled
-		$query="UPDATE ".$tbl_ad_photos." set disabled=0 WHERE ad_id='$ad_id'";
-		$res2 = awpcp_query($query, __LINE__);
+// 		while ($rsrow=mysql_fetch_row($res))
+// 		{
+// 			$myamounts[]=number_format($rsrow[0],2);
+// 		}
+// 		//
+// 		// If the incoming payment amount does not match the system amounts
+// 		//
+// 		$amount_matches = in_array(number_format($mcgross,2),$myamounts) ||
+// 						  in_array(number_format($payment_gross,2),$myamounts);
+// 		$amount_matches = apply_filters('awpcp_payment_amount_matches', $amount_matches, $mcgross, 'paypal');
 
-		if (isset($item_number) && !empty($item_number))
-		{
-			$query="UPDATE ".$tbl_ad_fees." SET buys=buys+1 WHERE adterm_id='".clean_field($item_number)."'";
-			$res = awpcp_query($query, __LINE__);
-		}
+// 		if (!$amount_matches) {
+// 			$message=__("The amount you have paid does not match any of our listing fee amounts. Please contact us to clarify the problem.","AWPCP");
+// 			$awpcpshowadsample = 0;
+// 			$awpcppaymentresultmessage = abort_payment($message,$ad_id,$txn_id,$gateway);
 
-		if ($awpcp_ipn_is_cancellation == 1)
-		{
-			$message=__("Payment status has been changed to cancelled","AWPCP");
-			$awpcpshowadsample=0;
-			$awpcppaymentresultmessage=ad_paystatus_change_email($ad_id,$txn_id,$key,$message,$gateway);
-		}
-		else
-		{
-			$message=__("Payment has been completed","AWPCP");
-			$awpcpshowadsample=1;
-			$awpcppaymentresultmessage=ad_success_email($ad_id,$txn_id,$key,$message,$gateway);
-		}
+// 			do_action('awpcp_disable_ad');
+// 		}
+// 		// If the amount matches
+// 		////////
+// 		// Compare the incoming receiver email with the system receiver email
+// 		/////////
 
-		do_action('awpcp_edit_ad');
+// 		/////////
+// 		// If the emails do not match
+// 		/////////
 
-	}
-	elseif (strcasecmp($payment_status, "Refunded") == 0 ||
-		strcasecmp($payment_status, "Reversed") == 0 ||
-		strcasecmp($payment_status, "Partially-Refunded") == 0 ||
-		strcasecmp($payment_status, "Canceled_Reversal") == 0 ||
-		strcasecmp($payment_status, "Denied") == 0 ||
-		strcasecmp($payment_status, "Expired") == 0 ||
-		strcasecmp($payment_status, "Failed") == 0 ||
-		strcasecmp($payment_status, "Voided") == 0 )
-	{
-		///////////
-		// Disable the ad since the payment has been refunded
-		///////////
-		if (get_awpcp_option(freepay) == 1)
-		{
-			$query="UPDATE  ".$tbl_ads." SET disabled=1,payment_status='$payment_status', WHERE ad_id='$ad_id' AND ad_key='$key'";
-			$res = awpcp_query($query, __LINE__);
+// 		if (!(strcasecmp($receiver_email, $pbizid) == 0)) {
+// 			$message=__("There was an error processing your transaction. If funds have been deducted from your account they have not been processed to our account. You will need to contact PayPal about the matter.","AWPCP");
+// 			$awpcpshowadsample=0;
+// 			$awpcppaymentresultmessage=abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
+// 		}
 
-			if (isset($item_number) && !empty($item_number))
-			{
-				$query="UPDATE ".$tbl_ad_fees." SET buys=buys-1 WHERE adterm_id='".clean_field($item_number)."'";
-				$res = awpcp_query($query, __LINE__);
-			}
-		}
+// 		/////////
+// 		// If the emails do match
+// 		/////////
 
-		$message=__("Payment status has been changed to refunded","AWPCP");
-		$awpcpshowadsample=0;
-		$awpcppaymentresultmessage=ad_paystatus_change_email($ad_id,$txn_id,$key,$message,$gateway);
 
-		do_action('awpcp_disable_ad');
+// 		//////////////////////////
+// 		// Check for duplicate transaction ID
+// 		//////////////////////////
 
-	}
-	elseif (strcasecmp ($payment_status, "Pending") == 0 )
-	{
-		///////////
-		//Set the ad start and end date and save the transaction ID (this will be changed reset upon manual admin approval if ad approval is in effect)
-		///////////
-		if (get_awpcp_option('disablependingads') == 0)
-		{
-			$disabled=1;
-		}
-		else
-		{
-			$disabled=0;
-		}
+// 		//////////
+// 		// If the transaction ID is a duplicate of an ID already in the system
+// 		/////////
 
-		if ($awpcp_ipn_is_cancellation == 1)
-		{
-			$query="UPDATE  ".$tbl_ads." SET payment_status='$payment_status' WHERE ad_id='$ad_id' AND ad_key='$key'";
-		}
-		else
-		{
-			$query = "UPDATE  ".$tbl_ads." SET adterm_id='".clean_field($item_number)."',";
-			$query.= "ad_startdate=NOW(), ad_enddate=NOW()+INTERVAL $duration $increment, ";
-			$query.= "ad_transaction_id='$txn_id', payment_status='$payment_status', ";
-			$query.= "payment_gateway='Paypal', disabled='$disabled', ";
-			$query.= "ad_fee_paid='".clean_field($mcgross)."', renew_email_sent=0 ";
-			$query.= "WHERE ad_id='$ad_id' AND ad_key='$key'";
-		}
-		$res = awpcp_query($query, __LINE__);
-		//Dis/enable the images, if they were previously disabled
-		$query="UPDATE ".$tbl_ad_photos." set disabled='$disabled' WHERE ad_id='$ad_id'";
-		$res2 = awpcp_query($query, __LINE__);
+// 		if (isdupetransid($txn_id)) {
+// 			$message=__("It appears this transaction has already been processed. If you do not see your ad in the system please contact the site adminstrator for assistance.","AWPCP");
+// 			$awpcpshowadsample=0;
+// 			$awpcppaymentresultmessage=abort_payment_no_email($message,$ad_id,$txn_id,$gateway);
+// 		}
 
-		if (isset($item_number) && !empty($item_number))
-		{
-			$query="UPDATE ".$tbl_ad_fees." SET buys=buys+1 WHERE adterm_id='".clean_field($item_number)."'";
-			$res = awpcp_query($query, __LINE__);
-		}
-		$message=__("Payment is pending","AWPCP");
-		$awpcpshowadsample=1;
-		$awpcppaymentresultmessage=ad_success_email($ad_id,$txn_id,$key,$message,$gateway);
+// 		///////////
+// 		// If the transaction ID is not a duplicate proceed with processing the transaction
+// 		///////////
 
-		do_action('awpcp_edit_ad');
-	}
-	else
-	{
-		$message=__("There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment. If you have not tried to make a payment and you are viewing this message, it means this message is being shown in error and can be disregarded.","AWPCP");
-		$awpcpshowadsample=0;
-		$awpcppaymentresultmessage=abort_payment($message,$ad_id,$txn_id,$gateway);
+// 	}
 
-		do_action('awpcp_disable_ad');
-	}
+// 	///////////////////////////
+// 	// Begin updating based on payment status
+// 	///////////////////////////
 
-	$output .= "<div id=\"classiwrapper\">";
-	$output .= '<p class="ad_status_msg">';
-	$output .= $awpcppaymentresultmessage;
-	$output .= "</p>";
-	$output .= awpcp_menu_items();
-	if ($awpcpshowadsample == 1)
-	{
-		$output .= '<h2 class="ad-posted">';
-		$output .= __("You Ad is posted","AWPCP");
-		$output .= "</h2>";
-		$output .= showad($ad_id, $omitmenu=1);
-	}
-	$output .= "</div>";
-	return $output;
-}
+// 	if (strcasecmp($payment_status, "Completed") == 0)
+// 	{
+// 		///////////
+// 		//Set the ad start and end date and save the transaction ID (this will be changed reset upon manual admin approval if ad approval is in effect)
+// 		///////////
+
+// 		if (get_awpcp_option('adapprove') == 1)
+// 		{
+// 			$disabled=1;
+// 		}
+// 		else
+// 		{
+// 			$disabled=0;
+// 		}
+
+// 		if ($awpcp_ipn_is_cancellation == 1)
+// 		{
+// 			$query="UPDATE  ".$tbl_ads." SET payment_status='$payment_status' WHERE ad_id='$ad_id' AND ad_key='$key'";
+// 		}
+// 		else
+// 		{
+// 			$query = "UPDATE  ".$tbl_ads." SET adterm_id='".clean_field($item_number)."',";
+// 			$query.= "ad_startdate=NOW(), ad_enddate=NOW()+INTERVAL $duration $increment, ";
+// 			$query.= "ad_transaction_id='$txn_id', payment_status='$payment_status', ";
+// 			$query.= "payment_gateway='Paypal', disabled='$disabled', ";
+// 			$query.= "ad_fee_paid='".clean_field($mcgross)."', renew_email_sent=0 ";
+// 			$query.= "WHERE ad_id='$ad_id' AND ad_key='$key'";
+// 		}
+// 		$res = awpcp_query($query, __LINE__);
+// 		//Enable the images, if they were previously disabled
+// 		$query="UPDATE ".$tbl_ad_photos." set disabled=0 WHERE ad_id='$ad_id'";
+// 		$res2 = awpcp_query($query, __LINE__);
+
+// 		if (isset($item_number) && !empty($item_number))
+// 		{
+// 			$query="UPDATE ".$tbl_ad_fees." SET buys=buys+1 WHERE adterm_id='".clean_field($item_number)."'";
+// 			$res = awpcp_query($query, __LINE__);
+// 		}
+
+// 		if ($awpcp_ipn_is_cancellation == 1)
+// 		{
+// 			$message=__("Payment status has been changed to cancelled","AWPCP");
+// 			$awpcpshowadsample=0;
+// 			$awpcppaymentresultmessage=ad_paystatus_change_email($ad_id,$txn_id,$key,$message,$gateway);
+// 		}
+// 		else
+// 		{
+// 			$message=__("Payment has been completed","AWPCP");
+// 			$awpcpshowadsample=1;
+// 			$awpcppaymentresultmessage=ad_success_email($ad_id,$txn_id,$key,$message,$gateway);
+// 		}
+
+// 		do_action('awpcp_edit_ad');
+
+// 	}
+// 	elseif (strcasecmp($payment_status, "Refunded") == 0 ||
+// 		strcasecmp($payment_status, "Reversed") == 0 ||
+// 		strcasecmp($payment_status, "Partially-Refunded") == 0 ||
+// 		strcasecmp($payment_status, "Canceled_Reversal") == 0 ||
+// 		strcasecmp($payment_status, "Denied") == 0 ||
+// 		strcasecmp($payment_status, "Expired") == 0 ||
+// 		strcasecmp($payment_status, "Failed") == 0 ||
+// 		strcasecmp($payment_status, "Voided") == 0 )
+// 	{
+// 		///////////
+// 		// Disable the ad since the payment has been refunded
+// 		///////////
+// 		if (get_awpcp_option(freepay) == 1)
+// 		{
+// 			$query="UPDATE  ".$tbl_ads." SET disabled=1,payment_status='$payment_status', WHERE ad_id='$ad_id' AND ad_key='$key'";
+// 			$res = awpcp_query($query, __LINE__);
+
+// 			if (isset($item_number) && !empty($item_number))
+// 			{
+// 				$query="UPDATE ".$tbl_ad_fees." SET buys=buys-1 WHERE adterm_id='".clean_field($item_number)."'";
+// 				$res = awpcp_query($query, __LINE__);
+// 			}
+// 		}
+
+// 		$message=__("Payment status has been changed to refunded","AWPCP");
+// 		$awpcpshowadsample=0;
+// 		$awpcppaymentresultmessage=ad_paystatus_change_email($ad_id,$txn_id,$key,$message,$gateway);
+
+// 		do_action('awpcp_disable_ad');
+
+// 	}
+// 	elseif (strcasecmp ($payment_status, "Pending") == 0 )
+// 	{
+// 		///////////
+// 		//Set the ad start and end date and save the transaction ID (this will be changed reset upon manual admin approval if ad approval is in effect)
+// 		///////////
+// 		if (get_awpcp_option('disablependingads') == 0)
+// 		{
+// 			$disabled=1;
+// 		}
+// 		else
+// 		{
+// 			$disabled=0;
+// 		}
+
+// 		if ($awpcp_ipn_is_cancellation == 1)
+// 		{
+// 			$query="UPDATE  ".$tbl_ads." SET payment_status='$payment_status' WHERE ad_id='$ad_id' AND ad_key='$key'";
+// 		}
+// 		else
+// 		{
+// 			$query = "UPDATE  ".$tbl_ads." SET adterm_id='".clean_field($item_number)."',";
+// 			$query.= "ad_startdate=NOW(), ad_enddate=NOW()+INTERVAL $duration $increment, ";
+// 			$query.= "ad_transaction_id='$txn_id', payment_status='$payment_status', ";
+// 			$query.= "payment_gateway='Paypal', disabled='$disabled', ";
+// 			$query.= "ad_fee_paid='".clean_field($mcgross)."', renew_email_sent=0 ";
+// 			$query.= "WHERE ad_id='$ad_id' AND ad_key='$key'";
+// 		}
+// 		$res = awpcp_query($query, __LINE__);
+// 		//Dis/enable the images, if they were previously disabled
+// 		$query="UPDATE ".$tbl_ad_photos." set disabled='$disabled' WHERE ad_id='$ad_id'";
+// 		$res2 = awpcp_query($query, __LINE__);
+
+// 		if (isset($item_number) && !empty($item_number))
+// 		{
+// 			$query="UPDATE ".$tbl_ad_fees." SET buys=buys+1 WHERE adterm_id='".clean_field($item_number)."'";
+// 			$res = awpcp_query($query, __LINE__);
+// 		}
+// 		$message=__("Payment is pending","AWPCP");
+// 		$awpcpshowadsample=1;
+// 		$awpcppaymentresultmessage=ad_success_email($ad_id,$txn_id,$key,$message,$gateway);
+
+// 		do_action('awpcp_edit_ad');
+// 	}
+// 	else
+// 	{
+// 		$message=__("There appears to be a problem. Please contact customer service if you are viewing this message after having made a payment. If you have not tried to make a payment and you are viewing this message, it means this message is being shown in error and can be disregarded.","AWPCP");
+// 		$awpcpshowadsample=0;
+// 		$awpcppaymentresultmessage=abort_payment($message,$ad_id,$txn_id,$gateway);
+
+// 		do_action('awpcp_disable_ad');
+// 	}
+
+// 	$output .= "<div id=\"classiwrapper\">";
+// 	$output .= '<p class="ad_status_msg">';
+// 	$output .= $awpcppaymentresultmessage;
+// 	$output .= "</p>";
+// 	$output .= awpcp_menu_items();
+// 	if ($awpcpshowadsample == 1)
+// 	{
+// 		$output .= '<h2 class="ad-posted">';
+// 		$output .= __("You Ad is posted","AWPCP");
+// 		$output .= "</h2>";
+// 		$output .= showad($ad_id, $omitmenu=1);
+// 	}
+// 	$output .= "</div>";
+// 	return $output;
+// }
 
 
 //	End process
@@ -1207,16 +1211,10 @@ function do_2checkout($custom,$x_amount,$x_item_number,$x_trans_id,$x_Login)
 	///////////
 	//Set the ad start and end date and save the transaction ID (this will be changed reset upon manual admin approval if ad approval is in effect)
 	///////////
-
-	if ( (get_awpcp_option('adapprove') == 1) || (get_awpcp_option('disablependingads') == 0))
-	{
+	if ( (get_awpcp_option('adapprove') == 1) || (get_awpcp_option('disablependingads') == 0)) {
 		$disabled=1;
-		do_action('awpcp_disablead');
-	}
-	else
-	{
+	} else {
 		$disabled=0;
-		do_action('awpcp_approve_ad');
 	}
 
 	$query = "UPDATE  ".$tbl_ads." SET adterm_id='".clean_field($x_item_number)."',";
@@ -1230,6 +1228,13 @@ function do_2checkout($custom,$x_amount,$x_item_number,$x_trans_id,$x_Login)
 	//Enable the images, if they were previously disabled
 	$query="UPDATE ".$tbl_ad_photos." set disabled=0 WHERE ad_id='$ad_id'";
 	$res2 = awpcp_query($query, __LINE__);
+
+	$ad = AWPCP_Ad::find_by_id($ad_id);
+	if ($disabled) {
+		do_action('awpcp_disablead', $ad);
+	} else {
+		do_action('awpcp_approve_ad', $ad);
+	}
 
 	// let plugins know an ad was successfully posted
 	// TODO: no matter what, the Ad is always posted with payment_status set
@@ -1316,7 +1321,7 @@ function awpcp_abort_payment($message='', $transaction=null) {
 		$awpcpemailbody=$mailbodyadmin, $awpcpsendername=$nameofsite,
 		$awpcpreplytoemail=$thisadminemail);
 
-	do_action('awpcp_disable_ad');
+	// do_action('awpcp_disable_ad');
 
 	return $message;
 
@@ -1425,7 +1430,7 @@ function abort_payment($message, $ad_id, $transactionid, $gateway) {
 
 	@awpcp_process_mail($awpcpsenderemail=$thisadminemail,$awpcpreceiveremail=$thisadminemail,$awpcpemailsubject=$subjectadmin, $awpcpemailbody=$mailbodyadmin, $awpcpsendername=$nameofsite,$awpcpreplytoemail=$thisadminemail);
 
-	do_action('awpcp_disable_ad');
+	// do_action('awpcp_disable_ad');
 
 	return $message;
 
@@ -1586,7 +1591,7 @@ function awpcp_cancelpayment() {
 		$output .= "$showpaybuttongooglecheckout</p></div>";
 	}
 
-	do_action('awpcp_disable_ad');
+	// do_action('awpcp_disable_ad');
 
 	return $output;
 }

@@ -61,7 +61,7 @@ class AWPCP_Admin_Debug {
 		$sql.= 'LEFT JOIN ' . $wpdb->posts . ' AS posts ';
 		$sql.= 'ON (posts.ID = pages.id)';
 
-		$pages = $wpdb->get_results($wpdb->prepare($sql));
+		$pages = $wpdb->get_results($sql);
 
 		$rules = (array) $wp_rewrite->wp_rewrite_rules();
 

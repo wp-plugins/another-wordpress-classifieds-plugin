@@ -22,7 +22,7 @@ function awpcp_upload_image_file($directory, $filename, $tmpname, $min_size, $ma
 	$size = filesize($tmpname);
 
 	$allowed_extensions = array('gif', 'jpg', 'jpeg', 'png');
-	
+
 	if (empty($filename)) {
 		return __('No file was selected.', 'AWPCP');
 	}
@@ -40,7 +40,7 @@ function awpcp_upload_image_file($directory, $filename, $tmpname, $min_size, $ma
 		return __('The file has an invalid extension and was rejected.', 'AWPCP');
 
 	} elseif ($size < $min_size) {
-		$message = __('The size of %1$s was too small. The file was not uploaded. File size must be greater than %2$d bytes', 'AWPCP');
+		$message = __('The size of %1$s was too small. The file was not uploaded. File size must be greater than %2$d bytes.', 'AWPCP');
 		return sprintf($message, $filename, $min_size);
 
 	} elseif ($size > $max_size) {
@@ -48,28 +48,28 @@ function awpcp_upload_image_file($directory, $filename, $tmpname, $min_size, $ma
 		return sprintf($message, $filename, $max_size);
 
 	} elseif (!isset($imginfo[0]) && !isset($imginfo[1])) {
-		return __('The file does not appear to be a valid image file', 'AWPCP');
+		return __('The file does not appear to be a valid image file.', 'AWPCP');
 
 	} elseif ($imginfo[0] < $min_height) {
-		$message = __('The image did not meet the minimum width of %s pixels. The file was not uploaded', 'AWPCP');
+		$message = __('The image did not meet the minimum width of %s pixels. The file was not uploaded.', 'AWPCP');
 		return sprintf($message, $min_width);
 
 	} elseif ($imginfo[1] < $min_height) {
-		$message = __('The image did not meet the minimum height of %s pixels. The file was not uploaded', 'AWPCP');
+		$message = __('The image did not meet the minimum height of %s pixels. The file was not uploaded.', 'AWPCP');
 		return sprintf($message, $min_width);
 	}
 
 	if ($uploaded && !@move_uploaded_file($tmpname, $newpath)) {
-		$message = __('The file [ %s ] could not be moved to the destination directory', 'AWPCP');
+		$message = __('The file % could not be moved to the destination directory.', 'AWPCP');
 		return sprintf($message, $filename);
-		
+
 	} else if (!$uploaded && !@copy($tmpname, $newpath)) {
-		$message = __('The file [ %s ] could not be moved to the destination directory', 'AWPCP');
+		$message = __('The file %s could not be moved to the destination directory.', 'AWPCP');
 		return sprintf($message, $filename);
 	}
 
 	if (!awpcp_create_image_versions($newname, $directory)) {
-		$message = __('Could not create resized versions of image %s', 'AWPCP');
+		$message = __('Could not create resized versions of image %s.', 'AWPCP');
 		# TODO: unlink resized version, thumbnail and primary image
 		@unlink($newpath);
 		return sprintf($message, $filename);
@@ -652,7 +652,7 @@ function awpcp_create_image_versions($filename, $directory) {
 
 function awpcp_make_intermediate_size($file, $directory, $width, $height, $crop=false, $suffix='') {
 	$info = pathinfo($file);
-	$filename = trim($info['basename'], ".{$info['extension']}");
+	$filename = preg_replace("/\.{$info['extension']}/", '', $info['basename']);
 	$suffix = empty($suffix) ? '.' : "-$suffix.";
 
 	$newpath = trailingslashit($directory) . $filename . $suffix . $info['extension'];

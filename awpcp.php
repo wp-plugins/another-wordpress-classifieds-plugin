@@ -3,7 +3,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. <strong>!!!IMPORTANT!!!</strong> Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 2.1.3.1
+ Version: 2.2
  Author: D. Rodenbaugh
  License: GPLv2 or any later version
  Author URI: http://www.skylineconsult.com
@@ -112,21 +112,6 @@ $thisadminemail = get_option('admin_email');
 // common
 require_once(AWPCP_DIR . "debug.php");
 require_once(AWPCP_DIR . "functions.php");
-
-// conditionally start session if not already active.
-// done here because awpcp_get_current_domain is defined in functions.php
-if (!isset($_SESSION)) {
-	// if we are in a subdomain, let PHP choose the right domain
-	if (strcmp(awpcp_get_current_domain(), awpcp_get_current_domain(false)) == 0) {
-		$domain = '';
-	// otherwise strip the www part
-	} else {
-		$domain = awpcp_get_current_domain(false, '.');
-	}
-	@session_set_cookie_params(0, '/', $domain, false, true);
-	@session_start();
-}
-
 require_once(AWPCP_DIR . "cron.php");
 
 // other resources
@@ -275,6 +260,8 @@ class AWPCP {
 
 
 	public function init() {
+		$this->initialize_session();
+
 		$installation_complete = get_option('awpcp_installationcomplete', 0);
 		if (!$installation_complete) {
 			update_option('awpcp_installationcomplete', 1);
@@ -286,9 +273,6 @@ class AWPCP {
 			flush_rewrite_rules();
 		}
 
-		// global $wp_filter;
-		// debug($wp_filter);
-
 		$this->register_scripts();
 	}
 
@@ -299,6 +283,26 @@ class AWPCP {
 		$this->settings->add_setting('private:notices', 'show-quick-start-guide-notice', '', 'checkbox', false, '');
 	}
 
+	/**
+	 * Conditionally start session if not already active.
+	 *
+	 * @since  2.1.4
+	 */
+	public function initialize_session() {
+		$session_id = session_id();
+		if (empty($session_id)) {
+			// if we are in a subdomain, let PHP choose the right domain
+			if (strcmp(awpcp_get_current_domain(), awpcp_get_current_domain(false)) == 0) {
+				$domain = '';
+			// otherwise strip the www part
+			} else {
+				$domain = awpcp_get_current_domain(false, '.');
+			}
+
+			@session_set_cookie_params(0, '/', $domain, false, true);
+			@session_start();
+		}
+	}
 
 	/**
 	 * A good place to register all AWPCP standard scripts that can be
@@ -308,18 +312,18 @@ class AWPCP {
 		// had to use false as the version number because otherwise the resulting URLs would
 		// throw 404 errors. Not sure why :S -@wvega
 
-		wp_register_script('awpcp-admin-general',
-					AWPCP_URL . 'js/admin-general.js', array('jquery'), '1.0.0', true);
+		$js = AWPCP_URL . 'js';
 
-		wp_register_script('awpcp-page-place-ad',
-					AWPCP_URL . 'js/page-place-ad.js', array('jquery'), false, true);
+		wp_register_script('awpcp-admin-general', "{$js}/admin-general.js", array('jquery'), '1.0.0', true);
+		wp_register_script('awpcp-page-place-ad', "{$js}/page-place-ad.js", array('jquery'), false, true);
 
-		wp_register_style('awpcp-jquery-ui-datepicker',
-					AWPCP_URL . 'js/datepicker/cupertino/jquery-ui-1.8.16.custom.css',
-					array(), false);
-		wp_register_script('awpcp-jquery-ui-datepicker',
-					AWPCP_URL . 'js/datepicker/jquery-ui-1.8.16.datepicker.min.js',
-					array('jquery'), false, true);
+		wp_register_style('awpcp-jquery-ui', "{$js}/ui/themes/smoothness/jquery-ui.css", array(), false);
+
+		wp_register_script('awpcp-jquery-ui-core', "{$js}/ui/jquery.ui.core.min.js", array('jquery'), false, true);
+		wp_register_script('awpcp-jquery-ui-widget', "{$js}/ui/jquery.ui.widget.min.js", array('jquery'), false, true);
+		wp_register_script('awpcp-jquery-ui-position', "{$js}/ui/jquery.ui.position.min.js", array('jquery'), false, true);
+		wp_register_script('awpcp-jquery-ui-datepicker', "{$js}/ui/jquery.ui.datepicker.min.js", array('awpcp-jquery-ui-core'), false, true);
+		wp_register_script('awpcp-jquery-ui-autocomplete', "{$js}/ui/jquery.ui.autocomplete.min.js", array('awpcp-jquery-ui-core', 'awpcp-jquery-ui-widget', 'awpcp-jquery-ui-position'), false, true);
 
 		if (is_admin()) {
 			wp_enqueue_script('awpcp-admin-general');
@@ -365,7 +369,7 @@ class AWPCP {
 			$query.= " AND pages.page NOT IN ('" . join("','", $excluded) . "')";
 		}
 
-		$orphan = $wpdb->get_results($wpdb->prepare($query));
+		$orphan = $wpdb->get_results($query);
 
 		// if a page is registered in the code but there is no reference
 		// of it in the database, create it.
@@ -427,9 +431,13 @@ $awpcp = new AWPCP();
 
 
 
-$plugin_dir = basename(dirname(__FILE__));
+// l10n MO file can be in the top level directory or inside the languages
+// directory. A file inside the languages directory is prefered.
 if (get_awpcp_option('activatelanguages')) {
-	load_plugin_textdomain( 'AWPCP', 'wp-content/plugins/' . $plugin_dir, $plugin_dir );
+	$basename = dirname(plugin_basename(__FILE__));
+	if (!load_plugin_textdomain('AWPCP', false, $basename . '/languages/')) {
+		load_plugin_textdomain('AWPCP', false, $basename);
+	}
 }
 
 

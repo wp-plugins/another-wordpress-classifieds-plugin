@@ -1,5 +1,4 @@
-<!-- XXX: Recurring Payments are not supported, the following form sends information
-     for a Add to Cart operation -->
+<!-- XXX: Recurring Payments are not supported, the following form sends information for a Add to Cart operation -->
 <form action="<?php echo $paypal_url ?>" method="post">
     <input type="hidden" value="2" name="rm">
     <input type="hidden" value="_cart" name="cmd">

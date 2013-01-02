@@ -309,6 +309,8 @@ function awpcp_region_form_fields($query, $translations) {
 												  'options' => ''));
 	}
 
+	$ordered = array('country', 'state', 'city', 'county');
+
 	ob_start();
 		include(AWPCP_DIR . 'frontend/templates/region-control-form-fields.tpl.php');
 		$html = ob_get_contents();
@@ -790,6 +792,39 @@ function awpcp_get_ad_primary_image($ad_id) {
 }
 
 
+function awpcp_array_insert($array, $index, $key, $item, $where='before') {
+	$all = array_merge($array, array($key => $item));
+	$keys = array_keys($array);
+	$p = array_search($index, $keys);
+
+	if ($p !== FALSE) {
+		if ($where === 'before')
+			array_splice($keys, max($p, 0), 0, $key);
+		else if ($where === 'after')
+			array_splice($keys, min($p+1, count($keys)), 0, $key);
+
+		$array = array();
+		// create items array in proper order.
+		// the code below was the only way I find to insert an
+		// item in an arbitrary position of an array preserving
+		// keys. array_splice dropped the key of the inserted
+		// value.
+		foreach($keys as $key) {
+			$array[$key] = $all[$key];
+		}
+	}
+
+	return $array;
+}
+
+function awpcp_array_insert_before($array, $index, $key, $item) {
+	return awpcp_array_insert($array, $index, $key, $item, 'before');
+}
+
+function awpcp_array_insert_after($array, $index, $key, $item) {
+	return awpcp_array_insert($array, $index, $key, $item, 'after');
+}
+
 /**
  * Inserts a menu item after one of the existing items.
  *
@@ -803,26 +838,7 @@ function awpcp_get_ad_primary_image($ad_id) {
  * @param $item 	array 	New item's description
  */
 function awpcp_insert_menu_item($items, $after, $key, $item) {
-	$all = array_merge($items, array($key => $item));
-	$keys = array_keys($items);
-	$p = array_search($after, $keys);
-
-	if ($p !== FALSE) {
-		array_splice($keys, $p+1, 0, $key);
-		$items = array();
-
-		// the code below was the only way I find to insert an
-		// item in an arbitrary position of an array preserving
-		// keys. array_splice dropped the key of the inserted
-		// value.
-
-		// create items array in proper order.
-		foreach($keys as $key) {
-			$items[$key] = $all[$key];
-		}
-	}
-
-	return $items;
+	return awpcp_array_insert_after($items, $after, $key, $item);
 }
 
 
@@ -908,7 +924,7 @@ function awpcp_get_renew_ad_url($ad_id) {
 		$url = add_query_arg(array('ad_id' => $ad_id), $url);
 	}
 
-	return user_trailingslashit($url);
+	return $url;
 }
 
 /**
@@ -1084,6 +1100,18 @@ function awpcp_table_exists($table) {
     global $wpdb;
     $result = $wpdb->get_var("SHOW TABLES LIKE '" . $table . "'");
     return strcasecmp($result, $table) === 0;
+}
+
+
+/**
+ * @since  2.1.4
+ */
+function awpcp_column_exists($table, $column) {
+    global $wpdb;
+    $wpdb->hide_errors();
+    $result = $wpdb->query("SELECT `$column` FROM $table");
+    $wpdb->show_errors();
+    return $result !== false;
 }
 
 

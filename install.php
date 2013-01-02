@@ -232,7 +232,7 @@ class AWPCP_Installer {
         // delete payment transactions
         $sql = 'SELECT option_name, option_value FROM ' . $wpdb->options . ' ';
         $sql.= "WHERE option_name LIKE 'awpcp-payment-transaction-%%'";
-        $results = $wpdb->get_results($wpdb->prepare($sql));
+        $results = $wpdb->get_results($sql);
         foreach ($results as $option) {
             delete_option($option->option_name);
         }
@@ -832,10 +832,10 @@ function awpcp_fix_table_charset_and_collate($tables) {
 
     foreach ($tables as $table) {
         $sql = "ALTER TABLE `$table` CHARACTER SET utf8 COLLATE utf8_general_ci";
-        $wpdb->query($wpdb->prepare($sql, $table));
+        $wpdb->query($sql);
 
         $sql = "SHOW COLUMNS FROM `$table`";
-        $columns = $wpdb->get_results($wpdb->prepare($sql, $table), ARRAY_N);
+        $columns = $wpdb->get_results($sql, ARRAY_N);
 
         $parts = array();
         foreach ($columns as $col) {
@@ -850,7 +850,8 @@ function awpcp_fix_table_charset_and_collate($tables) {
                 }
             }
         }
-        $sql = "ALTER TABLE $table " . join(', ', $parts);
+
+        $sql = "ALTER TABLE `$table` " . join(', ', $parts);
         $wpdb->query($sql);
     }
 }

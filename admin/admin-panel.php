@@ -95,16 +95,12 @@ class AWPCP_Admin {
 						 'Manage1', 'awpcp_manage_viewlistings');
 		// disabled because doesn't seems to be usefull anymore
 		// add_submenu_page($slug, 'View Ad Images', 'Images', '7', 'Manage2', 'awpcp_manage_viewimages');
-		add_submenu_page($slug, 'Import Ad', 'Import', $capability, 
-						 'awpcp-import', array($this->importer, 'dispatch'));
+		$hook = add_submenu_page($slug, 'Import Ad', 'Import', $capability, 'awpcp-import', array($this->importer, 'dispatch'));
+		add_action("load-{$hook}", array($this->importer, 'scripts'));
 
 		// allow plugins to define additional sub menu entries
 		do_action('awpcp_admin_add_submenu_page', $slug, $capability);
 
-		if ($hasregionsmodule) {
-			add_submenu_page($slug, 'Manage Regions', 'Regions', $capability, 
-					     'Configure4', 'awpcp_opsconfig_regions');
-		}
 		if ($hasextrafieldsmodule) {
 			add_submenu_page($slug, 'Manage Extra Fields', 'Extra Fields', $capability,
 						 'Configure5', 'awpcp_add_new_field');
@@ -172,16 +168,24 @@ function checkifclassifiedpage($pagename) {
 // START FUNCTION: Display the admin home screen
 
 function awpcp_home_screen() {
-	//debug();
-	$output = '';
-	global $message,$user_identity,$wpdb,$awpcp_plugin_path,$awpcp_imagesurl,$awpcp_db_version,$haspoweredbyremovalmodule,$hasregionsmodule,$hascaticonsmodule,$hasgooglecheckoutmodule,$hasextrafieldsmodule,$hasrssmodule,$hasfeaturedadsmodule,$extrafieldsversioncompatibility;
+	global $message, $user_identity, $wpdb, $awpcp_plugin_path, $awpcp_imagesurl, $awpcp_db_version;
+	global $haspoweredbyremovalmodule,
+		   $hasregionsmodule,
+		   $hascaticonsmodule,
+		   $hasgooglecheckoutmodule,
+		   $hasextrafieldsmodule,
+		   $hasrssmodule,
+		   $hasfeaturedadsmodule,
+		   $extrafieldsversioncompatibility;
+
 	$tbl_ad_settings = $wpdb->prefix . "awpcp_adsettings";
+	$output = '';
 
 	// get Admin panel sidebar content
 	$sidebar = awpcp_admin_sidebar('none; width: 100% !important');
 
 	$output .= "<div class=\"wrap\"><h2>";
-	$output .= __("AWPCP Classifieds Management System","AWPCP");
+	$output .= __("AWPCP Classifieds Management System", "AWPCP");
 	$output .= "</h2><p>";
 	$output .= __("You are using version","AWPCP");
 	$output .= " <b>$awpcp_db_version</b> </p>$message <div style=\"padding:20px;\">";
@@ -731,10 +735,11 @@ function awpcp_opsconfig_categories()
 		if ($hascaticonsmodule == 1 ) {
 			if ( is_installed_category_icon_module() )
 			{
+				$label = __("Manage Category Icon", "AWPCP");
 				$output .= " &nbsp;&nbsp;&nbsp;<img src=\"$awpcp_imagesurl/icon_manage_ico.png\" alt=\"";
-				$output .= __("Manage Category Icon","AWPCP");
+				$output .= $label;
 				$output .= "\" border=\"0\"/>";
-				$output .= __("Manage Category icon","AWPCP");
+				$output .= $label;
 			}
 		} else {
 			$output .= "<div class=\"fixfloat\"><p style=\"padding-top:25px;\">";
@@ -1073,7 +1078,6 @@ function awpcp_manage_viewlistings() {
 		{
 			$message=deletead($actonid,$adkey='',$editemail='');
 			$output .= "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">$message</div>";
-			do_action('awpcp_delete_ad');
 		}
 		if ($laction == 'unflagad')
 		{	$sql = 'update '.$wpdb->prefix.'awpcp_ads set flagged = 0 where ad_id = "'.$_GET['id'].'"';
@@ -1109,11 +1113,11 @@ function awpcp_manage_viewlistings() {
 			if (($ad->disabled && empty($disabled_date)) || $ad->has_expired()) {
 				$ad->set_start_date(current_time('mysql'));
 				$ad->set_end_date($ad->calculate_end_date());
-			    $ad->save();
 			}
 
-		    $sql  = "UPDATE  " . AWPCP_TABLE_ADS . " SET disabled = 0 WHERE ad_id = %d";
-		    $wpdb->query($wpdb->prepare($sql, $actonid));
+			// TODO: create enable() method in AWPCP_Ad
+			$ad->disabled = 0;
+			$ad->save();
 
 		    $sql  = "UPDATE " . AWPCP_TABLE_ADPHOTOS . " SET disabled = 0 WHERE ad_id = %d";
 		    $wpdb->query($wpdb->prepare($sql, $actonid));
@@ -1122,16 +1126,15 @@ function awpcp_manage_viewlistings() {
 			$output .= __("The Ad has been approved", "AWPCP");
 			$output .= "</div>";
 
-			do_action('awpcp_approve_ad');
+			do_action('awpcp_approve_ad', $ad);
 
 		} elseif ($laction == 'rejectad') {
-			$query="UPDATE  ".$tbl_ads." SET disabled=1, disabled_date = NOW() WHERE ad_id='$actonid'";
-			$res = awpcp_query($query, __LINE__);
+			$ad = AWPCP_Ad::find_by_id($actonid);
+			$ad->disable();
 
 			$output .= "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
 			$output .= __("The ad has been disabled","AWPCP");
 			$output .= "</div>";
-			do_action('awpcp_disable_ad'); 
 		}
 		elseif ($laction == 'makefeatured')
 		{
@@ -1156,13 +1159,13 @@ function awpcp_manage_viewlistings() {
 		elseif ($laction == 'spamad')
 		{
 			awpcp_submit_spam($actonid);
-			$query="DELETE FROM ".$tbl_ads." WHERE ad_id='$actonid'";
-			$res = awpcp_query($query, __LINE__);
+
+			$ad = AWCP_Ad::find_by_id($actonid);
+			$ad->delete();
 
 			$output .= "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
-			$output .= __("The ad has been marked as SPAM and removed","AWPCP");
+			$output .= __("The Ad has been marked as SPAM and removed.","AWPCP");
 			$output .= "</div>";
-			do_action('awpcp_disable_ad'); 
 		}
 		elseif ($laction == 'cps')
 		{
@@ -1177,7 +1180,8 @@ function awpcp_manage_viewlistings() {
 			$output .= "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">";
 			$output .= __("The ad payment status has been changed","AWPCP");
 			$output .= "</div>";
-			do_action('awpcp_approve_ad'); 
+
+			do_action('awpcp_approve_ad', AWPCP_Ad::find_by_id($actonid));
 
 		} elseif ($laction == 'viewad') {
 			if (isset($actonid) && !empty($actonid)) {
@@ -2698,32 +2702,37 @@ function awpcp_handle_admin_requests() {
 				$fordeletionid[]=$theawpcpadtodelete;
 			}
 
-			$listofadstodelete=join("','",$fordeletionid);
-
-			// Delete the ad images
-			$query="SELECT image_name FROM ".$tbl_ad_photos." WHERE ad_id IN ('$listofadstodelete')";
-			$res = awpcp_query($query, __LINE__);
-
-			for ($i=0;$i<mysql_num_rows($res);$i++)
-			{
-				$photo=mysql_result($res,$i,0);
-
-				if (file_exists(AWPCPUPLOADDIR.'/'.$photo))
-				{
-					@unlink(AWPCPUPLOADDIR.'/'.$photo);
-				}
-				if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo))
-				{
-					@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
-				}
+			$ads = AWPCP_Ad::find(sprintf('WHERE ad_id IN (%s)', join("','", $fordeletionid)));
+			foreach ($ads as $ad) {
+				$ad->delete();
 			}
 
-			$query="DELETE FROM ".$tbl_ad_photos." WHERE ad_id IN ('$listofadstodelete')";
-			awpcp_query($query, __LINE__);
+			// $listofadstodelete=join("','",$fordeletionid);
 
-			// Delete the ads
-			$query="DELETE FROM ".$tbl_ads." WHERE ad_id IN ('$listofadstodelete')";
-			awpcp_query($query, __LINE__);
+			// // Delete the ad images
+			// $query="SELECT image_name FROM ".$tbl_ad_photos." WHERE ad_id IN ('$listofadstodelete')";
+			// $res = awpcp_query($query, __LINE__);
+
+			// for ($i=0;$i<mysql_num_rows($res);$i++)
+			// {
+			// 	$photo=mysql_result($res,$i,0);
+
+			// 	if (file_exists(AWPCPUPLOADDIR.'/'.$photo))
+			// 	{
+			// 		@unlink(AWPCPUPLOADDIR.'/'.$photo);
+			// 	}
+			// 	if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo))
+			// 	{
+			// 		@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
+			// 	}
+			// }
+
+			// $query="DELETE FROM ".$tbl_ad_photos." WHERE ad_id IN ('$listofadstodelete')";
+			// awpcp_query($query, __LINE__);
+
+			// // Delete the ads
+			// $query="DELETE FROM ".$tbl_ads." WHERE ad_id IN ('$listofadstodelete')";
+			// awpcp_query($query, __LINE__);
 
 			$themessagetoprint=__("The ads have been deleted","AWPCP");
 
@@ -2752,18 +2761,22 @@ function awpcp_handle_admin_requests() {
 		}
 		else
 		{
-			foreach ($theawpcparrayofadstospam as $theawpcpadtospam)
-			{
+			foreach ($theawpcparrayofadstospam as $theawpcpadtospam) {
 				$forspamid[]=$theawpcpadtospam;
 				awpcp_submit_spam($theawpcpadtospam);
 			}
+
+			$ads = AWPCP_Ad::find(sprintf('WHERE ad_id IN (%s)', join("','", $forspamid)));
+			foreach ($ads as $ad) {
+				$ad->delete();
+			}
 			
-			$listofadstospam=join("','",$forspamid);
-			// Delete the ads
-			$query="DELETE FROM ".$tbl_ads." WHERE ad_id IN ('$listofadstospam')";
-			awpcp_query($query, __LINE__);
+			// $listofadstospam=join("','",$forspamid);
+			// // Delete the ads
+			// $query="DELETE FROM ".$tbl_ads." WHERE ad_id IN ('$listofadstospam')";
+			// awpcp_query($query, __LINE__);
 			
-			$themessagetoprint=__("The selected ads have been marked as SPAM and removed","AWPCP");
+			$themessagetoprint=__("The selected Ads have been marked as SPAM and removed.","AWPCP");
 		}
 
 		$message = "<div style=\"background-color: rgb(255, 251, 204);\" id=\"message\" class=\"updated fade\">$themessagetoprint</div>";

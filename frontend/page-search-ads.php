@@ -5,12 +5,12 @@ class AWPCP_Search_Ads_Page {
 	public $active = false;
 
 	public function AWPCP_Search_Ads_Page() {
-		// used to get list of relevant Regions in Search Ads page
-		// to update dropdowns
-		// TODO: this actions probably belong to the RegionControl module
-		// but I rather not touch it right now.
-		add_action('wp_ajax_awpcp-search-ads-get-regions', array($this, 'regions_list'));
-		add_action('wp_ajax_nopriv_awpcp-search-ads-get-regions', array($this, 'regions_list'));
+		// // used to get list of relevant Regions in Search Ads page
+		// // to update dropdowns
+		// // TODO: this actions probably belong to the RegionControl module
+		// // but I rather not touch it right now.
+		// add_action('wp_ajax_awpcp-search-ads-get-regions', array($this, 'regions_list'));
+		// add_action('wp_ajax_nopriv_awpcp-search-ads-get-regions', array($this, 'regions_list'));
 
 		add_action('init', array($this, 'init'));
 		add_action('wp_footer', array($this, 'print_scripts'));
@@ -130,35 +130,40 @@ class AWPCP_Search_Ads_Page {
 		return $html;
 	}
 
-	public function regions_list() {
-		$field = awpcp_request_param('field', '', $_GET);
-		$filter = awpcp_request_param('filterby', '', $_GET);
-		$value = awpcp_request_param('value', '', $_GET);
+	// public function regions_list() {
+	// 	if (function_exists('awpcp_regions_api')) {
+	// 		$field = awpcp_request_param('field', '', $_GET);
+	// 		$filter = awpcp_request_param('filterby', '', $_GET);
+	// 		$value = awpcp_request_param('value', '', $_GET);
 
-		switch ($field) {
-			case 'State':
-			case 'City':
-			case 'County':
-				$entries = awpcp_region_control_get_entries($field, $value, $filter);
-				break;
-			case 'Country':
-			default:
-				$entries = array();
-		}
+	// 		switch ($field) {
+	// 			case 'State':
+	// 			case 'City':
+	// 			case 'County':
+	// 				$entries = awpcp_region_control_get_entries($field, $value, $filter);
+	// 				break;
+	// 			case 'Country':
+	// 			default:
+	// 				$entries = array();
+	// 		}
 
-		$html = awpcp_region_control_render_options($entries);
-		if (count($entries) > 1) {
-			$html = '<option value="">' . __('Select Option', 'AWPCP') . '</option>' . $html;
-		}
+	// 		$html = awpcp_region_control_render_options($entries);
+	// 		if (count($entries) > 1) {
+	// 			$html = '<option value="">' . __('Select Option', 'AWPCP') . '</option>' . $html;
+	// 		}
+	// 	} else {
+	// 		$entries = array();
+	// 		$html = '';
+	// 	}
 
-		$response = array('status' => 'ok',
-						  'entries' => $entries,
-						  'html' => $html);
+	// 	$response = array('status' => 'ok',
+	// 					  'entries' => $entries,
+	// 					  'html' => $html);
 
-		header( "Content-Type: application/json" );
-    	echo json_encode($response);
-    	die();
-	}
+	// 	header( "Content-Type: application/json" );
+ //    	echo json_encode($response);
+ //    	die();
+	// }
 }
 
 

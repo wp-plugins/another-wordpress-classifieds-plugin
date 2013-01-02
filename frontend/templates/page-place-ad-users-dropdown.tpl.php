@@ -3,7 +3,7 @@
 <?php _e('User', 'AWPCP') ?><br/>
 
 <select id="place-ad-user-id" name="user_id">
-    <option value="0"><?php _e('Select an User owner for this Ad', 'AWPCP') ?></option>
+    <option value="0"><?php _e('Select a User owner for this Ad', 'AWPCP') ?></option>
 
     <?php $selected = $user_id ?>
     <?php foreach ($users as $k => $user): ?>

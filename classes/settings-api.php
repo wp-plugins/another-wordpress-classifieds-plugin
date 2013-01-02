@@ -226,8 +226,6 @@ class AWPCP_Settings_API {
 		$key = $this->add_section($group, __('Layout and Presentation', 'AWPCP'),
 								  'layout', 10, array($this, 'section'));
 
-		$this->add_setting($key, 'displayadthumbwidth', 'Thumbnail width',
-						   'textfield', 80, 'Width for thumbnails in ad listings view (numerical value only).');
 		$this->add_setting($key, 'allowhtmlinadtext', 'Allow HTML in Ad text',
 							'checkbox', 0, 'Allow HTML in ad text (Not recommended).');
 		$this->add_setting($key, 'htmlstatustext', 'Display this text above ad detail text input box on ad post page',
@@ -374,6 +372,9 @@ class AWPCP_Settings_API {
 
 		$key = $this->add_section($group, __('Primary Image Settings', 'AWPCP'), 'primary-image', 10, array($this, 'section'));
 
+		$this->add_setting($key, 'displayadthumbwidth', 'Thumbnail width (Ad Listings page)',
+						   'textfield', '80',
+						   'Width of the thumbnail for the primary image shown in Ad Listings view.');
 		$this->add_setting($key, 'primary-image-thumbnail-width', 'Thumbnail width (Primary Image)',
 							'textfield', '200',
 							'Width of the thumbnail for the primary image shown in Single Ad view.');

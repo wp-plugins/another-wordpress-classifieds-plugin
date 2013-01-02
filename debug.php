@@ -12,8 +12,8 @@ class WP_Skeleton_Logger {
 
         $this->log = array();
 
-        add_action('admin_footer', array($this, 'show'));
-        add_action('wp_footer', array($this, 'show'));
+        add_action('admin_footer', array($this, 'show'), 100000);
+        add_action('wp_footer', array($this, 'show'), 100000);
     }
 
     public static function instance() {

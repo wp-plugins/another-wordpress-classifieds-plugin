@@ -105,9 +105,15 @@ function doadexpirations() {
 		}
 	}
 
+	$ads = AWPCP_Ad::find(sprintf('ad_id IN (%s)', join(',' , $expiredid)));
+	foreach ($ads as $ad) {
+		$ad->disable();
+	}
+	
 	$adstodelete = join(',' , $expiredid);
 
 	if ('' != $adstodelete) {
+
 		// disable images
 		$query = 'update ' . AWPCP_TABLE_ADPHOTOS . " set disabled=1 WHERE ad_id IN ($adstodelete)";
 		$res = awpcp_query($query, __LINE__);
@@ -139,29 +145,10 @@ function doadcleanup() {
 		}
 	}
 
-	$adstodelete = join("','", $expiredid);
-	$query = "SELECT image_name FROM " . AWPCP_TABLE_ADPHOTOS . " WHERE ad_id IN ('$adstodelete')";
-	$res = awpcp_query($query, __LINE__);
-	$rowcount = mysql_num_rows($res);
-
-	for ($i=0; $i < $rowcount; $i++) {
-		$photo=mysql_result($res,$i,0);
-
-		if (file_exists(AWPCPUPLOADDIR.'/'.$photo)) {
-			@unlink(AWPCPUPLOADDIR.'/'.$photo);
-		}
-
-		if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo)) {
-			@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
-		}
+	$ads = AWPCP_Ad::find(sprintf('WHERE ad_id IN (%s)', join("','", $expiredid)));
+	foreach ($ads as $ad) {
+		$ad->delete();
 	}
-
-	$query = "DELETE FROM " . AWPCP_TABLE_ADPHOTOS . " WHERE ad_id IN ('$adstodelete')";
-	$res = awpcp_query($query, __LINE__);
-
-	// Delete the ads
-	$query = "DELETE FROM " . AWPCP_TABLE_ADS . " WHERE ad_id IN ('$adstodelete')";
-	$res = awpcp_query($query, __LINE__);
 }
 
 
@@ -220,7 +207,7 @@ function awpcp_clean_up_payment_transactions() {
 	$sql.= "WHERE option_name LIKE 'awpcp-payment-transaction-%%' ";
 	$sql.= 'ORDER BY option_id';
 
-	$results = $wpdb->get_results($wpdb->prepare($sql));
+	$results = $wpdb->get_results($sql);
 
 	$threshold = current_time('mysql') - 2592000;
 	$threshold = current_time('mysql') - 6*60*60;

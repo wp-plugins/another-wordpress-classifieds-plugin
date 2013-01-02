@@ -841,8 +841,8 @@ function get_categorycheckboxes( $cats = array(), $adterm_id ) {
 // END FUNCTION: create drop down list of categories for ad post form
 // START FUNCTION: Retrieve the category name
 function get_adcatname($cat_ID){
-
 	global $wpdb;
+
 	$cname='';
 	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 
@@ -853,7 +853,8 @@ function get_adcatname($cat_ID){
 			$cname = $cn['category_name'];
 		}
 	}
-	return strip_slashes_recursive($cname);
+
+	return empty($cname) ? '' : stripslashes_deep($cname);
 }
 
 function get_adcatorder($cat_ID){
@@ -1618,47 +1619,10 @@ function createdefaultcategory($idtomake,$titletocallit) {
 // START FUNCTION: function to delete multiple ads at once used when admin deletes a category that contains ads but does not move the ads to a new category
 //////////////////////
 function massdeleteadsfromcategory($catid) {
-
-	global $wpdb,$nameofsite, $thisadminemail;
-
-	// Get the IDs of the ads to be deleted
-	$query="SELECT ad_id FROM ". AWPCP_TABLE_ADS ." WHERE ad_category_id='$catid'";
-	$res = awpcp_query($query, __LINE__);
-
-	$fordeletionid=array();
-
-	if (mysql_num_rows($res)) {
-
-		while ($rsrow=mysql_fetch_row($res)) {
-			$fordeletionid[]=$rsrow[0];
-
-		}
-		$totalusers=count($fordeletionid);
+	$ads = AWPCP_Ad::find_by_category_id($catid);
+	foreach ($ads as $ad) {
+		$ad->delete();
 	}
-
-	$adstodelete=join("','",$fordeletionid);
-	// Delete the ad images
-
-	$query="SELECT image_name FROM ". AWPCP_TABLE_ADPHOTOS ." WHERE ad_id IN ('$adstodelete')";
-	$res = awpcp_query($query, __LINE__);
-
-	for ($i=0;$i<mysql_num_rows($res);$i++) {
-		$photo=mysql_result($res,$i,0);
-
-		if (file_exists(AWPCPUPLOADDIR.'/'.$photo)) {
-			@unlink(AWPCPUPLOADDIR.'/'.$photo);
-		}
-		if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$photo)) {
-			@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$photo);
-		}
-	}
-
-	$query="DELETE FROM ". AWPCP_TABLE_ADPHOTOS ." WHERE ad_id IN ('$adstodelete')";
-	@mysql_query($query);
-
-	// Delete the ads
-	$query="DELETE FROM ". AWPCP_TABLE_ADS ." WHERE ad_id IN ('$adstodelete')";
-	@mysql_query($query);
 }
 
 
