@@ -23,7 +23,7 @@ function awpcp_opsconfig_fees() {
 		if (isset($message) && !empty($message)) {
 			$output .= $message;
 		}
-		
+
 		$output .= "<p style=\"padding:10px;\">";
 		 $output .= __("Below you can add and edit your listing fees. As an example you can add an entry set at $9.99 for a 30 day listing, then another entry set at $17.99 for a 60 day listing. For each entry you can set a specific number of images a user can upload. If you have allow images turned off in your main configuration settings the value you add here will not matter as an upload option will not be included in the ad post form. You can also set a text limit for all ads. The value is in characters.","AWPCP");
 		 $output .= "</p>";

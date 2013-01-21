@@ -770,22 +770,6 @@ function awpcp_place_ad_store_images_step() {
 	$ad_id = $form_values['ad_id'] = intval(awpcp_request_param('ad_id'));
 
 	if (isset($_REQUEST['submit'])) {
-		// if (isset($_REQUEST['adtermid']) && !empty($_REQUEST['adtermid'])) {
-		// 	$adtermid = clean_field($_REQUEST['adtermid']);
-		// }
-		// if (isset($_REQUEST['adkey']) && !empty($_REQUEST['adkey'])) {
-		// 	$adkey = clean_field($_REQUEST['adkey']);
-		// }
-		// if (isset($_REQUEST['adpaymethod']) && !empty($_REQUEST['adpaymethod'])) {
-		// 	$adpaymethod = clean_field($_REQUEST['adpaymethod']);
-		// }
-		// if (isset($_REQUEST['nextstep']) && !empty($_REQUEST['nextstep'])) {
-		// 	$nextstep = clean_field($_REQUEST['nextstep']);
-		// }
-		// if (isset($_REQUEST['adaction']) && !empty($_REQUEST['adaction'])) {
-		// 	$adaction = clean_field($_REQUEST['adaction']);
-		// }
-
 		$success = awpcp_handle_uploaded_images($ad_id, $form_errors);
 	}
 
@@ -2942,7 +2926,7 @@ function dosearch() {
 	$output = '';
 	global $wpdb,$hasextrafieldsmodule;
 	$tbl_ads = $wpdb->prefix . "awpcp_ads";
-
+	
 	$keywordphrase=clean_field(urldecode(awpcp_request_param('keywordphrase')));
 	$searchname=clean_field(awpcp_request_param('searchname'));
 	$searchcategory=clean_field(awpcp_request_param('searchcategory'));
@@ -3755,38 +3739,20 @@ function deletepic($picid,$adid,$adtermid,$adkey,$editemail,$force=false)
 
 		$output .= "<div id=\"classiwrapper\">";
 
-		$query="SELECT image_name FROM ".$tbl_ad_photos." WHERE key_id='$picid' AND ad_id='$adid'";
-		$res = awpcp_query($query, __LINE__);
-		$pic=mysql_result($res,0,0);
-
-		$query="DELETE FROM ".$tbl_ad_photos." WHERE key_id='$picid' AND ad_id='$adid' AND image_name='$pic'";
-		$res = awpcp_query($query, __LINE__);
-		if (file_exists(AWPCPUPLOADDIR.'/'.$pic)) {
-			@unlink(AWPCPUPLOADDIR.'/'.$pic);
-		}
-		if (file_exists(AWPCPTHUMBSUPLOADDIR.'/'.$pic)) {
-			@unlink(AWPCPTHUMBSUPLOADDIR.'/'.$pic);
+		$images = AWPCP_Image::find(array('id' => (int) $picid, 'ad_id' => (int) $adid));
+		if (!empty($images)) {;
+			if ($images[0]->delete() && $isadmin == 1 && ($force || is_admin())) {
+				$message = __("The image has been deleted","AWPCP");
+				return $message;
+			}
 		}
 
-		//	$classicontent=$imagecode;
-		//	global $classicontent;
+		$output .= editimages($adtermid,$adid,$adkey,$editemail);
 
-		if ($isadmin == 1 && ($force || is_admin()))
-		{
-			$message=__("The image has been deleted","AWPCP");
-			return $message;
-		}
-
-		else {
-
-			$output .= editimages($adtermid,$adid,$adkey,$editemail);
-		}
-
-	}
-	else
-	{
+	} else {
 		$output .= __("Unable to delete you image, please contact the administrator.","AWPCP");
 	}
+
 	$output .= "</div>";
 	return $output;
 }
@@ -4433,7 +4399,6 @@ function awpcp_display_ads($where, $byl, $hidepager, $grouporderby, $adorcat, $b
  * @return Show Ad page content.
  */
 function showad($adid, $omitmenu, $preview=false, $send_email=true) {
-
 	global $wpdb, $awpcp_plugin_path, $hasextrafieldsmodule;
 
 	$preview = $preview === true || 'preview' == awpcp_array_data('adstatus', '', $_GET);
@@ -4472,9 +4437,8 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 	$showadspagename=sanitize_title(get_awpcp_option('show-ads-page-name'));
 	// delete:
 	//$pathvalueshowad=get_awpcp_option('pathvalueshowad');
-	__("*** NOTE:  The next two strings are for currency formatting:  1,000.00 where comma is used for currency place holders and the period for decimal separation.  Change the next two strings for your preferred price formatting.  (this string is just a note)***","AWPCP");
-	$currencySep = __(",", "AWPCP");
-	$decimalPlace = __(".","AWPCP");
+	$currencySep = _x(",", 'Used for currency placeholders: (The comman in 1,000.00).', "AWPCP");
+	$decimalPlace = __(".", 'Used for decimal separation: (The dot in 1,000.00).', "AWPCP");
 
 	//_log("Displaying ad: " . $adid);
 	if (isset($adid) && !empty($adid)) {
@@ -4674,6 +4638,7 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 
 			$featureimg='';
 			$allowImages = get_awpcp_option('imagesallowdisallow');
+
 			if ($allowImages == 1) {
 				$totalimagesuploaded = get_total_imagesuploaded($adid);
 
@@ -4690,7 +4655,6 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 
 				$theimage='';
 				$awpcpshowadotherimages='';
-				$totalimagesuploaded=get_total_imagesuploaded($adid);
 
 				if ($totalimagesuploaded >= 1) {
 					$query = "SELECT image_name FROM " . AWPCP_TABLE_ADPHOTOS . " ";
@@ -4783,84 +4747,83 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 			$flag_script = awpcp_inline_javascript_placeholder('flag-script', $flag_script);
 
 			$addetails = nl2br($addetails);
+			$layout = get_awpcp_option('awpcpshowtheadlayout');
 
-			$awpcpshowtheadlayout = get_awpcp_option('awpcpshowtheadlayout');
-
-			if (isset($awpcpshowtheadlayout) && !empty($awpcpshowtheadlayout))
-			{
-				$ad_cat_id = get_adcategory($adid);
-				$ad_categoryname = get_adcatname($ad_cat_id);
-				$ad_categoryurl = url_browsecategory($ad_cat_id);
-				__("*** NOTE the next string is the date format used for the field codes displayed in the ad.  Change to your local format.","AWPCP");
-				$awpcpdateformat=__("m/d/Y","AWPCP");
-				$awpcpshowtheadlayout=str_replace("\$ad_startdate","".date($awpcpdateformat, strtotime($ad_startdate)),$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$ad_postdate","".date($awpcpdateformat, strtotime($ad_postdate)),$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$ad_categoryurl","$ad_categoryurl",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$ad_categoryname","$ad_categoryname",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$ad_title","$ad_title",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$featureimg","$featureimg",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$quers/","",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$codecontact","$codecontact",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$adcontact_name","$adcontact_name",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$adcontactphone","$adcontactphone",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$city","$adcontact_city",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$state","$adcontact_state",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$village","$ad_county_village",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$country","$adcontact_country",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$location","$location",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$aditemprice","$aditemprice",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$awpcpextrafields","$awpcpextrafields",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$awpcpvisitwebsite","$awpcpvisitwebsite",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$showadsense1","$showadsense1",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$addetails","$addetails",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$showadsense2","$showadsense2",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$awpcpshowadotherimages","$awpcpshowadotherimages",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$awpcpadviews","$awpcpadviews",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$showadsense3","$showadsense3",$awpcpshowtheadlayout);
-				$awpcpshowtheadlayout=str_replace("\$flagad","$flagad",$awpcpshowtheadlayout);
-
-				// generic filter to add content into the body of add content (e.g. "Tweet This" button, etc)
-				if (has_filter('awpcp_single_ad_layout')) {
-				    $awpcpshowtheadlayout = apply_filters('awpcp_single_ad_layout', $awpcpshowtheadlayout, $adid, $ad_title);
-				}
-
-				$awpcpshowthead=$flag_script.$awpcpshowtheadlayout;
-
-			} else {
-				$awpcpshowthead=$flag_script."
-									<div id=\"showawpcpadpage\">
-									<div class=\"adtitle\">$ad_title</div><br/>
-									<div class=\"showawpcpadpage\">
-									$featureimg
-									<label>";
-									$awpcpshowthead.=__("Contact Information","AWPCP");
-									$awpcpshowthead.="</label><br/>
-									<a href=\"$codecontact\">";
-									$awpcpshowthead.=__("Contact","AWPCP");
-									$awpcpshowthead.="$adcontact_name</a>
-									$adcontactphone
-									$location
-									$awpcpvisitwebsite
-									</div>
-									$aditemprice
-									$awpcpextrafields
-									<div class=\"fixfloat\"></div>
-									$showadsense1
-									<div class=\"showawpcpadpage\"><label>";
-									$awpcpshowthead.=__("More Information", "AWPCP");
-									$awpcpshowthead.="</label><br/>$addetails</div>
-									$showadsense2
-									<div class=\"fixfloat\"></div>
-									<div id=\"displayimagethumbswrapper\">
-									<div id=\"displayimagethumbs\"><ul>$awpcpshowadotherimages</ul></div>
-									</div>
-									<span class=\"fixfloat\">$tweetbtn $sharebtn $flagad</span>
-									$awpcpadviews
-									$showadsense3
-									</div>
-									";
+			if (empty($layout)) {
+				$layout = '
+					<div id="showawpcpadpage">
+						<div class="awpcp-title">$ad_title</div><br/>
+						<div class="showawpcpadpage">
+							$featureimg
+							<label>' . __("Contact Information","AWPCP"). '</label><br/>
+							<a href="$codecontact">' . __("Contact","AWPCP") . '$adcontact_name</a>
+							$adcontactphone
+							$location
+							$awpcpvisitwebsite
+						</div>
+						$aditemprice
+						$awpcpextrafields
+						<div class="fixfloat"></div>
+						$showadsense1
+						<div class="showawpcpadpage">
+							<label>' . __("More Information", "AWPCP"). '</label><br/>
+							$addetails
+						</div>
+						$showadsense2
+						<div class="fixfloat"></div>
+						<div id="displayimagethumbswrapper">
+							<div id="displayimagethumbs">
+								<ul>
+									$awpcpshowadotherimages
+								</ul>
+							</div>
+						</div>
+						<span class="fixfloat">$tweetbtn $sharebtn $flagad</span>
+						$awpcpadviews
+						$showadsense3
+					</div>';
 			}
-			$output .= $awpcpshowthead;
+
+			$layout = apply_filters('awpcp-pre-single-ad-layout', $layout, $adid, $ad_title);
+
+			$ad_cat_id = get_adcategory($adid);
+			$ad_categoryname = get_adcatname($ad_cat_id);
+			$ad_categoryurl = url_browsecategory($ad_cat_id);
+
+			$awpcpdateformat=_x("m/d/Y", "*** NOTE the next string is the date format used for the field codes displayed in the ad.  Change to your local format.", "AWPCP");
+
+			$layout = str_replace("\$ad_startdate","".date($awpcpdateformat, strtotime($ad_startdate)),$layout);
+			$layout = str_replace("\$ad_postdate","".date($awpcpdateformat, strtotime($ad_postdate)),$layout);
+			$layout = str_replace("\$ad_categoryurl","$ad_categoryurl",$layout);
+			$layout = str_replace("\$ad_categoryname","$ad_categoryname",$layout);
+			$layout = str_replace("\$ad_title","$ad_title",$layout);
+			$layout = str_replace("\$featureimg","$featureimg",$layout);
+			$layout = str_replace("\$quers/","",$layout);
+			$layout = str_replace("\$codecontact","$codecontact",$layout);
+			$layout = str_replace("\$adcontact_name","$adcontact_name",$layout);
+			$layout = str_replace("\$adcontactphone","$adcontactphone",$layout);
+			$layout = str_replace("\$city","$adcontact_city",$layout);
+			$layout = str_replace("\$state","$adcontact_state",$layout);
+			$layout = str_replace("\$village","$ad_county_village",$layout);
+			$layout = str_replace("\$country","$adcontact_country",$layout);
+			$layout = str_replace("\$location","$location",$layout);
+			$layout = str_replace("\$aditemprice","$aditemprice",$layout);
+			$layout = str_replace("\$awpcpextrafields","$awpcpextrafields",$layout);
+			$layout = str_replace("\$awpcpvisitwebsite","$awpcpvisitwebsite",$layout);
+			$layout = str_replace("\$showadsense1","$showadsense1",$layout);
+			$layout = str_replace("\$addetails","$addetails",$layout);
+			$layout = str_replace("\$showadsense2","$showadsense2",$layout);
+			$layout = str_replace("\$awpcpshowadotherimages","$awpcpshowadotherimages",$layout);
+			$layout = str_replace("\$awpcpadviews","$awpcpadviews",$layout);
+			$layout = str_replace("\$showadsense3","$showadsense3",$layout);
+			$layout = str_replace("\$flagad","$flagad",$layout);
+
+			// generic filter to add content into the body of add content (e.g. "Tweet This" button, etc)
+			if (has_filter('awpcp-single-ad-layout')) {
+			    $layout = apply_filters('awpcp-single-ad-layout', $layout, $adid, $ad_title);
+			}
+
+			$output = apply_filters('awpcp-show-ad', $output . $flag_script . $layout, $adid);
 
 			$output .= "</div><!--close classiwrapper-->";
 		}
@@ -4869,7 +4832,7 @@ function showad($adid, $omitmenu, $preview=false, $send_email=true) {
 		$grouporderby=get_group_orderby();
 		$output .= awpcp_display_ads($where='',$byl='',$hidepager='',$grouporderby,$adocat='');
 	}
-
+	
 	return $output;
 }
 

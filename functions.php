@@ -843,6 +843,40 @@ function awpcp_insert_menu_item($items, $after, $key, $item) {
 
 
 /**
+ * Insert a submenu item in a WordPress admin menu, after an
+ * existing item.
+ *
+ * Menu item should have already been added using add_submenu_page
+ * or a similar function.
+ *
+ * @param $slug		string	Slug for the item to insert.
+ * @param $after	string	Slug of the item to insert after.
+ */
+function awpcp_insert_submenu_item_after($menu, $slug, $after) {
+    global $submenu;
+
+    $items = isset($submenu[$menu]) ? $submenu[$menu] : array();
+    $to = -1; $from = -1;
+
+    foreach ($items as $k => $item) {
+        // insert after Fees
+        if (strcmp($item[2], $after) === 0)
+            $to = $k;
+        if (strcmp($item[2], $slug) === 0)
+            $from = $k;
+    }
+
+    if ($to >= 0 && $from >= 0) {
+        array_splice($items, $to + 1, 0, array($items[$from]));
+        // current was added at the end of the array using add_submenu_page
+        unset($items[$from + 1]);
+        // use array_filter to restore array keys
+        $submenu[$menu] = array_filter($items);
+    }
+}
+
+
+/**
  * Check if the page identified by $refname exists.
  */
 function awpcp_find_page($refname) {

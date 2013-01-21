@@ -7,6 +7,7 @@ require_once(AWPCP_DIR . 'admin/admin-panel-csv-importer.php');
 require_once(AWPCP_DIR . 'admin/admin-panel-debug.php');
 require_once(AWPCP_DIR . 'admin/admin-panel-fee-terms.php');
 require_once(AWPCP_DIR . 'admin/admin-panel-settings.php');
+require_once(AWPCP_DIR . 'admin/admin-panel-fee-terms.php');
 require_once(AWPCP_DIR . 'admin/admin-panel-uninstall.php');
 
 class AWPCP_Admin {
@@ -415,7 +416,6 @@ function awpcp_check_for_new_page_names($options, $send_changes = false) {
 	}
 	return false;
 }
-
 
 
 // START FUNCTION: Manage categories

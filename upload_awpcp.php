@@ -650,6 +650,7 @@ function awpcp_create_image_versions($filename, $directory) {
 	return $resized && $thumbnail && $primary;
 }
 
+
 function awpcp_make_intermediate_size($file, $directory, $width, $height, $crop=false, $suffix='') {
 	$info = pathinfo($file);
 	$filename = preg_replace("/\.{$info['extension']}/", '', $info['basename']);

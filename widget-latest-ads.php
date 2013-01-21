@@ -111,6 +111,7 @@ function init_awpcpsbarwidget() {
 	wp_register_widget_control('awpcp-latest-ads', $name, 'widget_awpcplatestads_options', $options);
 }
 
+
 /**
  * XXX: is it necessary to consider active region when showing
  *      latest Ads widget?

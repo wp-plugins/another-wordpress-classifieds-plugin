@@ -287,6 +287,9 @@ class AWPCP_Installer {
         if (version_compare($oldversion, '2.1.3') < 0) {
             $this->upgrade_to_2_1_3($oldversion);
         }
+        if (version_compare($oldversion, '2.2.1') < 0) {
+            $this->upgrade_to_2_2_1($oldversion);
+        }
 
         do_action('awpcp_upgrade', $oldversion, $newversion);
 
@@ -800,6 +803,15 @@ class AWPCP_Installer {
 
         if (!$this->column_exists(AWPCP_TABLE_ADS, 'renewed_date')) {
             $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `renewed_date` DATETIME");
+        }
+    }
+
+    private function upgrade_to_2_2_1($version) {
+        global $wpdb;
+
+        // Upgrade posterip for IPv6 address space
+        if ($this->column_exists(AWPCP_TABLE_ADS, 'posterip')) {
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  MODIFY `posterip` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''");
         }
     }
 }

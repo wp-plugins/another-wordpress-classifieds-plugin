@@ -9,7 +9,7 @@ if (typeof jQuery != 'undefined') {
     $.WordPressAjaxAdmin = function(element, options) {
         var self = this, block = self.block = $(element);
 
-        self.options = options;
+        self.options = $.extend({}, $.WordPressAjaxAdmin.defaults, options);
 
         block.delegate('.row-actions a', 'click', function(event) {
             var link, parent, row;
@@ -20,7 +20,7 @@ if (typeof jQuery != 'undefined') {
 
             if (link.attr('target') == '_blank' || parent.length === 0) {
                 return;
-            } else if (!parent.hasClass('view')) {
+            } else if (!parent.hasClass('view') && $.inArray(parent.attr('class'), self.options.ignore) < 0) {
                 event.preventDefault();
             }
 
@@ -41,6 +41,10 @@ if (typeof jQuery != 'undefined') {
         });
     };
 
+    $.WordPressAjaxAdmin.defaults = {
+        ignore: []
+    };
+
     $.WordPressAjaxAdmin.prototype = {
 
         add: function() {
@@ -50,9 +54,9 @@ if (typeof jQuery != 'undefined') {
                 table = parent.find('table tbody'),
                 first = table.find('tr:first'), inline;
                 
-            $.post(options.ajaxurl, {
+            $.post(options.ajaxurl, $.extend({}, options.data, {
                 'action': options.actions.add
-            }, function(response, status, xhr) {
+            }), function(response, status, xhr) {
                 inline = $(response.html).insertBefore(first);
 
                 // handle save and cancel buttons
@@ -100,10 +104,10 @@ if (typeof jQuery != 'undefined') {
                 parent = this.parent,
                 row = this.row;
 
-            $.post(options.ajaxurl, {
+            $.post(options.ajaxurl, $.extend({}, options.data, {
                 'action': options.actions.edit,
                 'id': row.data('id')
-            }, function(response, status, xhr) {
+            }), function(response, status, xhr) {
                 inline = $(response.html).insertAfter(row);
                 inline.find('a.cancel').click(function() {
                     row.show();inline.remove();
@@ -112,7 +116,7 @@ if (typeof jQuery != 'undefined') {
                     var waiting = inline.find('img.waiting').show();
                     inline.find('div.error').remove();
                     inline.find('form').ajaxSubmit({
-                        data: {save: true},
+                        data: $.extend({}, options.data, {save: true}),
                         dataType: 'json',
                         success: function(response, status, xhr) {
                             if (response.status === 'success') {
@@ -165,10 +169,10 @@ if (typeof jQuery != 'undefined') {
                 parent = this.parent,
                 row = this.row;
 
-            $.post(options.ajaxurl, {
+            $.post(options.ajaxurl, $.extend({}, options.data, {
                 'action': options.actions.remove,
                 'id': row.data('id')
-            }, function(response, status, xhr) {
+            }), function(response, status, xhr) {
                 inline = $(response.html).insertAfter(row);
                 inline.find('a.cancel').click(function() {
                     row.show(); inline.remove();

@@ -222,10 +222,9 @@ function awpcp_check_spam($name, $website, $email, $details) {
 	if ( !$isSpam)
 	    $isSpam = wp_blacklist_check($name, $email, $website, $details, preg_replace( '/[^0-9., ]/', '', awpcp_getip() ), $_SERVER['HTTP_USER_AGENT']);
 
-
 	_log("Ad spam check final answer: " . $isSpam);
+	
 	return $isSpam;
-
 }
 
 function awpcp_blacklist_check($author, $email, $url, $comment, $user_ip, $user_agent) {
@@ -1954,9 +1953,12 @@ function price_field_has_values()
 	return $myreturn;
 }
 // END FUNCTION: check if there are any values entered into the price field for any ad
-// START FUNCTION: get an image name associated with a specified ad ID
-function get_a_random_image($ad_id)
-{
+
+/**
+ * This function is supposed to return a random image from the images associated 
+ * to an Ad with id $ad_id but it returns the oldest image available instead.
+ */
+function get_a_random_image($ad_id) {
 	global $wpdb;
 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
 	$awpcp_image_name='';
@@ -1964,14 +1966,14 @@ function get_a_random_image($ad_id)
 	$query="SELECT image_name FROM ".$tbl_ad_photos." WHERE ad_id='$ad_id' AND disabled=0 LIMIT 1";
 	$res = awpcp_query($query, __LINE__);
 
-	if (mysql_num_rows($res))
-	{
+	if (mysql_num_rows($res)) {
 		list($awpcp_image_name)=mysql_fetch_row($res);
 	}
 
 	return $awpcp_image_name;
 }
-// END FUNCTION: get an image name associated with a specified ad ID
+
+
 // START FUNCTION: check a specific ad to see if it is disabled or enabled
 function check_if_ad_is_disabled($adid) {
 	global $wpdb;
@@ -2226,7 +2228,6 @@ function is_at_least_awpcp_version($version)
 	return $ok;
 }
 
-// add_filter('awpcp_single_ad_layout', 'awpcp_insert_tweet_button', 1, 3);
 function awpcp_insert_tweet_button($layout, $adid, $title) {
 	// $ad = AWPCP_Ad::find_by_id($adid);
 
@@ -2288,7 +2289,6 @@ function awpcp_get_ad_share_info($id) {
 }
 
 
-// add_filter('awpcp_single_ad_layout', 'awpcp_insert_share_button', 2, 3);
 function awpcp_insert_share_button($layout, $adid, $title) {
 	global $awpcp_plugin_url;
 

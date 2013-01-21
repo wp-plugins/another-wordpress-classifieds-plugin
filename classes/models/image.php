@@ -90,9 +90,14 @@ class AWPCP_Image {
     public function delete() {
         global $wpdb;
 
+        $info = pathinfo(AWPCPUPLOADDIR . "{$this->name}");
+        $filename = preg_replace("/\.{$info['extension']}/", '', $info['basename']);
+
         $filenames = array(
-            AWPCPUPLOADDIR . "/{$this->name}",
-            AWPCPTHUMBSUPLOADDIR . "/{$this->name}"
+            AWPCPUPLOADDIR . "{$info['basename']}",
+            AWPCPUPLOADDIR . "{$filename}-large.{$info['extension']}",
+            AWPCPTHUMBSUPLOADDIR . "{$info['basename']}",
+            AWPCPTHUMBSUPLOADDIR . "{$filename}-primary.{$info['extension']}",
         );
 
         foreach ($filenames as $filename) {
