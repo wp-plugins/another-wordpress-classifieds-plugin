@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: AWPCP\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/another-wordpress-classifieds-"
 "plugin\n"
-"POT-Creation-Date: 2012-12-04 20:52:48+00:00\n"
+"POT-Creation-Date: 2013-01-10 01:19:17+00:00\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -147,19 +147,19 @@ msgstr "Eliminar Plan"
 msgid "The new plan has been added!"
 msgstr "El nuevo Plan ha sido agregado"
 
-#: admin/admin-panel.php:18
+#: admin/admin-panel.php:19
 msgid "Classifieds"
 msgstr "Clasificados"
 
-#: admin/admin-panel.php:188
+#: admin/admin-panel.php:189
 msgid "AWPCP Classifieds Management System"
 msgstr "AWPCP Sistema de Administración de Avisos Clasificados"
 
-#: admin/admin-panel.php:190
+#: admin/admin-panel.php:191
 msgid "You are using version"
 msgstr "Estás usando la versión"
 
-#: admin/admin-panel.php:192
+#: admin/admin-panel.php:193
 msgid ""
 "Thank you for using Another Wordpress Classifieds Plugin, the #1 Wordpress "
 "Classifieds Plugin.  Please direct support requests, enhancement ideas and "
@@ -169,11 +169,11 @@ msgstr ""
 "favor dirija solicitudes de soporte, ideas de mejora e informes de errores a "
 "la "
 
-#: admin/admin-panel.php:194
+#: admin/admin-panel.php:195
 msgid "AWPCP support website"
 msgstr "Sitio Web de Soporte de AWPCP"
 
-#: admin/admin-panel.php:203
+#: admin/admin-panel.php:204
 msgid ""
 "The version of the extra fields module that you are using is not compatible "
 "with this version of Another Wordpress Classifieds Plugin. Please request "
@@ -183,13 +183,13 @@ msgstr ""
 "compatible con esta versión de AWPCP. Por favor solicite los archivos de la "
 "actualización del módulo."
 
-#: admin/admin-panel.php:205
+#: admin/admin-panel.php:206
 msgid "Request Updated Extra Fields Module files"
 msgstr ""
 "Solicitar los archivos actualizados del Módulo de Campos Extras (Extra "
 "Fields Module)"
 
-#: admin/admin-panel.php:217
+#: admin/admin-panel.php:218
 msgid ""
 "It appears you have a potential problem that could result in the "
 "malfunctioning of Another Wordpress Classifieds plugin. A check of your "
@@ -220,33 +220,33 @@ msgstr ""
 "ID, por lo que si existe una referencia a ese ID desde cualquier otro lugar "
 "externo a AWPCP, deberá reemplazar el viejo ID por el nuevo."
 
-#: admin/admin-panel.php:219
+#: admin/admin-panel.php:220
 msgid "Number of duplicate pages"
 msgstr "Número de páginas duplicadas"
 
-#: admin/admin-panel.php:222
+#: admin/admin-panel.php:223
 msgid "Duplicated post name"
 msgstr "Post name duplicado"
 
-#: admin/admin-panel.php:225
+#: admin/admin-panel.php:226
 msgid "Recreate the classifieds page to fix the conflict"
 msgstr "Restaurar la página de Clasificados para resolver el conflicto"
 
-#: admin/admin-panel.php:238
+#: admin/admin-panel.php:239
 msgid "Another Wordpress Classifieds Plugin Stats"
 msgstr "Estadísticas de Another Wordpress Classifieds Plugin Stats"
 
-#: admin/admin-panel.php:243
+#: admin/admin-panel.php:244
 msgid "Number of active listings currently in the system"
 msgstr "Número de entradas activas actualmente en el sistema"
 
-#: admin/admin-panel.php:248
+#: admin/admin-panel.php:249
 msgid "Number of inactive/expired/disabled listings currently in the system"
 msgstr ""
 "Número de entradas inactivas, que han expirado o están deshabilitadas en el "
 "sistema"
 
-#: admin/admin-panel.php:258
+#: admin/admin-panel.php:259
 msgid ""
 "You have setup your listing fees. To edit your fees use the 'Manage Listing "
 "Fees' option."
@@ -254,7 +254,7 @@ msgstr ""
 "Debe configurar los planes de pago. Para editar los planes usa la opción de "
 "Administrar Planes de Page (Manage Listing Fees)"
 
-#: admin/admin-panel.php:264
+#: admin/admin-panel.php:265
 msgid ""
 "You have not configured your Listing fees. Use the 'Manage Listing Fees' "
 "option to set up your listing fees. Once that is completed, if you are "
@@ -266,7 +266,7 @@ msgstr ""
 "hecho, si está usando el modo pago, las opciones aparecerán automáticamente "
 "en el formulario que los usuarios deben completar para crear los anuncios."
 
-#: admin/admin-panel.php:271
+#: admin/admin-panel.php:272
 msgid ""
 "You currently have your system configured to run in free mode. To change to "
 "'pay' mode go to 'Manage General Options' and Check the box labeled 'Charge "
@@ -277,19 +277,19 @@ msgstr ""
 "y marcar la casilla que se llama \"Cobrar Planes de Pago? (Modo Pago)\"  --"
 ">  'Charge listín fee? (Pay Mode)'"
 
-#: admin/admin-panel.php:282
+#: admin/admin-panel.php:283
 msgid "Total number of categories in the system"
 msgstr "Número total de categorías en el sistema"
 
-#: admin/admin-panel.php:285
+#: admin/admin-panel.php:286
 msgid "Number of Top Level parent categories"
 msgstr "Número de categorías principales"
 
-#: admin/admin-panel.php:288
+#: admin/admin-panel.php:289
 msgid "Number of sub level children categories"
 msgstr "Número de sub-categorías"
 
-#: admin/admin-panel.php:291
+#: admin/admin-panel.php:292
 msgid ""
 "Use the 'Manage Categories' option to edit/delete current categories or add "
 "new categories."
@@ -297,7 +297,7 @@ msgstr ""
 "Usá la opción \"Administrar Categorías\" para editar/eliminar categorías "
 "existentes o crear nuevas."
 
-#: admin/admin-panel.php:297
+#: admin/admin-panel.php:298
 msgid ""
 "You have not setup any categories. Use the 'Manage Categories' option to set "
 "up your categories."
@@ -305,7 +305,7 @@ msgstr ""
 "No has configurado ninguna Categoría. Puede usar la opción de  \"Administrar "
 "Categorías\" para crear nuevas categorías."
 
-#: admin/admin-panel.php:304
+#: admin/admin-panel.php:305
 msgid ""
 "You currently have your system configured to run in pay mode. To change to "
 "'free' mode go to 'Manage General Options' and check the box that "
@@ -316,15 +316,15 @@ msgstr ""
 "casilla que acompaña al texto \"Cobrar Planes de Pago?\"  ---> 'Charge "
 "listín fee?'"
 
-#: admin/admin-panel.php:309
+#: admin/admin-panel.php:310
 msgid "Use the buttons on the right to configure your various options"
 msgstr "Usá los botones de la derecha para configurar varias opciones"
 
-#: admin/admin-panel.php:343
+#: admin/admin-panel.php:344
 msgid "Latest News About Another Wordpress Classifieds Plugin"
 msgstr "Últimas noticias acerca de Another Wordpress Classifieds Plugin"
 
-#: admin/admin-panel.php:353
+#: admin/admin-panel.php:354
 msgid "<strong>RSS Error</strong>: %s"
 msgstr "<strong>Error RSS</strong>: %s"
 
@@ -559,6 +559,9 @@ msgstr "Eliminar"
 
 #: admin/admin-panel.php:1204 admin/admin-panel.php:1486
 #: admin/templates/user-panel-listings.tpl.php:135
+#: premium-modules/awpcp-comments/admin/templates/comment-form.tpl.php:5
+#: premium-modules/awpcp-comments/admin/templates/comment-form.tpl.php:20
+#: premium-modules/awpcp-comments/frontend/templates/comments-list-item.tpl.php:18
 #: premium-modules/awpcp-coupons/admin/templates/coupons-entry.tpl.php:6
 #: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:5
 #: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:693
@@ -567,7 +570,7 @@ msgstr "Eliminar"
 msgid "Edit"
 msgstr "Editar"
 
-#: admin/admin-panel.php:1212 frontend/ad-functions.php:4385
+#: admin/admin-panel.php:1212 frontend/ad-functions.php:4369
 msgid "Category: "
 msgstr "Categoría: "
 
@@ -608,7 +611,7 @@ msgstr ""
 "Es necesario comprobar si desea buscar el anuncio por Título ID o por "
 "palabra clave"
 
-#: admin/admin-panel.php:1364 frontend/ad-functions.php:4128
+#: admin/admin-panel.php:1364 frontend/ad-functions.php:4112
 msgid "There are currently no ads in the system"
 msgstr "No hay actualmente ningún Aviso en el Sistema"
 
@@ -653,7 +656,7 @@ msgstr "Eliminar los Avisos seleccionados"
 msgid "Mark Checked Ads as SPAM"
 msgstr "Marcar los Avisos como SPAM"
 
-#: admin/admin-panel.php:1614 frontend/ad-functions.php:4354
+#: admin/admin-panel.php:1614 frontend/ad-functions.php:4338
 msgid "There were no ads found"
 msgstr "No se han encontrado Avisos"
 
@@ -1086,7 +1089,9 @@ msgid "Page ID"
 msgstr "ID de página"
 
 #: admin/templates/admin-panel-debug.tpl.php:32 classes/settings-api.php:243
-#: cron.php:183
+#: cron.php:183 premium-modules/awpcp-comments/admin/comments-table.php:26
+#: premium-modules/awpcp-comments/admin/templates/comment-form.tpl.php:8
+#: premium-modules/awpcp-comments/frontend/templates/comments-post-form.tpl.php:18
 msgid "Title"
 msgstr "Título"
 
@@ -1299,11 +1304,12 @@ msgid "End Date"
 msgstr "Fecha de finalización"
 
 #: admin/templates/user-panel-listings.tpl.php:110
+#: premium-modules/awpcp-comments/admin/comments-table.php:28
 msgid "Status"
 msgstr "Estado"
 
 #: admin/templates/user-panel-listings.tpl.php:111
-#: awpcp_google_checkout_module.php:251 frontend/payment-functions.php:1247
+#: awpcp_google_checkout_module.php:251 frontend/payment-functions.php:1251
 #: premium-modules/awpcp-google-checkout/awpcp_google_checkout_module.php:251
 msgid "Payment Status"
 msgstr "Estado del Pago"
@@ -1365,7 +1371,7 @@ msgstr "Si no está vacía anulará su dirección de correo electrónico WordPre
 
 #: admin/user-panel.php:41
 msgid " User Ad Management Panel - Listings"
-msgstr "Panel de administración de usuarios - Listas"
+msgstr "Panel de Administración para Usuarios - Listas"
 
 #: admin/user-panel.php:159
 msgid "You need enter either an Ad title or an Ad id to look up."
@@ -1385,7 +1391,7 @@ msgstr ""
 msgid "Ad ID"
 msgstr "ID del anuncio"
 
-#: admin/user-panel.php:203 frontend/ad-functions.php:2298
+#: admin/user-panel.php:203 frontend/ad-functions.php:2282
 msgid "Ad Title"
 msgstr "Título de Aviso"
 
@@ -1398,8 +1404,8 @@ msgid "Location"
 msgstr "Ubicación"
 
 #: admin/user-panel.php:230
-#: frontend/templates/page-place-ad-details-step-users-dropdown.backup.tpl.php:2
 #: frontend/templates/page-place-ad-users-dropdown.tpl.php:3
+#: premium-modules/awpcp-comments/admin/comments-table.php:30
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-create-form.tpl.php:21
 msgid "User"
 msgstr "Usuario"
@@ -1412,7 +1418,7 @@ msgstr "El Anuncio %d ha sido eliminado"
 msgid " User Ad Management Panel - Manage Images"
 msgstr " Administrador de Usuarios de Anuncios - Imágenes"
 
-#: awpcp.php:281
+#: awpcp.php:270
 msgid "AWPCP"
 msgstr "AWPCP"
 
@@ -1452,13 +1458,13 @@ msgstr "URL de tu botón de Google Checkout"
 msgid "There was an error processing your payment."
 msgstr "Se ha producido un error al procesar su pago."
 
-#: awpcp_google_checkout_module.php:253 frontend/payment-functions.php:1249
+#: awpcp_google_checkout_module.php:253 frontend/payment-functions.php:1253
 #: premium-modules/awpcp-google-checkout/awpcp_google_checkout_module.php:253
 msgid "Completed"
 msgstr "Completado"
 
-#: awpcp_google_checkout_module.php:265 frontend/ad-functions.php:1122
-#: frontend/ad-functions.php:1331 frontend/payment-functions.php:1261
+#: awpcp_google_checkout_module.php:265 frontend/ad-functions.php:1106
+#: frontend/ad-functions.php:1315 frontend/payment-functions.php:1265
 #: premium-modules/awpcp-google-checkout/awpcp_google_checkout_module.php:265
 msgid "Your Ad is posted"
 msgstr "Su anuncio está colocado"
@@ -1526,6 +1532,65 @@ msgstr "Mostrar campo de Estado/Provincia?"
 #: awpcp_search_widget.php:117
 msgid "Show Country field?"
 msgstr "Mostrar campo de País?"
+
+#: classes/helpers/wp-list-table.php:184
+msgid "No items found."
+msgstr "No se encontraron entradas."
+
+#: classes/helpers/wp-list-table.php:287
+msgid "Bulk Actions"
+msgstr "Acciónes"
+
+#: classes/helpers/wp-list-table.php:297
+msgid "Apply"
+msgstr "Aplicar"
+
+#: classes/helpers/wp-list-table.php:371
+msgid "Show all dates"
+msgstr "Mostrar todas las fechas"
+
+#: classes/helpers/wp-list-table.php:399
+msgid "List View"
+msgstr "Lista"
+
+#: classes/helpers/wp-list-table.php:400
+msgid "Excerpt View"
+msgstr "Ecerpt View"
+
+#: classes/helpers/wp-list-table.php:426
+msgid "%s pending"
+msgstr "%s pendientes"
+
+#: classes/helpers/wp-list-table.php:482 classes/helpers/wp-list-table.php:880
+msgid "1 item"
+msgid_plural "%s items"
+msgstr[0] "1 item"
+msgstr[1] "%s items"
+
+#: classes/helpers/wp-list-table.php:500
+msgid "Go to the first page"
+msgstr "Ir a la primera página"
+
+#: classes/helpers/wp-list-table.php:507
+msgid "Go to the previous page"
+msgstr "Ir a la página anterior"
+
+#: classes/helpers/wp-list-table.php:516
+msgid "Current page"
+msgstr "Página actual"
+
+#: classes/helpers/wp-list-table.php:523
+msgctxt "paging"
+msgid "%1$s of %2$s"
+msgstr "%1$s de %2$s"
+
+#: classes/helpers/wp-list-table.php:527
+msgid "Go to the next page"
+msgstr "Ir a la página siguiente"
+
+#: classes/helpers/wp-list-table.php:534
+msgid "Go to the last page"
+msgstr "Ir a la última página"
 
 #: classes/settings-api.php:134
 msgid "SEO Settings"
@@ -1790,8 +1855,8 @@ msgstr "Expira en"
 msgid "You can renew your Ad visiting this link: %s"
 msgstr "Renueva tu Anuncio visitando: %s"
 
-#: frontend/ad-functions.php:13 frontend/ad-functions.php:1728
-#: frontend/ad-functions.php:2467 frontend/ad-functions.php:3808
+#: frontend/ad-functions.php:13 frontend/ad-functions.php:1712
+#: frontend/ad-functions.php:2451 frontend/ad-functions.php:3792
 msgid ""
 "You do not have permission to perform the function you are trying to "
 "perform. Access to this page has been denied"
@@ -1799,7 +1864,7 @@ msgstr ""
 "No tenés los permisos necesarios para llevar a cabo esta acción. El acceso a "
 "esta Página te ha sido denegado"
 
-#: frontend/ad-functions.php:20 frontend/ad-functions.php:1733
+#: frontend/ad-functions.php:20 frontend/ad-functions.php:1717
 msgid ""
 "Hi, You need to be a registered user to post Ads in this website. Please use "
 "the form below to login or click the link to register."
@@ -1850,7 +1915,7 @@ msgstr "No ingresaste tu nombre. Tu nombre es requerido"
 msgid "You did not enter your email. Your email is required"
 msgstr "No ingresaste tu Email. Esta información es requerida para publicar."
 
-#: frontend/ad-functions.php:309 frontend/ad-functions.php:2855
+#: frontend/ad-functions.php:309 frontend/ad-functions.php:2839
 msgid ""
 "The email address you entered was not a valid email address. Please check "
 "for errors and try again"
@@ -1921,7 +1986,7 @@ msgstr ""
 "La dirección de tu sitio web no tiene un formato adecuado. Por favor, "
 "asegurate de que tiene incluida la parte de http:// en la dirección"
 
-#: frontend/ad-functions.php:407 frontend/ad-functions.php:1954
+#: frontend/ad-functions.php:407 frontend/ad-functions.php:1938
 msgid ""
 "You did not solve the math problem. Please solve the math problem to proceed."
 msgstr ""
@@ -2000,7 +2065,7 @@ msgstr ""
 "Parece que usted está tratando de colocar un aviso con una transacción ya "
 "procesada. Esta transacción se ha procesado con éxito en % s"
 
-#: frontend/ad-functions.php:809
+#: frontend/ad-functions.php:793
 msgid ""
 "If you have uploaded images your images will not show up until an admin has "
 "approved them."
@@ -2008,17 +2073,17 @@ msgstr ""
 "Si subiste imágenes asociadas a tu Aviso, no serán visibles hasta que el "
 "Administrador las apruebe"
 
-#: frontend/ad-functions.php:891
+#: frontend/ad-functions.php:875
 #: frontend/templates/page-place-ad-upload-images-step.tpl.php:13
 msgid "Image slots available"
 msgstr "Lugares disponibles para imágenes"
 
-#: frontend/ad-functions.php:896
+#: frontend/ad-functions.php:880
 #: frontend/templates/page-place-ad-upload-images-step.tpl.php:14
 msgid "Max image size"
 msgstr "Tamaño Máximo de Imagen"
 
-#: frontend/ad-functions.php:905 frontend/shortcode.php:744
+#: frontend/ad-functions.php:889 frontend/shortcode.php:744
 #: frontend/templates/page-place-ad-upload-images-step.tpl.php:19
 msgid ""
 "Image approval is in effect so any new images you upload will not be visible "
@@ -2027,37 +2092,37 @@ msgstr ""
 "Las imágenes no estarán disponibles hasta que el administrador del sistema "
 "las apruebe"
 
-#: frontend/ad-functions.php:938
+#: frontend/ad-functions.php:922
 #: frontend/templates/page-place-ad-upload-images-step.tpl.php:55
 msgid "If adding images to your ad, select your image from your local computer"
 msgstr ""
 "Si deseás agregar imágenes a tu Anuncio, seleccionalas desde tu computadora"
 
-#: frontend/ad-functions.php:949
+#: frontend/ad-functions.php:933
 msgid "Upload Selected Files"
 msgstr "Subir los archivos seleccionados"
 
-#: frontend/ad-functions.php:964
+#: frontend/ad-functions.php:948
 msgid "Go To Next Step"
 msgstr "Seguir al Próximo Paso"
 
-#: frontend/ad-functions.php:965
+#: frontend/ad-functions.php:949
 msgid "continue"
 msgstr "Continuar"
 
-#: frontend/ad-functions.php:967 frontend/ad-functions.php:970
+#: frontend/ad-functions.php:951 frontend/ad-functions.php:954
 msgid "Post Ad Without Images"
 msgstr "Publicar nuevo anuncio sin imágenes"
 
-#: frontend/ad-functions.php:968 frontend/ad-functions.php:971
+#: frontend/ad-functions.php:952 frontend/ad-functions.php:955
 msgid "complete"
 msgstr "completar"
 
-#: frontend/ad-functions.php:975
+#: frontend/ad-functions.php:959
 msgid " <p>Please click the %1$s button to <b>%2$s</b> this process.</p>"
 msgstr " <p>Haz click en el botón %1$s para <b>%2$s</b> este proceso.</p>"
 
-#: frontend/ad-functions.php:977
+#: frontend/ad-functions.php:961
 msgid ""
 " <p>If you prefer not to upload any images please click the <b>%1$s</b> "
 "button to %2$s this process.</p>"
@@ -2065,17 +2130,17 @@ msgstr ""
 "<p>Si no deseas cargar imágenes para su anuncio, haz click en %1$s para %2$s "
 "este proceso.</p>"
 
-#: frontend/ad-functions.php:1210
+#: frontend/ad-functions.php:1194
 msgid "Please go to the Ad Management panel to edit your Ads."
 msgstr ""
 "Por favor, vaya al panel de gestión de anuncios para editar sus anuncios."
 
-#: frontend/ad-functions.php:1211
+#: frontend/ad-functions.php:1195
 #: premium-modules/awpcp-subscriptions/admin/dashboard-widget.php:43
 msgid "Click here"
 msgstr "Haga clic aquí"
 
-#: frontend/ad-functions.php:1456
+#: frontend/ad-functions.php:1440
 msgid ""
 "The Ad was posted under a Term Fee that no longer exists. The Ad can't be "
 "renewed."
@@ -2083,39 +2148,39 @@ msgstr ""
 "El anuncio fue publicado bajo una tarifa que ya no existe. El anuncio no "
 "puede ser renovado."
 
-#: frontend/ad-functions.php:1533
+#: frontend/ad-functions.php:1517
 msgid "The classifieds listing \"%s\" has been successfully renewed."
 msgstr "El Anuncio \"%s\" ha sido renovado."
 
-#: frontend/ad-functions.php:1549
+#: frontend/ad-functions.php:1533
 msgid "The Ad has been successfully renewed. New expiration date is %s. "
 msgstr "Su anuncio fue renovado. La nueva fecha de expiración es %s."
 
-#: frontend/ad-functions.php:1554
+#: frontend/ad-functions.php:1538
 msgid "Return to Listings"
 msgstr "Configuración de Registro"
 
-#: frontend/ad-functions.php:1577
+#: frontend/ad-functions.php:1561
 msgid "The specified Ad doesn't exist."
 msgstr "El Anuncio especificado no existe."
 
-#: frontend/ad-functions.php:1580
+#: frontend/ad-functions.php:1564
 msgid "The specified Ad doesn't need to be renewed."
 msgstr "El Anuncio especificado no necesita ser renovado."
 
-#: frontend/ad-functions.php:1592 frontend/ad-functions.php:1662
+#: frontend/ad-functions.php:1576 frontend/ad-functions.php:1646
 msgid "An error ocurred trying to process your payment request."
 msgstr "Se produjo un error al tratar de procesar su solicitud de pago."
 
-#: frontend/ad-functions.php:1667
+#: frontend/ad-functions.php:1651
 msgid "Ad Renew is disabled at this moment."
 msgstr "La renovación de anuncios está inhabilitada en este momento."
 
-#: frontend/ad-functions.php:1817
+#: frontend/ad-functions.php:1801
 msgid "Delete Ad"
 msgstr "Eliminar Aviso"
 
-#: frontend/ad-functions.php:1839
+#: frontend/ad-functions.php:1823
 msgid ""
 "You did not fill out a phone number for the ad contact person. The "
 "information is required"
@@ -2123,78 +2188,78 @@ msgstr ""
 "No completaste tu número telefónico de contacto. Esta información es "
 "requerida para publicar."
 
-#: frontend/ad-functions.php:1851
+#: frontend/ad-functions.php:1835
 msgid "You did not fill out your city. The information is required"
 msgstr "No completaste tu Ciudad. Esta información es requerida para publicar."
 
-#: frontend/ad-functions.php:1863
+#: frontend/ad-functions.php:1847
 msgid "You did not fill out your state. The information is required"
 msgstr ""
 "No completaste tu Estado/Provincia. Esta información es requerida para "
 "publicar."
 
-#: frontend/ad-functions.php:1875
+#: frontend/ad-functions.php:1859
 msgid ""
 "You did not fill out your county/village/other. The information is required"
 msgstr ""
 "No completaste tu Distrito/Villa/Otro. Esta información es requerida para "
 "publicar."
 
-#: frontend/ad-functions.php:1887
+#: frontend/ad-functions.php:1871
 msgid "You did not fill out your country. The information is required"
 msgstr "No completaste tu País. Esta información es requerida para publicar."
 
-#: frontend/ad-functions.php:1899
+#: frontend/ad-functions.php:1883
 msgid "You did not fill out your website address. The information is required"
 msgstr ""
 "No completaste la dirección de tu Sitio Web. Esta información es requerida "
 "para publicar."
 
-#: frontend/ad-functions.php:1911
+#: frontend/ad-functions.php:1895
 msgid ""
 "You did not enter a value for the item price. The information is required"
 msgstr ""
 "No ingresaste el valor del producto. Esta información es requerida para "
 "publicar."
 
-#: frontend/ad-functions.php:1923
+#: frontend/ad-functions.php:1907
 msgid "You did not select your payment method. The information is required"
 msgstr ""
 "No seleccionaste el método de pago. Esta información es requerida para "
 "publicar."
 
-#: frontend/ad-functions.php:1935
+#: frontend/ad-functions.php:1919
 msgid "You did not select your ad term choice. The information is required"
 msgstr ""
 "No seleccionaste el Plazo. Esta información es requerida para publicar."
 
-#: frontend/ad-functions.php:1955
+#: frontend/ad-functions.php:1939
 msgid "Your answer to the math problem was not correct. Please try again."
 msgstr ""
 "El resultado que ingresaste en relación a la cuenta matemática es "
 "incorrecto. Por favor intentalo nuevamente."
 
-#: frontend/ad-functions.php:1972
+#: frontend/ad-functions.php:1956
 msgid "You did not fill out an ad title. The information is required"
 msgstr ""
 "No completaste el título del Aviso. Esta información es requerida para "
 "publicar."
 
-#: frontend/ad-functions.php:1973
+#: frontend/ad-functions.php:1957
 msgid "You did not select an ad category. The information is required"
 msgstr ""
 "No seleccionaste una Categoría para tu Aviso. Esta información es requerida "
 "para publicar."
 
-#: frontend/ad-functions.php:1974 frontend/ad-functions.php:2557
-#: frontend/ad-functions.php:2688
+#: frontend/ad-functions.php:1958 frontend/ad-functions.php:2541
+#: frontend/ad-functions.php:2672
 msgid ""
 "Either you did not enter your email address or the email address you entered "
 "is not valid"
 msgstr ""
 "O no ingresaste tu dirección de email o la que ingresaste no es válida."
 
-#: frontend/ad-functions.php:1975
+#: frontend/ad-functions.php:1959
 msgid ""
 "You did not fill in the name of the ad contact person. The information is "
 "required"
@@ -2202,30 +2267,30 @@ msgstr ""
 "No completaste el Nombre de la Persona de Contacto. Esta información es "
 "requerida para publicar."
 
-#: frontend/ad-functions.php:1976
+#: frontend/ad-functions.php:1960
 msgid ""
 "You did not fill in any details for your ad. The information is required"
 msgstr ""
 "No completaste ningún detalle sobre tu Aviso. Esta información es requerida "
 "para publicar."
 
-#: frontend/ad-functions.php:1977
+#: frontend/ad-functions.php:1961
 msgid "You must accept the terms of service"
 msgstr "Debes aceptar los términos del servicio"
 
-#: frontend/ad-functions.php:1978
+#: frontend/ad-functions.php:1962
 msgid "You did not select a payment method"
 msgstr "No has seleccionado un método de pago"
 
-#: frontend/ad-functions.php:1979
+#: frontend/ad-functions.php:1963
 msgid "You did not select an ad term"
 msgstr "No has seleccionado un plan de anuncio"
 
-#: frontend/ad-functions.php:1980
+#: frontend/ad-functions.php:1964
 msgid "You did not select a Payment Term for this Ad"
 msgstr "No has seleccionado un plan de pago para este Anuncio"
 
-#: frontend/ad-functions.php:2208
+#: frontend/ad-functions.php:2192
 msgid ""
 "Your ad details have been filled out in the form below. Make any changes "
 "needed then resubmit the ad to update it"
@@ -2234,7 +2299,7 @@ msgstr ""
 "continuación. Hacé los cambios que necesites y reenviá el Aviso para "
 "actualizarlo"
 
-#: frontend/ad-functions.php:2212
+#: frontend/ad-functions.php:2196
 msgid ""
 "<p class='awpcp-form-spacer' style='font-weight:bold'><em>You are logged in "
 "as an administrator. Any payment steps will be skipped.</em></p> "
@@ -2242,38 +2307,38 @@ msgstr ""
 "<p class=\"awpcp-form-spacer\" style=\"font-weight:bold;\"> <em> Ha iniciado "
 "sesión como administrador. Cualquier proceso de pago se omitirá. </ Em> </ p>"
 
-#: frontend/ad-functions.php:2214
+#: frontend/ad-functions.php:2198
 msgid "Fill out the form below to post your classified ad. "
 msgstr ""
 "Completá el formulario que aparece a continuación para publicar tu Aviso "
 "Clasificado"
 
-#: frontend/ad-functions.php:2248
+#: frontend/ad-functions.php:2232
 msgid "Enter Ad Details"
 msgstr "Ingrese los detalles de su Anuncio"
 
-#: frontend/ad-functions.php:2296
+#: frontend/ad-functions.php:2280
 msgid "Ad Details and Contact Information"
 msgstr "Detalles e Información de Contacto del Aviso"
 
-#: frontend/ad-functions.php:2303
+#: frontend/ad-functions.php:2287
 msgid "Ad Category"
 msgstr "<h3>Categoría del Aviso</h3>"
 
-#: frontend/ad-functions.php:2305
+#: frontend/ad-functions.php:2289
 msgid "Select your ad category"
 msgstr "Seleccioná la Categoría para tu Aviso"
 
-#: frontend/ad-functions.php:2321
+#: frontend/ad-functions.php:2305
 msgctxt "Ad Details form"
 msgid "Website URL"
 msgstr "URL del sitio web"
 
-#: frontend/ad-functions.php:2326
+#: frontend/ad-functions.php:2310
 msgid "Name of person to contact"
 msgstr "Nombre de la Persona de Contacto"
 
-#: frontend/ad-functions.php:2329
+#: frontend/ad-functions.php:2313
 msgid ""
 "Contact Person's Email [Please enter a valid email. The codes needed to edit "
 "your ad will be sent to your email address]"
@@ -2282,40 +2347,40 @@ msgstr ""
 "válida. Los códigos para poder editar este aviso te serán enviado a esa "
 "misma dirección)"
 
-#: frontend/ad-functions.php:2334
+#: frontend/ad-functions.php:2318
 msgid "Contact Person's Phone Number"
 msgstr "Teléfono de la Persona de Contacto"
 
-#: frontend/ad-functions.php:2361
+#: frontend/ad-functions.php:2345
 msgid "Item Price"
 msgstr "Precio del Item en Euros (Solo números SIN signos de moneda)"
 
-#: frontend/ad-functions.php:2369
+#: frontend/ad-functions.php:2353
 msgid "Ad Details"
 msgstr "<h3>Detalles del Aviso</h3>"
 
-#: frontend/ad-functions.php:2372
+#: frontend/ad-functions.php:2356
 msgid "characters left"
 msgstr " Caracteres restantes"
 
-#: frontend/ad-functions.php:2396
+#: frontend/ad-functions.php:2380
 msgid "Read our Terms of Service"
 msgstr "Lee nuestros Términos de Servicio"
 
-#: frontend/ad-functions.php:2401
+#: frontend/ad-functions.php:2385
 msgid "Terms of service:"
 msgstr "Términos de servicio:"
 
-#: frontend/ad-functions.php:2408
+#: frontend/ad-functions.php:2392
 msgid "I agree to the terms of service"
 msgstr "Estoy de acuerdo con los términos del servicio"
 
-#: frontend/ad-functions.php:2413 frontend/ad-functions.php:2764
+#: frontend/ad-functions.php:2397 frontend/ad-functions.php:2748
 msgid "Enter the value of the following sum"
 msgstr "Ingrese el resultado de la siguiente suma matemática"
 
-#: frontend/ad-functions.php:2421 frontend/ad-functions.php:2524
-#: frontend/ad-functions.php:2630 frontend/ad-functions.php:2770
+#: frontend/ad-functions.php:2405 frontend/ad-functions.php:2508
+#: frontend/ad-functions.php:2614 frontend/ad-functions.php:2754
 #: frontend/templates/page-cancel-payment.tpl.php:15
 #: frontend/templates/page-payment-thank-you.tpl.php:18
 #: frontend/templates/page-place-ad-payment-step.tpl.php:90
@@ -2323,7 +2388,7 @@ msgstr "Ingrese el resultado de la siguiente suma matemática"
 msgid "Continue"
 msgstr "Continuar"
 
-#: frontend/ad-functions.php:2498
+#: frontend/ad-functions.php:2482
 msgid ""
 "Please enter the email address you used when you created your ad in addition "
 "to the ad access key that was emailed to you after your ad was submitted"
@@ -2332,20 +2397,20 @@ msgstr ""
 "sumada a la clave de acceso que te fue enviada por email cuando cargaste tu "
 "aviso."
 
-#: frontend/ad-functions.php:2516 frontend/ad-functions.php:2626
-#: frontend/ad-functions.php:2753
+#: frontend/ad-functions.php:2500 frontend/ad-functions.php:2610
+#: frontend/ad-functions.php:2737
 msgid "Enter your Email address"
 msgstr "Ingresá tu dirección de Email"
 
-#: frontend/ad-functions.php:2520
+#: frontend/ad-functions.php:2504
 msgid "Enter your ad access key"
 msgstr "Ingresá tu Clave de Acceso"
 
-#: frontend/ad-functions.php:2526
+#: frontend/ad-functions.php:2510
 msgid "Resend Ad Access Key"
 msgstr "Reenviar mi Clave de Acceso"
 
-#: frontend/ad-functions.php:2578
+#: frontend/ad-functions.php:2562
 msgid ""
 "Please enter the email address you used when you created your ad. Your "
 "access key will be sent to that email account. The email address you enter "
@@ -2356,11 +2421,11 @@ msgstr ""
 "de Email debe coincidir con la dirección que nosotros tenemos registrada en "
 "nuestro sistema."
 
-#: frontend/ad-functions.php:2609
+#: frontend/ad-functions.php:2593
 msgid "Your access key has been emailed to"
 msgstr "Tu clave de acceso ha sido enviada por Email a"
 
-#: frontend/ad-functions.php:2611
+#: frontend/ad-functions.php:2595
 msgid ""
 "There was a problem encountered during the attempt to resend your access "
 "key. We apologize. Please try again and if the problem persists, please "
@@ -2370,47 +2435,47 @@ msgstr ""
 "acceso. Disculpanos! Por favor, intentá nuevamente y si el problema persiste "
 "comunicate con los administradores."
 
-#: frontend/ad-functions.php:2614
+#: frontend/ad-functions.php:2598
 msgid "There were no ads found registered with the email address provided"
 msgstr ""
 "No tenemos ningún Aviso publicado bajo el Email que nos estás indicando"
 
-#: frontend/ad-functions.php:2664
+#: frontend/ad-functions.php:2648
 msgid "You did not enter the solution to the Math problem"
 msgstr "No ingresaste el resultado de la suma matemática"
 
-#: frontend/ad-functions.php:2665
+#: frontend/ad-functions.php:2649
 msgid "The solution you submitted for the Math problem was not correct"
 msgstr "El resultado de la suma matemática que ingresaste no es correcto"
 
-#: frontend/ad-functions.php:2687
+#: frontend/ad-functions.php:2671
 msgid "You did not enter your name. Please enter your name"
 msgstr "No ingresaste tu Nombre. Por favor, ingresá tu nombre."
 
-#: frontend/ad-functions.php:2689
+#: frontend/ad-functions.php:2673
 msgid "You did not enter any message. Please enter a message"
 msgstr "No ingresaste ningún mensaje. Por favor, ingresá un mensaje."
 
-#: frontend/ad-functions.php:2733
+#: frontend/ad-functions.php:2717
 msgid "You are responding to "
 msgstr "Estás consultando por"
 
-#: frontend/ad-functions.php:2749
+#: frontend/ad-functions.php:2733
 msgid "Your Name"
 msgstr "Tu Nombre"
 
-#: frontend/ad-functions.php:2757
+#: frontend/ad-functions.php:2741
 msgid "Enter your message below"
 msgstr "Ingresá tu mensaje a continuación"
 
-#: frontend/ad-functions.php:2811
+#: frontend/ad-functions.php:2795
 msgid ""
 "The ad could not be identified due to a missing ad identification number"
 msgstr ""
 "El anuncio no pudo ser identificado debido a un número de identificación "
 "perdido"
 
-#: frontend/ad-functions.php:2818 frontend/ad-functions.php:2848
+#: frontend/ad-functions.php:2802 frontend/ad-functions.php:2832
 msgid ""
 "You did not enter your name. You must include a name for this message to be "
 "relayed on your behalf"
@@ -2418,19 +2483,19 @@ msgstr ""
 "No ingresaste tu nombre. Tenés que introducir un nombre para que este "
 "mensaje pueda ser referenciado."
 
-#: frontend/ad-functions.php:2826
+#: frontend/ad-functions.php:2810
 msgid "You did not solve the Math Problem"
 msgstr "No ingresaste el resultado de la suma matemática"
 
-#: frontend/ad-functions.php:2833
+#: frontend/ad-functions.php:2817
 msgid "Your solution to the Math problem was incorrect"
 msgstr "El resultado de la suma matemática que ingresaste es incorrecto"
 
-#: frontend/ad-functions.php:2841
+#: frontend/ad-functions.php:2825
 msgid "There was no text entered for your message"
 msgstr "No ingresaste ninguna palabra en tu mensaje"
 
-#: frontend/ad-functions.php:2864
+#: frontend/ad-functions.php:2848
 msgid ""
 "Your contact was flagged as spam.  Please contact the administrator of this "
 "site."
@@ -2438,7 +2503,7 @@ msgstr ""
 "Tu contacto ha sido marcado como SPAM. Por favor contactate con los "
 "Administradores"
 
-#: frontend/ad-functions.php:2871
+#: frontend/ad-functions.php:2855
 msgid ""
 "There has been an error found. Your message has not been sent. Please review "
 "the list of problems, correct them then try to send your message again"
@@ -2447,20 +2512,20 @@ msgstr ""
 "revisá la lista de errores, corregilos y tratá de enviar el mensaje "
 "nuevamente"
 
-#: frontend/ad-functions.php:2874 frontend/ad-functions.php:3264
+#: frontend/ad-functions.php:2858 frontend/ad-functions.php:3248
 msgid "The errors"
 msgstr "Los errores"
 
-#: frontend/ad-functions.php:2896
+#: frontend/ad-functions.php:2880
 msgctxt "reply email"
 msgid "Regarding"
 msgstr "Al respecto"
 
-#: frontend/ad-functions.php:2910
+#: frontend/ad-functions.php:2894
 msgid "Your message has been sent"
 msgstr "Tu mensaje ha sido enviado"
 
-#: frontend/ad-functions.php:2912
+#: frontend/ad-functions.php:2896
 msgid ""
 "There was a problem encountered during the attempt to send your message. "
 "Please try again and if the problem persists, please contact the system "
@@ -2470,11 +2535,11 @@ msgstr ""
 "favor, intentalo nuevamente y si el problema persiste comunicate con los "
 "Administradores del sitio"
 
-#: frontend/ad-functions.php:2960
+#: frontend/ad-functions.php:2944
 msgid "Cannot process your request due to the following error"
 msgstr "No se pudo procesar tu pedido a causa del siguiente error"
 
-#: frontend/ad-functions.php:2973
+#: frontend/ad-functions.php:2957
 #: frontend/templates/page-search-ads.tpl.php:14
 msgid ""
 "You did not enter a keyword or phrase to search for. You must at the very "
@@ -2483,7 +2548,7 @@ msgstr ""
 "No ingresaste ninguna palabra o frase para buscar. Deberás proporcionar "
 "alguna palabra o frase para poder llevar a cabo la búsqueda"
 
-#: frontend/ad-functions.php:2983
+#: frontend/ad-functions.php:2967
 msgid ""
 "You have entered an invalid minimum price. Make sure your price contains "
 "numbers only. Please do not include currency symbols"
@@ -2492,7 +2557,7 @@ msgstr ""
 "contenga sólo valores numéricos. Por favor NO ingresar los símbolos de "
 "moneda (Ej: $)"
 
-#: frontend/ad-functions.php:2994
+#: frontend/ad-functions.php:2978
 msgid ""
 "You have entered an invalid maximum price. Make sure your price contains "
 "numbers only. Please do not include currency symbols"
@@ -2500,7 +2565,7 @@ msgstr ""
 "Has ingresado un precio máximo no válido. Asegurate de que el precio sólo "
 "contenga números. Por favor, NO  incluyas los símbolos de moneda (Ej: $)"
 
-#: frontend/ad-functions.php:3007
+#: frontend/ad-functions.php:2991
 msgid ""
 "You have entered a keyword that is too short to search on.  Search keywords "
 "must be at least 4 letters in length.  Please try another term"
@@ -2509,7 +2574,7 @@ msgstr ""
 "búsquea. Las palabras de búsqueda deben tener al menos 4 letras. Por favor, "
 "probá con otro término"
 
-#: frontend/ad-functions.php:3172
+#: frontend/ad-functions.php:3156
 msgid ""
 "The information you have entered does not match the information on file. "
 "Please make sure you are using the same email address you used to post your "
@@ -2520,7 +2585,7 @@ msgstr ""
 "electrónico que usaste  para publicar tu  anuncio y la clave de acceso "
 "exacta que te fue enviada por correo electrónico cuando se publicó tu anuncio"
 
-#: frontend/ad-functions.php:3262
+#: frontend/ad-functions.php:3246
 msgid ""
 "There has been an error found. Please review the list of problems, correct "
 "them then try again"
@@ -2528,27 +2593,27 @@ msgstr ""
 "Se ha encontrado un error. Por favor, revisá la lista de problemas, corregí "
 "lo que haga falta e intentalo nuevamente"
 
-#: frontend/ad-functions.php:3328
+#: frontend/ad-functions.php:3312
 msgid "The ad has been edited successfully."
 msgstr "El Aviso ha sido editado satisfactoriamente"
 
-#: frontend/ad-functions.php:3330
+#: frontend/ad-functions.php:3314
 msgid "Back to view listings"
 msgstr "Volver a ver Avisos"
 
-#: frontend/ad-functions.php:3591 frontend/ad-functions.php:3658
+#: frontend/ad-functions.php:3575 frontend/ad-functions.php:3642
 msgid "Step 3 Payment"
 msgstr "Paso 3: Pago"
 
-#: frontend/ad-functions.php:3592
+#: frontend/ad-functions.php:3576
 msgid "You're logged in as an adminstrator, so there's no payment required."
 msgstr "Está conectado como administrador, así que no hay pago requerido."
 
-#: frontend/ad-functions.php:3593
+#: frontend/ad-functions.php:3577
 msgid "Click here to preview your ad"
 msgstr "Click para previsualizar su anuncio"
 
-#: frontend/ad-functions.php:3663
+#: frontend/ad-functions.php:3647
 msgid ""
 "Please click the button below to submit payment for your ad listing. You'll "
 "be asked to pay <b>%0.2f</b>."
@@ -2556,7 +2621,7 @@ msgstr ""
 "Por favor, haz click en el botón siguiente para enviar el pago de tu Auncio. "
 "Le será cobrado <b>%0.2f</b>."
 
-#: frontend/ad-functions.php:3701
+#: frontend/ad-functions.php:3685
 msgid ""
 "Please click the finish button to complete the process of submitting your "
 "listing"
@@ -2564,25 +2629,25 @@ msgstr ""
 "Por favor, hacé click en el botón de Finalizar para completar el proceso y "
 "enviar tu Anuncio"
 
-#: frontend/ad-functions.php:3709
+#: frontend/ad-functions.php:3693
 #: frontend/templates/page-place-ad-upload-images-step.tpl.php:79
 msgid "Finish"
 msgstr "Finalizar"
 
-#: frontend/ad-functions.php:3776
+#: frontend/ad-functions.php:3760
 msgid "The image has been deleted"
 msgstr "La imagen ha sido eliminada"
 
-#: frontend/ad-functions.php:3788
+#: frontend/ad-functions.php:3772
 msgid "Unable to delete you image, please contact the administrator."
 msgstr ""
 "No fue posible eliminar la imagen, por favor contactate con el administrador"
 
-#: frontend/ad-functions.php:3823
+#: frontend/ad-functions.php:3807
 msgid "The Ad has been deleted"
 msgstr "El Aviso ha sido eliminado."
 
-#: frontend/ad-functions.php:3826
+#: frontend/ad-functions.php:3810
 msgid ""
 "Your Ad details and any photos you have uploaded have been deleted from the "
 "system"
@@ -2590,11 +2655,11 @@ msgstr ""
 "Los detalles de tu Anuncio y las imágenes que cargaste serán eliminadas del "
 "sistema"
 
-#: frontend/ad-functions.php:3830
+#: frontend/ad-functions.php:3814
 msgid "Problem encountered. Cannot complete  request"
 msgstr "Problema encontrado. No se pudo completar el proceso"
 
-#: frontend/ad-functions.php:3948
+#: frontend/ad-functions.php:3932
 msgid ""
 "An un expected error occurred while trying to send a notification email "
 "about your Ad being posted. Please contact an Administrator if your Ad is "
@@ -2604,11 +2669,11 @@ msgstr ""
 "correo electrónico sobre su Anuncio a publicarse. Por favor, póngase en "
 "contacto con un administrador si su anuncio no se está debidamente indicado."
 
-#: frontend/ad-functions.php:3962
+#: frontend/ad-functions.php:3946
 msgid "New classified ad listing posted"
 msgstr "Nuevo Aviso Clasificado Cargado al sistema"
 
-#: frontend/ad-functions.php:3979
+#: frontend/ad-functions.php:3963
 msgid ""
 "Your ad has been submitted and an email has been sent to the email address "
 "you provided with information you will need to edit your listing."
@@ -2617,11 +2682,11 @@ msgstr ""
 "dirección de correo electrónico que nos has facilitado con la información "
 "que vas a necesitar para editar tu anuncio."
 
-#: frontend/ad-functions.php:3985
+#: frontend/ad-functions.php:3969
 msgid "Your ad has been submitted."
 msgstr "Tu Aviso ha sido enviado."
 
-#: frontend/ad-functions.php:4004
+#: frontend/ad-functions.php:3988
 msgid ""
 "Although your ad has been submitted, there was a problem encountered while "
 "attempting to email your ad details to the email address you provided."
@@ -2629,7 +2694,7 @@ msgstr ""
 "Aunque el anuncio ha sido enviado, ocurrió un problema durante el intento de "
 "enviar los detalles de tu anuncio a la dirección de emial que nos indicaste."
 
-#: frontend/ad-functions.php:4047 frontend/ad-functions.php:4475
+#: frontend/ad-functions.php:4031
 msgid ""
 "*** NOTE:  The next two strings are for currency formatting:  1,000.00 where "
 "comma is used for currency place holders and the period for decimal "
@@ -2641,42 +2706,47 @@ msgstr ""
 "separación decimal. Deberás cambiar las próximas dos líneas para establecer "
 "tu formato preferido de precio.  ***"
 
-#: frontend/ad-functions.php:4048 frontend/ad-functions.php:4476
+#: frontend/ad-functions.php:4032
 msgid ","
 msgstr ","
 
-#: frontend/ad-functions.php:4049 frontend/ad-functions.php:4477
+#: frontend/ad-functions.php:4033 frontend/ad-functions.php:4459
 msgid "."
 msgstr "."
 
-#: frontend/ad-functions.php:4271
+#: frontend/ad-functions.php:4255
 msgid "Total views"
 msgstr "Vistas totales"
 
-#: frontend/ad-functions.php:4284 frontend/ad-functions.php:4642
+#: frontend/ad-functions.php:4268 frontend/ad-functions.php:4624
 #: frontend/templates/page-place-ad-payment-step.tpl.php:42
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-form.tpl.php:16
 #: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:300
 msgid "Price"
 msgstr "Precio"
 
-#: frontend/ad-functions.php:4301 frontend/ad-functions.php:4795
+#: frontend/ad-functions.php:4285
 msgid "m/d/Y"
 msgstr "d/m/Y"
 
-#: frontend/ad-functions.php:4374
+#: frontend/ad-functions.php:4358
 msgid "Select Category"
 msgstr "Seleccionar Categoría"
 
-#: frontend/ad-functions.php:4379
+#: frontend/ad-functions.php:4363
 msgid "Change Category"
 msgstr "Cambiar Categoría"
 
-#: frontend/ad-functions.php:4401 frontend/shortcode.php:293
+#: frontend/ad-functions.php:4385 frontend/shortcode.php:293
 msgid "Powered by "
 msgstr "Desarrollado por "
 
-#: frontend/ad-functions.php:4534 frontend/ad-functions.php:4547
+#: frontend/ad-functions.php:4458
+msgctxt "Used for currency placeholders: (The comman in 1,000.00)."
+msgid ","
+msgstr ","
+
+#: frontend/ad-functions.php:4516 frontend/ad-functions.php:4529
 msgid ""
 "Sorry, that ad is no longer valid.  Try browsing ads or searching for one "
 "instead."
@@ -2684,65 +2754,64 @@ msgstr ""
 "Lo sentimos, ese Anuncio ya no es válido. Trate de navegar los anuncios o "
 "una búsqueda."
 
-#: frontend/ad-functions.php:4567
+#: frontend/ad-functions.php:4549
 msgid "Phone"
 msgstr "Teléfono"
 
-#: frontend/ad-functions.php:4578
+#: frontend/ad-functions.php:4560
 msgid "Location "
 msgstr "Ubicación"
 
-#: frontend/ad-functions.php:4654
+#: frontend/ad-functions.php:4636
 msgid "This ad has been viewed "
 msgstr "Este Aviso ha sido visto: "
 
-#: frontend/ad-functions.php:4656
+#: frontend/ad-functions.php:4638
 msgid " times"
 msgstr " veces"
 
-#: frontend/ad-functions.php:4671
+#: frontend/ad-functions.php:4653
 msgid "Visit Website"
 msgstr "Visitar el Sitio Web"
 
-#: frontend/ad-functions.php:4686
+#: frontend/ad-functions.php:4669
 msgid "Click to Enlarge Image"
 msgstr "Click para ampliar la imagen"
 
-#: frontend/ad-functions.php:4757
+#: frontend/ad-functions.php:4739
 msgid "Flag ad"
 msgstr "Marcar anuncio"
 
-#: frontend/ad-functions.php:4762
+#: frontend/ad-functions.php:4744
 msgid "Are you sure you want to flag this ad?"
 msgstr "¿Seguro que desea marcar este anuncio?"
 
-#: frontend/ad-functions.php:4774
+#: frontend/ad-functions.php:4756
 msgid "This ad has been flagged"
 msgstr "Este aviso ha sido denunciado"
 
-#: frontend/ad-functions.php:4776
+#: frontend/ad-functions.php:4758
 msgid "An error occurred while trying to flag the ad"
 msgstr "Se produjo un error al intentar marcar el anuncio"
 
-#: frontend/ad-functions.php:4794
-msgid ""
-"*** NOTE the next string is the date format used for the field codes "
-"displayed in the ad.  Change to your local format."
-msgstr ""
-"*** Nota: La cadena siguiente es el formato de fecha que se utiliza para los "
-"campos que aparecen en el anuncio. Cambie a su formato local."
-
-#: frontend/ad-functions.php:4836
+#: frontend/ad-functions.php:4776
 msgid "Contact Information"
 msgstr "Información de Contacto"
 
-#: frontend/ad-functions.php:4839
+#: frontend/ad-functions.php:4777
 msgid "Contact"
 msgstr "Contacto: "
 
-#: frontend/ad-functions.php:4850
+#: frontend/ad-functions.php:4787
 msgid "More Information"
 msgstr "Más Información: "
+
+#: frontend/ad-functions.php:4811
+msgctxt ""
+"*** NOTE the next string is the date format used for the field codes "
+"displayed in the ad.  Change to your local format."
+msgid "m/d/Y"
+msgstr "d/m/Y"
 
 #: frontend/page-browse-cat.php:44
 msgid ""
@@ -2784,7 +2853,7 @@ msgstr ""
 "pago ahora."
 
 #: frontend/page-cancel-payment.php:63 frontend/page-payment-thank-you.php:45
-#: frontend/payment-functions.php:455 frontend/payment-functions.php:1904
+#: frontend/payment-functions.php:459 frontend/payment-functions.php:1908
 msgid ""
 "There appears to be a problem. Please contact customer service if you are "
 "viewing this message after having made a payment. If you have not tried to "
@@ -2896,7 +2965,7 @@ msgstr[1] "Años"
 msgid "Payment Methods"
 msgstr "Método de pago"
 
-#: frontend/payment-functions.php:259
+#: frontend/payment-functions.php:263
 msgid ""
 "We haven't received your payment information from PayPal yet and we are "
 "unable to verify your transaction. Please reload this page or visit <a href="
@@ -2907,7 +2976,7 @@ msgstr ""
 "visite <a href=\"%s\">%s </ a> en 30 segundos para continuar con la "
 "colocación de su anuncio."
 
-#: frontend/payment-functions.php:262
+#: frontend/payment-functions.php:266
 msgid ""
 "PayPal returned the following status from your payment: %s. %d payment "
 "variables were posted."
@@ -2915,7 +2984,7 @@ msgstr ""
 "PayPal le devolvió el siguiente estado de su pago:% s. % D variables de pago "
 "fueron publicadas."
 
-#: frontend/payment-functions.php:264
+#: frontend/payment-functions.php:268
 msgid ""
 "If this status is not COMPLETED or VERIFIED, then you may need to wait a bit "
 "before your payment is approved, or contact PayPal directly as to the reason "
@@ -2926,12 +2995,12 @@ msgstr ""
 "contacto con PayPal directamente para conocer los motivos del retraso del "
 "pago."
 
-#: frontend/payment-functions.php:267
+#: frontend/payment-functions.php:271
 msgid ""
 "If you have any further questions, please contact this site administrator."
 msgstr "Si tiene más preguntas, por favor contactate con el administrador"
 
-#: frontend/payment-functions.php:296 frontend/payment-functions.php:1883
+#: frontend/payment-functions.php:300 frontend/payment-functions.php:1887
 msgid ""
 "There appears to be a problem. Please contact customer service if you are "
 "viewing this message after having made a payment via 2Checkout. If you have "
@@ -2944,7 +3013,7 @@ msgstr ""
 "viendo este mensaje, significa que se está mostrando por error y podés "
 "descartarlo."
 
-#: frontend/payment-functions.php:411 frontend/payment-functions.php:496
+#: frontend/payment-functions.php:415 frontend/payment-functions.php:500
 msgid ""
 "The amount you have paid does not match any of our Payment Terms amounts. "
 "Please contact us to clarify the problem."
@@ -2952,7 +3021,7 @@ msgstr ""
 "El monto que está abonando no coincide con ningún Plan para anuncios. Por "
 "favor, contáctate para aclarar el problema."
 
-#: frontend/payment-functions.php:420 frontend/payment-functions.php:504
+#: frontend/payment-functions.php:424 frontend/payment-functions.php:508
 msgid ""
 "There was an error processing your transaction. If funds have been deducted "
 "from your account they have not been processed to our account. You will need "
@@ -2962,7 +3031,7 @@ msgstr ""
 "han deducido de tu cuenta y no se han procesado en nuestra cuenta tendrás "
 "que contactar a PayPal para solucionar el asunto."
 
-#: frontend/payment-functions.php:430 frontend/payment-functions.php:514
+#: frontend/payment-functions.php:434 frontend/payment-functions.php:518
 msgid ""
 "It appears this transaction has already been processed. If you do not see "
 "your ad in the system please contact the site adminstrator for assistance."
@@ -2971,17 +3040,17 @@ msgstr ""
 "aviso clasificado en el sistema, por favor contactate con el administrador "
 "para recibis asistencia."
 
-#: frontend/payment-functions.php:725
+#: frontend/payment-functions.php:729
 #: frontend/templates/checkout-form-paypal.tpl.php:30
 msgid "Make payments with PayPal - it's fast, free and secure!"
 msgstr "Realizá tu pago con PayPal - Es rápido, gratis y seguro!"
 
-#: frontend/payment-functions.php:800
+#: frontend/payment-functions.php:804
 #: frontend/templates/checkout-form-2checkout.tpl.php:28
 msgid "Pay With 2Checkout"
 msgstr "Pagar con 2Checkout"
 
-#: frontend/payment-functions.php:1154
+#: frontend/payment-functions.php:1158
 msgid ""
 "The amount you have paid does not match any of our listing fee amounts. "
 "Please contact us to clarify the problem"
@@ -2989,7 +3058,7 @@ msgstr ""
 "El pago que realizaste no coincide con los precios de ninguno de los "
 "anuncios que publicaste. Por favor contactanos para aclarar el problema."
 
-#: frontend/payment-functions.php:1174
+#: frontend/payment-functions.php:1178
 msgid ""
 "There was an error process your transaction. If funds have been deducted "
 "from your account they have not been processed to our account. You will need "
@@ -2999,7 +3068,7 @@ msgstr ""
 "deducido de tu cuenta no se han acreditado en nuestra cuenta. Vas a tener "
 "que contactarte con 2Checkout para resolver este problema"
 
-#: frontend/payment-functions.php:1193
+#: frontend/payment-functions.php:1197
 msgid ""
 "It appears this transaction has already been processed. If you do not see "
 "your ad in the system please contact the site adminstrator for assistance"
@@ -3008,15 +3077,15 @@ msgstr ""
 "publicado en el sistema, por favor comunicate con los Administradores para "
 "recibir asistencia"
 
-#: frontend/payment-functions.php:1308
+#: frontend/payment-functions.php:1312
 msgid "Customer attempt to pay has failed"
 msgstr "El intento de pago del cliente ha fallado"
 
-#: frontend/payment-functions.php:1363
+#: frontend/payment-functions.php:1367
 msgid "Customer attempt to pay for classified ad listing has failed"
 msgstr "Ha fallado el intento de pago de su aviso clasificado"
 
-#: frontend/payment-functions.php:1365
+#: frontend/payment-functions.php:1369
 #: frontend/templates/email-abort-payment-admin.tpl.php:7
 #: frontend/templates/email-abort-payment-user.tpl.php:5
 #: frontend/templates/email-place-ad-success-user.tpl.php:16
@@ -3024,16 +3093,16 @@ msgstr "Ha fallado el intento de pago de su aviso clasificado"
 msgid "Additional Details"
 msgstr "Detalles Adicionales"
 
-#: frontend/payment-functions.php:1366
+#: frontend/payment-functions.php:1370
 msgid "Transaction ID"
 msgstr "ID de la Transacción"
 
-#: frontend/payment-functions.php:1389
+#: frontend/payment-functions.php:1393
 #: frontend/templates/email-abort-payment-admin.tpl.php:2
 msgid "Dear Administrator"
 msgstr "Estimado Administrador"
 
-#: frontend/payment-functions.php:1390
+#: frontend/payment-functions.php:1394
 msgid ""
 "There was a problem encountered during a customer's attempt to submit "
 "payment for a classified ad listing"
@@ -3041,31 +3110,31 @@ msgstr ""
 "Ha ocurrido un problema durante el intento de enviar el pago en concepto de "
 "un aviso clasificado"
 
-#: frontend/payment-functions.php:1405
+#: frontend/payment-functions.php:1409
 #: frontend/templates/email-ad-renewed-success-user.tpl.php:5
 #: frontend/templates/email-place-ad-success-user.tpl.php:5
 msgid "Listing Title"
 msgstr "Título del Anuncio"
 
-#: frontend/payment-functions.php:1409
+#: frontend/payment-functions.php:1413
 #: frontend/templates/email-ad-renewed-success-user.tpl.php:9
 #: frontend/templates/email-place-ad-success-user.tpl.php:9
 msgid "Listing ID"
 msgstr "ID del Anuncio"
 
-#: frontend/payment-functions.php:1413
+#: frontend/payment-functions.php:1417
 #: frontend/templates/email-ad-renewed-success-user.tpl.php:7
 #: frontend/templates/email-place-ad-success-user.tpl.php:7
 msgid "Listing URL"
 msgstr "URL del Anuncio"
 
-#: frontend/payment-functions.php:1419
+#: frontend/payment-functions.php:1423
 #: frontend/templates/email-abort-payment-admin.tpl.php:27
 #: frontend/templates/email-abort-payment-user.tpl.php:12
 msgid "Payment transaction ID"
 msgstr "ID de la transacción del pago"
 
-#: frontend/payment-functions.php:1549
+#: frontend/payment-functions.php:1553
 msgid ""
 "You have chosen to cancel the payment process. Your ad cannot be activated "
 "until you pay the listing fee. You can click the link below to delete your "
@@ -3076,27 +3145,27 @@ msgstr ""
 "aparece a continuación para eliminar la información del aviso, o hacer click "
 "en el botón para realizar el pago ahora"
 
-#: frontend/payment-functions.php:1563
+#: frontend/payment-functions.php:1567
 msgid "Delete Ad Details"
 msgstr "Eliminar los detalles del Aviso"
 
-#: frontend/payment-functions.php:1569
+#: frontend/payment-functions.php:1573
 msgid "Buy With PayPal"
 msgstr "Comprar con PayPal"
 
-#: frontend/payment-functions.php:1577
+#: frontend/payment-functions.php:1581
 msgid "Buy With 2Checkout"
 msgstr "Comprar con 2Checkout"
 
-#: frontend/payment-functions.php:1585
+#: frontend/payment-functions.php:1589
 msgid "Buy With Google Checkout"
 msgstr "Comprar con Google Checkout"
 
-#: frontend/payment-functions.php:1822
+#: frontend/payment-functions.php:1826
 msgid "PayPal returned the following status from your payment:"
 msgstr "PayPal le devolvió el siguiente estado de su pago:"
 
-#: frontend/payment-functions.php:1824
+#: frontend/payment-functions.php:1828
 msgid ""
 "If this status is not Completed or Verified, then you may need to wait a bit "
 "before your payment is approved, or contact PayPal directly as to the reason "
@@ -3106,7 +3175,7 @@ msgstr ""
 "tenga que esperar un poco antes de que su pago sea aprobado, o póngase en "
 "contacto con PayPal directamente para conocer el motivo del retraso."
 
-#: frontend/payment-functions.php:1825
+#: frontend/payment-functions.php:1829
 msgid "If you have any further questions, contact this site administrator."
 msgstr ""
 "Si tiene alguna duda, póngase en contacto con el administrador del sitio."
@@ -3339,21 +3408,6 @@ msgstr "Registrarse"
 msgid "Complete Payment"
 msgstr "Completar Pago"
 
-#: frontend/templates/page-place-ad-details-step-users-dropdown.backup.tpl.php:4
-#: frontend/templates/page-place-ad-users-dropdown.tpl.php:6
-msgid "Select an User owner for this Ad"
-msgstr "Seleccione un Usuario para este anuncio\t"
-
-#: frontend/templates/page-place-ad-details-step-users-dropdown.backup.tpl.php:18
-#: frontend/templates/page-place-ad-users-dropdown.tpl.php:22
-msgid "User Payment Term"
-msgstr "Plazo de pago del Usuario"
-
-#: frontend/templates/page-place-ad-details-step-users-dropdown.backup.tpl.php:21
-#: frontend/templates/page-place-ad-users-dropdown.tpl.php:27
-msgid "Select a Payment Term for this Ad"
-msgstr "Seleccione una condición de pago para este anuncio"
-
 #: frontend/templates/page-place-ad-finish.tpl.php:7
 msgid "Your changes have been saved"
 msgstr "Tus cambios han sido guardados"
@@ -3452,6 +3506,18 @@ msgstr "utilizar como imagen principal."
 msgid "Place Ad without Images"
 msgstr "Colocar Anuncio sin imágenes\t"
 
+#: frontend/templates/page-place-ad-users-dropdown.tpl.php:6
+msgid "Select a User owner for this Ad"
+msgstr "Selecione un autor para este anuncio"
+
+#: frontend/templates/page-place-ad-users-dropdown.tpl.php:22
+msgid "User Payment Term"
+msgstr "Plazo de pago del Usuario"
+
+#: frontend/templates/page-place-ad-users-dropdown.tpl.php:27
+msgid "Select a Payment Term for this Ad"
+msgstr "Seleccione una condición de pago para este anuncio"
+
 #: frontend/templates/page-renew-ad-payment-form.tpl.php:1
 msgid ""
 "You're about to renew your Ad. Please select a payment method below and "
@@ -3480,8 +3546,8 @@ msgstr "Buscar en la Categoría"
 #: frontend/templates/page-search-ads.tpl.php:53
 #: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:946
 #: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:993
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:405
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:3166
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:404
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:3162
 msgid "Select Option"
 msgstr "Seleccionar"
 
@@ -3538,35 +3604,35 @@ msgstr "Distrito/Otro"
 msgid "separate counties by commas"
 msgstr "Separar Distritos por comas"
 
-#: functions.php:1083
+#: functions.php:1117
 msgid "No errors."
 msgstr "Sin errores."
 
-#: functions.php:1084
+#: functions.php:1118
 msgid "The file is larger than upload_max_filesize."
 msgstr "El tamaño del archivo es mayor que upload_max_filesize."
 
-#: functions.php:1085
+#: functions.php:1119
 msgid "The file is larger than form MAX_FILE_SIZE."
 msgstr "ElEl tamaño del archivo es mayor que MAX_FILE_SIZE."
 
-#: functions.php:1086
+#: functions.php:1120
 msgid "The file was only partially uploaded."
 msgstr "El archivo fue cargado parcialmente."
 
-#: functions.php:1087
+#: functions.php:1121
 msgid "No file was uploaded."
 msgstr "Ningún archivo fue cargado."
 
-#: functions.php:1088
+#: functions.php:1122
 msgid "Missing temporary directory."
 msgstr "El directorio temporarl no existe."
 
-#: functions.php:1089
+#: functions.php:1123
 msgid "Can't write file to disk."
 msgstr "No se puede escribir el archivo en disco."
 
-#: functions.php:1090
+#: functions.php:1124
 msgid "The file upload was stopped by extension."
 msgstr "La carga del archivo fue detenida por una extensión."
 
@@ -3587,11 +3653,11 @@ msgstr ""
 "Por favor, deshabilitá el control de SPAM de AWPCP porque actualmente no "
 "está instalado el plugin de Akismet"
 
-#: functions_awpcp.php:1400
+#: functions_awpcp.php:1399
 msgid "Setup Process"
 msgstr "Proceso de Configuración"
 
-#: functions_awpcp.php:1403
+#: functions_awpcp.php:1402
 msgid ""
 "It looks like you have not yet told the system how you want your classifieds "
 "to operate."
@@ -3599,7 +3665,7 @@ msgstr ""
 "Al parecer no le has indicado al sistema cómo querés que funcionen tus "
 "clasificados."
 
-#: functions_awpcp.php:1406
+#: functions_awpcp.php:1405
 msgid ""
 "Please begin by setting up the options for your site. The system needs to "
 "know a number of things about how you want to run your classifieds."
@@ -3608,11 +3674,11 @@ msgstr ""
 "sistema necesita saber algunas cosas acerca de cómo deseás ejecutar tus "
 "anuncios."
 
-#: functions_awpcp.php:2133
+#: functions_awpcp.php:2135
 msgid "l F j, Y \\a\\t g:i a"
 msgstr "l F j, Y \\a\\t g:i a"
 
-#: functions_awpcp.php:2136
+#: functions_awpcp.php:2138
 msgid "Email sent on:"
 msgstr "Correo electrónico enviado el:"
 
@@ -3790,6 +3856,346 @@ msgctxt "authorize.net billing"
 msgid "Checkout"
 msgstr "Pagar"
 
+#: premium-modules/awpcp-comments/admin/admin.php:13
+#: premium-modules/awpcp-comments/admin/comments-table.php:11
+#: premium-modules/awpcp-comments/awpcp-comments.php:139
+#: premium-modules/awpcp-comments/awpcp-comments.php:142
+#: premium-modules/awpcp-comments/frontend/templates/comments-list.tpl.php:1
+#: premium-modules/awpcp-comments/frontend/templates/comments.tpl.php:4
+msgid "Comments"
+msgstr "Comentarios"
+
+#: premium-modules/awpcp-comments/admin/admin.php:37
+msgid "Comment has been marked as SPAM."
+msgstr "El comentario a sido marcado como SPAM."
+
+#: premium-modules/awpcp-comments/admin/admin.php:42
+msgid "Comment is no longer marked as SPAM."
+msgstr "El comentario ya no está marcado como SPAM."
+
+#: premium-modules/awpcp-comments/admin/admin.php:47
+msgid "Comment has been flagged."
+msgstr "El comentario ha sido reportado."
+
+#: premium-modules/awpcp-comments/admin/admin.php:52
+msgid "Comment is no longer flagged."
+msgstr "El comentario ya no está reportado."
+
+#: premium-modules/awpcp-comments/admin/admin.php:73
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:143
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:3309
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:349
+msgid "The element couldn't be deleted."
+msgstr "El elemento no puede eliminarse"
+
+#: premium-modules/awpcp-comments/admin/admin.php:112
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:170
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:377
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:551
+msgid "The form has errors"
+msgstr "El formulario tiene errores"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:10
+#: premium-modules/awpcp-comments/admin/comments-table.php:27
+#: premium-modules/awpcp-comments/admin/templates/comment-form.tpl.php:13
+#: premium-modules/awpcp-comments/frontend/templates/comments-post-form.tpl.php:25
+msgid "Comment"
+msgstr "Comentario"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:19
+msgctxt "comments bulk actions"
+msgid "Mark as SPAM"
+msgstr "Marcar como SPAM"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:20
+msgctxt "comments bulk actions"
+msgid "Mark as not SPAM"
+msgstr "Marcar como no SPAM"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:29
+msgid "SPAM"
+msgstr "SPAM"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:31
+msgid "Date Created"
+msgstr "Fecha de Creación"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:49
+msgctxt "comments table view"
+msgid "All"
+msgstr "Todos"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:55
+msgctxt "comments table view"
+msgid "Active"
+msgstr "Activo"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:61
+msgctxt "comments table view"
+msgid "Flagged"
+msgstr "Reportado"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:67
+msgctxt "comments table view"
+msgid "SPAM"
+msgstr "SPAM"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:113
+msgctxt "comments table"
+msgid "Flag"
+msgstr "Reportar"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:117
+msgctxt "comments table"
+msgid "Unflag"
+msgstr "Reportar"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:123
+msgctxt "comments table"
+msgid "Not SPAM"
+msgstr "No SPAM"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:127
+msgctxt "comments table"
+msgid "SPAM"
+msgstr "SPAM"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:130
+msgctxt "comments table"
+msgid "View Ad"
+msgstr "Ver anuncio"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:133
+msgctxt "comments table"
+msgid "Edit"
+msgstr "Editar"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:137
+msgctxt "comments table"
+msgid "Delete"
+msgstr "Eliminar"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:154
+msgctxt "comments table column value"
+msgid "Marked as SPAM"
+msgstr "Maracdo como SPAM"
+
+#: premium-modules/awpcp-comments/admin/comments-table.php:155
+msgctxt "comments table column value"
+msgid "Not SPAM"
+msgstr "No SPAM"
+
+#: premium-modules/awpcp-comments/admin/templates/admin-comments-table.tpl.php:2
+msgid "AWPCP Classifieds Management System: Comments"
+msgstr "AWPCP Sistema de Administración de Avisos Clasificados: Comentarios"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:122
+msgctxt "awpcp comments notices"
+msgid "The AWPCP Comments module requires AWPCP version %s or newer!"
+msgstr ""
+"El módulo AWPCP Comments require la version %s o posterior del plugin AWPCP!"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:123
+msgid "Warning:"
+msgstr "Advertencia:"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:128
+msgctxt "awpcp comments notices"
+msgid ""
+"The AWPCP Comments module requires Akismet to be configured with a valid API "
+"key."
+msgstr ""
+"El módulo AWPCP Comments requiere que Akismet esté configurado con una API "
+"key válida."
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:146
+msgid "Display Comments in Ads?"
+msgstr "Mostrar comentarios en Ads?"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:147
+msgid "Check to enable User Comments."
+msgstr ""
+"Seleccione para permitir que los usuarios publiquen comentarios en los "
+"anuncios."
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:149
+msgid "Limit comments to Admin users"
+msgstr "Limitar comentarios a usuarios administradores"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:150
+msgid "Only Admin users can place Ad comments."
+msgstr ""
+"Solo los usuarios administradores pueden publicar comentarios en los "
+"anuncios."
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:152
+msgid "Limit comments to registered users"
+msgstr "Limitar comentarios a usuarios registrados"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:153
+msgid "Only registered users can place Ad comments."
+msgstr ""
+"Solo usuarios registrados pueden publicar comentarios en los anunucios."
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:155
+msgid "Allow comments to be edited by poster user?"
+msgstr "Permitir que los usuarios editen sus propios comentarios."
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:156
+msgid "Comment poster will be allowed to edit their comments."
+msgstr "Los usuarios podrán editar sus propios comentarios."
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:159
+msgid "Comments Layout"
+msgstr "Apariencia de los Comentarios"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:162
+msgid "Show comments title"
+msgstr "Mostrar el título de los comentarios"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:166
+msgid "User Ratings"
+msgstr "Calificaciones de Usuario"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:169
+msgid "Enable User Ratings"
+msgstr "Habilitar Calificaciones"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:170
+msgid "Check to enable User Ratings."
+msgstr "Seleccione para permitir que los usuarios califiquen los anuncios."
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:172
+msgid ""
+"Use your own. Create custom-on.png, custom-off.png and custom-half.png 16x16 "
+"icons in %s."
+msgstr ""
+"Use sus propios íconos. Debe crear iconos 16x16 llamados custom-on.png, "
+"custom-off.png y custom-half.png y subirlos al directorio %s."
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:185
+msgid "Rating Icons"
+msgstr "Íconos de Calificaciones"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:186
+msgid "Choose the icons you want to use to show Ad Ratings."
+msgstr ""
+"Elija los íconos que quiere usar para mostrar las califaciones de los "
+"anuncions."
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:193
+msgid "Comment Posted Message"
+msgstr "Mensaje de comentario publicado"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:196
+msgid "Subject for Comment Posted email"
+msgstr "Asunto para el mensaje Comentario Publicado"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:197
+msgid "Your received a comment for your Ad \"$title\" from $author"
+msgstr "Usted recibió un comentario de $author en su anuncio \"$title\""
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:198
+msgid "Subject line for email sent out when a comment is posted to an Ad"
+msgstr ""
+"Asunto para el mensaje de correo enviado cuando se publica un comentario en "
+"un anuncio."
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:199
+msgid "Body for Comment Posted email"
+msgstr "Contenido para el mensaje Comentario Publicado"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:200
+msgid "Your received a comment for your ad, don't forget to reply!"
+msgstr "Usted recibió un comentario en su anuncio, no olvide responder!"
+
+#: premium-modules/awpcp-comments/awpcp-comments.php:201
+msgid "Body text for email sent out when a comment is posted to an Ad"
+msgstr ""
+"Cuerpo para el mensaje enviado cuando se publica un comentario en un anuncio."
+
+#: premium-modules/awpcp-comments/frontend/frontend.php:171
+msgid "The comment doesn't exist."
+msgstr "El comentario no existe."
+
+#: premium-modules/awpcp-comments/frontend/frontend.php:218
+msgid "You are not allowed to edit this comment."
+msgstr "Usted no está autorizado para editar este comentario."
+
+#: premium-modules/awpcp-comments/frontend/frontend.php:263
+msgid "You are not allowed to delete this Comment."
+msgstr "Usted no está autorizado para eliminar este comentario."
+
+#: premium-modules/awpcp-comments/frontend/frontend.php:270
+msgid "There was an error trying to delete this Comment."
+msgstr "Ocurrió un error tratando de eliminar este comentario."
+
+#: premium-modules/awpcp-comments/frontend/frontend.php:298
+msgctxt "Thanks message displayed when someone rates an Ad"
+msgid "Thanks!"
+msgstr "Gracias!"
+
+#: premium-modules/awpcp-comments/frontend/templates/comments-delete-form.tpl.php:3
+msgid "Are you sure you want to delete this comment?"
+msgstr "¿Está seguro que quiere eliminar este comentario?"
+
+#: premium-modules/awpcp-comments/frontend/templates/comments-delete-form.tpl.php:4
+msgid "Delete Comment"
+msgstr "Eliminar Comentario"
+
+#: premium-modules/awpcp-comments/frontend/templates/comments-delete-form.tpl.php:5
+#: premium-modules/awpcp-comments/frontend/templates/comments-post-form.tpl.php:34
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: premium-modules/awpcp-comments/frontend/templates/comments-list-item.tpl.php:11
+msgid "Posted on %s"
+msgstr "Publicado en %s"
+
+#: premium-modules/awpcp-comments/frontend/templates/comments-list-item.tpl.php:14
+msgctxt "comment actions"
+msgid "Delete"
+msgstr "Eliminar"
+
+#: premium-modules/awpcp-comments/frontend/templates/comments-list-item.tpl.php:22
+msgid "Flag"
+msgstr "Reportar"
+
+#: premium-modules/awpcp-comments/frontend/templates/comments-post-form.tpl.php:1
+msgid "Leave a Comment"
+msgstr "Deje un comentario"
+
+#: premium-modules/awpcp-comments/frontend/templates/comments-post-form.tpl.php:9
+msgid "Author"
+msgstr "Autor"
+
+#: premium-modules/awpcp-comments/frontend/templates/comments-post-form.tpl.php:33
+msgid "Edit Comment"
+msgstr "Editar Comentario"
+
+#: premium-modules/awpcp-comments/frontend/templates/comments-post-form.tpl.php:37
+msgid "Post Comment"
+msgstr "Publicar Comentario"
+
+#: premium-modules/awpcp-comments/includes/controllers/comments.php:33
+msgid "Only admin users are allowed to edit or post commments."
+msgstr ""
+"Solo usuarios administradores tiene permitido editar o publicar comentarios"
+
+#: premium-modules/awpcp-comments/includes/controllers/comments.php:38
+msgid "The Ad doesn't exists."
+msgstr "El anuncio no existe."
+
+#: premium-modules/awpcp-comments/includes/controllers/comments.php:42
+msgid "The Comment text can't be empty. HTML is not allowed."
+msgstr ""
+"El contenido del comentario no puede estar vacío. HTML no es permitido."
+
+#: premium-modules/awpcp-comments/includes/controllers/comments.php:299
+msgctxt "awpcp comments akismet"
+msgid "AWPCP Comments module: The Akismet API key is invalid."
+msgstr "Módulo AWPCP Comments: La API kei para Akismet no es válida."
+
 #: premium-modules/awpcp-coupons/admin/templates/coupons-entries.tpl.php:2
 msgid "AWPCP Coupons/Discounts"
 msgstr "AWPCP Cupones/Descuentos"
@@ -3845,13 +4251,13 @@ msgid "No"
 msgstr "No"
 
 #: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:8
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:239
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:217
 #: premium-modules/awpcp-coupons/frontend/templates/coupons-form.tpl.php:13
 msgid "Coupon Code"
 msgstr "Código de cupón"
 
 #: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:13
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:240
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:218
 msgid "Discount Value"
 msgstr "Valor de descuento"
 
@@ -3860,7 +4266,7 @@ msgid "Amount"
 msgstr "Monto"
 
 #: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:33
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:241
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:219
 msgid "Redemption Limit"
 msgstr "Límite de beneficio"
 
@@ -3869,7 +4275,7 @@ msgid "0 means no limit."
 msgstr "0 significa sin límite."
 
 #: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:39
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:243
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:221
 msgid "Expire Date"
 msgstr "Fecha de caducidad"
 
@@ -3881,35 +4287,23 @@ msgstr "Cupón está activo?"
 msgid "Use Coupon System"
 msgstr "Usar sistema de cupones"
 
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:143
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:3312
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:349
-msgid "The element couldn't be deleted."
-msgstr "El elemento no puede eliminarse"
-
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:170
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:377
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:551
-msgid "The form has errors"
-msgstr "El formulario tiene errores"
-
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:196
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:194
 msgid "Manage Coupons/Discounts"
 msgstr "Administrar Cupones/Descuentos"
 
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:197
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:195
 msgid "Coupons/Discounts"
 msgstr "Cupones/Descuentos"
 
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:238
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:216
 msgid "Coupon ID"
 msgstr "Cupón ID"
 
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:242
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:220
 msgid "Redemption Count"
 msgstr "Conteo"
 
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:244
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:222
 msgid "Active"
 msgstr "Activo"
 
@@ -3917,35 +4311,35 @@ msgstr "Activo"
 msgid "The Coupon doesn't exist."
 msgstr "El cupón no existe."
 
-#: premium-modules/awpcp-coupons/classes/coupon.php:93
+#: premium-modules/awpcp-coupons/classes/coupon.php:91
 msgid "Coupon Code can't be empty."
 msgstr "El código promocional no puede estar vacío."
 
-#: premium-modules/awpcp-coupons/classes/coupon.php:98
+#: premium-modules/awpcp-coupons/classes/coupon.php:96
 msgid "Discount type must be Amount or Percent."
 msgstr "El tipo de descuento debe ser Importe o Porcentaje."
 
-#: premium-modules/awpcp-coupons/classes/coupon.php:103
+#: premium-modules/awpcp-coupons/classes/coupon.php:101
 msgid "Discount value can't be empty."
 msgstr "El valor de descuento no puede estar vacío."
 
-#: premium-modules/awpcp-coupons/classes/coupon.php:107
+#: premium-modules/awpcp-coupons/classes/coupon.php:105
 msgid "Discount must be greater than 0.00."
 msgstr "Descuento debe ser mayor que 0,00."
 
-#: premium-modules/awpcp-coupons/classes/coupon.php:111
+#: premium-modules/awpcp-coupons/classes/coupon.php:109
 msgid "Discount must be greater than 0%%."
 msgstr "Descuento debe ser mayor que 0%%."
 
-#: premium-modules/awpcp-coupons/classes/coupon.php:115
+#: premium-modules/awpcp-coupons/classes/coupon.php:113
 msgid "Discount must be greater less or equal than 100%%."
 msgstr "Descuento debe ser menor o igual que 100%%."
 
-#: premium-modules/awpcp-coupons/classes/coupon.php:119
+#: premium-modules/awpcp-coupons/classes/coupon.php:117
 msgid "Allowed Ad Count must be greater or equal than 0."
 msgstr "El conteno de Anuncios permitido debe ser mayor o igual a 0."
 
-#: premium-modules/awpcp-coupons/classes/coupon.php:127
+#: premium-modules/awpcp-coupons/classes/coupon.php:125
 msgid "Expire Date can't be empty."
 msgstr "Fecha de caducidad no puede estar vacío."
 
@@ -4339,23 +4733,23 @@ msgstr "Actualizar Campo"
 msgid "Select One"
 msgstr "Seleccione Uno"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1306
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1305
 msgid "is required"
 msgstr "se requiere"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1315
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1314
 msgid "is badly formatted. Valid URL format required. Include http://"
 msgstr "está mal formateado. La URL requeride incluir http://\t"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1324
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1323
 msgid "is badly formatted. Valid Email format required."
 msgstr "está mal formateado. Formato de correo electrónico válido requerido."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1333
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1332
 msgid "must be a number."
 msgstr "debe ser un número."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1342
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1341
 msgid "must be a number. Decimal values not allowed."
 msgstr "debe ser un número. Los valores decimales no está permitido."
 
@@ -4370,7 +4764,7 @@ msgid "No featured ads yet!"
 msgstr "No hay anuncios destacados todavía!"
 
 #: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:180
-#: widget-latest-ads.php:170
+#: widget-latest-ads.php:171
 msgid "Read more"
 msgstr "Leer Más"
 
@@ -4475,7 +4869,7 @@ msgctxt "regions module"
 msgid "County"
 msgstr "Condado"
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:31
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:30
 msgid ""
 "An old version of Region Control Module is already loaded. Please remove "
 "awpcp_region_control_module.php from your AWPCP plugin directory."
@@ -4484,7 +4878,7 @@ msgstr ""
 "favor, elimine awpcp_region_control_module.php de su directorio de plugins "
 "AWPCP."
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:129
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:128
 msgctxt "regions module"
 msgid ""
 "Regions of types <strong>%s</strong> were found in level %d of your "
@@ -4495,12 +4889,12 @@ msgstr ""
 "jerarquía. Por favor organice las regiones de forma tal que solo un tipo de "
 "Región aparece en cada nivel de la jerarquía."
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:141
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:140
 msgctxt "regions module"
 msgid "<strong>%d</strong> regions of type <strong>%s</strong>"
 msgstr "<strong>%d</strong> Regiones de tipi <strong>%s</strong>"
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:169
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:168
 msgctxt ""
 "e.g. There are [15 regions of type City and 3 regions of type County] in "
 "level 5. Some of the regions of type [City] are: Petaluma, Santa Rosa, "
@@ -4512,15 +4906,15 @@ msgstr ""
 "Hay %s en el nivel %d. Algunas de las regiones del tipo <strong>%s</strong> "
 "en ese nivel son: <strong>%s</strong>."
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:234
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:233
 msgid "Region Control Settings"
 msgstr "Configuración de Control de Región"
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:236
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:235
 msgid "Show the regions sidelist"
 msgstr "Mostrar la lista lateral de regiones"
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:236
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:235
 msgid ""
 "Show the regions sidelist on category page (used with the Regions Control "
 "module)"
@@ -4528,23 +4922,23 @@ msgstr ""
 "Muestra la lista lateral de regiones en la página de categorías (usado con "
 "el módulo de Control de Regiones)"
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:246
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:245
 msgid "Manage Regions"
 msgstr "Administrar Regiones"
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:247
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:246
 msgid "Regions"
 msgstr "Regiones"
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:315
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:314
 msgid "Displaying listings from %s."
 msgstr "Mostrando anuncios de %s."
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:318
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:317
 msgid "Displaying listings from all locations."
 msgstr "Mostrando anuncios en todas las ubicaciones."
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:714
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:712
 msgid ""
 "Either you did not enter any new regions to add or you did not select the "
 "region type or you did not select the region parent. Please correct the "
@@ -4554,42 +4948,42 @@ msgstr ""
 "región o no selección una región padre. Por favor corrija el problema e "
 "intente de nuevo."
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:719
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:717
 msgid "Only Continent regions can have no parent."
 msgstr "Solo regiones de tipo Continente puden no tener un padre asignado."
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:1008
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:1006
 msgctxt "Edit Region success message"
 msgid "The Region data has been updated."
 msgstr "La información de Región ha sido actualizada "
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:1010
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:1008
 msgctxt "Edit Region error message"
 msgid "You must select a Parent Region. The Region couldn't be updated."
 msgstr ""
 "Debe seleccionar una región de Principal. La Región no se pudo actualizar."
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:1015
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:1013
 msgctxt "Edit Region error message"
 msgid "Unable to update the Region data due to missing Region ID."
 msgstr ""
 "No se pueden actualizar los datos de la región debido a la falta ID de "
 "Región."
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:2212
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:2207
 msgctxt "Parent Region dropdown"
 msgid "-- No Parent --"
 msgstr "-- Sin superior --"
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:2994
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:2988
 msgid "The specified Region does not exists."
 msgstr "La región especificada no existe."
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:3000
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:2994
 msgid "This Region can't be deleted because it has %d subregions."
 msgstr "Esta región no se puede eliminar porque tiene %d subregiones."
 
-#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:3012
+#: premium-modules/awpcp-region-control/awpcp_region_control_module.php:3006
 msgid "The Region can't be deleted because there are %d Ads using it."
 msgstr "La Región no se puede eliminar porque hay %d anuncios que la usan."
 
@@ -4927,27 +5321,27 @@ msgstr ""
 "El Plan de Suscripción no se puede eliminar porque hay %d suscripciones con "
 "ese plan."
 
-#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:96
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:94
 msgid "Subscription Plan can't be empty."
 msgstr "Plan de Suscripción no puede estar vacío."
 
-#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:100
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:98
 msgid "Description can't be empty."
 msgstr "La descripción no puede estar vacía."
 
-#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:104
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:102
 msgid "Price must be a positive number."
 msgstr "El precio debe ser un número positivo."
 
-#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:108
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:106
 msgid "Allowed Ad Count must be greater than 0."
 msgstr "Cantidad de anuncios permitidos debe ser mayor a 0."
 
-#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:113
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:111
 msgid "Duration unit must be one of Day, Month or Year."
 msgstr "Unidad de duración debe ser día, mes o año."
 
-#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:116
+#: premium-modules/awpcp-subscriptions/classes/subscription-plan.php:114
 msgid "Duration amount must be greater than 0."
 msgstr "Duración debe ser mayor que 0."
 
@@ -5260,6 +5654,65 @@ msgstr "Mostrar extracto del anuncio"
 #: widget-latest-ads.php:108
 msgid "AWPCP Latest Ads"
 msgstr "AWPCP Últimos anuncios"
+
+#~ msgid ""
+#~ "*** NOTE the next string is the date format used for the field codes "
+#~ "displayed in the ad.  Change to your local format."
+#~ msgstr ""
+#~ "*** Nota: La cadena siguiente es el formato de fecha que se utiliza para "
+#~ "los campos que aparecen en el anuncio. Cambie a su formato local."
+
+#~ msgid "AWPCP Classifieds Management System - Subscription Plans Management"
+#~ msgstr ""
+#~ "AWPCP Sistema de Administración de Avisos Clasificados: Admistración de "
+#~ "Planes de Subscripción"
+
+#~ msgid "Credits"
+#~ msgstr "Créditos"
+
+#~ msgid "Allowed Ads"
+#~ msgstr "Número de Anuncios Permitidos"
+
+#~ msgid "AWPCP Ad Management Panel - Subscriptions"
+#~ msgstr "AWPCP Panel de Administración de Anuncios - Subscripciones"
+
+#~ msgid "Subscription"
+#~ msgstr "Suscripción"
+
+#~ msgid "Add Subscription"
+#~ msgstr "Agregar Suscripción"
+
+#~ msgid "Buy ubscription"
+#~ msgstr "Comprar Subscripción"
+
+#~ msgctxt "payment term type"
+#~ msgid "Subscription Plan"
+#~ msgstr "Plan de Suscripción"
+
+#~ msgctxt "payment term type"
+#~ msgid "Subscription"
+#~ msgstr "Suscripción"
+
+#~ msgid ""
+#~ "Your Subscription Plan expired on %s. Please renew the subscription or "
+#~ "choose different Payment Term for this Ad.<br/><br/>You can renew your "
+#~ "Subscription Plan choosing <strong>%s</strong> as the Payment Term and "
+#~ "proceeding with Payment."
+#~ msgstr ""
+#~ "Su Plan de Suscripción expiró el %s. Por favor renueve la suscripción o "
+#~ "elija un Término de Pago diferente para este anuncio.<br/><br/>Puede "
+#~ "renovar su Plan de Subscripción eligiendo <strong>%s</strong> como el "
+#~ "Término de Pago y continuar el proceso."
+
+#~ msgid ""
+#~ "Your Subscription is full. You already placed the %d Ads that your "
+#~ "Subscription Plan allowed you to place. Please delete one of the existing "
+#~ "Ads. Go to the %s panel to remove Ads.<br/><br/>You can also choose a "
+#~ "different Payment Term to pay for the current Ad."
+#~ msgstr ""
+#~ "Su Suscripción está llena. Usted ya ha utilizado los %d anuncios que su "
+#~ "plan de suscripción le permite publicar. Por favor elimine uno de los "
+#~ "anuncios existentes. Puede ir al panel de %s para eliminar anuncios."
 
 #~ msgid "Manage Category icon"
 #~ msgstr "Configurar los íconos de la categoría"

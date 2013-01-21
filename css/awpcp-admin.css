@@ -118,6 +118,15 @@
 	margin-right: 15px
 }
 
+/* Settings */
+
+#awpcp-admin-settings .settings-form {
+	padding: 0 6px;
+}
+#awpcp-admin-settings .settings-form label img {
+	vertical-align: middle;
+}
+
 /* Debug Page */
 
 #awpcp-admin-debug .apostboxes table {
@@ -176,4 +185,13 @@
 
 .listcatsh {
 	border: 1px solid #DDD !important;
+}
+
+/* Comments */
+
+#awpcp-admin-comments .comments .column-title {
+	width: 25%;
+}
+#awpcp-admin-comments .comments .column-content {
+	width: 30%;
 }

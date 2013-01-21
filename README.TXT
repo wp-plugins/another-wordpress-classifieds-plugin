@@ -4,8 +4,8 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
 Tested up to: 3.5
-Last Updated: 2013-Jan-3
-Stable tag: tags/2.2
+Last Updated: 2013-Jan-21
+Stable tag: tags/2.2.1
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
@@ -204,9 +204,17 @@ Visit the support forum for [support, FAQs and docs](http://forum.awpcp.com)
 
 Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
 
-[Plugin documentation](http://www.awpcp.com/about-2/)
+[Plugin documentation](http://www.awpcp.com/documentation/)
 
 == Changelog ==
+ = 2.2.1 =
+ Updated translation files for missing strings
+ Bug: Removed bogus file from plugin root directory causing problems on Windows
+ Bug: Added support for IPv6 addresses on posterip column
+ Bug: Fixed problem deleting images so all derived images are removed, not just the main one
+ Bug: Fixed image upload problem where image filenames were dropping the first character of the name
+ Bug: Changed session_start to launch from an init hook to reduce conflicts with other plugins
+ 
  = 2.2 =
  NEW: Official Spanish translation added to AWPCP
  NEW: Added jQuery to plugin for formal regions support

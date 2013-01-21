@@ -13,7 +13,7 @@
 
 			<?php do_action('awpcp-admin-settings-page--' . $group->slug) ?>
 
-			<form action="<?php echo admin_url('options.php') ?>" method="post">
+			<form class="settings-form" action="<?php echo admin_url('options.php') ?>" method="post">
 				<?php settings_fields($awpcp->settings->option); ?>
 				<input type="hidden" name="group" value="<?php echo $group->slug ?>" />
 

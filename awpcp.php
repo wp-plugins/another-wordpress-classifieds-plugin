@@ -3,7 +3,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. <strong>!!!IMPORTANT!!!</strong> Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 2.2
+ Version: 2.2.1-1
  Author: D. Rodenbaugh
  License: GPLv2 or any later version
  Author URI: http://www.skylineconsult.com
@@ -161,6 +161,8 @@ class AWPCP {
 
 	public $flush_rewrite_rules = false;
 
+	private $js_data = array();
+
 	// TODO: I want to register all plugin scripts here, enqueue on demand in each page.
 	// is that a good idea? -@wvega
 
@@ -224,8 +226,8 @@ class AWPCP {
 			// actions and filters from functions_awpcp.php
 			add_action('widgets_init', 'widget_awpcp_search_init');
 			add_action('phpmailer_init','awpcp_phpmailer_init_smtp');
-			add_filter('awpcp_single_ad_layout', 'awpcp_insert_tweet_button', 1, 3);
-			add_filter('awpcp_single_ad_layout', 'awpcp_insert_share_button', 2, 3);
+			add_filter('awpcp-single-ad-layout', 'awpcp_insert_tweet_button', 1, 3);
+			add_filter('awpcp-single-ad-layout', 'awpcp_insert_share_button', 2, 3);
 
 			// actions and filters from awpcp.php
 			add_action('wp_print_scripts', 'awpcpjs',1);
@@ -314,6 +316,8 @@ class AWPCP {
 
 		$js = AWPCP_URL . 'js';
 
+		wp_register_script('awpcp', "{$js}/awpcp.js", array('jquery'), '1.0.0', true);
+
 		wp_register_script('awpcp-admin-general', "{$js}/admin-general.js", array('jquery'), '1.0.0', true);
 		wp_register_script('awpcp-page-place-ad', "{$js}/page-place-ad.js", array('jquery'), false, true);
 
@@ -333,7 +337,17 @@ class AWPCP {
 	}
 
 
+	public function set_js_data($key, $value) {
+		$this->js_data[$key] = $value;
+	}
+
+
 	public function print_scripts() {
+		$data = array_merge(array('ajaxurl' => admin_url('admin-ajax.php')), $this->js_data);
+		wp_localize_script('awpcp', '__awpcp_js_data', $data);
+
+		// TODO: migrate the code below to use set_js_data to pass information
+		// to AWPCP scripts.
 		$options = array(
 			'ajaxurl' => awpcp_ajaxurl()
 		);
@@ -401,7 +415,6 @@ class AWPCP {
 
 		foreach($missing as $page) {
 			$refname = $page->page;
-
 			$name = get_awpcp_option($refname);
 			if (strcmp($refname, 'main-page-name') == 0) {
 				awpcp_create_pages($name, $subpages=false);
@@ -512,7 +525,7 @@ function awpcpjs() {
 
 	wp_enqueue_script('jquery');
 	wp_enqueue_script('jquery-form');
-
+	
 	if (!get_awpcp_option('awpcp_thickbox_disabled')) {
 		wp_enqueue_script('thickbox');
 	}
