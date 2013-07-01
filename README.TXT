@@ -12,11 +12,11 @@ AWPCP Classifieds:  Great for increasing retention to your site, adding revenue 
 
 == Description ==
 
-[Main Site](http://awpcp.com/) | [Support Forum](http://awpcp.com/forum/) | [Documentation](http://awpcp.com/docs/) | [Showcase](http://awpcp.com/showcase/) | [Premium Modules](http://awpcp.com/premium-module/?ref=wp)
+[Main Site](http://awpcp.com/) | [Support Forum](http://awpcp.com/forum/) | [Documentation](http://awpcp.com/docs/) | [Showcase](http://awpcp.com/showcase/) | [Premium Modules](http://awpcp.com/premium-modules/)
 
 Add a classified ads section to your Wordpress site, quickly and easily.  
 Lots of features, very configurable.  Easy to setup.  Great support.
-We're the #1 Wordpress Classified Ads Plugin: four+ years old and 180,000+ downloads!
+We're the #1 Wordpress Classified Ads Plugin: 4+ years old and 200,000+ downloads!
 
 NEW modules:  Comments/Ratings, Authorize.net and PayPal Pro Gateways!
 
@@ -108,11 +108,11 @@ Features:
     9. Subscriptions (allows power users to place blocks of ads at a time,
        great for real estate agents, car dealers, anyone who wants to place ads in
        bulk.)
-   10. **NEW** Comments/Ratings (allows users to rate ads and place comments on them.)
-   11. **NEW** Authorize.net Payment Gateway (allows users to purchase ads, subscriptions
-       and credit plans using Authorize.net)
-   12. **NEW** PayPal Pro Support (allows you to have an embedded payment form on your site
-       for use with PayPal Pro accounts)
+    10. **NEW** Comments/Ratings (allows users to rate ads and place comments on them.)
+    11. **NEW** Authorize.net Payment Gateway (allows users to purchase ads, subscriptions
+        and credit plans using Authorize.net)
+    12. **NEW** PayPal Pro Support (allows you to have an embedded payment form on your site
+        for use with PayPal Pro accounts)
 
 = Premium Module Links: =
 
