@@ -10,7 +10,7 @@
 
 <?php _e("Listing Edit Email", "AWPCP") ?>: <?php echo $ad->ad_contact_email ?>
 
-<?php _e("Listing Edit Key", "AWPCP") ?>: <?php echo $ad->ad_key ?>
+<?php _e("Listing Edit Key", "AWPCP") ?>: <?php echo $ad->get_access_key() ?>
 
 <?php _e("Listing End Date", "AWPCP") ?>: <?php echo $ad->get_end_date() ?>
 
@@ -18,7 +18,8 @@
 
 <?php
     $text = __("If you have questions about your listing, please contact %s.", 'AWPCP');
-    echo sprintf($text, $thisadminemail); ?>
+    echo sprintf( $text, awpcp_admin_recipient_email_address() );
+?>
 
 
 <?php _e('Thank you for your business', 'AWPCP') ?>

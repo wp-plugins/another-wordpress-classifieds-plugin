@@ -3,14 +3,15 @@
 	<div class="page-content">
 
 		<?php $href = add_query_arg(array('action' => 'place-ad'), $controller->url); ?>
-		<h2 class="awpcp-page-header"><?php echo $controller->page_title ?><a class="button-primary alignright" title="Place Ad" href="<?php echo $href ?>" accesskey="s">Place Ad</a></h2>
+		<?php $place_ad = __('Place Ad', 'AWPCP'); ?>
+		<h2 class="awpcp-page-header"><?php echo $controller->page_title ?><a class="button-primary alignright" title="<?php echo $place_ad ?>" href="<?php echo $href ?>" accesskey="s"><?php $place_ad ?></a></h2>
 
 		<?php if (isset($controller->message)): ?>
 		<div id="message" class="updated"><?php echo $controller->message ?></div>
 		<?php endif ?>
 
 		<div class="awpcp-main-content">
-			
+
 			<div id="lookup-ads-by" class="row clearfix">
 				<div class="legend">
 					<b><?php _e('Look Up Ad By', 'AWPCP') ?></b>
@@ -19,13 +20,13 @@
 					<form method="post">
 					<?php $filter = !empty($filter) ? $filter : 'titdet' ?>
 					<?php foreach($filter_by as $f => $label): ?>
-						<input type="radio" value="<?php echo $f ?>" 
-							<?php echo ($f == $filter) ? 'checked="checked"' : '' ?> 
+						<input type="radio" value="<?php echo $f ?>"
+							<?php echo ($f == $filter) ? 'checked="checked"' : '' ?>
 							name="lookupadbychoices"><?php echo $label ?>
 					<?php endforeach ?>
 						<input type="text" value="<?php echo $query ?>" name="lookupadidortitle">
 						<input type="hidden" value="lookupadby" name="action">
-						<input class="button" type="submit" value="Look Up Ad">
+						<input class="button" type="submit" value="<?php _e('Look Up Ad', 'AWPCP'); ?>">
 					</form>
 				</div>
 			</div>
@@ -91,14 +92,14 @@
 
 			<form class="bulk-delete-form" action="<?php echo $controller->url ?>" method="post">
 			<input type="hidden" name="action" value="delete-selected" />
-			<input type="button" class="button trash-selected" value="Delete Selected Ads">
+			<input type="button" class="button trash-selected" value="<?php _e('Delete Selected Ads', 'AWPCP'); ?>">
 
 			<table class="widefat fixed">
 				<thead>
 					<tr>
 						<th style="width:18px"><input type="checkbox" onclick="jQuery(this).toggleCheckboxes();" /></th>
 						<th><?php _e("Ad Headline","AWPCP") ?></th>
-						<th style="width:30%"><?php _e("Manage Ad","AWPCP") ?></th>
+						<th style="width:30%"><?php _e("Manage Ad", "AWPCP"); ?></th>
 						<?php /*if ($charge_listing_fee): ?>
 						<th><?php _e('Pay Status', 'AWPCP') ?></th>
 						<?php endif*/ // needed in Classifieds->Listings, but not here ?> 

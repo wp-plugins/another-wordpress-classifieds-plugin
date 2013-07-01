@@ -1,13 +1,5 @@
 <?php
 
-if (!function_exists('imagecreatefrompng')) {
-	$message="<div style=\"background-color: #FF99CC;\" id=\"message\" class=\"updated fade\">";
-	$message.=__("AWPCP requires the graphics processing library GD and it is not installed.  Contact your web host to fix this.","AWPCP");
-	$message.="</div>";
-	echo $message;
-	die;
-}
-
 
 /**
  * @param $file A $_FILES item
@@ -16,8 +8,12 @@ function awpcp_upload_image_file($directory, $filename, $tmpname, $min_size, $ma
 	$filename = sanitize_file_name($filename);
 	$newname = wp_unique_filename($directory, $filename);
 	$newpath = trailingslashit($directory) . $newname;
-	$ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
+	if ( !file_exists( $tmpname ) ) {
+		return sprintf( __( 'The specified image file does not exists: %s.', 'AWPCP' ), $filename );
+	}
+
+	$ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 	$imginfo = getimagesize($tmpname);
 	$size = filesize($tmpname);
 
@@ -60,7 +56,7 @@ function awpcp_upload_image_file($directory, $filename, $tmpname, $min_size, $ma
 	}
 
 	if ($uploaded && !@move_uploaded_file($tmpname, $newpath)) {
-		$message = __('The file % could not be moved to the destination directory.', 'AWPCP');
+		$message = __('The file %s could not be moved to the destination directory.', 'AWPCP');
 		return sprintf($message, $filename);
 
 	} else if (!$uploaded && !@copy($tmpname, $newpath)) {
@@ -98,7 +94,7 @@ function admin_handleimagesupload($adid) {
 		if ($images_left > 0) {
 			$filename = awpcp_array_data('name', '', $_FILES['awpcp_add_file']);
 			$tmpname = awpcp_array_data('tmp_name', '', $_FILES['awpcp_add_file']);
-			$result = awpcp_upload_image_file($images_dir, $filename, $tmpname, 
+			$result = awpcp_upload_image_file($images_dir, $filename, $tmpname,
 											  $min_size, $max_size, $min_width, $min_height);
 		} else {
 			$message = __('No more images can be added to this Ad. The Ad already have %d of %d images allowed.', 'AWPCP');
@@ -197,7 +193,7 @@ function awpcp_setup_uploads_dir() {
 	$upload_dir = $wpcontentdir . '/' . $upload_dir_name . '/';
 
 	// Required to set permission on main upload directory
-	require_once(AWPCP_DIR . 'fileop.class.php');
+	require_once(AWPCP_DIR . '/fileop.class.php');
 
 	$fileop = new fileop();
 	$owner = fileowner($wpcontentdir);
@@ -307,317 +303,8 @@ function awpcp_handle_uploaded_images($ad_id, &$form_errors=array()) {
 
 function handleimagesupload($adid, $adtermid, $nextstep, $adpaymethod, $adaction, $adkey) {
 	return awpcp_handle_uploaded_images($ad_id);
-
-	// if(isset($_REQUEST['adid']) && !empty($_REQUEST['adid'])){
-	// 	$adid=$_REQUEST['adid'];
-	// } else {
-	// 	$adid='';
-	// }
-	// if(isset($_REQUEST['adtermid']) && !empty($_REQUEST['adtermid'])){
-	// 	$adtermid=$_REQUEST['adtermid'];
-	// } else {
-	// 	$adtermid='';
-	// }
-	// if(isset($_REQUEST['nextstep']) && !empty($_REQUEST['nextstep'])){
-	// 	$nextstep=$_REQUEST['nextstep'];
-	// }
-	// if(isset($_REQUEST['adpaymethod']) && !empty($_REQUEST['adpaymethod'])){
-	// 	$adpaymethod=$_REQUEST['adpaymethod'];
-	// }
-	// if(isset($_REQUEST['adaction']) && !empty($_REQUEST['adaction'])){
-	// 	$adaction=$_REQUEST['adaction'];
-	// }
-	// if(isset($_REQUEST['adkey']) && !empty($_REQUEST['adkey'])){
-	// 	$adkey=$_REQUEST['adkey'];
-	// }
-
-	// $awpcp_main_folder = $themainawpcpuploaddir;
-	// $awpcp_thumb_folder = $themainawpcpuploadthumbsdir;
-	// $awpcp_allowedextensions = array(".jpg", ".gif", ".png");
-	// $twidth=get_awpcp_option('imgthumbwidth');
-	// // if(get_awpcp_option('freepay') == 1)
-	// // {
-	// // 	if($adtermid != -1)
-	// // 	{
-	// // 		$numimgsallowed=get_numimgsallowed($adtermid);
-	// // 	}
-	// // 	else
-	// // 	{
-	// // 		$numimgsallowed=get_awpcp_option('imagesallowedfree');
-	// // 	}
-	// // }
-	// // else
-	// // {
-	// // 	$numimgsallowed=get_awpcp_option('imagesallowedfree');
-	// // }
-	// $numimgsallowed = awpcp_get_ad_number_allowed_images($adid, $adtermid);
-
-	// if(adidexists($adid))
-	// {
-	// 	$totalimagesuploaded=get_total_imagesuploaded($adid);
-	// }
-
-	// $numimgsleft = ($numimgsallowed - $totalimagesuploaded);
-
-	// $errornofiles=true;
-	// $awpcpuerror=array();
-
-	// for ($i=0;$i<$numimgsleft;$i++)
-	// {
-	// 	$theuploadedfilename = $_FILES['AWPCPfileToUpload'. $i]['name'];
-
-	// 	if(!empty($theuploadedfilename))
-	// 	{
-	// 		$errornofiles=false;
-	// 	}
-	// }
-	// if ($errornofiles)
-	// {
-	// 	$awpcpuerror[]="<p class=\"uploaderror\">";
-	// 	$awpcpuerror[].=__("No file was selected","AWPCP");
-	// 	$awpcpuerror[].="</p>";
-	// 	$awpcpuploadformshow=display_awpcp_image_upload_form($adid,$adtermid,$adkey,$adaction,$nextstep,$adpaymethod,$awpcpuerror);
-	// 	$output .= $awpcpuploadformshow;
-	// }
-	// else
-	// {
-	// 	$output .= awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidth,$nextstep,$adpaymethod,$adaction,$awpcp_main_folder,'AWPCPfileToUpload');
-	// }
-	// return $output;
 }
 
-
-// function awpcpuploadimages($adid,$adtermid,$adkey,$imgmaxsize,$imgminsize,$twidth,$nextstep,$adpaymethod,$adaction,$destdir,$actual_field_name,$required=false) 
-// {
-// 	$output = '';
-// 	global $wpdb;
-// 	$tbl_ad_photos = $wpdb->prefix . "awpcp_adphotos";
-// 	$awpcpupdatinserted=false;
-// 	$awpcpuploaderror=false;
-// 	$awpcpfilesuploaded=true;
-// 	$awpcpuerror=array();
-
-// 	if(adidexists($adid)) {
-// 		$totalimagesuploaded=get_total_imagesuploaded($adid);
-// 	}
-
-// 	$numimgsallowed = awpcp_get_ad_number_allowed_images($adid, $adtermid);
-
-// 	$numimgsleft = ($numimgsallowed - $totalimagesuploaded);
-// 	//debug("num imgs left: $numimgsleft");
-// 	for ($i = 0; $i < $numimgsleft; $i++) {
-// 		//debug("num imgs left: $numimgsleft, i: $i");
-// 		$filename = addslashes($_FILES[$actual_field_name.$i]['name']);
-// 		$ext = strtolower(substr(strrchr($_FILES[$actual_field_name.$i]['name'],"."),1));
-// 		$ext_array = array('gif','jpg','jpeg','png');
-
-// 		if (isset($_FILES[$actual_field_name.$i]['tmp_name']) && 
-// 			is_uploaded_file($_FILES[$actual_field_name.$i]['tmp_name'])) {
-// 			$imginfo = getimagesize($_FILES[$actual_field_name.$i]['tmp_name']);
-// 			$imgfilesizeval=filesize($_FILES[$actual_field_name.$i]['tmp_name']);
-
-// 			$desired_filename = mktime();
-// 			$desired_filename .= "_$i";
-
-// 			if(isset($filename) && !empty($filename)) {
-// 				if (!(in_array($ext, $ext_array))) {
-// 					$awpcpuploaderror=true;
-// 					$awpcpuerror[].="<p class=\"uploaderror\">[$filename]";
-// 					$awpcpuerror[].=__(" had an invalid file extension and was not uploaded","AWPCP");
-// 					$awpcpuerror[].="</p>";
-// 				}
-// 				elseif(filesize($_FILES[$actual_field_name.$i]['tmp_name']) <= $imgminsize)
-// 				{
-// 					$awpcpuploaderror=true;
-// 					$awpcpuerror[].="<p class=\"uploaderror\">";
-// 					$awpcpuerror[].=sprintf(__("The size of %1$s was too small. The file was not uploaded. File size must be greater than %2$d bytes", "AWPCP"), $filename, $imgminsize);
-// 					$awpcpuerror[].="</p>";
-// 				}
-// 				elseif($imginfo[0]< $twidth)
-// 				{
-// 					// width is too short
-// 					$awpcpuploaderror=true;
-// 					$awpcpuerror[].="<p class=\"uploaderror\">[$filename]";
-// 					$awpcpuerror[].=sprintf(__(" did not meet the minimum width of [%s] pixels. The file was not uploaded", "AWPCP"), $twidth);
-// 					$awpcpuerror[].="</p>";
-// 				}
-// 				elseif ($imginfo[1]< $twidth)
-// 				{
-// 					// height is too short
-// 					$awpcpuploaderror=true;
-// 					$awpcpuerror[].="<p class=\"uploaderror\">[$filename]";
-// 					$awpcpuerror[].=sprintf(__(" did not meet the minimum height of [%s] pixels. The file was not uploaded", "AWPCP"), $twidth);
-// 					$awpcpuerror[].="</p>";
-// 				}
-// 				elseif(!isset($imginfo[0]) && !isset($imginfo[1]))
-// 				{
-// 					$awpcpuploaderror=true;
-// 					$awpcpuerror[].="<p class=\"uploaderror\">[$filename]";
-// 					$awpcpuerror[].=__(" does not appear to be a valid image file","AWPCP");
-// 					$awpcpuerror[].="</p>";
-// 				}
-// 				elseif( $imgfilesizeval > $imgmaxsize )
-// 				{
-// 					$awpcpuploaderror=true;
-// 					$awpcpuerror[].="<p class=\"uploaderror\">[$filename]";
-// 					$awpcpuerror[].=sprintf(__(" was larger than the maximum allowed file size of [%s] bytes. The file was not uploaded", "AWPCP"), $imgmaxsize);
-// 					$awpcpuerror[].="</p>";
-// 				} elseif(!empty($desired_filename)) {
-// 					//debug('uploading...');
-// 					$filename="$desired_filename.$ext";
-
-// 					if (!move_uploaded_file($_FILES[$actual_field_name.$i]['tmp_name'],$destdir.'/'.$filename)) {
-// 						$orfilename=$filename;
-// 						$filename='';
-// 						$awpcpuploaderror=true;
-// 						$awpcpuerror[].="<p class=\"uploaderror\">[$orfilename]";
-// 						$awpcpuerror[].=__(" could not be moved to the destination directory","AWPCP");
-// 						$awpcpuerror[].="</p>";
-// 					} else {
-// 						awpcp_resizer($filename, $destdir); 
-
-// 						if(!awpcpcreatethumb($filename,$destdir,$twidth)) {
-// 							$awpcpuploaderror=true;
-// 							$awpcpuerror[].="<p class=\"uploaderror\">";
-// 							$awpcpuerror[].=sprintf(__("Could not create thumbnail image of [ %s ]", "AWPCP"), $filename);
-// 							$awpcpuerror[].="</p>";
-// 						}
-
-// 						@chmod($destdir.'/'.$filename,0644);
-
-// 						$ctiu = get_total_imagesuploaded($adid);
-
-// 						if(get_awpcp_option('imagesapprove') == 1) {
-// 							$disabled=1;
-// 						} else {
-// 							$disabled=0;
-// 						}
-
-// 						if($ctiu < $numimgsallowed) {
-// 							$query="INSERT INTO ".$tbl_ad_photos." SET image_name='$filename',ad_id='$adid',disabled='$disabled'";
-// 							if (!($res=@mysql_query($query))) {
-// 								sqlerrorhandler("(".mysql_errno().") ".mysql_error(), $query, $_SERVER['PHP_SELF'], __LINE__);
-// 							}
-// 						}
-
-// 						$awpcpupdatinserted=true;
-
-// 						if(!($awpcpupdatinserted)) {
-// 							$awpcpuploaderror=true;
-// 							$awpcpuerror[].="<p class=\"uploaderror\">";
-// 							$awpcpuerror[].=sprintf(__("Could not save the information to the database for [ %s ]", "AWPCP"), $filename);
-// 							$awpcpuerror[].="</p>";
-// 						}
-// 					}
-// 				}
-// 			} else {
-// 				$awpcpuploaderror=true;
-// 				$awpcpuerror[].="<p class=\"uploaderror\">";
-// 				$awpcpuerror[].=__("Unknown error encountered uploading image","AWPCP");
-// 				$awpcpuerror[].="</p>";
-// 			}
-// 		}
-
-// 		//debug($awpcpuerror);
-// 	} // Close for $i...
-
-// 	if ($awpcpuploaderror)
-// 	{
-// 		$awpcpuploadformshow=display_awpcp_image_upload_form($adid,$adtermid,$adkey,$adaction,$nextstep,$adpaymethod,$awpcpuerror);
-// 		$output .= $awpcpuploadformshow;
-// 	}
-// 	elseif(!($awpcpfilesuploaded))
-// 	{
-// 		$awpcpuerror[]="<p class=\"uploaderror\">";
-// 		$awpcpuerror[].=__("One or more images failed to be uploaded","AWPCP");
-// 		$awpcpuerror[].="</p>";
-// 		$awpcpuploadformshow=display_awpcp_image_upload_form($adid,$adtermid,$adkey,$adaction,$nextstep,$adpaymethod,$awpcpuerror);
-// 		$output .= $awpcpuploadformshow;
-// 	}
-// 	else
-// 	{
-// 		if(($nextstep == 'finish') && ($adaction == 'editad')) {
-// 			$awpcpadpostedmsg=__("Your ad has been submitted","AWPCP");
-
-// 			if(get_awpcp_option('adapprove') == 1)
-// 			{
-// 				$awaitingapprovalmsg=get_awpcp_option('notice_awaiting_approval_ad');
-// 				$awpcpadpostedmsg.="<p>";
-// 				$awpcpadpostedmsg.=$awaitingapprovalmsg;
-// 				$awpcpadpostedmsg.="</p>";
-// 			}
-// 			if(get_awpcp_option('imagesapprove') == 1)
-// 			{
-// 				$imagesawaitingapprovalmsg=__("If you have uploaded images your images will not show up until an admin has approved them.","AWPCP");
-// 				$awpcpadpostedmsg.="<p>";
-// 				$awpcpadpostedmsg.=$imagesawaitingapprovalmsg;
-// 				$awpcpadpostedmsg.="</p>";
-// 			}
-
-// 			$awpcpshowadsample=1;
-// 			$awpcpsubmissionresultmessage ='';
-// 			$message='';
-// 			$awpcpsubmissionresultmessage =ad_success_email($adid,$txn_id='',$adkey,$awpcpadpostedmsg,$gateway='');
-
-// 			$output .= "<div id=\"classiwrapper\">";
-// 			$output .= '<p class="ad_status_msg">';
-// 			$output .= $awpcpsubmissionresultmessage;
-// 			$output .= "</p>";
-// 			$output .= awpcp_menu_items();
-// 			if($awpcpshowadsample == 1)
-// 			{
-// 				$output .= '<h2 class="ad-posted">';
-// 				$output .= __("You Ad is posted","AWPCP");
-// 				$output .= "</h2>";
-// 				$output .= showad($adid,$omitmenu=1);
-// 			}
-// 			$output .= "</div>";
-// 		}
-
-// 		elseif($nextstep == 'payment') {
-// 			// Move to next step in process
-// 			$output .= processadstep3($adid,$adtermid,$adkey,$adpaymethod);
-// 		} else {
-// 			$awpcpadpostedmsg=__("Your ad has been submitted","AWPCP");
-
-// 			if(get_awpcp_option('adapprove') == 1)
-// 			{
-// 				$awaitingapprovalmsg=get_awpcp_option('notice_awaiting_approval_ad');
-// 				$awpcpadpostedmsg.="<p>";
-// 				$awpcpadpostedmsg.=$awaitingapprovalmsg;
-// 				$awpcpadpostedmsg.="</p>";
-// 			}
-// 			if(get_awpcp_option('imagesapprove') == 1)
-// 			{
-// 				$imagesawaitingapprovalmsg=__("If you have uploaded images your images will not show up until an admin has approved them.","AWPCP");
-// 				$awpcpadpostedmsg.="<p>";
-// 				$awpcpadpostedmsg.=$imagesawaitingapprovalmsg;
-// 				$awpcpadpostedmsg.="</p>";
-// 			}
-
-// 			$awpcpshowadsample=1;
-// 			$awpcpsubmissionresultmessage ='';
-// 			$message='';
-// 			$awpcpsubmissionresultmessage = ad_success_email($adid,$txn_id='',$adkey,$awpcpadpostedmsg,$gateway='');
-
-// 			$output .= "<div id=\"classiwrapper\">";
-// 			$output .= awpcp_menu_items();
-// 			$output .= '<p class="ad_status_msg">';
-// 			$output .= $awpcpsubmissionresultmessage;
-// 			$output .= "</p>";
-// 			if($awpcpshowadsample == 1)
-// 			{
-// 				$output .= "<h2>";
-// 				$output .= __("Your Ad is posted","AWPCP");
-// 				$output .= "</h2>";
-// 				$output .= showad($adid,$omitmenu=1,$preview=true,$send_email=false);
-// 			}
-// 			$output .= "</div>";
-// 		}
-// 	}
-
-// 	return $output;
-// }
 
 /**
  * Create thumbnails and resize original image to match image size 

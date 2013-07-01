@@ -1,33 +1,34 @@
 <?php
 
-class AWPCP_Admin_Uninstall {
-	
-	public function AWPCP_Admin_Uninstall() {
-		// global $awpcp;
-		// $page = strtolower($awpcp->admin->title) . '_page_' . 'awpcp-admin-settings';
-		// add_action('admin_print_styles_' . $page, array($this, 'scripts'));
-	}
+require_once(AWPCP_DIR . '/classes/helpers/admin-page.php');
 
-	public function scripts() {
-	}
 
-	public function dispatch() {
-		global $awpcp, $message;
+class AWPCP_Admin_Uninstall extends AWPCP_AdminPage {
 
-		$action = awpcp_request_param('action', 'confirm');
-		$url = awpcp_current_url();
+    public function AWPCP_Admin_Uninstall() {
+        parent::__construct(
+            'awpcp-admin-uninstall',
+            __('Uninstall AWPCP Classifieds Management System', 'AWPCP'),
+            __('Uninstall', 'AWPCP'));
+    }
 
-		if (strcmp($action, 'uninstall') == 0) {
-			$awpcp->installer->uninstall();
-		} else {
-			$dirname = AWPCPUPLOADDIR;
-		}
+    public function scripts() {
+    }
 
-		ob_start();
-			include(AWPCP_DIR . 'admin/templates/admin-panel-uninstall.tpl.php');
-			$content = ob_get_contents();
-		ob_end_clean();
+    public function dispatch() {
+        global $awpcp, $message;
 
-		echo $content;
-	}
+        $action = awpcp_request_param('action', 'confirm');
+        $url = awpcp_current_url();
+        $dirname = AWPCPUPLOADDIR;
+
+        if (strcmp($action, 'uninstall') == 0) {
+            $awpcp->installer->uninstall();
+        }
+
+        $template = AWPCP_DIR . '/admin/templates/admin-panel-uninstall.tpl.php';
+        $params = compact('action', 'url', 'dirname');
+
+        echo $this->render($template, $params);
+    }
 }

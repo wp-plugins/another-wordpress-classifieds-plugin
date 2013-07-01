@@ -3,7 +3,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. <strong>!!!IMPORTANT!!!</strong> Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 2.2.1
+ Version: 3.0
  Author: D. Rodenbaugh
  License: GPLv2 or any later version
  Author URI: http://www.skylineconsult.com
@@ -33,49 +33,55 @@ if (preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) {
 }
 
 
-define('AWPCP_BASENAME', trailingslashit(basename(dirname(__FILE__))));
-define('AWPCP_DIR', WP_CONTENT_DIR . '/plugins/' . AWPCP_BASENAME);
-define('AWPCP_URL', WP_CONTENT_URL . '/plugins/' . AWPCP_BASENAME);
+define('AWPCP_BASENAME', basename(dirname(__FILE__)));
+define('AWPCP_DIR', WP_PLUGIN_DIR . '/' . AWPCP_BASENAME);
+define('AWPCP_URL', WP_PLUGIN_URL . '/' . AWPCP_BASENAME);
 
 // TODO: Why do we need a custom error handler?
-// Set custom error handler functions
-function AWPCPErrorHandler($errno, $errstr, $errfile, $errline){
-	$output = '';
-	switch ($errno) {
-		case E_USER_ERROR:
-			if ($errstr == "(SQL)"){
-				// handling an sql error
-				$output .= "<b>AWPCP SQL Error</b> Errno: [$errno] SQLError:" . SQLMESSAGE . "<br />\n";
-				$output .= "Query : " . SQLQUERY . "<br />\n";
-				$output .= "Called by line " . SQLERRORLINE . " in file " . SQLERRORFILE . ", error in ".$errfile." at line ".$errline;
-				$output .= ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
-				$output .= "Aborting...<br />\n";
-			} else {
-				$output .= "<b>AWPCP PHP Error</b> [$errno] $errstr<br />\n";
-				$output .= "  Fatal error called by line $errline in file $errfile, error in ".$errfile." at line ".$errline;
-				$output .= ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
-				$output .= "Aborting...<br />\n";
-			}
-			//Echo OK here:
-			echo $output;
-			exit(1);
-			break;
+if (!function_exists('AWPCPErrorHandler')) {
 
-		case E_USER_WARNING:
-		case E_USER_NOTICE:
+	/**
+	 * Set custom error handler functions.
+	 */
+	function AWPCPErrorHandler($errno, $errstr, $errfile, $errline){
+		$output = '';
+		switch ($errno) {
+			case E_USER_ERROR:
+				if ($errstr == "(SQL)"){
+					// handling an sql error
+					$output .= "<b>AWPCP SQL Error</b> Errno: [$errno] SQLError:" . SQLMESSAGE . "<br />\n";
+					$output .= "Query : " . SQLQUERY . "<br />\n";
+					$output .= "Called by line " . SQLERRORLINE . " in file " . SQLERRORFILE . ", error in ".$errfile." at line ".$errline;
+					$output .= ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+					$output .= "Aborting...<br />\n";
+				} else {
+					$output .= "<b>AWPCP PHP Error</b> [$errno] $errstr<br />\n";
+					$output .= "  Fatal error called by line $errline in file $errfile, error in ".$errfile." at line ".$errline;
+					$output .= ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+					$output .= "Aborting...<br />\n";
+				}
+				//Echo OK here:
+				echo $output;
+				exit(1);
+				break;
+
+			case E_USER_WARNING:
+			case E_USER_NOTICE:
+		}
+		/* true=Don't execute PHP internal error handler */
+		return true;
 	}
-	/* true=Don't execute PHP internal error handler */
-	return true;
+
 }
 
-if (file_exists(AWPCP_DIR . 'DEBUG')) {
+if (file_exists(AWPCP_DIR . '/DEBUG')) {
 	// let's see some errors
 } else {
 	set_error_handler("AWPCPErrorHandler");
 }
 
+global $awpcp;
 
-global $wpdb; // XXX: do we need $wpdb this here? --@wvega
 global $awpcp_plugin_data;
 global $awpcp_db_version;
 
@@ -87,12 +93,11 @@ global $imagespath;
 global $awpcp_imagesurl;
 
 global $nameofsite;
-global $thisadminemail;
 
 
 // get_plugin_data accounts for about 2% of the cost of
 // each request, defining the version manually is a less
-// expensive way.
+// expensive way --wvega
 require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 $awpcp_plugin_data = get_plugin_data(__FILE__);
 $awpcp_db_version = $awpcp_plugin_data['Version'];
@@ -101,75 +106,108 @@ $wpcontenturl = WP_CONTENT_URL;
 $wpcontentdir = WP_CONTENT_DIR;
 $awpcp_plugin_path = AWPCP_DIR;
 $awpcp_plugin_url = AWPCP_URL;
-$imagespath = $awpcp_plugin_path . 'images';
-$awpcp_imagesurl = $awpcp_plugin_url .'images';
-
-$nameofsite = get_option('blogname');
-$thisadminemail = get_option('admin_email');
-
+$imagespath = $awpcp_plugin_path . '/images';
+$awpcp_imagesurl = $awpcp_plugin_url .'/images';
 
 
 // common
-require_once(AWPCP_DIR . "debug.php");
-require_once(AWPCP_DIR . "functions.php");
-require_once(AWPCP_DIR . "cron.php");
+require_once(AWPCP_DIR . "/debug.php");
+require_once(AWPCP_DIR . "/functions.php");
+
+$nameofsite = awpcp_get_blog_name();
+
+// cron
+require_once(AWPCP_DIR . "/cron.php");
 
 // other resources
-require_once(AWPCP_DIR . "dcfunctions.php");
-require_once(AWPCP_DIR . "awpcp_search_widget.php");
-require_once(AWPCP_DIR . "functions_awpcp.php");
-require_once(AWPCP_DIR . "upload_awpcp.php");
+require_once(AWPCP_DIR . "/dcfunctions.php");
+require_once(AWPCP_DIR . "/functions_awpcp.php");
+require_once(AWPCP_DIR . "/upload_awpcp.php");
 
 // API & Classes
-require_once(AWPCP_DIR . "classes/models/ad.php");
-require_once(AWPCP_DIR . "classes/models/category.php");
-require_once(AWPCP_DIR . "classes/models/image.php");
-require_once(AWPCP_DIR . "classes/models/payment-transaction.php");
+require_once(AWPCP_DIR . "/classes/compatibility/compatibility.php");
 
-require_once(AWPCP_DIR . "classes/helpers/list-table.php");
+require_once(AWPCP_DIR . "/classes/helpers/list-table.php");
+require_once(AWPCP_DIR . "/classes/helpers/email.php");
+require_once(AWPCP_DIR . "/classes/helpers/javascript.php");
+require_once(AWPCP_DIR . "/classes/helpers/captcha.php");
 
-require_once(AWPCP_DIR . "classes/settings-api.php");
+require_once(AWPCP_DIR . "/classes/models/ad.php");
+require_once(AWPCP_DIR . "/classes/models/category.php");
+require_once(AWPCP_DIR . "/classes/models/image.php");
+require_once(AWPCP_DIR . "/classes/models/payment-transaction.php");
 
-require_once(AWPCP_DIR . "widget-latest-ads.php");
+require_once(AWPCP_DIR . "/classes/settings-api.php");
+require_once(AWPCP_DIR . "/classes/payments-api.php");
+
+require_once(AWPCP_DIR . "/classes/credit-plan.php");
+
+require_once(AWPCP_DIR . "/classes/payment-term-type.php");
+require_once(AWPCP_DIR . "/classes/payment-term.php");
+require_once(AWPCP_DIR . "/classes/payment-term-fee-type.php");
+require_once(AWPCP_DIR . "/classes/payment-term-fee.php");
+
+require_once(AWPCP_DIR . "/classes/payment-gateway.php");
+require_once(AWPCP_DIR . "/classes/payment-gateway-paypal-standard.php");
+require_once(AWPCP_DIR . "/classes/payment-gateway-2checkout.php");
+
+require_once(AWPCP_DIR . "/classes/payment-terms-table.php");
 
 // installation functions
-require_once(AWPCP_DIR . "install.php");
+require_once(AWPCP_DIR . "/install.php");
 
 // admin functions
-require_once(AWPCP_DIR . "admin/admin-panel.php");
-require_once(AWPCP_DIR . "admin/user-panel.php");
+require_once(AWPCP_DIR . "/admin/admin-panel.php");
+require_once(AWPCP_DIR . "/admin/user-panel.php");
 
 // frontend functions
-require_once(AWPCP_DIR . "frontend/payment-functions.php");
-require_once(AWPCP_DIR . "frontend/ad-functions.php");
-require_once(AWPCP_DIR . "frontend/shortcode.php");
+require_once(AWPCP_DIR . "/frontend/placeholders.php");
+require_once(AWPCP_DIR . "/frontend/payment-functions.php");
+require_once(AWPCP_DIR . "/frontend/ad-functions.php");
+require_once(AWPCP_DIR . "/frontend/shortcode.php");
 
-// modules (in development)
-
+require_once(AWPCP_DIR . "/frontend/widget-search.php");
+require_once(AWPCP_DIR . "/frontend/widget-latest-ads.php");
+require_once(AWPCP_DIR . "/frontend/widget-random-ad.php");
+require_once(AWPCP_DIR . "/frontend/widget-categories.php");
 
 
 class AWPCP {
 
-	// Admin section
-	public $admin = null;
-	// User Ad Management panel
-	public $panel = null;
-	// Frontend pages
-	public $pages = null;
-	// Settings API -- not the one from WP
+	public $installer = null;
+
+	public $admin = null; // Admin section
+	public $panel = null; // User Ad Management panel
+	public $pages = null; // Frontend pages
+
 	public $settings = null;
+	public $payments = null;
+	public $js = null;
 
 	public $flush_rewrite_rules = false;
-
-	private $js_data = array();
 
 	// TODO: I want to register all plugin scripts here, enqueue on demand in each page.
 	// is that a good idea? -@wvega
 
 	public function __construct() {
-		// we need to instatiate this here, because some options are
-		// consulted before plugins_loaded...
-		$this->settings = new AWPCP_Settings_API();
+		// stored options are loaded when the settings API is instatiated
+		$this->settings = AWPCP_Settings_API::instance();
+
+		$this->js = AWPCP_JavaScript::instance();
+
+		// l10n MO file can be in the top level directory or inside the languages
+		// directory. A file inside the languages directory is prefered.
+		if ($this->settings->get_option('activatelanguages')) {
+			$basename = dirname(plugin_basename(__FILE__));
+			if (!load_plugin_textdomain('AWPCP', false, $basename . '/languages/')) {
+				load_plugin_textdomain('AWPCP', false, $basename);
+			}
+		}
+
+		// register settings, this will define default values for settings
+		// that have never been stored
+		$this->settings->register_settings();
+
 		$this->installer = AWPCP_Installer::instance();
 
 		$file = WP_CONTENT_DIR . '/plugins/' . basename(dirname(__FILE__)) . '/' . basename(__FILE__);
@@ -201,6 +239,10 @@ class AWPCP {
 	 * This is functional but still a work in progress...
 	 */
 	public function setup() {
+		if ( !function_exists( 'imagecreatefrompng' ) ) {
+			add_action( 'admin_notices', array( $this, 'missing_gd_library' ) );
+		}
+
 		if (!$this->updated()) {
 			$this->installer->install();
 			// we can't call flush_rewrite_rules() because
@@ -209,63 +251,80 @@ class AWPCP {
 			$this->flush_rewrite_rules = true;
 		}
 
-		if ($this->updated()) {
-			$this->settings->setup();
-			$this->admin = new AWPCP_Admin();
-			$this->panel = new AWPCP_User_Panel();
-			$this->pages = new AWPCP_Pages();
+		if (!$this->updated()) {
+			return;
+		}
 
-			// $this->check_for_premium_modules();
+		$this->settings->setup();
+		$this->payments = awpcp_payments_api();
 
-			add_action('init', array($this, 'init'));
+		$this->admin = new AWPCP_Admin();
+		$this->panel = new AWPCP_User_Panel();
+		$this->compatibility = new AWPCP_Compatibility();
 
-			add_action('awpcp_register_settings', array($this, 'register_settings'));
+		add_action( 'init', array($this, 'init' ));
+		add_action( 'init', array($this, 'register_custom_style'), 1000000 );
+		add_action('admin_init', array($this, 'check_premium_modules_compatibility'));
+		add_action('admin_notices', array($this, 'admin_notices'));
 
-			add_action('wp_print_scripts', array($this, 'print_scripts'));
+		add_action('awpcp_register_settings', array($this, 'register_settings'));
 
-			// actions and filters from functions_awpcp.php
-			add_action('widgets_init', 'widget_awpcp_search_init');
-			add_action('phpmailer_init','awpcp_phpmailer_init_smtp');
-			add_filter('awpcp-single-ad-layout', 'awpcp_insert_tweet_button', 1, 3);
-			add_filter('awpcp-single-ad-layout', 'awpcp_insert_share_button', 2, 3);
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 1000 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 1000 );
+		add_action( 'wp_footer', array( $this, 'localize_scripts' ) );
+		add_action( 'admin_footer', array( $this, 'localize_scripts' ) );
 
-			// actions and filters from awpcp.php
-			add_action('wp_print_scripts', 'awpcpjs',1);
-			add_action('wp_head', 'awpcp_addcss');
+		// we need to dalay insertion of inline JavaScript to avoid problems
+		// with wpauotp and wptexturize functions
+		add_filter('the_content', 'awpcp_inline_javascript', 1000);
+		add_filter('admin_footer', 'awpcp_print_inline_javascript', 1000);
 
-			if (!get_awpcp_option('awpcp_thickbox_disabled')) {
-				add_action('wp_head', 'awpcp_insert_thickbox', 10);
-			}
-			if (is_admin() && function_exists('add_thickbox')) {
-				add_action('admin_head', 'awpcp_insert_thickbox', 10);
-			}
+		// some upgrade operations can't be done in background.
+		// if one those is pending, we will disable all other features
+		// until the user executes the upgrade operaton
+		if (get_option('awpcp-pending-manual-upgrade')) return;
 
-			add_filter('cron_schedules', 'awpcp_cron_schedules');
+		$this->pages = new AWPCP_Pages();
 
-			add_action("init", "init_awpcpsbarwidget");
-			add_action('init', 'awpcp_schedule_activation');
-			// add_action('init', 'maybe_redirect_new_ad', 1);
+		add_action('awpcp-register-payment-term-types', array($this, 'register_payment_term_types'));
+		add_action('awpcp-register-payment-methods', array($this, 'register_payment_methods'));
 
-			if (get_awpcp_option('awpcppagefilterswitch') == 1) {
-				add_filter('wp_list_pages_excludes', 'exclude_awpcp_child_pages');
-			}
+        add_action('awpcp-process-payment-transaction', array($this, 'process_transaction'));
+        add_action('awpcp-process-payment-transaction', array($this, 'process_ad_payment_transaction'));
 
-			remove_action('wp_head', 'rel_canonical');
-			add_action('wp_head', 'awpcp_rel_canonical');
+		// actions and filters from functions_awpcp.php
+		add_action('phpmailer_init','awpcp_phpmailer_init_smtp');
 
-			// we need to dalay insertion of inline JavaScript to avoid problems
-			// with wpauotp and wptexturize functions
-			add_filter('the_content', 'awpcp_inline_javascript', 1000);
-			add_filter('admin_footer', 'awpcp_print_inline_javascript', 1000);
+		add_filter('cron_schedules', 'awpcp_cron_schedules');
+
+		add_action('init', 'awpcp_schedule_activation');
+
+		add_action('widgets_init', array($this, 'register_widgets'));
+
+		if (get_awpcp_option('awpcppagefilterswitch') == 1) {
+			add_filter('wp_list_pages_excludes', 'exclude_awpcp_child_pages');
+		}
+
+		remove_action('wp_head', 'rel_canonical');
+		add_action('wp_head', 'awpcp_rel_canonical');
+	}
+
+	public function admin_notices() {
+		foreach (awpcp_get_property($this, 'errors', array()) as $error) {
+			echo awpcp_print_error($error);
 		}
 	}
 
+	public function missing_gd_library() {
+        $message = __( "AWPCP requires the graphics processing library GD and it is not installed. Contact your web host to fix this.", "AWPCP" );
+        $message = sprintf( '<strong>%s</strong> %s', __( 'Warning', 'AWPCP' ), $message );
+        echo '<div class="error"><p>' . $message . '</p></div>';
+	}
 
 	public function init() {
 		$this->initialize_session();
 
-		$installation_complete = get_option('awpcp_installationcomplete', 0);
-		if (!$installation_complete) {
+		if (!get_option('awpcp_installationcomplete', 0)) {
 			update_option('awpcp_installationcomplete', 1);
 			awpcp_create_pages(__('AWPCP', 'AWPCP'));
 			$this->flush_rewrite_rules = true;
@@ -279,10 +338,128 @@ class AWPCP {
 	}
 
 	/**
-	 * Register other AWPCP settings, normally for private use.
+	 * Returns information about available and installed
+	 * premium modules.
+	 *
+	 * @since  3.0
 	 */
-	public function register_settings() {
-		$this->settings->add_setting('private:notices', 'show-quick-start-guide-notice', '', 'checkbox', false, '');
+	public function get_premium_modules_information() {
+		global $hasextrafieldsmodule, $hasregionsmodule;
+		global $hascaticonsmodule, $hasgooglecheckoutmodule;
+		global $hasrssmodule;
+
+		return array(
+			'Regions Control' => array(
+				'name' => __('Regions Control', 'AWPCP'),
+				'url' => 'http://www.awpcp.com/premium-modules/regions-control-module?ref=panel',
+				'installed' => $hasregionsmodule,
+				'version' => 'AWPCP_REGION_CONTROL_MODULE_DB_VERSION',
+				'required' => '3.0-beta',
+			),
+
+			'Category Icons' => array(
+				'name' => __('Category Icons', 'AWPCP'),
+				'url' => 'http://www.awpcp.com/premium-modules/category-icons-module?ref=panel',
+				'installed' => $hascaticonsmodule,
+				'version' => '0',
+				'required' => '0',
+			),
+
+			'Google Checkout' => array(
+				'name' => __('Google Checkout', 'AWPCP'),
+				'url' => 'http://www.awpcp.com/premium-modules/google-checkout-module?ref=panel',
+				'installed' => $hasgooglecheckoutmodule,
+				'version' => 'AWPCP_GOOGLE_CHECKOUT_MODULE_DB_VERSION',
+				'required' => '3.0-beta',
+			),
+
+			'Extra Fields' => array(
+				'name' => __('Extra Fields', 'AWPCP'),
+				'url' => 'http://www.awpcp.com/premium-modules/extra-fields-module?ref=panel',
+				'installed' => $hasextrafieldsmodule,
+				'version' => 'AWPCP_EXTRA_FIELDS_MODULE_DB_VERSION',
+				'required' => '3.0-beta',
+			),
+
+			'XML Sitemap' => array(
+				'name' => __( 'XML Sitemap', 'AWPCP' ),
+				'url' => '#',
+				'installed' => function_exists( 'awpcp_generate_ad_entries' ),
+				'version' => 'AWPCP_XML_SITEMAP_MODULE_DB_VERSION',
+				'required' => '3.0-beta',
+			),
+
+			'RSS' => array(
+				'name' => __('RSS', 'AWPCP'),
+				'url' => 'http://www.awpcp.com/premium-modules/rss-module?ref=panel',
+				'installed' => $hasrssmodule,
+				'version' => 'AWPCP_RSS_MODULE_DB_VERSION',
+				'required' => '3.0-beta',
+			),
+
+			'Featured Ads' => array(
+				'name' => __('Featured Ads', 'AWPCP'),
+				'url' => 'http://www.awpcp.com/premium-modules/featured-ads-module?ref=panel',
+				'installed' => function_exists('awpcp_show_featured_ads'),
+				'version' => 'AWPCP_FEATURED_ADS_MODULE_DB_VERSION',
+				'required' => '3.0-beta',
+			),
+
+			'Fee per Category' => array(
+				'name' => __('Fee per Category', 'AWPCP'),
+				'url' =>'http://www.awpcp.com/premium-modules/fee-per-category-module?ref=panel',
+				'installed' => function_exists('awpcp_price_cats'),
+				'version' => 'AWPCP_FPC_MODULE_DB_VERSION',
+				'required' => '3.0-beta',
+			),
+
+			'Subscriptions' => array(
+				'name' => __('Subscriptions', 'AWPCP'),
+				'url' => 'http://www.awpcp.com/premium-modules/subscriptions-module/?ref=panel',
+				'installed' => defined('AWPCP_SUBSCRIPTIONS_MODULE'),
+				'version' => 'AWPCP_SUBSCRIPTIONS_MODULE_DB_VERSION',
+				'required' => '3.0-beta',
+			),
+
+			'Coupons' => array(
+				'name' => __('Coupons/Discount', 'AWPCP'),
+				'url' => 'http://www.awpcp.com/premium-modules/coupon-module/?ref=panel',
+				'installed' => defined('AWPCP_COUPONS_MODULE'),
+				'version' => 'AWPCP_COUPONS_MODULE_DB_VERSION',
+				'required' => '3.0-beta',
+			),
+
+			'Comments & Ratings' => array(
+				'name' => __( 'Comments & Ratings', 'AWPCP' ),
+				'url' => '#',
+				'installed' => defined( 'AWPCP_COMMENTS_MODULE' ),
+				'version' => 'AWPCP_COMMENTS_MODULE_VERSION',
+				'required' => '3.0-beta',
+			),
+		);
+	}
+
+	public function check_premium_modules_compatibility() {
+		$this->errors = awpcp_get_property($this, 'errors', array());
+
+		$modules = $this->get_premium_modules_information();
+
+		foreach ($modules as $module => $params) {
+			if (!$params['installed']) continue;
+
+			if (defined($params['version'])) {
+				$version = constant($params['version']);
+			} else {
+				$version = '0.0.1';
+			}
+
+			if (version_compare($version, $params['required']) < 0) {
+				$message = __('The %1$s module you have installed is outdated and not compatible with this version of AWPCP. Please get %1$s %2$s or newer.', 'AWPCP');
+				$name = "<strong>{$params['name']}</strong>";
+				$required = "<strong>{$params['required']}</strong>";
+				$this->errors[] = sprintf($message, $name, $required);
+			}
+		}
 	}
 
 	/**
@@ -308,57 +485,203 @@ class AWPCP {
 
 	/**
 	 * A good place to register all AWPCP standard scripts that can be
-	 * used form other sections.
+	 * used from other sections.
 	 */
 	public function register_scripts() {
-		// had to use false as the version number because otherwise the resulting URLs would
-		// throw 404 errors. Not sure why :S -@wvega
+		global $wp_styles;
+		global $wp_scripts;
 
-		$js = AWPCP_URL . 'js';
+		global $awpcp_db_version;
 
-		wp_register_script('awpcp', "{$js}/awpcp.js", array('jquery'), '1.0.0', true);
+		$js = AWPCP_URL . '/js';
+		$css = AWPCP_URL . '/css';
 
-		wp_register_script('awpcp-admin-general', "{$js}/admin-general.js", array('jquery'), '1.0.0', true);
-		wp_register_script('awpcp-page-place-ad', "{$js}/page-place-ad.js", array('jquery'), false, true);
+		/* vendors */
 
-		wp_register_style('awpcp-jquery-ui', "{$js}/ui/themes/smoothness/jquery-ui.css", array(), false);
+		if (isset($wp_scripts->registered['jquery-ui-core'])) {
+			$ui_version = $wp_scripts->registered['jquery-ui-core']->ver;
+		} else {
+			$ui_version = '1.9.2';
+		}
 
-		wp_register_script('awpcp-jquery-ui-core', "{$js}/ui/jquery.ui.core.min.js", array('jquery'), false, true);
-		wp_register_script('awpcp-jquery-ui-widget', "{$js}/ui/jquery.ui.widget.min.js", array('jquery'), false, true);
-		wp_register_script('awpcp-jquery-ui-position', "{$js}/ui/jquery.ui.position.min.js", array('jquery'), false, true);
-		wp_register_script('awpcp-jquery-ui-datepicker', "{$js}/ui/jquery.ui.datepicker.min.js", array('awpcp-jquery-ui-core'), false, true);
-		wp_register_script('awpcp-jquery-ui-autocomplete', "{$js}/ui/jquery.ui.autocomplete.min.js", array('awpcp-jquery-ui-core', 'awpcp-jquery-ui-widget', 'awpcp-jquery-ui-position'), false, true);
+		wp_register_style('awpcp-jquery-ui', "http://ajax.googleapis.com/ajax/libs/jqueryui/$ui_version/themes/smoothness/jquery-ui.css", array(), $ui_version);
 
+		wp_register_script('awpcp-jquery-validate', "{$js}/jquery-validate/all.js", array('jquery'), '1.10.0', true);
+        wp_register_script('awpcp-knockout', "{$js}/knockout-2.2.0.js", array(), '2.2.0', true);
+
+		if (!get_awpcp_option('awpcp_thickbox_disabled')) {
+			add_thickbox();
+		}
+
+		/* helpers */
+
+		wp_register_script('awpcp', "{$js}/awpcp.js", array('jquery'), $awpcp_db_version, true);
+		wp_register_script('awpcp-admin-wp-table-ajax', "{$js}/admin-wp-table-ajax.js", array('jquery-form'), $awpcp_db_version, true);
+		wp_register_script('awpcp-billing-form', "{$js}/awpcp-billing-form.js", array('jquery', 'awpcp-knockout'), $awpcp_db_version, true);
+
+		// register again with old name too (awpcp-table-ajax-admin), for backwards compatibility
+		wp_register_script('awpcp-table-ajax-admin', "{$js}/admin-wp-table-ajax.js", array('jquery-form'), $awpcp_db_version, true);
+
+		wp_register_script('awpcp-toggle-checkboxes', "{$js}/checkuncheckboxes.js", array('jquery'), $awpcp_db_version, true);
+
+
+		/* admin */
+
+		wp_register_style('awpcp-admin-style', "{$css}/awpcp-admin.css", array(), $awpcp_db_version);
+
+		wp_register_script('awpcp-admin-general', "{$js}/admin-general.js", array('awpcp'), $awpcp_db_version, true);
+		wp_register_script('awpcp-admin-settings', "{$js}/admin-settings.js", array('awpcp'), $awpcp_db_version, true);
+		wp_register_script('awpcp-admin-fees', "{$js}/admin-fees.js", array('awpcp-admin-wp-table-ajax'), $awpcp_db_version, true);
+		wp_register_script('awpcp-admin-credit-plans', "{$js}/admin-credit-plans.js", array('awpcp-admin-wp-table-ajax'), $awpcp_db_version, true);
+		wp_register_script('awpcp-admin-listings', "{$js}/admin-listings.js", array('awpcp', 'awpcp-admin-wp-table-ajax'), $awpcp_db_version, true);
+		wp_register_script('awpcp-admin-users', "{$js}/admin-users.js", array('awpcp-admin-wp-table-ajax'), $awpcp_db_version, true);
+
+		/* frontend */
+
+		wp_register_style('awpcp-frontend-style', "{$css}/awpcpstyle.css", array(), $awpcp_db_version);
+		wp_register_style('awpcp-frontend-style-ie-6', "{$css}/awpcpstyle-ie-6.css", array('awpcp-frontend-style'), $awpcp_db_version);
+		$wp_styles->add_data('awpcp-frontend-style-ie-6', 'conditional', 'lte IE 6');
+
+		wp_register_script('awpcp-page-place-ad', "{$js}/page-place-ad.js", array('awpcp', 'awpcp-jquery-validate', 'jquery-ui-datepicker'), $awpcp_db_version, true);
+		wp_register_script('awpcp-page-reply-to-ad', "{$js}/page-reply-to-ad.js", array('awpcp', 'awpcp-jquery-validate'), $awpcp_db_version, true);
+		wp_register_script('awpcp-page-search-ads', "{$js}/page-search-ads.js", array('awpcp', 'awpcp-jquery-validate'), $awpcp_db_version, true);
+		wp_register_script('awpcp-page-show-ad', "{$js}/page-show-ad.js", array('awpcp'), $awpcp_db_version, true);
+
+	}
+
+	public function register_custom_style() {
+		global $awpcp_db_version;
+
+		// load custom stylesheet if one exists in the wp-content/plugins directory:
+		if (file_exists(WP_PLUGIN_DIR . '/awpcp_custom_stylesheet.css')) {
+			wp_register_style('awpcp-custom-css', plugins_url('awpcp_custom_stylesheet.css'), array('awpcp-frontend-style'), $awpcp_db_version, 'all');
+		}
+	}
+
+	public function enqueue_scripts() {
 		if (is_admin()) {
+			wp_enqueue_style('awpcp-admin-style');
 			wp_enqueue_script('awpcp-admin-general');
+			wp_enqueue_script('awpcp-toggle-checkboxes');
 		} else {
-
+			wp_enqueue_style('awpcp-frontend-style');
+			wp_enqueue_style('awpcp-frontend-style-ie-6');
+	        wp_enqueue_style('awpcp-custom-css');
+	        wp_enqueue_script( 'awpcp' );
 		}
-	}
-
-
-	public function set_js_data($key, $value) {
-		$this->js_data[$key] = $value;
-	}
-
-
-	public function print_scripts() {
-		$data = array_merge(array('ajaxurl' => admin_url('admin-ajax.php')), $this->js_data);
-		wp_localize_script('awpcp', '__awpcp_js_data', $data);
-
-		// TODO: migrate the code below to use set_js_data to pass information
-		// to AWPCP scripts.
-		$options = array(
-			'ajaxurl' => awpcp_ajaxurl()
-		);
 
 		if (is_admin()) {
+			// TODO: migrate the code below to use set_js_data to pass information to AWPCP scripts.
+			$options = array('ajaxurl' => awpcp_ajaxurl());
 			wp_localize_script('awpcp-admin-general', 'AWPCPAjaxOptions', $options);
-		} else {
-			//
 		}
 	}
 
+	public function localize_scripts() {
+		// localize jQuery Validate messages
+		$this->js->set( 'default-validation-messages', array(
+			'required' => __( 'This field is required.', 'AWPCP' ),
+			'email' => __( 'Please enter a valid email address.', 'AWPCP' ),
+			'url' => __( 'Please enter a valid URL.', 'AWPCP' ),
+			'number' => __( 'Please enter a valid number.', 'AWPCP' ),
+			'money' => __( 'Please enter a valid amount.', 'AWPCP' ),
+		) );
+
+		wp_localize_script('awpcp', '__awpcp_js_data', $this->js->get_data());
+		wp_localize_script('awpcp', '__awpcp_js_l10n', $this->js->get_l10n());
+	}
+
+	/**
+	 * Register other AWPCP settings, normally for private use.
+	 */
+	public function register_settings() {
+		$this->settings->add_setting('private:notices', 'show-quick-start-guide-notice', '', 'checkbox', false, '');
+	}
+
+	/**
+	 * @since 2.2.2
+	 */
+	public function register_payment_term_types($payments) {
+		$payments->register_payment_term_type(new AWPCP_FeeType);
+	}
+
+	/**
+	 * @since  2.2.2
+	 */
+	public function register_payment_methods($payments) {
+		if (get_awpcp_option('activatepaypal')) {
+			$payments->register_payment_method(new AWPCP_PayPalStandardPaymentGateway);
+		}
+
+		if (get_awpcp_option('activate2checkout')) {
+			$payments->register_payment_method(new AWPCP_2CheckoutPaymentGateway);
+		}
+	}
+
+	/**
+	 * @since 3.0-beta
+	 */
+	public function register_widgets() {
+	    register_widget("AWPCP_LatestAdsWidget");
+	    register_widget('AWPCP_RandomAdWidget');
+	    register_widget('AWPCP_Search_Widget');
+	    register_widget( 'AWPCP_CategoriesWidget' );
+	}
+
+
+    /**
+     * Update Ad payment status based on the transaction payment
+     * status.
+     *
+     * The purpose of this method is to handle payment notifications sent
+     * by the payment gateway after the Place Ad operation has been completed.
+     *
+     * @since 2.2.2
+     */
+    private function update_ad_payment_status($transaction) {
+        $ad = AWPCP_Ad::find_by_id($transaction->get('ad-id'));
+
+        if (is_null($ad)) return;
+
+        if ($transaction->payment_is_completed() || $transaction->payment_is_pending() || $transaction->payment_is_failed()) {
+            $ad->payment_status = $transaction->payment_status;
+        }
+
+        $ad->save();
+    }
+
+	/**
+	 * @since  2.2.2
+	 */
+	public function process_transaction($transaction) {
+		switch ($transaction->get_status()) {
+            case AWPCP_Payment_Transaction::STATUS_OPEN:
+                if (awpcp_current_user_is_admin()/* || get_awpcp_option('freepay') == 0*/)
+                    $transaction->payment_status = AWPCP_Payment_Transaction::PAYMENT_STATUS_NOT_REQUIRED;
+                break;
+		}
+	}
+
+	/**
+	 * @since 2.2.2
+	 */
+	public function process_ad_payment_transaction($transaction) {
+        if (!in_array($transaction->get('context'), array('renew-ad', 'place-ad')));
+            return;
+
+        switch ($transaction->get_status()) {
+            case AWPCP_Payment_Transaction::STATUS_NEW:
+                break;
+
+            case AWPCP_Payment_Transaction::STATUS_OPEN:
+                break;
+
+            case AWPCP_Payment_Transaction::STATUS_PAYMENT_COMPLETED:
+            case AWPCP_Payment_Transaction::STATUS_COMPLETED:
+                $this->update_ad_payment_status($transaction);
+                break;
+        }
+	}
 
 	public function get_missing_pages() {
 		global $awpcp, $wpdb;
@@ -398,7 +721,6 @@ class AWPCP {
 		return $orphan;
 	}
 
-
 	public function restore_pages() {
 		global $wpdb;
 
@@ -425,33 +747,19 @@ class AWPCP {
 
 		flush_rewrite_rules();
 	}
-
-
-	/**
-	 * As of version 2.0.6 premium module are all separated plugins.
-	 * This function check if those new plugins are present and update the
-	 * relevant global variables.
-	 */
-	// public function check_for_premium_modules() {
-	// 	global $hasregionsmodule;
-
-	// 	$hasregionsmodule = $hasregionsmodule || defined('AWPCP_REGION_CONTROL_MODULE');
-	// }
 }
 
-global $awpcp;
-$awpcp = new AWPCP();
+function awpcp() {
+	global $awpcp;
 
-
-
-// l10n MO file can be in the top level directory or inside the languages
-// directory. A file inside the languages directory is prefered.
-if (get_awpcp_option('activatelanguages')) {
-	$basename = dirname(plugin_basename(__FILE__));
-	if (!load_plugin_textdomain('AWPCP', false, $basename . '/languages/')) {
-		load_plugin_textdomain('AWPCP', false, $basename);
+	if (!is_object($awpcp)) {
+		$awpcp = new AWPCP();
 	}
+
+	return $awpcp;
 }
+
+awpcp();
 
 
 $uploadfoldername = get_awpcp_option('uploadfoldername', "uploads");
@@ -475,114 +783,45 @@ global $hasfeaturedadsmodule;
 
 $hasextrafieldsmodule = $hasextrafieldsmodule ? true : false;
 $hasregionsmodule = $hasregionsmodule ? true : false;
+$hasfeaturedadsmodule = $hasfeaturedadsmodule ? true : false;
+$hasrssmodule = $hasrssmodule ? true : false;
 
 $awpcpthumbsurl = AWPCPTHUMBSUPLOADURL;
 $hascaticonsmodule = 0;
 $haspoweredbyremovalmodule = 0;
 $hasgooglecheckoutmodule = 0;
-$hasrssmodule = 0;
-$hasfeaturedadsmodule = 0;
 
 
-if (!defined('AWPCP_REGION_CONTROL_MODULE') && file_exists("$awpcp_plugin_path/awpcp_region_control_module.php")) {
-	require_once("$awpcp_plugin_path/awpcp_region_control_module.php");
-	$hasregionsmodule = 1;
+if (!defined('AWPCP_REGION_CONTROL_MODULE') && file_exists(AWPCP_DIR . "/awpcp_region_control_module.php")) {
+	require_once(AWPCP_DIR . "/awpcp_region_control_module.php");
+	$hasregionsmodule = true;
 }
 
-if (!defined('AWPCP_EXTRA_FIELDS_MODULE') && file_exists("$awpcp_plugin_path/awpcp_extra_fields_module.php")) {
-	require("$awpcp_plugin_path/awpcp_extra_fields_module.php");
-	$hasextrafieldsmodule = 1;
+if (!defined('AWPCP_EXTRA_FIELDS_MODULE') && file_exists(AWPCP_DIR . "/awpcp_extra_fields_module.php")) {
+	require_once(AWPCP_DIR . "/awpcp_extra_fields_module.php");
+	$hasextrafieldsmodule = true;
 }
 
-if ( file_exists("$awpcp_plugin_path/awpcp_category_icons_module.php") )
-{
-	require("$awpcp_plugin_path/awpcp_category_icons_module.php");
+if (!defined('AWPCP_RSS_MODULE') && file_exists(AWPCP_DIR . "/awpcp_rss_module.php")) {
+	require_once(AWPCP_DIR . "/awpcp_rss_module.php");
+	$hasrssmodule = true;
+}
+
+if (!defined('AWPCP_GOOGLE_CHECKOUT_MODULE') && file_exists(AWPCP_DIR . "/awpcp_google_checkout_module.php")) {
+	require_once(AWPCP_DIR . "/awpcp_google_checkout_module.php");
+	$hasgooglecheckoutmodule = true;
+}
+
+if (file_exists(AWPCP_DIR . "/awpcp_category_icons_module.php")) {
+	require_once(AWPCP_DIR . "/awpcp_category_icons_module.php");
 	$hascaticonsmodule=1;
 }
-if ( file_exists("$awpcp_plugin_path/awpcp_remove_powered_by_module.php") )
-{
-	require("$awpcp_plugin_path/awpcp_remove_powered_by_module.php");
+
+if (file_exists(AWPCP_DIR . "/awpcp_remove_powered_by_module.php")) {
+	require_once(AWPCP_DIR . "/awpcp_remove_powered_by_module.php");
 	$haspoweredbyremovalmodule=1;
 }
-if ( file_exists("$awpcp_plugin_path/awpcp_google_checkout_module.php") )
-{
-	require("$awpcp_plugin_path/awpcp_google_checkout_module.php");
-	$hasgooglecheckoutmodule=1;
-}
-if ( file_exists("$awpcp_plugin_path/awpcp_rss_module.php") )
-{
-	require("$awpcp_plugin_path/awpcp_rss_module.php");
-	$hasrssmodule=1;
-}
-if (file_exists(WP_CONTENT_DIR . "/plugins/awpcp-featured-ads/awpcp_featured_ads.php"))
-{
-	$hasfeaturedadsmodule=1;
-}
 
-// Add css file and jquery codes to header
-function awpcpjs() {
-	global $awpcp_plugin_url;
-
-	wp_enqueue_script('jquery');
-	wp_enqueue_script('jquery-form');
-	
-	if (!get_awpcp_option('awpcp_thickbox_disabled')) {
-		wp_enqueue_script('thickbox');
-	}
-
-	wp_enqueue_script('jquery-chuch', $awpcp_plugin_url.'js/checkuncheckboxes.js', array('jquery'));
-}
-
-function awpcp_insert_thickbox() {
-	if (is_admin()) {
-		add_thickbox();
-	} else {
-		$includes = includes_url();
-
-		echo "\n" . '
-
-    <link rel="stylesheet" href="' . $includes . '/js/thickbox/thickbox.css" type="text/css" media="screen" />
-
-    <script type="text/javascript">
-    var tb_pathToImage = "' . $includes . '/js/thickbox/loadingAnimation.gif";
-    var tb_closeImage = "' . $includes . '/js/thickbox/tb-close.png";
-    </script>
-    ';
-	}
-}
-
-
-/**
- * Redirect to the ad page when a new ad is posted. This prevents posting duplicates when someone clicks reload.
- * This also allows admins to post without going through the checkout process.
- *
- * This is no longer used after the Place Ad workflow changes.
- */
-// function maybe_redirect_new_ad() {
-// 	global $wp_query;
-
-// 	$a = awpcp_post_param('a', '');
-// 	$adid = awpcp_post_param('adid', '');
-
-//     if (( isset($wp_query->query_vars) && 'adpostfinish' == get_query_var('a') && '' != get_query_var('adid') ) ||
-// 	 	( 'adpostfinish' == $a && '' != $adid))
-//     {
-// 		// if ( get_awpcp_option('seofriendlyurls') ) {
-// 		// 	wp_redirect( url_showad( intval( $_POST['adid'] ) ).'?adstatus=preview');
-// 		// } else {
-// 		// 	wp_redirect( url_showad( intval( $_POST['adid'] ) ).'&adstatus=preview');
-// 		// }
-//     	$url = add_query_arg(array('adstatus' => 'preview'), url_showad(intval($_POST['adid'])));
-//     	wp_redirect($url);
-// 		die;
-// 	}
-// }
-
-
-
-// if (get_awpcp_option('awpcppagefilterswitch') == 1) {
-// 	add_filter('wp_list_pages_excludes', 'exclude_awpcp_child_pages');
-// }
 
 /**
  * Returns the IDs of the pages used by the AWPCP plugin.
@@ -610,19 +849,6 @@ function exclude_awpcp_child_pages($excluded=array()) {
 
 
 
-// The function to add the reference to the plugin css style sheet to the header of the index page
-function awpcp_addcss() {
-	$awpcpstylesheet="awpcpstyle.css";
-	$awpcpstylesheetie6="awpcpstyle-ie-6.css";
-	echo "\n".'<link rel="stylesheet" type="text/css" media="screen" href="'.AWPCP_URL.'css/'.$awpcpstylesheet.'" />
-			 <!--[if lte IE 6]><style type="text/css" media="screen">@import "'.AWPCP_URL.'css/'.$awpcpstylesheetie6.'";</style><![endif]-->
-			 ';
-	// load custom stylesheet if one exists in the wp-content/plugins directory:
-	if (file_exists(WP_PLUGIN_DIR.'/awpcp_custom_stylesheet.css')) {
-	    echo "\n".'<link rel="stylesheet" type="text/css" media="screen" href="'.WP_PLUGIN_URL.'/awpcp_custom_stylesheet.css" />';
-	}
-
-}
 // PROGRAM FUNCTIONS
 
 /**
@@ -655,7 +881,13 @@ function awpcp_add_rewrite_rules($rules) {
 		}
 	}
 
-	$categories_view = sanitize_title(get_awpcp_option('view-categories-page-name'));
+	// Payments API rewrite rules
+	add_rewrite_rule('awpcpx/payments/return/([a-zA-Z0-9]+)',
+		'index.php?awpcpx=1&module=payments&action=return&awpcp-txn=$matches[1]', 'top');
+	add_rewrite_rule('awpcpx/payments/notify/([a-zA-Z0-9]+)',
+		'index.php?awpcpx=1&module=payments&action=notify&awpcp-txn=$matches[1]', 'top');
+	add_rewrite_rule('awpcpx/payments/cancel/([a-zA-Z0-9]+)',
+		'index.php?awpcpx=1&module=payments&action=cancel&awpcp-txn=$matches[1]', 'top');
 
 	if (isset($patterns['show-ads-page-name'])) {
 		add_rewrite_rule('('.$patterns['show-ads-page-name'].')/(.+?)/(.+?)',
@@ -683,12 +915,17 @@ function awpcp_add_rewrite_rules($rules) {
 						 'index.php?pagename=$matches[1]&awpcp-txn=$matches[2]', 'top');
 	}
 
+	$view_categories = sanitize_title(get_awpcp_option('view-categories-page-name'));
+
 	if (isset($patterns['main-page-name'])) {
-		add_rewrite_rule('('.$patterns['main-page-name'].')/('.$categories_view.')',
-						 'index.php?pagename=$matches[1]&layout=2&cid='.$categories_view,
+		add_rewrite_rule('('.$patterns['main-page-name'].')/('.$view_categories.')',
+						 'index.php?pagename=$matches[1]&layout=2&cid='.$view_categories,
 						 'top');
 		add_rewrite_rule('('.$patterns['main-page-name'].')/(setregion)/(.+?)/(.+?)',
 						 'index.php?pagename=$matches[1]&regionid=$matches[3]&a=setregion',
+						 'top');
+		add_rewrite_rule('('.$patterns['main-page-name'].')/(classifiedsrss)/(\d+)',
+						 'index.php?pagename=$matches[1]&awpcp-action=rss&cid=$matches[3]',
 						 'top');
 		add_rewrite_rule('('.$patterns['main-page-name'].')/(classifiedsrss)',
 						 'index.php?pagename=$matches[1]&awpcp-action=rss',
@@ -703,13 +940,25 @@ function awpcp_add_rewrite_rules($rules) {
  * Register AWPCP query vars
  */
 function awpcp_query_vars($query_vars) {
-	$query_vars[] = "cid";
-	$query_vars[] = "i";
-	$query_vars[] = "id";
-	$query_vars[] = "layout";
-	$query_vars[] = "regionid";
-	$query_vars[] = 'awpcp-action';
-	return $query_vars;
+	$vars = array(
+		// API
+		'awpcpx',
+		'module',
+		'action',
+
+		// Payments API
+		'awpcp-txn',
+
+		// misc
+		"cid",
+		"i",
+		"id",
+		"layout",
+		"regionid",
+		'awpcp-action'
+	);
+
+	return array_merge($query_vars, $vars);
 }
 
 

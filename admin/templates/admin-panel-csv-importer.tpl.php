@@ -1,7 +1,7 @@
 <?php $page_id = 'awpcp-admin-csv-importer' ?>
 <?php $page_title = __('AWPCP Classifieds Management System: Import Ad', 'AWPCP') ?>
 
-<?php include(AWPCP_DIR . 'admin/templates/admin-panel-header.tpl.php') ?>
+<?php include(AWPCP_DIR . '/admin/templates/admin-panel-header.tpl.php') ?>
 
 <?php if (!is_null($importer) && ($importer->ads_imported > 0 || $importer->ads_rejected > 0)): ?>
 	<?php if ($test_import): ?>
@@ -18,7 +18,7 @@
 <?php endif ?>
 
 			<?php if (!empty($messages)): ?>
-				<h3>Messages</h3>
+				<h3><?php _ex('Messages', 'csv importer', 'AWPCP'); ?></h3>
 				<ul>
 				<?php foreach ($messages as $message): ?>
 					<li><?php echo "$message" ?></li>
@@ -27,14 +27,14 @@
 			<?php endif ?>
 
 			<?php if (!empty($errors)): ?>
-				<h3>Errors</h3>
+				<h3><?php _ex('Errors', 'csv importer', 'AWPCP'); ?></h3>
 				<ul>
 				<?php foreach ($errors as $error): ?>
 					<li><?php echo "$error" ?></li>
 				<?php endforeach ?>
 				</ul>
 			<?php endif ?>
-		
+
 			<script type="text/javascript">
 				(function($){
 					$(function() {
@@ -44,7 +44,6 @@
 						});
 						$('#awpcp-importer-auto-assign-user').change(function(event) {
 							if (!$(this).attr('checked') || !$(this).prop('checked')) {
-								console.log('hmm');
 								$('#awpcp-importer-user').attr('disabled', 'disabled');
 							} else {
 								$('#awpcp-importer-user').removeAttr('disabled');
@@ -101,28 +100,22 @@
 							</th>
 							<td>
 								<br/><br/><?php echo awpcp_form_error('date_fmt', $form_errors) ?>
-								<input id="awpcp-importer-format-us-date" type="radio" name="date_fmt" 
-									   value="us_date" <?php if ($import_date_format == "us_date") echo "checked"; ?> />
+								<input id="awpcp-importer-format-us-date" type="radio" name="date_fmt" value="us_date" <?php if ($import_date_format == "us_date") echo "checked"; ?> />
 								<label for="awpcp-importer-format-us-date">
 									<?php _e('US Date Only (mm/dd/year)', 'AWPCP') ?></label>
 								<br/>
 
-								<input id="awpcp-importer-format-uk-date" type="radio" name="date_fmt" 
-									   value="uk_date" <?php if ($import_date_format == "uk_date") echo "checked"; ?> />
-								<label for="awpcp-importer-format-uk-date">
-									<?php _e('UK Date Only (dd/mm/year)', 'AWPCP') ?></label>
+								<input id="awpcp-importer-format-uk-date" type="radio" name="date_fmt" value="uk_date" <?php if ($import_date_format == "uk_date") echo "checked"; ?> />
+								<label for="awpcp-importer-format-uk-date"><?php _e('UK Date Only (dd/mm/year)', 'AWPCP') ?></label>
 								<br/>
-								
-								<input id="awpcp-importer-format-us-date-time" type="radio" name="date_fmt" 
-									   value="us_date_time" <?php if ($import_date_format == "us_date_time") echo "checked"; ?> />
+
+								<input id="awpcp-importer-format-us-date-time" type="radio" name="date_fmt" value="us_date_time" <?php if ($import_date_format == "us_date_time") echo "checked"; ?> />
 								<label for="awpcp-importer-format-us-date-time">
 									<?php _e('US Date and Time (mm/dd/year hh:mm:ss)', 'AWPCP') ?></label>
 								<br/>
-								
-								<input id="awpcp-importer-format-uk-date-time" type="radio" name="date_fmt" 
-									   value="uk_date_time" <?php if ($import_date_format == "uk_date_time") echo "checked"; ?> />
-								<label for="awpcp-importer-format-uk-date-time">
-									<?php _e('UK Date and Time (dd/mm/year hh:mm:ss)', 'AWPCP') ?></label>
+
+								<input id="awpcp-importer-format-uk-date-time" type="radio" name="date_fmt" value="uk_date_time" <?php if ($import_date_format == "uk_date_time") echo "checked"; ?> />
+								<label for="awpcp-importer-format-uk-date-time"><?php _e('UK Date and Time (dd/mm/year hh:mm:ss)', 'AWPCP') ?></label>
 							</td>
 						</tr>
 						<tr>
@@ -130,19 +123,16 @@
 								<?php _e('Separators Used in CSV', 'AWPCP') ?>
 							</th>
 							<td>
-								<label for="awpcp-importer-date-separator"><?php _e('Date Separator', 'AWPCP') ?></label>
-								<input id="awpcp-importer-date-separator" type="text" maxlength="1" size="1" 
-									   name="sep_date" value="<?php echo esc_attr($date_sep); ?>" />
+								<label for="awpcp-importer-date-separator"><?php _e('Date Separator', 'AWPCP'); ?></label>
+								<input id="awpcp-importer-date-separator" type="text" maxlength="1" size="1" name="sep_date" value="<?php echo esc_attr($date_sep); ?>" />
 								<br/><br/><?php echo awpcp_form_error('sep_date', $form_errors) ?>
 
-								<label for="awpcp-importer-time-separator"><?php _e('Time Separator', 'AWPCP') ?></label>
-								<input id="awpcp-importer-time-separator" type="text" maxlength="1" size="1" 
-									   name="sep_time" value="<?php echo esc_attr($time_sep); ?>" />
+								<label for="awpcp-importer-time-separator"><?php _e('Time Separator', 'AWPCP'); ?></label>
+								<input id="awpcp-importer-time-separator" type="text" maxlength="1" size="1" name="sep_time" value="<?php echo esc_attr($time_sep); ?>" />
 								<br/><br/><?php echo awpcp_form_error('sep_time', $form_errors) ?>
 
-								<label for="awpcp-importer-image-separator"><?php _e('Image Separator', 'AWPCP') ?></label>
-								<input id="awpcp-importer-image-separator" type="text" maxlength="1" size="1" 
-									   name="sep_image" value=";" disabled="disabled" /> <?php _e('(semi-colon)', 'AWPCP') ?>
+								<label for="awpcp-importer-image-separator"><?php _e('Image Separator', 'AWPCP'); ?></label>
+								<input id="awpcp-importer-image-separator" type="text" maxlength="1" size="1" name="sep_image" value=";" disabled="disabled" /> <?php _e('(semi-colon)', 'AWPCP'); ?>
 								<br/><br/><?php echo awpcp_form_error('sep_image', $form_errors) ?>
 							</td>
 						</tr>
@@ -163,8 +153,7 @@
 								<?php _e('Assign Ads to an user?', 'AWPCP') ?>
 							</th>
 							<td>
-								<input type="checkbox" name="assign_user" id="awpcp-importer-auto-assign-user" value="1" 
-									   <?php echo $assign_user == 1 ? 'checked="checked"' : '' ?> />
+								<input type="checkbox" name="assign_user" id="awpcp-importer-auto-assign-user" value="1" <?php echo $assign_user == 1 ? 'checked="checked"' : ''; ?> />
 								<label for="awpcp-importer-auto-assign-user"><?php _e('Assign Ads to an user?', 'AWPCP') ?></label><br/>
 								<span class="description"><?php _e("If unchecked, Ads won't be associated to an user.", 'AWPCP') ?></span>
 								<br/><br/><?php echo awpcp_form_error('assign_user', $form_errors) ?>
@@ -178,9 +167,9 @@
 								<select id="awpcp-importer-user" name="user">
 									<option value=""><?php _e('use spreadsheet information', 'AWPCP') ?></option>
 								<?php foreach (awpcp_get_users() as $user): ?>
-									<option value="<?php echo esc_attr($user->ID) ?>" 
-										<?php echo $assigned_user == $user->ID ? 'selected="selected"' : '' ?>>
-										<?php echo $user->user_login ?></option>
+									<option value="<?php echo esc_attr($user->ID) ?>" <?php echo $assigned_user == $user->ID ? 'selected="selected"' : ''; ?>>
+										<?php echo $user->user_login ?>
+									</option>
 								<?php endforeach ?>
 								</select><br/>
 								<span class="description"><?php _e("Ads will be associated to this user if the username column is not present in the CSV file, there is no user with that username and we couldn't find an user with the contact_email address specified in the CSV file.", 'AWPCP') ?></span>

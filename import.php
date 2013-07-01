@@ -116,20 +116,23 @@ class AWPCP_CSV_Importer {
 		$parsed = $this->get_csv_data($csv);
 
 		if (empty($parsed)) {
-			$errors[] = __('Invalid CSV file.');
+			$errors[] = __( 'Invalid CSV file.', 'AWPCP' );
 			return false;
 		}
 
-		if (!empty($zip) && !($import_dir = $this->extract_images($zip, $errors, $messages))) {
-			return false;
-		} else if (empty($zip)) {
+		if ( empty( $zip ) ) {
 			$import_dir = false;
+		} else {
+			$import_dir = $this->extract_images( $zip, $errors, $messages );
+			if ( $import_dir === false ) {
+				return false;
+			}
 		}
 
 		$header = $parsed[0];
 
 		if (in_array('images', $header) && empty($zip)) {
-			$errors[] = __('Image file names were found but no ZIP was provided.');
+			$errors[] = __( 'Image file names were found but no ZIP was provided.', 'AWPCP' );
 			return false;
 		}
 
@@ -153,7 +156,7 @@ class AWPCP_CSV_Importer {
 
 			if ($cols != $ncols) {
 				// error message
-				$errors[] = __("Row number $i: input length mismatch", 'AWPCP');
+				$errors[] = __( "Row number $i: input length mismatch", 'AWPCP' );
 				$this->rejected[$i] = true;
 				$this->ads_rejected++;
 				continue;
@@ -180,7 +183,7 @@ class AWPCP_CSV_Importer {
 	private function validate($header, $csv, &$errors, &$messages) {
 		foreach ($this->required as $required) {
 			if (!in_array($required, $header)) {
-				$msg = __("The required column %s is missing. Import can't continue.", 'AWPCP');
+				$msg = __( "The required column %s is missing. Import can't continue.", 'AWPCP' );
 				$msg = sprintf($msg, $required);
 				$errors[] = $msg;
 				return false;
@@ -192,7 +195,7 @@ class AWPCP_CSV_Importer {
 		$unknown = array_diff($header, $accepted);
 
 		if (!empty($unknown)) {
-			$msg = __("Import can't continue. Unknown column(s) specified(s):", 'AWPCP');
+			$msg = __( "Import can't continue. Unknown column(s) specified(s):", 'AWPCP' );
 			$msg.= '<br/>' . join(', ', $unknown);
 			$errors[] = $msg;
 			return false;
@@ -257,7 +260,7 @@ class AWPCP_CSV_Importer {
 
 				// missing value, mark row as bad
 				if (strlen($value) === 0 && in_array($key, $this->required)) {
-					$msg = __('Required value <em>%s</em> missing at row number: %d');
+					$msg = __( 'Required value <em>%s</em> missing at row number: %d', 'AWPCP' );
 					$msg = sprintf($msg, $key, $row);
 					$this->rejected[$row] = true;
 					$errors[] = $msg;
@@ -292,7 +295,7 @@ class AWPCP_CSV_Importer {
 				$options = $field->field_options;
 				$category = $field->field_category;
 
-				$enforce = strcmp($category, 'root') == 0 || $category == $cat_id;
+				$enforce = in_array($cat_id, $category);
 
 				$value = awpcp_validate_extra_field($name, $data[$name], $row, $validate, $type, $options, $enforce, $errors);
 
@@ -594,7 +597,7 @@ class AWPCP_CSV_Importer {
 				// store 99.95 as 9995 and 99 as 9900.
 				return $val * 100;
 			} else {
-				$errors[] = "Item price non numeric at row number $row_num";
+				$errors[] = sprintf( __( "Item price non numeric at row number %s", 'AWPCP' ), $row_num );
 				$this->rejected[$row_num] = true;
 			}
 		} else if ($key == "start_date") {
@@ -610,7 +613,7 @@ class AWPCP_CSV_Importer {
 			if (empty($start_date)) {
 				// $date = new DateTime();
 				// $val = $date->format( 'Y-m-d' );
-				$errors[] = "Start date missing (alternately you can specify the default start date) at row number $row_num";
+				$errors[] = sprintf( __("Start date missing (alternately you can specify the default start date) at row number %s", 'AWPCP' ), $row_num );
 				$this->rejected[$row_num] = true;
 			} else {
 				// TODO: validation
@@ -622,7 +625,7 @@ class AWPCP_CSV_Importer {
 			if (!empty($val)) {
 				$val = $this->parse_date($val, $import_date_format, $date_sep, $time_sep);
 				if (empty($val) || $val == null) {
-					$errors[] = "Invalid End date at row number: $row_num";
+					$errors[] = sprintf( __( "Invalid End date at row number: %s", 'AWPCP' ), $row_num );
 					$this->rejected[$row_num] = true;
 				}
 				return $val;
@@ -630,7 +633,7 @@ class AWPCP_CSV_Importer {
 			if (empty($end_date)) {
 				// $date = new DateTime();
 				// $val = $date->format( 'Y-m-d' );
-				$errors[] = "End date missing (alternately you can specify the default end date) at row number $row_num";
+				$errors[] = sprintf( __( "End date missing (alternately you can specify the default end date) at row number %s", 'AWPCP' ), $row_num );
 				$this->rejected[$row_num] = true;
 			} else {
 				// TODO: validation
@@ -739,7 +742,7 @@ function awpcp_validate_extra_field($name, $value, $row, $validate, $type, $opti
 		case 'Checkbox':
 		case 'Select Multiple':
 			// value can be any combination of items from options list
-			$msg = __("Extra Field $name's value is not allowed in row $row. Allowed values are: %s", 'AWPCP');
+			$msg = sprintf( __("Extra Field %s's value is not allowed in row %d. Allowed values are: %%s", 'AWPCP'), $name, $row );
 			$list = split(';', $value);
 
 		case 'Select':
@@ -747,7 +750,7 @@ function awpcp_validate_extra_field($name, $value, $row, $validate, $type, $opti
 			$list = is_array($list) ? $list : array($value);
 
 			if (!isset($msg)) {
-				$msg = __("Extra Field $name's value is not allowed in row $row. Allowed value is one of: %s", 'AWPCP');
+				$msg = sprintf( __("Extra Field %s's value is not allowed in row %d. Allowed value is one of: %%s", 'AWPCP'), $name, $row );
 			}
 
 			// only attempt to validate if the field is required (has validation)
@@ -873,10 +876,10 @@ function awpcp_csv_importer_get_user_id($username, $email, $row, &$errors=array(
 	}
 
 	if (empty($username)) {
-		$errors[] = sprintf(__("Username is required in row %s."), $row);
+		$errors[] = sprintf(__("Username is required in row %s.", 'AWPCP'), $row);
 		return false;
 	} else if (empty($email)) {
-		$errors[] = sprintf(__("Contact email is required in row %s."), $row);
+		$errors[] = sprintf(__("Contact email is required in row %s.", 'AWPCP'), $row);
 		return false;
 	}
 

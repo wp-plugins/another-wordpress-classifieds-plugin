@@ -11,5 +11,5 @@
 	<!--<input type="hidden" name="shopping-cart.items.item-1.digital-content.key" value="<?php echo $key ?>" />-->
 	<input type="hidden" name="shopping-cart.items.item-1.digital-content.url" value="<?php echo $return_url ?>" />
 	<input type="hidden" name="_charset_" value="utf-8" />
-	<input type="image" src="<?php echo $button_url ?>" alt="<?php _e("Pay With Google Checkout","AWPCP") ?>" /></form>
+	<input type="image" src="<?php echo $button_url ?>" alt="<?php _e("Pay With Google Checkout", "AWPCP"); ?>" /></form>
 </form>

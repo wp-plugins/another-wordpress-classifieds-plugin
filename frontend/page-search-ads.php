@@ -1,182 +1,194 @@
 <?php
 
-class AWPCP_Search_Ads_Page {
-	// true if the shortcode handler was executed
-	public $active = false;
-
-	public function AWPCP_Search_Ads_Page() {
-		// // used to get list of relevant Regions in Search Ads page
-		// // to update dropdowns
-		// // TODO: this actions probably belong to the RegionControl module
-		// // but I rather not touch it right now.
-		// add_action('wp_ajax_awpcp-search-ads-get-regions', array($this, 'regions_list'));
-		// add_action('wp_ajax_nopriv_awpcp-search-ads-get-regions', array($this, 'regions_list'));
-
-		add_action('init', array($this, 'init'));
-		add_action('wp_footer', array($this, 'print_scripts'));
-		add_action('admin_footer', array($this, 'print_scripts'));
-	}
-
-	public function init() {
-		add_filter('awpcp-display-ads-before-list', array($this, 'show_return_link'));
-	}
-
-	public function print_scripts() {
-		if (!$this->active) {
-			return;
-		}
-		wp_print_scripts('awpcp-extra-fields');
-	}
-
-	public function show_return_link($content) {
-		if (isset($this->return_link) && !empty($this->return_link)) {
-			return $content . $this->return_link;
-		}
-		return $content;
-	}
-
-	public function dispatch() {
-		$action = awpcp_request_param('a');
-
-		switch ($action) {
-			case 'dosearch':
-				// build a link to hold all query parameters
-				$params = array_merge(stripslashes_deep($_REQUEST), array('a' => 'searchads'));
-				$href = add_query_arg(urlencode_deep($params), awpcp_current_url());
-				$this->return_link = '<div class="awpcp-return-to-search-link"><a href="' . esc_attr($href) . '">' . __('Return to Search', 'AWPCP') . '</a></div>';
-
-				$html = dosearch();
-				break;
-
-			case 'cregs':
-				unset($_SESSION['regioncountryID']);
-				unset($_SESSION['regionstatownID']);
-				unset($_SESSION['regioncityID']);
-				unset($_SESSION['theactiveregionid']);
-
-			case 'searchads':
-			default:
-				$keywordphrase = awpcp_request_param('keywordphrase');
-				$searchcategory = awpcp_request_param('searchcategory');
-				$searchname = awpcp_request_param('searchname');
-				$searchpricemin = awpcp_request_param('searchpricemin');
-				$searchpricemax = awpcp_request_param('searchpricemax');
-				$searchcountry = awpcp_request_param('searchcountry');
-				$searchstate = awpcp_request_param('searchstate');
-				$searchcity = awpcp_request_param('searchcity');
-				$searchcountyvillage = awpcp_request_param('searchcountyvillage');
-
-				$html = $this->render($keywordphrase, $searchname, $searchcity,
-									  $searchstate, $searchcountry, $searchcountyvillage,
-									  $searchcategory, $searchpricemin, $searchpricemax,
-									  $message='');
-				break;
-		}
-
-		return $html;
-	}
-
-	public function render($keywordphrase='', $searchname='', $searchcity='',
-				$searchstate='', $searchcountry='', $searchcountyvillage='', 
-				$searchcategory='', $searchpricemin='', $searchpricemax='', 
-				$message='')
-	{
-
-		global $hasregionsmodule, $hasextrafieldsmodule;
-
-		$searchadspageid = awpcp_get_page_id_by_ref('search-ads-page-name');
-
-		$url = get_permalink($searchadspageid);
-
-		$region = '';
-		if ($hasregionsmodule == 1) {
-			if (isset($_SESSION['regioncityID']) && !empty($_SESSION['regioncityID'])) {
-				$searchcity = get_theawpcpregionname($_SESSION['regioncityID']);
-				$region .= $searchcity;
-			}
-			if (isset($_SESSION['regionstatownID']) && !empty($_SESSION['regionstatownID'])) {
-				$searchstate = get_theawpcpregionname($_SESSION['regionstatownID']);
-				$region .= " " . $searchstate;
-			}
-			if (isset($_SESSION['regioncountryID']) && !empty($_SESSION['regioncountryID'])) {
-				$searchcountry = get_theawpcpregionname($_SESSION['regioncountryID']);
-				$region .= " " . $searchcountry;
-			}
-		}
-
-		if (!isset($message) || empty($message)) {
-			$message = __("Use the form below to conduct a broad or narrow search. For a broader search enter fewer parameters. For a narrower search enter as many parameters as needed to limit your search to a specific criteria","AWPCP");
-		}
-
-		$allcategories = get_categorynameidall($searchcategory);
-
-		$query = array('country' => $searchcountry, 'state' => $searchstate,
-					   'city' => $searchcity, 'countyvillage' => $searchcountyvillage);
-		$translations = array('country' => 'searchcountry', 'state' => 'searchstate',
-						  	  'city' => 'searchcity', 'county' => 'searchcountyvillage');
-		if ($hasregionsmodule) {
-			$region_fields = awpcp_region_control_form_fields($query, $translations);
-		} else {
-			$region_fields = awpcp_region_form_fields($query, $translations);
-		}
-
-		$isadmin = checkifisadmin(); // XXX: no needed?
-
-		ob_start();
-			include(AWPCP_DIR . 'frontend/templates/page-search-ads.tpl.php');
-			$html = ob_get_contents();
-		ob_end_clean();
-
-		return $html;
-	}
-
-	// public function regions_list() {
-	// 	if (function_exists('awpcp_regions_api')) {
-	// 		$field = awpcp_request_param('field', '', $_GET);
-	// 		$filter = awpcp_request_param('filterby', '', $_GET);
-	// 		$value = awpcp_request_param('value', '', $_GET);
-
-	// 		switch ($field) {
-	// 			case 'State':
-	// 			case 'City':
-	// 			case 'County':
-	// 				$entries = awpcp_region_control_get_entries($field, $value, $filter);
-	// 				break;
-	// 			case 'Country':
-	// 			default:
-	// 				$entries = array();
-	// 		}
-
-	// 		$html = awpcp_region_control_render_options($entries);
-	// 		if (count($entries) > 1) {
-	// 			$html = '<option value="">' . __('Select Option', 'AWPCP') . '</option>' . $html;
-	// 		}
-	// 	} else {
-	// 		$entries = array();
-	// 		$html = '';
-	// 	}
-
-	// 	$response = array('status' => 'ok',
-	// 					  'entries' => $entries,
-	// 					  'html' => $html);
-
-	// 	header( "Content-Type: application/json" );
- //    	echo json_encode($response);
- //    	die();
-	// }
-}
+require_once(AWPCP_DIR . '/classes/helpers/page.php');
 
 
-function load_ad_search_form($keywordphrase='', $searchname='', $searchcity='',
-				$searchstate='', $searchcountry='', $searchcountyvillage='', 
-				$searchcategory='', $searchpricemin='', $searchpricemax='', 
-				$message='') 
-{
-	global $awpcp;
-	$page = $awpcp->pages->search_ads;
+/**
+ * @since  2.1.4
+ */
+class AWPCP_SearchAdsPage extends AWPCP_Page {
 
-	return $page->render($keywordphrase, $searchname, $searchcity,
-						 $searchstate, $searchcountry, $searchcountyvillage, 
-						 $searchcategory, $searchpricemin, $searchpricemax, 
-						 $message);
+    public $messages = array();
+
+    public function __construct($page='awpcp-search-ads', $title=null) {
+        parent::__construct($page, is_null($title) ? __('Search Ads', 'AWPCP') : $title);
+
+        add_filter('awpcp-display-ads-before-list', array($this, 'show_return_link'));
+    }
+
+    public function get_current_action($default='searchads') {
+        return awpcp_request_param('a', $default);
+    }
+
+    public function url($params=array()) {
+        $url = awpcp_get_page_url('search-ads-page-name');
+        return add_query_arg($params, $url);
+    }
+
+    public function show_return_link($content) {
+        if (isset($this->return_link) && !empty($this->return_link)) {
+            return $content . $this->return_link;
+        }
+        return $content;
+    }
+
+    public function dispatch() {
+        wp_enqueue_script('awpcp-page-search-ads');
+        wp_enqueue_script('awpcp-extra-fields');
+
+        $awpcp = awpcp();
+        $awpcp->js->localize( 'page-search-ads', array(
+            'keywordphrase' => __( 'You did not enter a keyword or phrase to search for. You must at the very least provide a keyword or phrase to search for.', 'AWPCP' )
+        ) );
+
+        return $this->_dispatch();
+    }
+
+    protected function _dispatch($default=null) {
+        $action = $this->get_current_action();
+
+        switch ($action) {
+            case 'dosearch':
+                return $this->do_search_step();
+            case 'searchads':
+            default:
+                return $this->search_step();
+        }
+    }
+
+    protected function get_posted_data() {
+        $data = array(
+            'query' => awpcp_request_param('keywordphrase'),
+            'category' => awpcp_request_param('searchcategory'),
+            'name' => awpcp_request_param('searchname'),
+            'min_price' => awpcp_parse_money( awpcp_request_param( 'searchpricemin' ) ),
+            'max_price' => awpcp_parse_money( awpcp_request_param( 'searchpricemax' ) ),
+            'country' => awpcp_request_param('searchcountry'),
+            'state' => awpcp_request_param('searchstate'),
+            'city' => awpcp_request_param('searchcity'),
+            'county' => awpcp_request_param('searchcountyvillage')
+        );
+
+        $data = apply_filters( 'awpcp-get-posted-data', $data, 'search' );
+
+        return $data;
+    }
+
+    protected function validate_posted_data($data, &$errors=array()) {
+        $filtered = array_filter($data);
+
+        if (empty($filtered)) {
+            $errors[] = __("You did not enter a keyword or phrase to search for. You must at the very least provide a keyword or phrase to search for.", "AWPCP");
+        }
+
+        if (!empty($data['query']) && strlen($data['query']) < 3) {
+            $errors['query'] = __("You have entered a keyword that is too short to search on. Search keywords must be at least 3 letters in length. Please try another term.", "AWPCP");
+        }
+
+        if (!empty($data['min_price']) && !is_numeric($data['min_price'])) {
+            $errors['min_price'] = __("You have entered an invalid minimum price. Make sure your price contains numbers only. Please do not include currency symbols.", "AWPCP");
+        }
+
+        if (!empty($data['max_price']) && !is_numeric($data['max_price'])) {
+            $errors['max_price'] = __("You have entered an invalid maximum price. Make sure your price contains numbers only. Please do not include currency symbols.", "AWPCP");
+        }
+
+        return empty($errors);
+    }
+
+    protected function search_step() {
+        $this->messages[] = __("Use the form below to conduct a broad or narrow search. For a broader search enter fewer parameters. For a narrower search enter as many parameters as needed to limit your search to a specific criteria.", "AWPCP");
+        return $this->search_form($this->get_posted_data());
+    }
+
+    protected function search_form($form, $errors=array()) {
+        global $hasregionsmodule, $hasextrafieldsmodule;
+
+        $ui['module-region-fields'] = $hasregionsmodule;
+        $ui['module-extra-fields'] = $hasextrafieldsmodule;
+        $ui['posted-by-field'] = get_awpcp_option('displaypostedbyfield');
+        $ui['price-field'] = get_awpcp_option('displaypricefield');
+
+        $messages = $this->messages;
+        $hidden = array('a' => 'dosearch');
+
+        $page = $this;
+        $template = AWPCP_DIR . '/frontend/templates/page-search-ads.tpl.php';
+        $params = compact('page', 'ui', 'form', 'hidden', 'messages', 'errors');
+
+        return $this->render($template, $params);
+    }
+
+    protected function do_search_step() {
+        global $wpdb, $hasextrafieldsmodule;
+
+        $errors = array();
+        $form = $this->get_posted_data();
+
+        if (!$this->validate_posted_data($form, $errors)) {
+            return $this->search_form($form, $errors);
+        }
+
+
+        // build a link to hold all query parameters
+        $params = array_merge(stripslashes_deep($_REQUEST), array('a' => 'searchads'));
+        $href = add_query_arg(urlencode_deep($params), awpcp_current_url());
+        $this->return_link = '<div class="awpcp-return-to-search-link"><a href="' . esc_attr($href) . '">' . __('Return to Search', 'AWPCP') . '</a></div>';
+
+
+        $conditions = array('disabled = 0');
+
+        if (!empty($form['query'])) {
+            $sql = 'MATCH (ad_title, ad_details) AGAINST (%s IN BOOLEAN MODE)';
+            $conditions[] = $wpdb->prepare($sql, $form['query']);
+        }
+
+        if (!empty($form['name'])) {
+            $conditions[] = $wpdb->prepare('ad_contact_name = %s', $form['name']);
+        }
+
+        if (!empty($form['category'])) {
+            $sql = '(ad_category_id = %1$d OR ad_category_parent_id = %1$d)';
+            $conditions[] = $wpdb->prepare($sql, $form['category']);
+        }
+
+        if (!empty($form['min_price'])) {
+            $price = $form['min_price'] * 100;
+            $conditions[] = $wpdb->prepare('ad_item_price >= %d', $price);
+        }
+
+        if (!empty($form['max_price'])) {
+            $price = $form['max_price'] * 100;
+            $conditions[] = $wpdb->prepare('ad_item_price <= %d', $price);
+        }
+
+        $fields = array(
+            'city' => 'ad_city',
+            'county' => 'ad_county_village',
+            'state' => 'ad_state',
+            'country' => 'ad_country'
+        );
+
+        foreach ($fields as $field => $column) {
+            if (!empty($form[$field])) {
+                if (is_array($form[$field])) {
+                    $conditions[] = $wpdb->prepare("{$column} IN (%s)", join(',', $cities));
+                } else {
+                    $conditions[] = sprintf("{$column} LIKE '%%%s%%'", $wpdb->escape($form[$field]));
+                }
+            }
+        }
+
+        $where = join(' AND ', $conditions);
+
+        // Is the extra fields module present with the required search builder function?
+        // If so call the "where clause" builder function
+        if ($hasextrafieldsmodule == 1 && function_exists('build_extra_fields_search_where')) {
+            $where .=  build_extra_fields_search_where();
+        }
+
+        $order = get_awpcp_option( 'search-results-order' );
+
+        return awpcp_display_ads( $where, '', '', $order, 'ad' );
+    }
 }

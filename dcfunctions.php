@@ -318,7 +318,6 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 
 	mt_srand(create_awpcp_random_seed());
 	$radius=5;
-	global $PHP_SELF;
 	global $accepted_results_per_page;
 
 	$accepted_results_per_page=array("5"=>5,"10"=>10,"20"=>20,"30"=>30,"40"=>40,"50"=>50,"60"=>60,"70"=>70,"80"=>80,"90"=>90,"100"=>100);
@@ -353,7 +352,7 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 	$cid = empty($cid) ? get_query_var('cid') : $cid;
 
 	if ($cid > 0) {
-		$params['category_id'] = $cid;
+		$params['category_id'] = intval( $cid );
 	}
 
 	$myrand=mt_rand(1000,2000);
@@ -417,8 +416,8 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 		$next = '';
 	}
 
-	if ( isset($_REQUEST['page_id']) && '' != $_REQUEST['page_id'] ) {
-		$form.="\t\t<input type=\"hidden\" name=\"page_id\" value='".$_REQUEST['page_id']."' />\n";
+	if ( isset( $_REQUEST['page_id'] ) && !empty( $_REQUEST['page_id'] ) ) {
+		$form.="\t\t<input type=\"hidden\" name=\"page_id\" value='" . esc_attr( $_REQUEST['page_id'] ) ."' />\n";
 	}
 
 	$form = $form . $prev . $myreturn . $next; 
@@ -426,7 +425,7 @@ function create_pager($from,$where,$offset,$results,$tpname) {
 	$form.="\t<td>\n";
 	$form.="\t\t<input type=\"hidden\" name=\"offset\" value=\"$offset\" />\n";
 	while (list($k,$v)=each($params)) {
-		$form.="\t\t<input type=\"hidden\" name=\"$k\" value=\"$v\" />\n";
+		$form.= "\t\t<input type=\"hidden\" name=\"" . esc_attr($k) . "\" value=\"" . esc_attr($v) . "\" />\n";
 	}
 	$form.="\t\t<select name=\"results\" onchange=\"document.pagerform$myrand.submit()\">\n";
 	$form.=vector2options($accepted_results_per_page,$results);
@@ -463,6 +462,9 @@ function unix2dos($mystring) {
 	return $mystring;
 }
 
+/**
+ * TODO: move to AWPCP_Email?
+ */
 function awpcp_send_email($from,$to,$subject,$message, $html=false, $attachments=array(), $bcc='') {
 	$separator='Next.Part.331925654896717'.mktime();
 	$att_separator='NextPart.is_a_file9817298743'.mktime();

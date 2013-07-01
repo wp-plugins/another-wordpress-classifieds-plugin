@@ -1,34 +1,117 @@
 /*global AWPCPAjaxOptions:true */
+if (typeof jQuery !== 'undefined') {
 
-if (jQuery !== undefined) {
+    var AWPCP = jQuery.AWPCP = jQuery.extend({}, jQuery.AWPCP, AWPCP);
+
     (function($, undefined) {
 
-        $(function() {
-            var guide = $('#quick-start-guide-notice'),
-                cancel = guide.find('.button'),
-                submit = guide.find('.button-primary');
+        $.AWPCP.UpgradeForm = function(element) {
+            var self = this;
 
-            var onSuccess = function() {
+            self.form = $(element);
+            self.progressbar = self.form.find('.progress-bar-value');
+
+            self.total = false;
+            self.action = self.form.attr('data-action');
+
+            self.form.submit(function(event) {
+                event.preventDefault();
+                $(this).find(':submit').attr('disabled', true);
+                self.update();
+            });
+        };
+
+        $.extend($.AWPCP.UpgradeForm.prototype, {
+            update: function() {
+                var self = this;
+
+                $.getJSON($.AWPCP.get('ajaxurl'), {
+                    action: self.action
+                }, function(response) {
+                    if (response) {
+                        self.total = self.total || response.total;
+
+                        var p = 100 * ((self.total - response.remaining) / self.total);
+
+                        if (!isNaN(p)) {
+                            self.progressbar.animate({ width: p + '%' });
+                        }
+
+                        if (response.remaining > 0) {
+                            setTimeout(function() { self.update(); }, 10);
+                        } else {
+                            self.finish();
+                        }
+                    }
+                });
+            },
+
+            finish: function() {
+                this.form.slideUp().closest('div').find('.awpcp-upgrade-completed-message').fadeIn();
+            }
+        });
+
+    })(jQuery);
+
+    (function($, undefined) {
+
+        $.AWPCP.StickyNotice = function(element) {
+            var self = this;
+
+            self.element = $(element);
+            self.actions = self.element.find('.actions .button, .actions .button-primary');
+            self.actions.click(function() {
+                self.on_click($(this));
+            });
+        };
+
+        $.extend($.AWPCP.StickyNotice.prototype, {
+            on_click: function(button) {
+                var self = this;
+
                 $.ajax({
-                    url: AWPCPAjaxOptions.ajaxurl,
+                    url: $.AWPCP.get('ajaxurl'),
                     type: 'POST',
                     data: {
-                        'action': 'disable-quick-start-guide-notice'
+                        'action': button.attr('data-action')
                     },
                     success: function() {
-                        guide.closest('.update-nag').fadeOut(function() {
+                        self.element.fadeOut(function() {
                             $(this).remove();
                         });
                     }
                 });
-            };
+            }
+        });
 
-            submit.click(function() {
-                onSuccess();
+    })(jQuery);
+
+    (function($, undefined) {
+
+        $.AWPCP.CategoriesChecklist = function(element) {
+            var self = this, fn = $.fn.prop ? 'prop' : 'attr';
+
+            self.element = $(element);
+            self.parent = self.element.parent('div');
+            self.checkboxes = self.parent.find('.category-checklist :checkbox');
+
+            self.parent.find('a[data-categories]').click(function(event) {
+                event.preventDefault();
+                self.checkboxes[fn]('checked', $(this).attr('data-categories') === 'all');
+            });
+        };
+
+    })(jQuery);
+
+    (function($, undefined) {
+
+        $(function() {
+            $('#widget-modification-notice, #quick-start-guide-notice').each(function() {
+                $.noop(new $.AWPCP.StickyNotice(this));
             });
 
-            cancel.click(function() {
-                onSuccess();
+            $('.awpcp-upgrade-form').each(function() {
+                $.noop(new $.AWPCP.UpgradeForm(this));
             });
         });
 

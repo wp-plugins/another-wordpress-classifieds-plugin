@@ -16,19 +16,70 @@ class AWPCP_Category {
             $object->category_name,
             $object->category_icon,
             awpcp_get_property($object, 'category_order', ''),
-            $object->category_order
+            $object->category_parent_id
         );
     }
 
-    public static function find_by_id($category_id) {
+    public static function query($args=array()) {
         global $wpdb;
 
-        $sql = 'SELECT * FROM ' . AWPCP_TABLE_CATEGORIES . ' ';
-        $sql.= 'WHERE category_id = %d';
+        extract(wp_parse_args($args, array(
+            'fields' => '*',
+            'where' => '1 = 1',
+            'orderby' => 'category_name',
+            'order' => 'asc',
+            'offset' => 0,
+            'limit' => 0
+        )));
 
-        $category = $wpdb->get_row($wpdb->prepare($sql, $category_id));
+        $query = 'SELECT %s FROM ' . AWPCP_TABLE_CATEGORIES . ' ';
 
-        return self::create_from_object($category);
+        if ($fields == 'count') {
+            $query = sprintf($query, 'COUNT(id)');
+            $limit = 0;
+        } else {
+            $query = sprintf($query, $fields);
+        }
+
+        $query.= sprintf('WHERE %s ', $where);
+        $query.= sprintf('ORDER BY %s %s ', $orderby, strtoupper($order));
+
+        if ($limit > 0) {
+            $query.= sprintf('LIMIT %s, %s', $offset, $limit);
+        }
+
+        if ($fields == 'count') {
+            return $wpdb->get_var($query);
+        } else {
+            $items = $wpdb->get_results($query);
+            $results = array();
+
+            foreach($items as $item) {
+                $results[] = self::create_from_object($item);
+            }
+
+            return $results;
+        }
+    }
+
+    public static function find($conditions=array()) {
+        $where = array();
+
+        if (isset($conditions['id']) && is_array($conditions['id']))
+            $where[] = sprintf( 'category_id IN (%s)', join( ',', $conditions['id'] ) );
+        else if (isset($conditions['id']))
+            $where[] = sprintf('category_id  = %d', $conditions['id']);
+
+        if (isset($conditions['parent']))
+            $where[] = sprintf('category_parent_id = %d', (int) $conditions['parent']);
+
+        return self::query(array('where' => join(' AND ', $where)));
+    }
+
+    public static function find_by_id($category_id) {
+        $args = array('where' => sprintf('category_id = %d', $category_id));
+        $results = self::query($args);
+        return !empty($results) ? array_shift($results) : null;
     }
 
     private function _get_children_id($parents=array()) {

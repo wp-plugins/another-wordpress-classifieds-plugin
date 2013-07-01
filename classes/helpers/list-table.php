@@ -3,7 +3,7 @@
 if (file_exists(ABSPATH . 'wp-admin/includes/class-wp-list-table.php')) {
 	require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
 } else {
-	require_once(AWPCP_DIR . 'classes/helpers/wp-list-table.php');
+	require_once(AWPCP_DIR . '/classes/helpers/wp-list-table.php');
 }
 
 
@@ -12,7 +12,7 @@ class AWPCP_List_Table extends WP_List_Table {
 	var $_columns;
     var $_sortable;
 
-	function AWPCP_List_Table( $screen, $columns = array(), $sortable = array()) {
+	function __construct( $screen, $columns = array(), $sortable = array()) {
 		if ( is_string( $screen ) )
 			$screen = convert_to_screen( $screen );
 

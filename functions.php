@@ -113,7 +113,131 @@ function awpcp_esc_textarea($text) {
 	return $text;
 }
 
+
 /**
+ * @since	3.0
+ */
+function awpcp_date_formats() {
+	static $translations;
+
+	if ( ! is_array( $translations ) ) {
+		$translations = array(
+			'd' => 'dd',
+			'j' => 'd',
+			's' => null,
+			'l' => 'DD',
+			'D' => 'D',
+			'm' => 'mm',
+			'n' => 'm',
+			'F' => 'MM',
+			'M' => 'M',
+			'Y' => 'yy',
+			'y' => 'y',
+			'c' => 'ISO_8601',
+			'r' => 'RFC_822',
+		);
+	}
+
+	return $translations;
+}
+
+
+/**
+ * @since	3.0
+ */
+function awpcp_time_formats() {
+	static $translations;
+
+	if ( ! is_array( $translations ) ) {
+		$translations = array(
+			'a' => 'p',
+			'A' => 'P',
+			'g' => 'h',
+			'h' => 'hh',
+			'G' => 'H',
+			'H' => 'HH',
+			'i' => 'mm',
+			's' => 'ss',
+			'T' => null,
+			'c' => null,
+			'r' => null
+		);
+	}
+
+	return $translations;
+}
+
+
+/**
+ * Translates PHP date format strings to jQuery Datepicker format.
+ * @since  	3.0
+ */
+function awpcp_datepicker_format($format) {
+	return _awpcp_replace_format($format, awpcp_date_formats());
+}
+
+/**
+ * Translates PHP time format strings to jQuery TimePicker format.
+ * @since	3.0
+ */
+function awpcp_timepicker_format($format) {
+	return _awpcp_replace_format($format, awpcp_time_formats());
+}
+
+
+/**
+ * @since	3.0
+ */
+function _awpcp_replace_format($format, $translations) {
+	$pattern = join( '|', array_map( 'preg_quote', array_keys( $translations ) ) );
+
+	preg_match_all( "/$pattern/s", $format, $matches );
+
+	$processed = array();
+	foreach ( $matches[0] as $match ) {
+		if ( ! isset( $processed[ $match ] ) ) {
+			$format = str_replace( $match, $translations[ $match ], $format );
+			$processed[ $match ] = true;
+		}
+	}
+
+	return $format;
+}
+
+
+/**
+ * @since	3.0
+ */
+function awpcp_get_date_format() {
+	return get_awpcp_option('date-format');
+}
+
+
+/**
+ * @since	3.0
+ */
+function awpcp_get_time_format() {
+	return get_awpcp_option('time-format');
+}
+
+
+/**
+ * @since	3.0
+ */
+function awpcp_get_datetime_format() {
+	$format = get_awpcp_option('date-time-format');
+	$format = str_replace('<date>', '******', $format);
+	$format = str_replace('<time>', '*^*^*^', $format);
+	$format = preg_replace('/(\w)/', '\\\\$1', $format);
+	$format = str_replace('******', awpcp_get_date_format(), $format);
+	$format = str_replace('*^*^*^', awpcp_get_time_format(), $format);
+	return $format;
+}
+
+
+
+/**
+ * TODO: consider using date_i18n
  * Returns the given date as MySQL date string, Unix timestamp or
  * using a custom format.
  *
@@ -121,15 +245,26 @@ function awpcp_esc_textarea($text) {
  * @param $format 	'mysql', 'timestamp', or first arguemnt for date() function.
  */
 function awpcp_time($date=null, $format='mysql') {
-	if (is_null($date) || empty($date)) {
+	if (is_null($date) || strlen($date) === 0) {
 		$date = current_time('timestamp');
 	} else if (is_string($date)) {
 		$date = strtotime($date);
 	} // else, we asume a timestamp
 
-	if ($format === 'mysql' || $format === 'timestamp')
-		return $format === 'mysql' ? date('Y-m-d H:i:s', $date) : $date;
-	return date($format, $date);
+	switch ($format) {
+		case 'mysql':
+			return date('Y-m-d H:i:s', $date);
+		case 'timestamp':
+			return $date;
+		case 'awpcp':
+			return date(awpcp_get_datetime_format(), $date);
+		case 'awpcp-date':
+			return date(awpcp_get_date_format(), $date);
+		case 'awpcp-time':
+			return date(awpcp_get_time_format(), $date);
+		default:
+			return date($format, $date);
+	}
 }
 
 
@@ -138,7 +273,7 @@ function awpcp_time($date=null, $format='mysql') {
  *
  * @param $id int 	User ID
  */
-function awpcp_get_user($id) {
+function awpcp_get_user_data($id) {
 	$users = awpcp_get_users('WHERE ID = ' . intval($id));
 	if (!empty($users)) {
 		return array_shift($users);
@@ -166,7 +301,6 @@ function awpcp_get_users($where='') {
 
 	foreach ($users as $k => $user) {
 		$data = get_userdata($user->ID);
-		// extracts AWPCP profile data
 		$profile = get_user_meta($user->ID, 'awpcp-profile', true);
 
 		$users[$k] = new stdClass();
@@ -177,12 +311,15 @@ function awpcp_get_users($where='') {
 		$users[$k]->first_name = awpcp_get_property($data, 'first_name', '');
 		$users[$k]->last_name = awpcp_get_property($data, 'last_name', '');
 		$users[$k]->username = awpcp_array_data('username', '', $profile);
+		$users[$k]->user_url = awpcp_get_property($data, 'user_url', '');
+
 		$users[$k]->address = awpcp_array_data('address', '', $profile);
 		$users[$k]->phone = awpcp_array_data('phone', '', $profile);
 		$users[$k]->city = awpcp_array_data('city', '', $profile);
 		$users[$k]->state = awpcp_array_data('state', '', $profile);
-		$users[$k]->user_url = awpcp_get_property($data, 'user_url', '');
 	}
+
+	usort( $users, create_function( '$a, $b', 'return strcasecmp( $a->display_name, $b->display_name );' ) );
 
 	return $users;
 }
@@ -232,6 +369,72 @@ function awpcp_get_grid_item_css_class($classes, $pos, $columns, $rows) {
 	return $classes;
 }
 
+/**
+ * @since 	3.0
+ * @param  	array 	$params
+ * @param  	string 	$url
+ * @return 	String	HTML
+ */
+function awpcp_pagination($config, $url) {
+
+	$blacklist = array('page_id',
+					   'offset',
+					   'results',
+					   'PHPSESSID',
+					   'aeaction',
+					   'category_id',
+					   'cat_ID',
+					   'action',
+					   'aeaction',
+					   'category_name',
+					   'category_parent_id',
+					   'createeditadcategory',
+					   'deletemultiplecategories',
+					   'movedeleteads',
+					   'moveadstocategory',
+					   'category_to_delete',
+					   'tpname',
+					   'category_icon',
+					   'sortby',
+					   'adid',
+					   'picid',
+					   'adkey',
+					   'editemail',
+					   'deletemultipleads',
+					   'spammultipleads',
+					   'awpcp_ads_to_action',
+					   'post_type');
+
+	$params = array_merge($_GET, $_POST);
+	foreach ($blacklist as $param) {
+		unset($params[$param]);
+	}
+
+	extract(shortcode_atts(array('offset' => 0, 'results' => 10, 'total' => 10), $config));
+
+	$pages = ceil($total / $results);
+	$page = floor($offset / $results) + 1;
+
+	for ($i=1; $i <= $pages; $i++) {
+		if ($page == $i) {
+			$items[] = sprintf('%d', $i);
+		} else {
+			$href_params = array_merge($params, array('offset' => ($i-1) * $results, 'results' => $results));
+			$href = add_query_arg($href_params, $url);
+			$items[] = sprintf('<a href="%s">%d</a>', esc_attr($href), esc_attr($i));
+		}
+	}
+
+	$pagination = join('', $items);
+
+	ob_start();
+		include(AWPCP_DIR . '/frontend/templates/listings-pagination.tpl.php');
+		$html = ob_get_contents();
+	ob_end_clean();
+
+	return $html;
+}
+
 
 function awpcp_get_categories() {
 	global $wpdb;
@@ -242,6 +445,76 @@ function awpcp_get_categories() {
 	return $results;
 }
 
+function awpcp_get_categories_ids() {
+	static $categories;
+
+	if (!is_array($categories)) {
+		$categories = awpcp_get_properties( awpcp_get_categories(), 'category_id' );
+	}
+
+	return $categories;
+}
+
+function _awpcp_get_categories_checkboxes($field_name, $categories=array(), $selected=array(), $editable=true) {
+	$checked = 'checked="checked"';
+	$template = '<label class="selectit"><input type="checkbox" id="in-category-%1$d" %3$s name="%4$s[]" value="%1$d"> %2$s</label>';
+
+	$items = '';
+	foreach ($categories as $category) {
+		$items .= sprintf('<li id="category-%1$d">', $category->id);
+
+		$attributes = '';
+		if (in_array($category->id, $selected))
+			$attributes .= 'checked="checked"';
+		if (!$editable)
+			$attributes .= 'disabled="disabled"';
+
+		$items .= sprintf($template, $category->id, $category->name, $attributes, $field_name);
+
+		$children = AWPCP_Category::find(array('parent' => $category->id));
+		if (!empty($children)) {
+			$items .= _awpcp_get_categories_checkboxes($field_name, $children, $selected, $editable);
+		}
+
+		$items .= '</li>';
+	}
+
+	return '<ul>' . $items . '</ul>';
+}
+
+function awpcp_get_categories_checkboxes($selected=array(), $editable=true, $field_name='categories') {
+	global $wpdb;
+
+	$categories = AWPCP_Category::find(array('parent' => 0));
+
+	return _awpcp_get_categories_checkboxes( $field_name, $categories, (array) $selected, $editable );
+}
+
+/**
+ * @since 3.0
+ */
+function awpcp_get_comma_separated_categories_list($categories=array(), $threshold=5) {
+	$names = awpcp_get_properties( $categories, 'name' );
+	return awpcp_get_comma_separated_list( $names, $threshold, __( 'None', 'AWPCP' ) );
+}
+
+/**
+ * @since 3.0
+ */
+function awpcp_get_comma_separated_list($items=array(), $threshold=5, $none='') {
+	$items = array_filter( $items, 'strlen' );
+	$count = count( $items );
+
+	if ( $count > $threshold ) {
+		$message = _x( '%s and %d more.', 'comma separated list of things', 'AWPCP' );
+		$items = array_splice( $items, 0, $threshold - 1 );
+		return sprintf( $message, join( ', ', $items ), $count - $threshold + 1 );
+	} else if ( $count > 0 ) {
+		return sprintf( '%s.', join( ', ', $items ) );
+	} else {
+		return $none;
+	}
+}
 
 /**
  * Returns an array of Region fields. Only those enabled
@@ -259,36 +532,107 @@ function awpcp_region_fields($translations) {
 			'class' => 'country-field',
 			'name' => $translations['country'],
 			'label' => __('Country', 'AWPCP'),
-			'help' => __('separate countries by commas', 'AWPCP'));
+			'help' => __('separate countries by commas', 'AWPCP'),
+			'required' => get_awpcp_option( 'displaycountryfieldreqop', false ),
+		);
 	}
 	if (get_awpcp_option('displaystatefield')) {
 		$fields['state'] = array(
 			'class' => 'state-field',
 			'name' => $translations['state'],
 			'label' => __('State/Province', 'AWPCP'),
-			'help' => __('separate states by commas', 'AWPCP'));
+			'help' => __('separate states by commas', 'AWPCP'),
+			'required' => get_awpcp_option( 'displaystatefieldreqop', false ),
+		);
 	}
 	if (get_awpcp_option('displaycityfield')) {
 		$fields['city'] = array(
 			'class' => 'city-field',
 			'name' => $translations['city'],
 			'label' => __('City', 'AWPCP'),
-			'help' => __('separate cities by commas', 'AWPCP'));
+			'help' => __('separate cities by commas', 'AWPCP'),
+			'required' => get_awpcp_option( 'displaycityfieldreqop', false ),
+		);
 	}
 	if (get_awpcp_option('displaycountyvillagefield')) {
 		$fields['county'] = array(
 			'class' => 'county-field',
 			'name' => $translations['county'],
 			'label' => __('County/Village/Other', 'AWPCP'),
-			'help' => __('separate counties by commas', 'AWPCP'));
+			'help' => __('separate counties by commas', 'AWPCP'),
+			'required' => get_awpcp_option( 'displaycountyvillagefieldreqop', false ),
+		);
 	}
 
 	return $fields;
 }
 
+/**
+ * @since 3.0
+ */
+function awpcp_get_region_field_entries($field) {
+	global $wpdb;
+
+	$columns = array(
+		'country' => 'ad_country',
+		'county' => 'ad_county_village',
+		'state' => 'ad_state',
+		'city' => 'ad_city'
+	);
+
+	// TODO: shouldn't this conditions be the default behavior in AWPCP_Ad::query?
+	$conditions[] = "disabled = 0";
+	$conditions[] = "payment_status != 'Unpaid'";
+    if (get_awpcp_option('disablependingads') == 0 && get_awpcp_option('freepay') == 1) {
+        $conditions[] = "payment_status != 'Pending'";
+    }
+
+	$args = array(
+		'fields' => sprintf('%1$s region_name, COUNT(ad_id) AS count_enabled', $columns[$field]),
+		'where' => join(' AND ', $conditions),
+		'order' => array( "{$columns[$field]} ASC" ),
+		'groupby' => $columns[$field],
+	);
+
+	if ($entries = AWPCP_Ad::query($args, true)) {
+		$empty = new stdClass;
+		$empty->region_name = __('Select Option', 'AWPCP');
+		$empty->count_enabled = false;
+		$empty->dummy = true;
+		array_unshift($entries, $empty);
+	} else {
+		$entries = array();
+	}
+
+	return $entries;
+}
 
 /**
- * Generates HTML for Region fields. Only those enabled
+ * @since  3.0
+ */
+function awpcp_render_region_form_field_options($entries, $selected=false) {
+	$selected = count($entries) == 1 ? $entries[0]->region_name : $selected;
+	$template = '<option value="%1$s" %2$s>%3$s</option>';
+
+	$options = array();
+	foreach ($entries as $entry) {
+		$attribute = $entry->region_name == $selected ? 'selected="selected"' : '';
+		if (awpcp_get_property($entry, 'dummy', false)) {
+			$label = $entry->region_name;
+			$value = "";
+		} else {
+			$label = sprintf('%1$s (%2$d)', $entry->region_name, $entry->count_enabled);
+			$value = $entry->region_name;
+		}
+		$options[] = sprintf($template, esc_attr($value), $attribute, stripslashes($label));
+	}
+
+	return join('', $options);
+}
+
+
+/**
+ * Generates HTML for Region fields. Only those fields enabled
  * in the settings will be returned.
  *
  * @param $query array 			Default or selected values for form fields.
@@ -296,7 +640,7 @@ function awpcp_region_fields($translations) {
  * 								attribute of the form field associated
  *								to this Region Field.
  */
-function awpcp_region_form_fields($query, $translations) {
+function awpcp_region_form_fields($query, $translations=null, $context='details', $errors=array()) {
 	if (is_null($translations)) {
 		$translations = array('country', 'state', 'city', 'county');
 		$translations = array_combine($translations, $translations);
@@ -304,15 +648,21 @@ function awpcp_region_form_fields($query, $translations) {
 
 	$fields = array();
 	foreach (awpcp_region_fields($translations) as $key => $field) {
-		$fields[$key] = array_merge($field, array('value' => awpcp_array_data($key, '', $query),
-												  'entries' => array(),
-												  'options' => ''));
+		$field['value'] = awpcp_array_data($key, '', $query);
+		if ($context === 'search' && get_awpcp_option('buildsearchdropdownlists')) {
+			$field['entries'] = awpcp_get_region_field_entries($key);
+			$field['options'] = awpcp_render_region_form_field_options($field['entries'], $field['value']);
+		} else {
+			$field['entries'] = array();
+			$field['options'] = '';
+		}
+		$fields[$key] = $field;
 	}
 
 	$ordered = array('country', 'state', 'city', 'county');
 
 	ob_start();
-		include(AWPCP_DIR . 'frontend/templates/region-control-form-fields.tpl.php');
+		include(AWPCP_DIR . '/frontend/templates/region-control-form-fields.tpl.php');
 		$html = ob_get_contents();
 	ob_end_clean();
 
@@ -320,254 +670,213 @@ function awpcp_region_form_fields($query, $translations) {
 }
 
 
-function awpcp_country_list_options() {
-	return '<option value="">-- Choose a Country --</option>
-	<option value="Afganistan">Afghanistan</option>
-	<option value="Albania">Albania</option>
-	<option value="Algeria">Algeria</option>
-	<option value="American Samoa">American Samoa</option>
-	<option value="Andorra">Andorra</option>
-	<option value="Angola">Angola</option>
-	<option value="Anguilla">Anguilla</option>
-	<option value="Antigua &amp; Barbuda">Antigua &amp; Barbuda</option>
-	<option value="Argentina">Argentina</option>
-	<option value="Armenia">Armenia</option>
-	<option value="Aruba">Aruba</option>
-	<option value="Australia">Australia</option>
-	<option value="Austria">Austria</option>
-	<option value="Azerbaijan">Azerbaijan</option>
-	<option value="Bahamas">Bahamas</option>
-	<option value="Bahrain">Bahrain</option>
-	<option value="Bangladesh">Bangladesh</option>
-	<option value="Barbados">Barbados</option>
-	<option value="Belarus">Belarus</option>
-	<option value="Belgium">Belgium</option>
-	<option value="Belize">Belize</option>
-	<option value="Benin">Benin</option>
-	<option value="Bermuda">Bermuda</option>
-	<option value="Bhutan">Bhutan</option>
-	<option value="Bolivia">Bolivia</option>
-	<option value="Bonaire">Bonaire</option>
-	<option value="Bosnia &amp; Herzegovina">Bosnia &amp; Herzegovina</option>
-	<option value="Botswana">Botswana</option>
-	<option value="Brazil">Brazil</option>
-	<option value="British Indian Ocean Ter">British Indian Ocean Ter</option>
-	<option value="Brunei">Brunei</option>
-	<option value="Bulgaria">Bulgaria</option>
-	<option value="Burkina Faso">Burkina Faso</option>
-	<option value="Burundi">Burundi</option>
-	<option value="Cambodia">Cambodia</option>
-	<option value="Cameroon">Cameroon</option>
-	<option value="Canada">Canada</option>
-	<option value="Canary Islands">Canary Islands</option>
-	<option value="Cape Verde">Cape Verde</option>
-	<option value="Cayman Islands">Cayman Islands</option>
-	<option value="Central African Republic">Central African Republic</option>
-	<option value="Chad">Chad</option>
-	<option value="Channel Islands">Channel Islands</option>
-	<option value="Chile">Chile</option>
-	<option value="China">China</option>
-	<option value="Christmas Island">Christmas Island</option>
-	<option value="Cocos Island">Cocos Island</option>
-	<option value="Colombia">Colombia</option>
-	<option value="Comoros">Comoros</option>
-	<option value="Congo">Congo</option>
-	<option value="Cook Islands">Cook Islands</option>
-	<option value="Costa Rica">Costa Rica</option>
-	<option value="Cote D\'Ivoire">Cote D\'Ivoire</option>
-	<option value="Croatia">Croatia</option>
-	<option value="Cuba">Cuba</option>
-	<option value="Curaco">Curacao</option>
-	<option value="Cyprus">Cyprus</option>
-	<option value="Czech Republic">Czech Republic</option>
-	<option value="Denmark">Denmark</option>
-	<option value="Djibouti">Djibouti</option>
-	<option value="Dominica">Dominica</option>
-	<option value="Dominican Republic">Dominican Republic</option>
-	<option value="East Timor">East Timor</option>
-	<option value="Ecuador">Ecuador</option>
-	<option value="Egypt">Egypt</option>
-	<option value="El Salvador">El Salvador</option>
-	<option value="Equatorial Guinea">Equatorial Guinea</option>
-	<option value="Eritrea">Eritrea</option>
-	<option value="Estonia">Estonia</option>
-	<option value="Ethiopia">Ethiopia</option>
-	<option value="Falkland Islands">Falkland Islands</option>
-	<option value="Faroe Islands">Faroe Islands</option>
-	<option value="Fiji">Fiji</option>
-	<option value="Finland">Finland</option>
-	<option value="France">France</option>
-	<option value="French Guiana">French Guiana</option>
-	<option value="French Polynesia">French Polynesia</option>
-	<option value="French Southern Ter">French Southern Ter</option>
-	<option value="Gabon">Gabon</option>
-	<option value="Gambia">Gambia</option>
-	<option value="Georgia">Georgia</option>
-	<option value="Germany">Germany</option>
-	<option value="Ghana">Ghana</option>
-	<option value="Gibraltar">Gibraltar</option>
-	<option value="Great Britain">Great Britain</option>
-	<option value="Greece">Greece</option>
-	<option value="Greenland">Greenland</option>
-	<option value="Grenada">Grenada</option>
-	<option value="Guadeloupe">Guadeloupe</option>
-	<option value="Guam">Guam</option>
-	<option value="Guatemala">Guatemala</option>
-	<option value="Guinea">Guinea</option>
-	<option value="Guyana">Guyana</option>
-	<option value="Haiti">Haiti</option>
-	<option value="Hawaii">Hawaii</option>
-	<option value="Honduras">Honduras</option>
-	<option value="Hong Kong">Hong Kong</option>
-	<option value="Hungary">Hungary</option>
-	<option value="Iceland">Iceland</option>
-	<option value="India">India</option>
-	<option value="Indonesia">Indonesia</option>
-	<option value="Iran">Iran</option>
-	<option value="Iraq">Iraq</option>
-	<option value="Ireland">Ireland</option>
-	<option value="Isle of Man">Isle of Man</option>
-	<option value="Israel">Israel</option>
-	<option value="Italy">Italy</option>
-	<option value="Jamaica">Jamaica</option>
-	<option value="Japan">Japan</option>
-	<option value="Jordan">Jordan</option>
-	<option value="Kazakhstan">Kazakhstan</option>
-	<option value="Kenya">Kenya</option>
-	<option value="Kiribati">Kiribati</option>
-	<option value="Korea North">Korea North</option>
-	<option value="Korea Sout">Korea South</option>
-	<option value="Kuwait">Kuwait</option>
-	<option value="Kyrgyzstan">Kyrgyzstan</option>
-	<option value="Laos">Laos</option>
-	<option value="Latvia">Latvia</option>
-	<option value="Lebanon">Lebanon</option>
-	<option value="Lesotho">Lesotho</option>
-	<option value="Liberia">Liberia</option>
-	<option value="Libya">Libya</option>
-	<option value="Liechtenstein">Liechtenstein</option>
-	<option value="Lithuania">Lithuania</option>
-	<option value="Luxembourg">Luxembourg</option>
-	<option value="Macau">Macau</option>
-	<option value="Macedonia">Macedonia</option>
-	<option value="Madagascar">Madagascar</option>
-	<option value="Malaysia">Malaysia</option>
-	<option value="Malawi">Malawi</option>
-	<option value="Maldives">Maldives</option>
-	<option value="Mali">Mali</option>
-	<option value="Malta">Malta</option>
-	<option value="Marshall Islands">Marshall Islands</option>
-	<option value="Martinique">Martinique</option>
-	<option value="Mauritania">Mauritania</option>
-	<option value="Mauritius">Mauritius</option>
-	<option value="Mayotte">Mayotte</option>
-	<option value="Mexico">Mexico</option>
-	<option value="Midway Islands">Midway Islands</option>
-	<option value="Moldova">Moldova</option>
-	<option value="Monaco">Monaco</option>
-	<option value="Mongolia">Mongolia</option>
-	<option value="Montserrat">Montserrat</option>
-	<option value="Morocco">Morocco</option>
-	<option value="Mozambique">Mozambique</option>
-	<option value="Myanmar">Myanmar</option>
-	<option value="Nambia">Nambia</option>
-	<option value="Nauru">Nauru</option>
-	<option value="Nepal">Nepal</option>
-	<option value="Netherland Antilles">Netherland Antilles</option>
-	<option value="Netherlands">Netherlands (Holland, Europe)</option>
-	<option value="Nevis">Nevis</option>
-	<option value="New Caledonia">New Caledonia</option>
-	<option value="New Zealand">New Zealand</option>
-	<option value="Nicaragua">Nicaragua</option>
-	<option value="Niger">Niger</option>
-	<option value="Nigeria">Nigeria</option>
-	<option value="Niue">Niue</option>
-	<option value="Norfolk Island">Norfolk Island</option>
-	<option value="Norway">Norway</option>
-	<option value="Oman">Oman</option>
-	<option value="Pakistan">Pakistan</option>
-	<option value="Palau Island">Palau Island</option>
-	<option value="Palestine">Palestine</option>
-	<option value="Panama">Panama</option>
-	<option value="Papua New Guinea">Papua New Guinea</option>
-	<option value="Paraguay">Paraguay</option>
-	<option value="Peru">Peru</option>
-	<option value="Phillipines">Philippines</option>
-	<option value="Pitcairn Island">Pitcairn Island</option>
-	<option value="Poland">Poland</option>
-	<option value="Portugal">Portugal</option>
-	<option value="Puerto Rico">Puerto Rico</option>
-	<option value="Qatar">Qatar</option>
-	<option value="Republic of Montenegro">Republic of Montenegro</option>
-	<option value="Republic of Serbia">Republic of Serbia</option>
-	<option value="Reunion">Reunion</option>
-	<option value="Romania">Romania</option>
-	<option value="Russia">Russia</option>
-	<option value="Rwanda">Rwanda</option>
-	<option value="St Barthelemy">St Barthelemy</option>
-	<option value="St Eustatius">St Eustatius</option>
-	<option value="St Helena">St Helena</option>
-	<option value="St Kitts-Nevis">St Kitts-Nevis</option>
-	<option value="St Lucia">St Lucia</option>
-	<option value="St Maarten">St Maarten</option>
-	<option value="St Pierre &amp; Miquelon">St Pierre &amp; Miquelon</option>
-	<option value="St Vincent &amp; Grenadines">St Vincent &amp; Grenadines</option>
-	<option value="Saipan">Saipan</option>
-	<option value="Samoa">Samoa</option>
-	<option value="Samoa American">Samoa American</option>
-	<option value="San Marino">San Marino</option>
-	<option value="Sao Tome & Principe">Sao Tome &amp; Principe</option>
-	<option value="Saudi Arabia">Saudi Arabia</option>
-	<option value="Senegal">Senegal</option>
-	<option value="Seychelles">Seychelles</option>
-	<option value="Sierra Leone">Sierra Leone</option>
-	<option value="Singapore">Singapore</option>
-	<option value="Slovakia">Slovakia</option>
-	<option value="Slovenia">Slovenia</option>
-	<option value="Solomon Islands">Solomon Islands</option>
-	<option value="Somalia">Somalia</option>
-	<option value="South Africa">South Africa</option>
-	<option value="Spain">Spain</option>
-	<option value="Sri Lanka">Sri Lanka</option>
-	<option value="Sudan">Sudan</option>
-	<option value="Suriname">Suriname</option>
-	<option value="Swaziland">Swaziland</option>
-	<option value="Sweden">Sweden</option>
-	<option value="Switzerland">Switzerland</option>
-	<option value="Syria">Syria</option>
-	<option value="Tahiti">Tahiti</option>
-	<option value="Taiwan">Taiwan</option>
-	<option value="Tajikistan">Tajikistan</option>
-	<option value="Tanzania">Tanzania</option>
-	<option value="Thailand">Thailand</option>
-	<option value="Togo">Togo</option>
-	<option value="Tokelau">Tokelau</option>
-	<option value="Tonga">Tonga</option>
-	<option value="Trinidad &amp; Tobago">Trinidad &amp; Tobago</option>
-	<option value="Tunisia">Tunisia</option>
-	<option value="Turkey">Turkey</option>
-	<option value="Turkmenistan">Turkmenistan</option>
-	<option value="Turks &amp; Caicos Is">Turks &amp; Caicos Is</option>
-	<option value="Tuvalu">Tuvalu</option>
-	<option value="Uganda">Uganda</option>
-	<option value="Ukraine">Ukraine</option>
-	<option value="United Arab Erimates">United Arab Emirates</option>
-	<option value="United Kingdom">United Kingdom</option>
-	<option value="United States of America">United States of America</option>
-	<option value="Uraguay">Uruguay</option>
-	<option value="Uzbekistan">Uzbekistan</option>
-	<option value="Vanuatu">Vanuatu</option>
-	<option value="Vatican City State">Vatican City State</option>
-	<option value="Venezuela">Venezuela</option>
-	<option value="Vietnam">Vietnam</option>
-	<option value="Virgin Islands (Brit)">Virgin Islands (Brit)</option>
-	<option value="Virgin Islands (USA)">Virgin Islands (USA)</option>
-	<option value="Wake Island">Wake Island</option>
-	<option value="Wallis &amp; Futana Is">Wallis &amp; Futana Is</option>
-	<option value="Yemen">Yemen</option>
-	<option value="Zaire">Zaire</option>
-	<option value="Zambia">Zambia</option>
-	<option value="Zimbabwe">Zimbabwe</option>';
+function awpcp_country_list_options($value=false, $use_names=true) {
+	$countries = array(
+	    'US' => 'United States',
+	    'AL' => 'Albania',
+	    'DZ' => 'Algeria',
+	    'AD' => 'Andorra',
+	    'AO' => 'Angola',
+	    'AI' => 'Anguilla',
+	    'AG' => 'Antigua and Barbuda',
+	    'AR' => 'Argentina',
+	    'AM' => 'Armenia',
+	    'AW' => 'Aruba',
+	    'AU' => 'Australia',
+	    'AT' => 'Austria',
+	    'AZ' => 'Azerbaijan Republic',
+	    'BS' => 'Bahamas',
+	    'BH' => 'Bahrain',
+	    'BB' => 'Barbados',
+	    'BE' => 'Belgium',
+	    'BZ' => 'Belize',
+	    'BJ' => 'Benin',
+	    'BM' => 'Bermuda',
+	    'BT' => 'Bhutan',
+	    'BO' => 'Bolivia',
+	    'BA' => 'Bosnia and Herzegovina',
+	    'BW' => 'Botswana',
+	    'BR' => 'Brazil',
+	    'BN' => 'Brunei',
+	    'BG' => 'Bulgaria',
+	    'BF' => 'Burkina Faso',
+	    'BI' => 'Burundi',
+	    'KH' => 'Cambodia',
+	    'CA' => 'Canada',
+	    'CV' => 'Cape Verde',
+	    'KY' => 'Cayman Islands',
+	    'TD' => 'Chad',
+	    'CL' => 'Chile',
+	    'C2' => 'China',
+	    'CO' => 'Colombia',
+	    'KM' => 'Comoros',
+	    'CK' => 'Cook Islands',
+	    'CR' => 'Costa Rica',
+	    'HR' => 'Croatia',
+	    'CY' => 'Cyprus',
+	    'CZ' => 'Czech Republic',
+	    'CD' => 'Democratic Republic of the Congo',
+	    'DK' => 'Denmark',
+	    'DJ' => 'Djibouti',
+	    'DM' => 'Dominica',
+	    'DO' => 'Dominican Republic',
+	    'EC' => 'Ecuador',
+	    'SV' => 'El Salvador',
+	    'ER' => 'Eritrea',
+	    'EE' => 'Estonia',
+	    'ET' => 'Ethiopia',
+	    'FK' => 'Falkland Islands',
+	    'FO' => 'Faroe Islands',
+	    'FJ' => 'Fiji',
+	    'FI' => 'Finland',
+	    'FR' => 'France',
+	    'GF' => 'French Guiana',
+	    'PF' => 'French Polynesia',
+	    'GA' => 'Gabon Republic',
+	    'GM' => 'Gambia',
+	    'DE' => 'Germany',
+	    'GI' => 'Gibraltar',
+	    'GR' => 'Greece',
+	    'GL' => 'Greenland',
+	    'GD' => 'Grenada',
+	    'GP' => 'Guadeloupe',
+	    'GT' => 'Guatemala',
+	    'GN' => 'Guinea',
+	    'GW' => 'Guinea Bissau',
+	    'GY' => 'Guyana',
+	    'HN' => 'Honduras',
+	    'HK' => 'Hong Kong',
+	    'HU' => 'Hungary',
+	    'IS' => 'Iceland',
+	    'IN' => 'India',
+	    'ID' => 'Indonesia',
+	    'IE' => 'Ireland',
+	    'IL' => 'Israel',
+	    'IT' => 'Italy',
+	    'JM' => 'Jamaica',
+	    'JP' => 'Japan',
+	    'JO' => 'Jordan',
+	    'KZ' => 'Kazakhstan',
+	    'KE' => 'Kenya',
+	    'KI' => 'Kiribati',
+	    'KW' => 'Kuwait',
+	    'KG' => 'Kyrgyzstan',
+	    'LA' => 'Laos',
+	    'LV' => 'Latvia',
+	    'LS' => 'Lesotho',
+	    'LI' => 'Liechtenstein',
+	    'LT' => 'Lithuania',
+	    'LU' => 'Luxembourg',
+	    'MG' => 'Madagascar',
+	    'MW' => 'Malawi',
+	    'MY' => 'Malaysia',
+	    'MV' => 'Maldives',
+	    'ML' => 'Mali',
+	    'MT' => 'Malta',
+	    'MH' => 'Marshall Islands',
+	    'MQ' => 'Martinique',
+	    'MR' => 'Mauritania',
+	    'MU' => 'Mauritius',
+	    'YT' => 'Mayotte',
+	    'MX' => 'Mexico',
+	    'FM' => 'Micronesia',
+	    'MN' => 'Mongolia',
+	    'MS' => 'Montserrat',
+	    'MA' => 'Morocco',
+	    'MZ' => 'Mozambique',
+	    'NA' => 'Namibia',
+	    'NR' => 'Nauru',
+	    'NP' => 'Nepal',
+	    'NL' => 'Netherlands',
+	    'AN' => 'Netherlands Antilles',
+	    'NC' => 'New Caledonia',
+	    'NZ' => 'New Zealand',
+	    'NI' => 'Nicaragua',
+	    'NE' => 'Niger',
+	    'NU' => 'Niue',
+	    'NF' => 'Norfolk Island',
+	    'NO' => 'Norway',
+	    'OM' => 'Oman',
+	    'PW' => 'Palau',
+	    'PA' => 'Panama',
+	    'PG' => 'Papua New Guinea',
+	    'PE' => 'Peru',
+	    'PH' => 'Philippines',
+	    'PN' => 'Pitcairn Islands',
+	    'PL' => 'Poland',
+	    'PT' => 'Portugal',
+	    'QA' => 'Qatar',
+	    'CG' => 'Republic of the Congo',
+	    'RE' => 'Reunion',
+	    'RO' => 'Romania',
+	    'RU' => 'Russia',
+	    'RW' => 'Rwanda',
+	    'KN' => 'Saint Kitts and Nevis Anguilla',
+	    'PM' => 'Saint Pierre and Miquelon',
+	    'VC' => 'Saint Vincent and Grenadines',
+	    'WS' => 'Samoa',
+	    'SM' => 'San Marino',
+	    'ST' => 'São Tomé and Príncipe',
+	    'SA' => 'Saudi Arabia',
+	    'SN' => 'Senegal',
+	    'SC' => 'Seychelles',
+	    'SL' => 'Sierra Leone',
+	    'SG' => 'Singapore',
+	    'SK' => 'Slovakia',
+	    'SI' => 'Slovenia',
+	    'SB' => 'Solomon Islands',
+	    'SO' => 'Somalia',
+	    'ZA' => 'South Africa',
+	    'KR' => 'South Korea',
+	    'ES' => 'Spain',
+	    'LK' => 'Sri Lanka',
+	    'SH' => 'St. Helena',
+	    'LC' => 'St. Lucia',
+	    'SR' => 'Suriname',
+	    'SJ' => 'Svalbard and Jan Mayen Islands',
+	    'SZ' => 'Swaziland',
+	    'SE' => 'Sweden',
+	    'CH' => 'Switzerland',
+	    'TW' => 'Taiwan',
+	    'TJ' => 'Tajikistan',
+	    'TZ' => 'Tanzania',
+	    'TH' => 'Thailand',
+	    'TG' => 'Togo',
+	    'TO' => 'Tonga',
+	    'TT' => 'Trinidad and Tobago',
+	    'TN' => 'Tunisia',
+	    'TR' => 'Turkey',
+	    'TM' => 'Turkmenistan',
+	    'TC' => 'Turks and Caicos Islands',
+	    'TV' => 'Tuvalu',
+	    'UG' => 'Uganda',
+	    'UA' => 'Ukraine',
+	    'AE' => 'United Arab Emirates',
+	    'GB' => 'United Kingdom',
+	    'UY' => 'Uruguay',
+	    'VU' => 'Vanuatu',
+	    'VA' => 'Vatican City State',
+	    'VE' => 'Venezuela',
+	    'VN' => 'Vietnam',
+	    'VG' => 'Virgin Islands (British)',
+	    'WF' => 'Wallis and Futuna Islands',
+	    'YE' => 'Yemen',
+	    'ZM' => 'Zambia',
+	);
+
+	$options[] ='<option value="">' . __('-- Choose a Country --', 'AWPCP') . '</option>';
+
+	foreach ($countries as $code => $name) {
+		if ($use_names) {
+			$selected = $value == $name ? ' selected="selected"' : '';
+			$options[] = sprintf('<option value="%s"%s>%s</option>', $name, $selected, $name);
+		} else {
+			$selected = $value == $code ? ' selected="selected"' : '';
+			$options[] = sprintf('<option value="%s"%s>%s</option>', $code, $selected, $name);
+		}
+	}
+
+	return join('', $options);
 }
 
 function awpcp_state_list_options() {
@@ -676,9 +985,10 @@ function awpcp_get_ad_number_allowed_images($ad_id) {
 		return 0;
 	}
 
-	$ad_term_id = $ad->adterm_id;
-	if (!empty($ad_term_id)) {
-		$allowed = get_numimgsallowed($ad_term_id);
+	$payment_term = $ad->get_payment_term();
+
+	if ( ! is_null( $payment_term ) ) {
+		$allowed = $payment_term->images;
 	} else {
 		$allowed = get_awpcp_option('imagesallowedfree');
 	}
@@ -841,7 +1151,6 @@ function awpcp_insert_menu_item($items, $after, $key, $item) {
 	return awpcp_array_insert_after($items, $after, $key, $item);
 }
 
-
 /**
  * Insert a submenu item in a WordPress admin menu, after an
  * existing item.
@@ -892,7 +1201,6 @@ function awpcp_find_page($refname) {
 	return $pages !== false && !empty($pages);
 }
 
-
 /**
  * Return name of current AWPCP page.
  *
@@ -902,7 +1210,6 @@ function awpcp_find_page($refname) {
 function awpcp_get_main_page_name() {
 	return get_awpcp_option('main-page-name');
 }
-
 
 /**
  * Always return the full URL, even if AWPCP main page
@@ -920,6 +1227,12 @@ function awpcp_get_main_page_url() {
 	return user_trailingslashit($url);
 }
 
+/**
+ * @since 2.1.4
+ */
+function awpcp_get_page_name($pagename) {
+	return get_awpcp_option($pagename);
+}
 
 /**
  * Returns a link to an AWPCP page identified by $pagename.
@@ -943,7 +1256,6 @@ function awpcp_get_page_url($pagename) {
 	return rtrim($url, '/');
 }
 
-
 /**
  * Returns a link that can be used to initiate the Ad Renewal process.
  *
@@ -959,6 +1271,60 @@ function awpcp_get_renew_ad_url($ad_id) {
 	}
 
 	return $url;
+}
+
+/**
+ * Returns a link to the page where visitors can contact the Ad's owner
+ *
+ * @since  3.0.0
+ */
+function awpcp_get_reply_to_ad_url($ad_id, $ad_title=null) {
+	$base_url = awpcp_get_page_url('reply-to-ad-page-name');
+	$permalinks = get_option('permalink_structure');
+	$url = false;
+
+	if (!is_null($ad_title)) {
+		$title = sanitize_title($ad_title);
+	} else {
+		$title = sanitize_title(AWPCP_Ad::find_by_id($ad_id)->ad_title);
+	}
+
+	if (get_awpcp_option('seofriendlyurls')) {
+		if (get_option('permalink_structure')) {
+			$url = sprintf("%s/%s/%s", $base_url, $ad_id, $title);
+			$url = user_trailingslashit($url);
+		}
+	}
+
+	if ($url === false) {
+		$base_url = user_trailingslashit($base_url);
+		$url = add_query_arg(array('i' => $ad_id), $base_url);
+	}
+
+	return $url;
+}
+
+/**
+ * @since  3.0
+ */
+function awpcp_get_admin_panel_url() {
+	return add_query_arg( 'page', 'awpcp.php', admin_url('admin.php'));
+}
+
+/**
+ * @since  3.0
+ */
+function awpcp_get_admin_upgrade_url() {
+	return add_query_arg( 'page', 'awpcp-admin-upgrade', admin_url('admin.php'));
+}
+
+/**
+ * Returns a link to Manage Listings
+ *
+ * @since 2.1.4
+ */
+function awpcp_get_admin_listings_url() {
+	return admin_url('admin.php?page=awpcp-listings');
 }
 
 /**
@@ -1013,16 +1379,25 @@ function awpcp_ajaxurl($overwrite=false) {
 	return $ajaxurl;
 }
 
+/**
+ * @since 3.0-beta
+ */
+function awpcp_get_blog_name() {
+	$blog_name = get_option('blogname');
+	if (empty($blog_name)) {
+		$blog_name = _x('Classifieds Website', 'default blog title', 'AWPCP');
+	}
+	return $blog_name;
+}
+
 
 function awpcp_post_param($name, $default='') {
 	return awpcp_array_data($name, $default, $_POST);
 }
 
-
 function awpcp_request_param($name, $default='', $from=null) {
 	return awpcp_array_data($name, $default, is_null($from) ? $_REQUEST : $from);
 }
-
 
 function awpcp_array_data($name, $default, $from=array()) {
 	$value = isset($from[$name]) ? $from[$name] : null;
@@ -1036,7 +1411,6 @@ function awpcp_array_data($name, $default, $from=array()) {
 	return $default;
 }
 
-
 function awpcp_get_property($object, $property, $default='') {
     if (is_object($object) && (isset($object->$property) ||
     	array_key_exists($property, get_object_vars($object)))) {
@@ -1045,7 +1419,6 @@ function awpcp_get_property($object, $property, $default='') {
     return $default;
 }
 
-
 function awpcp_get_properties($objects, $property, $default='') {
 	$results = array();
 	foreach ($objects as $object) {
@@ -1053,6 +1426,7 @@ function awpcp_get_properties($objects, $property, $default='') {
 	}
 	return $results;
 }
+
 
 /**
  * Parses 'yes', 'true', 'no', 'false', 0, 1 into bool values.
@@ -1071,32 +1445,142 @@ function awpcp_parse_bool($value) {
 }
 
 
-function awpcp_flash($message) {
-	$messages = get_option('awpcp-messages', array());
-	$messages[] = $message;
-	update_option('awpcp-messages', $messages);
+function awpcp_get_currency_symbol() {
+	$dollar = array('CAD', 'AUD', 'NZD', 'SGD', 'HKD', 'USD');
+	$code = get_awpcp_option('displaycurrencycode');
+
+	if (in_array($code, $dollar)) {
+		$symbol = "$";
+	}
+
+	if (($code == 'JPY')) {
+		$symbol = "&yen;";
+	}
+
+	if (($code == 'EUR')) {
+		$symbol = "&euro;";
+	}
+
+	if (($code == 'GBP')) {
+		$symbol = "&pound;";
+	}
+
+	return empty($symbol) ? $code : $symbol;
 }
 
+/**
+ * @since 3.0
+ */
+function awpcp_format_money($value, $include_symbol=true) {
+	$thousands_separator = get_awpcp_option('thousands-separator');
+	$decimal_separator = get_awpcp_option('decimal-separator');
+	$decimals = get_awpcp_option('show-decimals') ? 2 : 0;
+	$symbol = $include_symbol ? awpcp_get_currency_symbol() : '';
+
+	if ($value >= 0) {
+		$number = number_format($value, $decimals, $decimal_separator, $thousands_separator);
+		return sprintf('%s%s', $symbol, $number);
+	} else {
+		$number = number_format(- $value, $decimals, $decimal_separator, $thousands_separator);
+		return sprintf('(%s%s)', $symbol, $number);
+	}
+}
+
+/**
+ * @since 3.0
+ */
+function awpcp_parse_money($value, $decimal_separator=false, $thousands_separator=false) {
+	$thousands_separator = $thousands_separator ? $thousands_separator : get_awpcp_option('thousands-separator');
+	$decimal_separator = $decimal_separator ? $decimal_separator : get_awpcp_option('decimal-separator');
+
+	$pattern = '/^-?(?:\d+|\d{1,3}(?:\\' . $thousands_separator . '\\d{3})+)?(?:\\' . $decimal_separator . '\\d+)?$/';
+
+	if (preg_match($pattern, $value)) {
+		$value = str_replace($thousands_separator, '', $value);
+		$value = str_replace($decimal_separator, '.', $value);
+		$number = floatval($value);
+	} else {
+		$number = false;
+	}
+
+	return $number;
+}
+
+
+/**
+ * @since 2.1.4
+ */
+function awpcp_get_flash_messages() {
+	if (is_user_logged_in()) {
+		if ($messages = get_user_option('awpcp-messages', get_current_user_id())) {
+			return $messages;
+		}
+		return array();
+	} else if (isset($_COOKIE['awpcp-messages'])) {
+		return get_option('awpcp-messages-' . $_COOKIE['awpcp-messages'], array());
+	} else {
+		return array();
+	}
+}
+
+/**
+ * @since 2.1.4
+ */
+function awpcp_update_flash_messages($messages) {
+	if (is_user_logged_in()) {
+		return update_user_option(get_current_user_id(), 'awpcp-messages', $messages);
+	} else {
+		if (!isset($_COOKIE['awpcp-messages']))
+			$_COOKIE['awpcp-messages'] = uniqid();
+		return update_option('awpcp-messages-' . $_COOKIE['awpcp-messages'], $messages);
+	}
+}
+
+/**
+ * @since 2.1.4
+ */
+function awpcp_clear_flash_messages() {
+	if (is_user_logged_in()) {
+		return delete_user_option(get_current_user_id(), 'awpcp-messages');
+	} else if (isset($_COOKIE['awpcp-messages'])) {
+		return delete_option('awpcp-messages-' . $_COOKIE['awpcp-messages']);
+	}
+	return true;
+}
+
+function awpcp_flash($message, $class='updated') {
+	$messages = awpcp_get_flash_messages();
+	$messages[] = array('message' => $message, 'class' => (array) $class);
+	awpcp_update_flash_messages($messages);
+}
+
+/**
+ */
+function awpcp_print_messages() {
+ 	// The function is expected to be called only once per request. However,
+ 	// due to special circumstances it is possible that the function is called
+ 	// twice or more, usually with the results from the last call being the ones
+ 	// shown to the user. In those cases, the messages would be lost unless we
+ 	// cache the messages during the request. That's why we use a static $messages
+ 	// variable.
+	static $messages = null;
+	$messages = is_null($messages) ? awpcp_get_flash_messages() : $messages;
+
+	foreach ($messages as $message) {
+		echo awpcp_print_message($message['message'], $message['class']);
+	}
+
+	awpcp_clear_flash_messages();
+}
 
 function awpcp_print_message($message, $class=array('updated')) {
 	$class = array_merge(array('awpcp-message'), $class);
 	return '<div class="' . join(' ', $class) . '"><p>' . $message . '</p></div>';
 }
 
-
-function awpcp_print_messages() {
-	$messages = get_option('awpcp-messages', array());
-
-	$html = '';
-	foreach ($messages as $message) {
-		$html .= awpcp_print_message($message);
-	}
-
-	update_option('awpcp-messages', array());
-
-	echo $html;
+function awpcp_print_error($message) {
+	return awpcp_print_message($message, array('error'));
 }
-add_action('admin_notices', 'awpcp_print_messages');
 
 
 function awpcp_validate_error($field, $errors) {
@@ -1109,6 +1593,17 @@ function awpcp_validate_error($field, $errors) {
 function awpcp_form_error($field, $errors) {
 	$error = awpcp_array_data($field, '', $errors);
 	return empty($error) ? '' : '<span class="awpcp-error">' . $error . '</span>';
+}
+
+
+function awpcp_render_attributes($attrs) {
+    $attributes = array();
+    foreach ($attrs as $name => $value) {
+        if (is_array($value))
+            $value = join(' ', array_filter($value, 'strlen'));
+        $attributes[] = sprintf('%s="%s"', $name, esc_attr($value));
+    }
+    return join(' ', $attributes);
 }
 
 
@@ -1127,6 +1622,7 @@ function awpcp_uploaded_file_error($file) {
 	return array($file['error'], $upload_errors[$file['error']]);
 }
 
+
 /**
  * @since 2.0.7
  */
@@ -1135,7 +1631,6 @@ function awpcp_table_exists($table) {
     $result = $wpdb->get_var("SHOW TABLES LIKE '" . $table . "'");
     return strcasecmp($result, $table) === 0;
 }
-
 
 /**
  * @since  2.1.4
@@ -1149,13 +1644,115 @@ function awpcp_column_exists($table, $column) {
 }
 
 
+/** Email functions
+ ---------------------------------------------------------------------------- */
+
+/**
+ * Return the email address that should receive the notifications intented for
+ * administrator users.
+ *
+ * @since	3.0
+ * @return	string	email address
+ */
+function awpcp_admin_recipient_email_address() {
+	$email_address = get_awpcp_option( 'admin-recipient-email' );
+	if ( empty( $email_address ) ) {
+		$email_address = get_option( 'admin_email' );
+	}
+
+	return $email_address;
+}
+
+/**
+ * Return the email address used as the sender for email notifications.
+ *
+ * @since	3.0
+ * @return	string	email address
+ */
+function awpcp_admin_sender_email_address($include_contact_name=false) {
+	$email_address = get_awpcp_option( 'awpcpadminemail' );
+	if ( empty( $email_address ) ) {
+		$email_address = get_option( 'admin_email' );
+	}
+
+	return $email_address;
+}
+
+/**
+ * Return the name and email address of the account that appears as the sender in
+ * email notifications.
+ *
+ * @since	3.0
+ * @return	string	name <email@address>
+ */
+function awpcp_admin_email_from() {
+	return sprintf( '%s <%s>', awpcp_get_blog_name(), awpcp_admin_sender_email_address() );
+}
+
+/**
+ * Return the name and email address of the account that should receive notifications intented for
+ * administrator users.
+ *
+ * @since	3.0
+ * @return	string	name <email@address>
+ */
+function awpcp_admin_email_to() {
+	return sprintf( '%s <%s>', awpcp_get_blog_name(), awpcp_admin_recipient_email_address() );
+}
+
+/**
+ * @since  2.1.4
+ */
+function awpcp_ad_enabled_email($ad) {
+	// user email
+	$mail = new AWPCP_Email;
+	$mail->to[] = "{$ad->ad_contact_name} <{$ad->ad_contact_email}>";
+	$mail->subject = sprintf(__('Your Ad "%s" has been approved', 'AWPCP'), $ad->get_title());
+
+	$template = AWPCP_DIR . '/frontend/templates/email-ad-enabled-user.tpl.php';
+	$mail->prepare($template, compact('ad'));
+
+	$mail->send();
+}
+
+function awpcp_ad_updated_email($ad, $message) {
+	$admin_email = awpcp_admin_recipient_email_address();
+
+	// user email
+
+	$mail = new AWPCP_Email;
+	$mail->to[] = "{$ad->ad_contact_name} <{$ad->ad_contact_email}>";
+	$mail->subject = sprintf(__('Your Ad "%s" has been successfully updated', 'AWPCP'), $ad->get_title());
+
+	$template = AWPCP_DIR . '/frontend/templates/email-ad-updated-user.tpl.php';
+	$mail->prepare($template, compact('ad', 'message', 'admin_email'));
+
+	$mail->send();
+}
+
+function awpcp_ad_awaiting_approval_email($ad, $ad_approve, $images_approve) {
+	// admin email
+
+	$mail = new AWPCP_Email;
+	$mail->to[] = awpcp_admin_email_to();
+	$mail->subject = sprintf(__('The Ad "%s" is awaiting approval', "AWPCP"), $ad->get_title());
+
+	$params = array('page' => 'awpcp-listings',  'action' => 'view', 'id' => $ad->ad_id);
+    $url = add_query_arg($params, admin_url('admin.php'));
+
+	$template = AWPCP_DIR . '/frontend/templates/email-ad-awaiting-approval-admin.tpl.php';
+	$mail->prepare($template, compact('ad', 'url'));
+
+	$mail->send();
+}
+
+
 /** Table Helper related functions
  ---------------------------------------------------------------------------- */
 
 function awpcp_register_column_headers($screen, $columns, $sortable=array()) {
 	$wp_list_table = new AWPCP_List_Table($screen, $columns, $sortable);
 }
-
 
 function awpcp_print_column_headers($screen, $id = true, $sortable=array()) {
 	$wp_list_table = new AWPCP_List_Table($screen, array(), $sortable);

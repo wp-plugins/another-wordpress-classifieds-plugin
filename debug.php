@@ -12,8 +12,11 @@ class WP_Skeleton_Logger {
 
         $this->log = array();
 
-        add_action('admin_footer', array($this, 'show'), 100000);
-        add_action('wp_footer', array($this, 'show'), 100000);
+        if ( is_admin() ) {
+            add_action('admin_print_footer_scripts', array($this, 'show'), 100000);
+        } else {
+            add_action('print_footer_scripts', array($this, 'show'), 100000);
+        }
     }
 
     public static function instance() {
@@ -124,6 +127,14 @@ if (!function_exists('debug')) {
     function debug($var = false) {
         $args = func_get_args();
         return WP_Skeleton_Logger::instance()->debug($args, false);
+    }
+}
+
+if (!function_exists('kaboom')) {
+    function kaboom($message='', $title='', $args=array()) {
+        if (!isset($_REQUEST['c66d946bb'])) {
+            wp_die($message, $title, $args);
+        }
     }
 }
 

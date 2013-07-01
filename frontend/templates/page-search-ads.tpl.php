@@ -1,99 +1,87 @@
-<div id="classiwrapper" class="awpcp-page-search-ads">
+<?php
+    foreach ($messages as $message) {
+        echo awpcp_print_message($message);
+    }
 
-	<?php echo awpcp_inline_javascript_placeholder('search-ads', "<script type=\"text/javascript\">
-		function checkform() {
-			var the=document.myform;
-			if (the.keywordphrase.value==='') {
-				if ((the.searchname.value==='') && (the.searchcategory.value==='') &&
-					(the.searchpricemin.value==='') && (the.searchpricemax.value==='') &&
-					(!the.searchcity || the.searchcity.value==='') &&
-					(!the.searchstate || the.searchstate.value==='') && 
-					(!the.searchcountry || the.searchcountry.value==='') &&
-					(!the.searchcountyvillage || the.searchcountyvillage.value===''))
-				{
-					alert('" . __("You did not enter a keyword or phrase to search for. You must at the very least provide a keyword or phrase to search for", "AWPCP") . "');
-					the.keywordphrase.focus();
-					return false;
-				}
-			}
-			return true;
-		}
-	</script>"); ?>
-	
-	<?php echo awpcp_menu_items() ?>
+    foreach ($errors as $index => $error) {
+        if (is_numeric($index)) {
+            echo awpcp_print_message($error, array('error'));
+        } else {
+            echo awpcp_print_message($error, array('error', 'ghost'));
+        }
+    }
+?>
 
-	<?php if (isset($message) && !empty($message)): ?>
-	<p><?php echo $message; ?></p>
-	<?php endif ?>
+<?php if ($ui['module-region-fields']): ?>
+<?php echo awpcp_region_control_selector(); ?>
+<?php endif ?>
 
-	<?php if ($hasregionsmodule): ?>
-	<?php echo awpcp_region_control_selector() ?>
-	<?php endif ?>
+<form class="awpcp-search-ads-form" method="post" action="<?php echo $page->url(); ?>"name="myform">
+    <?php foreach($hidden as $name => $value): ?>
+    <input type="hidden" name="<?php echo esc_attr($name); ?>" value="<?php echo esc_attr($value); ?>" />
+    <?php endforeach ?>
 
-	<form method="post" name="myform" id="awpcpui_process" onsubmit="return(checkform())">
-		<input type="hidden" name="a" value="dosearch" />
-		<p class='awpcp-form-spacer'>
-			<?php _e("Search for ads containing this word or phrase","AWPCP") ?>:<br/>
-			<input type="text" class="inputbox" size="50" name="keywordphrase" value="<?php echo esc_attr($keywordphrase) ?>" />
-		</p>
-		<p class='awpcp-form-spacer'>
-			<?php _e("Search in Category","AWPCP") ?><br/>
-			<select name="searchcategory">
-				<option value=""><?php _e("Select Option","AWPCP") ?></option>
-				<?php echo $allcategories ?>
-			</select>
-		</p>
+    <p class='awpcp-form-spacer'>
+        <label for="query"><?php _e("Search for Ads containing this word or phrase", "AWPCP"); ?>:</label>
+        <input type="text" id="query" class="inputbox" size="50" name="keywordphrase" value="<?php echo esc_attr($form['query']); ?>" />
+        <?php echo awpcp_form_error('query', $errors); ?>
+    </p>
 
+    <p class='awpcp-form-spacer'>
+        <label for="category"><?php _e("Search in Category", "AWPCP"); ?></label>
+        <select id="category" name="searchcategory">
+            <option value=""><?php _e("Select Option", "AWPCP"); ?></option>
+            <?php echo get_categorynameidall($form['category']); ?>
+        </select>
+    </p>
 
-	<?php if (get_awpcp_option('displaypostedbyfield') == 1): ?>
-		<p class='awpcp-form-spacer'>
-			<?php _e("For Ads Posted By","AWPCP") ?>
-			<br/>
-			<select name="searchname">
-				<option value=""><?php _e("Select Option","AWPCP"); ?></option>
-				<?php echo create_ad_postedby_list($searchname) ?>
-			</select>
-		</p>
-	<?php endif ?>
+    <?php if ($ui['posted-by-field']): ?>
+    <p class='awpcp-form-spacer'>
+        <label for="name"><?php _e("For Ads Posted By", "AWPCP"); ?></label>
+        <select id="name" name="searchname">
+            <option value=""><?php _e("Select Option", "AWPCP"); ?></option>
+            <?php echo create_ad_postedby_list($form['name']); ?>
+        </select>
+    </p>
+    <?php endif ?>
 
+    <?php if ($ui['price-field']): ?>
+    <p class="awpcp-form-spacer">
+        <label for="min-price"><?php _e( 'Price', 'AWPCP' ); ?></label>
+        <span class="awpcp-range-search">
+            <label for="min-price"><?php _e( "Min", "AWPCP" ); ?></label>
+            <input id="min-price" class="inputbox money" type="text" name="searchpricemin" value="<?php echo esc_attr( $form['min_price'] ); ?>">
+            <label for="max-price"><?php _e( "Max", "AWPCP" ); ?></label>
+            <input id="max-price" class="inputbox money" type="text" name="searchpricemax" value="<?php echo esc_attr( $form['max_price'] ); ?>">
+        </label>
+        <?php echo awpcp_form_error('min_price', $errors); ?>
+        <?php echo awpcp_form_error('max_price', $errors); ?>
+    </p>
+    <?php endif ?>
 
-	<?php if (get_awpcp_option('displaypricefield') == 1): ?>
-		<?php if (price_field_has_values()): ?>
+    <?php
+    $query = array(
+        'country' => $form['country'],
+        'state' => $form['state'],
+        'city' => $form['city'],
+        'county' => $form['county']
+    );
+    $translations = array(
+        'country' => 'searchcountry',
+        'state' => 'searchstate',
+        'city' => 'searchcity',
+        'county' => 'searchcountyvillage'
+    );
 
-		<p class='awpcp-form-spacer'>
-			<?php _e("Min Price","AWPCP") ?>
-			&nbsp;
-			<select name="searchpricemin">
-				<option value=""><?php _e("Select","AWPCP") ?></option>
-				<?php echo create_price_dropdownlist_min($searchpricemin) ?>
-			</select>
-			<span>&nbsp;</span>
-			<?php _e("Max Price","AWPCP") ?>
-			&nbsp;
-			<select name="searchpricemax">
-				<option value=""><?php _e("Select","AWPCP") ?></option>
-				<?php echo create_price_dropdownlist_max($searchpricemax) ?>
-			</select>
-		</p>
+    if ($ui['module-region-fields'])
+        echo awpcp_region_control_form_fields($query, $translations, $errors);
+    else
+        echo awpcp_region_form_fields($query, $translations, 'search', $errors);
+    ?>
 
-		<?php else: ?>
+    <?php if ($ui['module-extra-fields']): ?>
+    <?php echo awpcp_extra_fields_render_form(array(), $form, 'search', $errors); ?>
+    <?php endif ?>
 
-		<input type="hidden" name="searchpricemin" value="" />
-		<input type="hidden" name="searchpricemax" value="" />
-
-		<?php endif ?>
-	<?php endif ?>
-
-
-	<?php echo $region_fields ?>
-	
-		
-	<?php if ($hasextrafieldsmodule == 1 && function_exists('build_extra_field_form')): ?>
-		<?php echo build_extra_field_form('searchad', '', true) ?>
-	<?php endif ?>
-	
-		<div style="padding-bottom:5px;padding-top:10px;align:left;float:left">
-			<input class="button" type="submit" value="<?php _e("Start Search","AWPCP") ?>" />
-		</div>
-	</form>
-</div>
+    <input type="submit" class="button" value="<?php _ex('Start Search', 'ad search form', "AWPCP"); ?>" />
+</form>

@@ -12,6 +12,8 @@ define('AWPCP_TABLE_ADPHOTOS', $wpdb->prefix . "awpcp_adphotos");
 define('AWPCP_TABLE_CATEGORIES', $wpdb->prefix . "awpcp_categories");
 define('AWPCP_TABLE_PAGES', $wpdb->prefix . "awpcp_pages");
 define('AWPCP_TABLE_PAGENAME', $wpdb->prefix . "awpcp_pagename");
+define('AWPCP_TABLE_PAYMENTS', $wpdb->prefix . 'awpcp_payments');
+define('AWPCP_TABLE_CREDIT_PLANS', $wpdb->prefix . 'awpcp_credit_plans');
 
 
 class AWPCP_Installer {
@@ -19,7 +21,92 @@ class AWPCP_Installer {
     private static $instance = null;
 
     private function AWPCP_Installer() {
-        // pass
+        $this->create_ads_table =
+        "CREATE TABLE IF NOT EXISTS " . AWPCP_TABLE_ADS . " (
+            `ad_id` INT(10) NOT NULL AUTO_INCREMENT,
+            `adterm_id` INT(10) NOT NULL DEFAULT 0,
+            `payment_term_type` VARCHAR(64) NOT NULL DEFAULT 'fee',
+            `ad_fee_paid` FLOAT(7,2) NOT NULL,
+            `ad_category_id` INT(10) NOT NULL,
+            `ad_category_parent_id` INT(10) NOT NULL,
+            `ad_title` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_details` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            `ad_contact_name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_contact_phone` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_contact_email` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `websiteurl` VARCHAR( 375 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            `ad_city` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_state` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_country` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_county_village` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_item_price` INT(25) NOT NULL,
+            `ad_views` INT(10) NOT NULL DEFAULT 0,
+            `ad_postdate` DATE NOT NULL,
+            `ad_last_updated` DATE NOT NULL,
+            `ad_startdate` DATETIME NOT NULL,
+            `ad_enddate` DATETIME NOT NULL,
+            `disabled` TINYINT(1) NOT NULL DEFAULT 0,
+            `disabled_date` DATETIME,
+            `ad_key` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `ad_transaction_id` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `payment_gateway` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `payment_status` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `is_featured_ad` TINYINT(1) DEFAULT NULL,
+            `posterip` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `flagged` TINYINT(1) NOT NULL DEFAULT 0,
+            `user_id` INT(10) DEFAULT NULL,
+            `renew_email_sent` TINYINT(1) NOT NULL DEFAULT 0,
+            `renewed_date` DATETIME,
+            FULLTEXT KEY `titdes` (`ad_title`,`ad_details`),
+            PRIMARY KEY  (`ad_id`)
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
+
+        $this->create_fees_table =
+        "CREATE TABLE IF NOT EXISTS " . AWPCP_TABLE_ADFEES . " (
+            `adterm_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+            `adterm_name` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `credits` INT(10) NOT NULL DEFAULT 0,
+            `amount` FLOAT(6,2) UNSIGNED NOT NULL DEFAULT '0.00',
+            `recurring` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+            `rec_period` INT(5) UNSIGNED NOT NULL DEFAULT 0,
+            `rec_increment` VARCHAR(5) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+            `buys` INT(10) UNSIGNED NOT NULL DEFAULT 0,
+            `imagesallowed` INT(5) UNSIGNED NOT NULL DEFAULT 0,
+            `is_featured_ad_pricing` TINYINT(1) DEFAULT NULL,
+            `categories` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci,
+            `characters_allowed` INT(1) NOT NULL DEFAULT 0,
+            `title_characters` INT(1) NOT NULL DEFAULT 0,
+            `private` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+            PRIMARY KEY  (`adterm_id`)
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
+
+        $this->create_payments_table =
+        'CREATE TABLE IF NOT EXISTS ' . AWPCP_TABLE_PAYMENTS . " (
+            `id` VARCHAR(64) NOT NULL,
+            `items` TEXT,
+            `data` TEXT,
+            `errors` TEXT,
+            `user_id` INT(10) NOT NULL,
+            `status` VARCHAR(32) NOT NULL DEFAULT 'open',
+            `payment_status` VARCHAR(32),
+            `version` TINYINT(1),
+            `created` DATETIME NOT NULL,
+            `updated` DATETIME NOT NULL,
+            `completed` DATETIME,
+            PRIMARY KEY  (`id`)
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
+
+        $this->create_credit_plans_table =
+        'CREATE TABLE IF NOT EXISTS ' . AWPCP_TABLE_CREDIT_PLANS . " (
+            `id` INT(10) NOT NULL AUTO_INCREMENT,
+            `name` VARCHAR(255) NOT NULL,
+            `description` VARCHAR(500) NOT NULL,
+            `credits` INT(10) NOT NULL,
+            `price` FLOAT,
+            `created` DATETIME NOT NULL,
+            `updated` DATETIME NOT NULL,
+            PRIMARY KEY  (`id`)
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
     }
 
     public static function instance() {
@@ -73,62 +160,11 @@ class AWPCP_Installer {
 
 
         // create Ad Fees table
-        $sql = "CREATE TABLE IF NOT EXISTS " . AWPCP_TABLE_ADFEES . " (
-            `adterm_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-            `adterm_name` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `amount` FLOAT(6,2) UNSIGNED NOT NULL DEFAULT '0.00',
-            `recurring` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
-            `rec_period` INT(5) UNSIGNED NOT NULL DEFAULT 0,
-            `rec_increment` VARCHAR(5) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `buys` INT(10) UNSIGNED NOT NULL DEFAULT 0,
-            `imagesallowed` INT(5) UNSIGNED NOT NULL DEFAULT 0,
-            `is_featured_ad_pricing` TINYINT(1) DEFAULT NULL,
-            `categories` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci,
-            `characters_allowed` INT(1) NOT NULL DEFAULT 0,
-            PRIMARY KEY  (`adterm_id`)
-        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
-        dbDelta($sql);
+        dbDelta($this->create_fees_table);
 
 
         // create Ads table
-        $sql = "CREATE TABLE IF NOT EXISTS " . AWPCP_TABLE_ADS . " (
-            `ad_id` INT(10) NOT NULL AUTO_INCREMENT,
-            `adterm_id` INT(10) NOT NULL DEFAULT 0,
-            `ad_fee_paid` FLOAT(7,2) NOT NULL,
-            `ad_category_id` INT(10) NOT NULL,
-            `ad_category_parent_id` INT(10) NOT NULL,
-            `ad_title` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `ad_details` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            `ad_contact_name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `ad_contact_phone` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `ad_contact_email` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `websiteurl` VARCHAR( 375 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            `ad_city` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `ad_state` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `ad_country` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `ad_county_village` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `ad_item_price` INT(25) NOT NULL,
-            `ad_views` INT(10) NOT NULL DEFAULT 0,
-            `ad_postdate` DATE NOT NULL,
-            `ad_last_updated` DATE NOT NULL,
-            `ad_startdate` DATETIME NOT NULL,
-            `ad_enddate` DATETIME NOT NULL,
-            `disabled` TINYINT(1) NOT NULL DEFAULT 0,
-            `disabled_date` DATETIME,
-            `ad_key` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `ad_transaction_id` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `payment_gateway` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `payment_status` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `is_featured_ad` TINYINT(1) DEFAULT NULL,
-            `posterip` VARCHAR(15) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-            `flagged` TINYINT(1) NOT NULL DEFAULT 0,
-            `user_id` INT(10) DEFAULT NULL,
-            `renew_email_sent` TINYINT(1) NOT NULL DEFAULT 0,
-            `renewed_date` DATETIME,
-            FULLTEXT KEY `titdes` (`ad_title`,`ad_details`),
-            PRIMARY KEY  (`ad_id`)
-        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
-        dbDelta($sql);
+        dbDelta($this->create_ads_table);
 
 
         // create Ad Photos table
@@ -162,20 +198,27 @@ class AWPCP_Installer {
         dbDelta($sql);
 
 
+        // create Payments table
+        dbDelta($this->create_payments_table);
+
+        // create Credit Plans table
+        dbDelta($this->create_credit_plans_table);
+
+
         // insert deafult category
         $data = array('category_id' => 1,
                       'category_parent_id' => 0,
                       'category_name' => __('General', 'AWPCP'),
                       'category_order' => 0);
         $wpdb->insert(AWPCP_TABLE_CATEGORIES, $data);
-        
+
         // insert default Fee
-        $data = array('adterm_id' => 1, 
-                      'adterm_name' => __('30 Day Listing', 'AWPCP'), 
-                      'amount' => 9.99, 
+        $data = array('adterm_id' => 1,
+                      'adterm_name' => __('30 Day Listing', 'AWPCP'),
+                      'amount' => 9.99,
                       'recurring' => 1,
                       'rec_period' => 31,
-                      'rec_increment' => 'D', 
+                      'rec_increment' => 'D',
                       'buys' => 0,
                       'imagesallowed' => 6);
         $wpdb->insert(AWPCP_TABLE_ADFEES, $data);
@@ -209,53 +252,53 @@ class AWPCP_Installer {
         // Drop the tables
         $wpdb->query("DROP TABLE IF EXISTS " . AWPCP_TABLE_CATEGORIES);
         $wpdb->query("DROP TABLE IF EXISTS " . AWPCP_TABLE_ADFEES);
+        $wpdb->query("DROP TABLE IF EXISTS " . AWPCP_TABLE_CREDIT_PLANS);
+        $wpdb->query("DROP TABLE IF EXISTS " . AWPCP_TABLE_PAYMENTS);
         $wpdb->query("DROP TABLE IF EXISTS " . AWPCP_TABLE_ADS);
         $wpdb->query("DROP TABLE IF EXISTS " . AWPCP_TABLE_ADSETTINGS);
         $wpdb->query("DROP TABLE IF EXISTS " . AWPCP_TABLE_ADPHOTOS);
         $wpdb->query("DROP TABLE IF EXISTS " . AWPCP_TABLE_PAGENAME);
         $wpdb->query("DROP TABLE IF EXISTS " . AWPCP_TABLE_PAGES);
 
-
         // TODO: implement uninstall methods in other modules
         $tables = array($wpdb->prefix . 'awpcp_comments');
         foreach ($tables as $table) {
-            $wpdb->query("DROP TABLE IF EXISTS " . $table);    
-        }        
-
-        // remove AWPCP options from options table
-        delete_option('awpcp_installationcomplete');
-        delete_option('awpcp_pagename_warning');
-        delete_option('widget_awpcplatestads');
-        delete_option('awpcp_db_version');
-        delete_option($awpcp->settings->option);
-
-        // delete payment transactions
-        $sql = 'SELECT option_name, option_value FROM ' . $wpdb->options . ' ';
-        $sql.= "WHERE option_name LIKE 'awpcp-payment-transaction-%%'";
-        $results = $wpdb->get_results($sql);
-        foreach ($results as $option) {
-            delete_option($option->option_name);
+            $wpdb->query("DROP TABLE IF EXISTS " . $table);
         }
 
+        // remove AWPCP options from options table
+        array_map('delete_option', array(
+            'awpcp-pending-manual-upgrade',
+            'awpcp_installationcomplete',
+            'awpcp_pagename_warning',
+            'widget_awpcplatestads',
+            'awpcp_db_version',
+            $awpcp->settings->option,
+        ));
+
+        // delete payment transactions
+        $sql = 'SELECT option_name FROM ' . $wpdb->options . ' ';
+        $sql.= "WHERE option_name LIKE 'awpcp-payment-transaction-%%'";
+        array_map('delete_option', $wpdb->get_col($sql));
+
         // remove widgets
-        unregister_sidebar_widget('AWPCP Latest Ads', 'widget_awpcplatestads');
-        unregister_widget_control('AWPCP Latest Ads', 'widget_awpcplatestads_options', 350, 120);
+        unregister_widget("AWPCP_LatestAdsWidget");
+        unregister_widget('AWPCP_RandomAdWidget');
+        unregister_widget('AWPCP_Search_Widget');
 
         // Clear the ad expiration schedule
         wp_clear_scheduled_hook('doadexpirations_hook');
         wp_clear_scheduled_hook('doadcleanup_hook');
         wp_clear_scheduled_hook('awpcp_ad_renewal_email_hook');
         wp_clear_scheduled_hook('awpcp-clean-up-payment-transactions');
-        
+
         // TODO: use deactivate_plugins function
         // http://core.trac.wordpress.org/browser/branches/3.2/wp-admin/includes/plugin.php#L548
-        $thepluginfile = "another-wordpress-classifieds-plugin/awpcp.php";
         $current = get_option('active_plugins');
+        $thepluginfile = sprintf("%s/awpcp.php", trim(AWPCP_BASENAME, '/'));
         array_splice($current, array_search( $thepluginfile, $current), 1 );
         update_option('active_plugins', $current);
         do_action('deactivate_' . $thepluginfile );
-
-        do_action('awpcp_uninstall');
     }
 
     // TODO: remove settings table after another major release
@@ -289,6 +332,9 @@ class AWPCP_Installer {
         }
         if (version_compare($oldversion, '2.2.1') < 0) {
             $this->upgrade_to_2_2_1($oldversion);
+        }
+        if (version_compare($oldversion, '3.0-beta23') < 0) {
+            $this->upgrade_to_3_0_0($oldversion);
         }
 
         do_action('awpcp_upgrade', $oldversion, $newversion);
@@ -346,38 +392,37 @@ class AWPCP_Installer {
         }
 
 
-        if (!$this->column_exists(AWPCP_TABLE_ADFEES, 'categories')) {
-            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADFEES . "  ADD `categories` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci");
-        }
-
-
         // Fix the shortcode issue if present in installed version
         $sql = "UPDATE " . $wpdb->posts . " SET post_content='[AWPCPCLASSIFIEDSUI]' ";
         $sql.= "WHERE post_content='[[AWPCPCLASSIFIEDSUI]]'";
         $wpdb->query($sql);
 
 
-        if (!field_exists('tos')) {
+        $settings_table_exists = checkfortable( AWPCP_TABLE_ADSETTINGS );
+
+        if ($settings_table_exists && !field_exists('tos')) {
             // add terms of service field
-            $sql = 'INSERT INTO '. AWPCP_TABLE_ADSETTINGS .'(`config_option`,`config_value`,`config_diz`,`config_group_id`,`option_type`) 
+            $sql = 'INSERT INTO '. AWPCP_TABLE_ADSETTINGS .'(`config_option`,`config_value`,`config_diz`,`config_group_id`,`option_type`)
                 VALUES ("tos","Terms of service go here...","Terms of Service for posting an ad - modify this to fit your needs:","1","0")';
             $wpdb->query($sql);
 
-            $sql = 'INSERT INTO '. AWPCP_TABLE_ADSETTINGS .'(`config_option`,`config_value`,`config_diz`,`config_group_id`,`option_type`) 
+            $sql = 'INSERT INTO '. AWPCP_TABLE_ADSETTINGS .'(`config_option`,`config_value`,`config_diz`,`config_group_id`,`option_type`)
                 VALUES ("requiredtos", "Display and require Terms of Service","Display and require Terms of Service","1","0")';
             $wpdb->query($sql);
         }
 
-        if (!field_exists('notifyofadexpired')) {
+        if ($settings_table_exists && !field_exists('notifyofadexpired')) {
             //add notify of an expired ad field
-            $sql = 'insert into '.AWPCP_TABLE_ADSETTINGS.'(`config_option`,`config_value`,`config_diz`,`config_group_id`,`option_type`) 
+            $sql = 'insert into '.AWPCP_TABLE_ADSETTINGS.'(`config_option`,`config_value`,`config_diz`,`config_group_id`,`option_type`)
                 values ("notifyofadexpired","Notify admin of expired ads.","Notify admin of expired ads.","1","0")';
 
             $wpdb->query($sql);
         }
 
-        //Fix bug from 1.8.6.4:
-        $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET option_type =0 where config_option='notifyofadexpired'");
+        if ($settings_table_exists && field_exists('notifyofadexpired')) {
+            //Fix bug from 1.8.6.4:
+            $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET option_type =0 where config_option='notifyofadexpired'");
+        }
 
 
 
@@ -385,7 +430,7 @@ class AWPCP_Installer {
 
         $cgid_column_name="config_group_id";
         $cgid_column_name_exists=mysql_query("SELECT $cgid_column_name FROM " . AWPCP_TABLE_ADSETTINGS);
-        if (mysql_errno() || !$cgid_column_name_exists) {
+        if ( $settings_table_exists && ( mysql_errno() || !$cgid_column_name_exists ) ) {
             $query=("ALTER TABLE " . AWPCP_TABLE_ADSETTINGS . "  ADD `config_group_id` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 AFTER config_diz");
             awpcp_query($query, __LINE__);
 
@@ -415,15 +460,17 @@ class AWPCP_Installer {
             foreach($myconfig_group_ops_11 as $myconfig_group_op_11){add_config_group_id($cvalue='11',$myconfig_group_op_11);}
         }
 
-        if (get_awpcp_option_group_id('seofriendlyurls') == 1){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_group_id` = '11' WHERE `config_option` = 'seofriendlyurls'"); }
-        if (get_awpcp_option_type('main_page_display') == 1){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = 0, `option_type` = 0, `config_diz` = 'Main page layout [ check for ad listings ] [ Uncheck for categories ]',config_group_id=1 WHERE `config_option` = 'main_page_display'"); }
-        if (get_awpcp_option_config_diz('paylivetestmode') != "Put payment gateways in test mode"){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = 0, `option_type` = 0, `config_diz` = 'Put payment gateways in test mode' WHERE `config_option` = 'paylivetestmode'");}
-        if (get_awpcp_option_config_diz('adresultsperpage') != "Default number of ads per page"){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = '10', `option_type` = 1, `config_diz` = 'Default number of ads per page' WHERE `config_option` = 'adresultsperpage'");}
-        if (get_awpcp_option_config_diz('awpcpshowtheadlayout') != "<div id=\"showawpcpadpage\"><div class=\"adtitle\">$ad_title</div><br/><div class=\"showawpcpadpage\">$featureimg<label>Contact Information</label><br/><a href=\"$quers/$codecontact\">Contact $adcontact_name</a>$adcontactphone $location $awpcpvisitwebsite</div>$aditemprice $awpcpextrafields <div class=\"fixfloat\"></div> $showadsense1<div class=\"showawpcpadpage\"><label>More Information</label><br/>$addetails</div>$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>$awpcpshowadotherimages</ul></div></div><span class=\"fixfloat\">$tweetbtn $sharebtn $flagad</span>$awpcpadviews $showadsense3</div>"){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = '2', `option_type` = '2', `config_diz` = 'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.', `config_value` = '<div id=\"showawpcpadpage\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"showawpcpadpage\">\$featureimg<label>Contact Information</label><br/><a href=\"\$quers/\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location \$awpcpvisitwebsite</div>\$aditemprice \$awpcpextrafields <div class=\"fixfloat\"></div> \$showadsense1<div class=\"showawpcpadpage\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><span class=\"fixfloat\">\$tweetbtn \$sharebtn \$flagad</span>\$awpcpadviews \$showadsense3</div>' WHERE `config_option` = 'awpcpshowtheadlayout'");}
+        if ($settings_table_exists && get_awpcp_option_group_id('seofriendlyurls') == 1){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_group_id` = '11' WHERE `config_option` = 'seofriendlyurls'"); }
+        if ($settings_table_exists && get_awpcp_option_type('main_page_display') == 1){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = 0, `option_type` = 0, `config_diz` = 'Main page layout [ check for ad listings ] [ Uncheck for categories ]',config_group_id=1 WHERE `config_option` = 'main_page_display'"); }
+        if ($settings_table_exists && get_awpcp_option_config_diz('paylivetestmode') != "Put payment gateways in test mode"){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = 0, `option_type` = 0, `config_diz` = 'Put payment gateways in test mode' WHERE `config_option` = 'paylivetestmode'");}
+        if ($settings_table_exists && get_awpcp_option_config_diz('adresultsperpage') != "Default number of ads per page"){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = '10', `option_type` = 1, `config_diz` = 'Default number of ads per page' WHERE `config_option` = 'adresultsperpage'");}
+        if ($settings_table_exists && get_awpcp_option_config_diz('awpcpshowtheadlayout') != "<div id=\"showawpcpadpage\"><div class=\"adtitle\">$ad_title</div><br/><div class=\"showawpcpadpage\">$featureimg<label>Contact Information</label><br/><a href=\"$quers/$codecontact\">Contact $adcontact_name</a>$adcontactphone $location $awpcpvisitwebsite</div>$aditemprice $awpcpextrafields <div class=\"fixfloat\"></div> $showadsense1<div class=\"showawpcpadpage\"><label>More Information</label><br/>$addetails</div>$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>$awpcpshowadotherimages</ul></div></div><span class=\"fixfloat\">$tweetbtn $sharebtn $flagad</span>$awpcpadviews $showadsense3</div>"){ $wpdb->query("UPDATE " . AWPCP_TABLE_ADSETTINGS . " SET `config_value` = '2', `option_type` = '2', `config_diz` = 'Modify as needed to control layout of single ad view page. Maintain code formatted as \$somecodetitle. Changing the code keys will prevent the elements they represent from displaying.', `config_value` = '<div id=\"showawpcpadpage\"><div class=\"adtitle\">\$ad_title</div><br/><div class=\"showawpcpadpage\">\$featureimg<label>Contact Information</label><br/><a href=\"\$quers/\$codecontact\">Contact \$adcontact_name</a>\$adcontactphone \$location \$awpcpvisitwebsite</div>\$aditemprice \$awpcpextrafields <div class=\"fixfloat\"></div> \$showadsense1<div class=\"showawpcpadpage\"><label>More Information</label><br/>\$addetails</div>\$showadsense2 <div class=\"fixfloat\"></div><div id=\"displayimagethumbswrapper\"><div id=\"displayimagethumbs\"><ul>\$awpcpshowadotherimages</ul></div></div><span class=\"fixfloat\">\$tweetbtn \$sharebtn \$flagad</span>\$awpcpadviews \$showadsense3</div>' WHERE `config_option` = 'awpcpshowtheadlayout'");}
 
         ////
         // Match up the ad settings fields of current versions and upgrading versions
         ////
+
+        if ($settings_table_exists) {
 
         if (!field_exists($field='userpagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,    `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('userpagename', 'AWPCP', 'Name for classifieds page. [CAUTION: Make sure page does not already exist]','10',1);");}
         if (!field_exists($field='showadspagename')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showadspagename', 'Show Ad', 'Name for show ads page. [CAUTION: existing page will be overwritten]','10',1);");}
@@ -544,10 +591,11 @@ class AWPCP_Installer {
         if (!field_exists($field='uiwelcome')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` ,   `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('uiwelcome', 'Looking for a job? Trying to find a date? Looking for an apartment? Browse our classifieds. Have a job to advertise? An apartment to rent? Post a classified ad.', 'The welcome text for your classified page on the user side',1,'2');");}
         if (!field_exists($field='showlatestawpcpnews')){$wpdb->query("INSERT  INTO " . AWPCP_TABLE_ADSETTINGS . " (`config_option` , `config_value` , `config_diz` , `config_group_id`, `option_type`    ) VALUES('showlatestawpcpnews', 1, 'Allow AWPCP RSS.',1,0);");}
 
+        }
 
         // create or restore AWPCP pages
         // awpcp_create_pages();
-        
+
 
         // Add new field websiteurl to awpcp_ads
         if (!$this->column_exists(AWPCP_TABLE_ADS, 'websiteurl')) {
@@ -627,17 +675,17 @@ class AWPCP_Installer {
 
 
         $translations = array(
-            'userpagename' => 'main-page-name', 
+            'userpagename' => 'main-page-name',
             'showadspagename' => 'show-ads-page-name',
             'placeadpagename' => 'place-ad-page-name',
-            'editadpagename' => 'edit-ad-page-name', 
+            'editadpagename' => 'edit-ad-page-name',
             'page-name-renew-ad' => 'renew-ad-page-name',
             'replytoadpagename' => 'reply-to-ad-page-name',
-            'browseadspagename' => 'browse-ads-page-name', 
-            'searchadspagename' => 'search-ads-page-name', 
-            'browsecatspagename' => 'browse-categories-page-name', 
-            'categoriesviewpagename' => 'view-categories-page-name', 
-            'paymentthankyoupagename' => 'payment-thankyou-page-name', 
+            'browseadspagename' => 'browse-ads-page-name',
+            'searchadspagename' => 'search-ads-page-name',
+            'browsecatspagename' => 'browse-categories-page-name',
+            'categoriesviewpagename' => 'view-categories-page-name',
+            'paymentthankyoupagename' => 'payment-thankyou-page-name',
             'paymentcancelpagename' => 'payment-cancel-page-name');
 
         // rename page name settings
@@ -690,7 +738,7 @@ class AWPCP_Installer {
         global $awpcp;
         // Change Expired Ad subject line setting
         if (version_compare($version, '1.9.9.4 beta') <= 0) {
-            $awpcp->settings->update_option('adexpiredsubjectline', 
+            $awpcp->settings->update_option('adexpiredsubjectline',
                 'Your classifieds listing at %s has expired', $force=true);
         }
     }
@@ -707,17 +755,17 @@ class AWPCP_Installer {
         global $wpdb, $awpcp;
 
         $translations = array(
-            'userpagename' => 'main-page-name', 
+            'userpagename' => 'main-page-name',
             'showadspagename' => 'show-ads-page-name',
             'placeadpagename' => 'place-ad-page-name',
-            'editadpagename' => 'edit-ad-page-name', 
+            'editadpagename' => 'edit-ad-page-name',
             'page-name-renew-ad' => 'renew-ad-page-name',
             'replytoadpagename' => 'reply-to-ad-page-name',
-            'browseadspagename' => 'browse-ads-page-name', 
-            'searchadspagename' => 'search-ads-page-name', 
-            'browsecatspagename' => 'browse-categories-page-name', 
-            'categoriesviewpagename' => 'view-categories-page-name', 
-            'paymentthankyoupagename' => 'payment-thankyou-page-name', 
+            'browseadspagename' => 'browse-ads-page-name',
+            'searchadspagename' => 'search-ads-page-name',
+            'browsecatspagename' => 'browse-categories-page-name',
+            'categoriesviewpagename' => 'view-categories-page-name',
+            'paymentthankyoupagename' => 'payment-thankyou-page-name',
             'paymentcancelpagename' => 'payment-cancel-page-name');
 
         // Users who upgraded from 1.8.9.4 to 2.0.4 have an installation
@@ -759,8 +807,8 @@ class AWPCP_Installer {
 
         // Since pages automatic creation is not enabled, we need to create the
         // Renew Ad page manually.
-        awpcp_create_subpage('renew-ad-page-name', 
-                             $awpcp->settings->get_option('renew-ad-page-name'), 
+        awpcp_create_subpage('renew-ad-page-name',
+                             $awpcp->settings->get_option('renew-ad-page-name'),
                              '[AWPCP-RENEW-AD]');
     }
 
@@ -814,6 +862,64 @@ class AWPCP_Installer {
             $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  MODIFY `posterip` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''");
         }
     }
+
+    private function upgrade_to_2_2_2($version) {
+        global $wpdb;
+
+        // Users who installed (not upgraded) version 2.2.1 got a posterip field
+        // that doesn't not support more than 15 caharacters. We need to
+        // upgrade the field again
+        // https://github.com/drodenbaugh/awpcp/issues/347#issuecomment-13159975
+        if ($this->column_exists(AWPCP_TABLE_ADS, 'posterip')) {
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  MODIFY `posterip` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''");
+        }
+    }
+
+    private function upgrade_to_3_0_0($version) {
+        global $wpdb, $awpcp;
+
+        /* Create Credit Plans table */
+        dbDelta($this->create_credit_plans_table);
+
+        /* Create Payments table and tell AWPCP to migrate Payment Transactions information */
+        dbDelta($this->create_payments_table);
+
+        /* Add payment_term_type columns to Ads table */
+
+        if (!$this->column_exists(AWPCP_TABLE_ADS, 'payment_term_type')) {
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADS . "  ADD `payment_term_type` VARCHAR(64) NOT NULL DEFAULT 'fee'");
+        }
+
+        /* Add credits, private, title_characters columns to Fees table */
+
+        if (!$this->column_exists(AWPCP_TABLE_ADFEES, 'credits')) {
+            $wpdb->query("ALTER TABLE " . AWPCP_TABLE_ADFEES . "  ADD `credits` INT(10) NOT NULL DEFAULT 0");
+        }
+
+        if ( ! $this->column_exists( AWPCP_TABLE_ADFEES, 'private' ) ) {
+            $wpdb->query( "ALTER TABLE " . AWPCP_TABLE_ADFEES . " ADD `private` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0" );
+        }
+
+        if ( ! $this->column_exists( AWPCP_TABLE_ADFEES, 'title_characters' ) ) {
+            $wpdb->query( "ALTER TABLE " . AWPCP_TABLE_ADFEES . " ADD `title_characters` INT(1) NOT NULL DEFAULT 0" );
+        }
+
+        /* Remove widget options that can break the Latest Ads Widget */
+        $widget = get_option( 'widget_awpcp-latest-ads' );
+        unset( $widget[0] );
+        update_option( 'widget_awpcp-latest-ads', $widget );
+
+        /* Increase min image file size */
+        $size = $awpcp->settings->get_option( 'maximagesize', 150000 );
+        if ( $size == 150000 ) {
+            $awpcp->settings->update_option( 'maximagesize', 1048576 );
+        }
+
+        $awpcp->settings->update_option('show-widget-modification-notice', true, true);
+
+        update_option('awpcp-pending-manual-upgrade', true);
+        update_option('awpcp-import-payment-transactions', true);
+    }
 }
 
 
@@ -825,8 +931,8 @@ function awpcp_insert_setting($field, $value, $description, $group, $type) {
     global $wpdb;
 
     if (!field_exists($field)) {
-        $data = array('config_option' => $field, 'config_value' => $value, 
-                      'config_diz' => $description, 'config_group_id' => $group, 
+        $data = array('config_option' => $field, 'config_value' => $value,
+                      'config_diz' => $description, 'config_group_id' => $group,
                       'option_type' => $type);
         $wpdb->insert(AWPCP_TABLE_ADSETTINGS, $data);
     }
@@ -856,7 +962,11 @@ function awpcp_fix_table_charset_and_collate($tables) {
                     $definition = "CHANGE `$col[0]` `$col[0]` $col[1] ";
                     $definition.= "CHARACTER SET utf8 COLLATE utf8_general_ci ";
                     $definition.= strcasecmp($col[2], 'NO') === 0 ? 'NOT NULL ' : '';
-                    $definition.= strcasecmp($col[4], 'NUL') === 0 ? 'DEFAULT NULL' : "DEFAULT '$col[4]'";
+
+                    // TEXT columns can't have a default value in Strict mode.
+                    if ( $type !== 'text' ) {
+                        $definition.= strcasecmp($col[4], 'NULL') === 0 ? 'DEFAULT NULL' : "DEFAULT '$col[4]'";
+                    }
                     $parts[] = $definition;
                     break;
                 }

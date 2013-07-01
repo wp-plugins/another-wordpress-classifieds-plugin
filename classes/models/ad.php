@@ -7,6 +7,7 @@ class AWPCP_Ad {
 
 		$ad->ad_id = $object->ad_id;
 		$ad->adterm_id = $object->adterm_id; // fee plan id
+		$ad->payment_term_type = $object->payment_term_type;
 		$ad->ad_fee_paid = $object->ad_fee_paid;
 		$ad->ad_category_id = $object->ad_category_id;
 		$ad->ad_category_parent_id = $object->ad_category_parent_id;
@@ -51,6 +52,20 @@ class AWPCP_Ad {
 		return self::find(sprintf('ad_category_id = %d', (int) $id));
 	}
 
+	/**
+	 * @since 3.0.0
+	 */
+	public static function find_by_email($email) {
+		global $wpdb;
+		return self::find( $wpdb->prepare( 'ad_contact_email = %s', $email ) );
+	}
+
+	public static function find_by_email_and_key($email, $key) {
+		global $wpdb;
+		$where = 'ad_key = %s AND ad_contact_email = %s';
+		return self::find_by($wpdb->prepare($where, $key, $email));
+	}
+
 	public static function find_by_user_id($id) {
 		return AWPCP_Ad::find_by("user_id = " . intval($id));
 	}
@@ -65,6 +80,150 @@ class AWPCP_Ad {
 			return $results[0];
 		}
 		return null;
+	}
+
+	public static function get_order_conditions($order) {
+		$basedate = 'CASE WHEN renewed_date IS NULL THEN ad_startdate ELSE GREATEST(ad_startdate, renewed_date) END';
+		$is_paid = 'CASE WHEN ad_fee_paid > 0 THEN 1 ELSE 0 END';
+
+		switch ( $order ) {
+			case 1:
+				$parts = array( "$basedate DESC" );
+				break;
+			case 2:
+				$parts = array( 'ad_title ASC' );
+				break;
+			case 3:
+				$parts = array( "$is_paid DESC", "$basedate DESC" );
+				break;
+			case 4:
+				$parts = array( "$is_paid DESC", 'ad_title ASC' );
+				break;
+			case 5:
+				$parts = array( 'ad_views DESC', 'ad_title ASC' );
+				break;
+			case 6:
+				$parts = array( 'ad_views DESC', "$basedate DESC" );
+				break;
+			case 7:
+				$parts = array( 'ad_item_price DESC', "$basedate DESC" );
+				break;
+			case 8:
+				$parts = array( 'ad_item_price ASC', "$basedate DESC" );
+				break;
+			case 9:
+				$parts = array( "$basedate ASC" );
+				break;
+			case 10:
+				$parts = array( 'ad_title DESC' );
+				break;
+			case 11:
+				$parts = array( 'ad_views ASC', "ad_title ASC" );
+				break;
+			case 12:
+				$parts = array( 'ad_views ASC', "$basedate ASC" );
+				break;
+			default:
+				$parts = array( 'ad_postdate DESC', 'ad_title ASC' );
+				break;
+		}
+
+		return array_filter( apply_filters( 'awpcp-ad-order-conditions', $parts, $order ) );
+	}
+
+	public static function get_where_conditions($conditions=array()) {
+        $conditions[] = "payment_status != 'Unpaid'";
+		$conditions[] = "disabled = 0";
+
+        if ((get_awpcp_option('disablependingads') == 0) && (get_awpcp_option('freepay') == 1)) {
+            $conditions[] = "payment_status != 'Pending'";
+        }
+
+        return array_filter( apply_filters( 'awpcp-ad-where-statement', $conditions ) );
+	}
+
+	/**
+	 * @since 3.0
+	 */
+	public static function get_enabled_ads($args=array(), $conditions=array()) {
+        $conditions = self::get_where_conditions($conditions);
+        return self::query(array_merge($args, array('where' => join(' AND ', $conditions))));
+	}
+
+	public static function get_random_ads($limit, $args=array(), $conditions=array()) {
+        $conditions = self::get_where_conditions($conditions);
+
+		$tmpargs = array_merge($args, array('fields' => 'ad_id', 'limit' => 0, 'offset' => 0));
+        $results = self::query(array_merge($tmpargs, array('where' => join(' AND ', $conditions))), true);
+
+        $random_ids = awpcp_get_properties($results, 'ad_id');
+        shuffle($random_ids);
+        $random_ids = array_slice($random_ids, 0, $limit);
+        if ($random_ids) {
+        	$conditions[] = 'ad_id IN (' . join(',', $random_ids) . ')';
+        }
+
+        $args = array_merge($args, array('limit' => 0, 'offset' => 0));
+
+        return self::get_enabled_ads($args, $conditions);
+	}
+
+	/**
+	 * @param  array  	$args 	paramaters used to build the SQL query.
+	 * @param  boolean 	$raw	if true, returns an Array of Objects, if false
+	 *                       	will return an Array of AWPCP_Ad or an integer
+	 *                        	depending on the 'fields' arg.
+	 * @return mixed
+	 */
+	public static function query($args, $raw=false) {
+		global $wpdb;
+
+		extract(wp_parse_args($args, array(
+			'fields' => '*',
+			'where' => '1 = 1',
+			'order' => array( 'ad_startdate DESC' ),
+			'offset' => 0,
+			'limit' => 0,
+			'groupby' => false,
+		)));
+
+		$query = 'SELECT %s FROM ' . AWPCP_TABLE_ADS . ' ';
+
+		if ($fields == 'count') {
+        	$query = sprintf($query, 'COUNT(ad_id)');
+        	$limit = 0;
+        } else {
+        	$query = sprintf($query, $fields);
+        }
+
+        $query.= sprintf('WHERE %s ', $where);
+
+        if ($groupby !== false) {
+        	$query.= sprintf('GROUP BY %s ', $groupby);
+        }
+
+        if ( ! empty( $order ) ) {
+        	$query.= sprintf('ORDER BY %s ', join( ', ', $order ));
+        }
+
+        if ($limit > 0) {
+        	$query.= sprintf('LIMIT %d, %d', $offset, $limit);
+        }
+
+        if ($fields == 'count') {
+        	return $wpdb->get_var($query);
+        } else if ($raw) {
+        	return $wpdb->get_results($query);
+        } else {
+			$items = $wpdb->get_results($query);
+			$results = array();
+
+			foreach($items as $item) {
+				$results[] = AWPCP_Ad::from_object($item);
+			}
+
+			return $results;
+        }
 	}
 
 	/**
@@ -188,43 +347,46 @@ class AWPCP_Ad {
 	public function save() {
 		global $wpdb;
 
-		$data = array('ad_id' => $this->ad_id,
-					'adterm_id' => $this->adterm_id,
-					'ad_fee_paid' => $this->ad_fee_paid,
-					'ad_category_id' => $this->ad_category_id,
-					'ad_category_parent_id' => $this->ad_category_parent_id,
-					'ad_title' => $this->ad_title,
-					'ad_details' => $this->ad_details,
-					'ad_contact_name' => $this->ad_contact_name,
-					'ad_contact_phone' => $this->ad_contact_phone,
-					'ad_contact_email' => $this->ad_contact_email,
-					'ad_city' => $this->ad_city,
-					'ad_state' => $this->ad_state,
-					'ad_country' => $this->ad_country,
-					'ad_county_village' => $this->ad_county_village,
-					'ad_item_price' => $this->ad_item_price,
-					'ad_views' => $this->ad_views,
-					'ad_postdate' => $this->ad_postdate,
-					'ad_last_updated' => $this->ad_last_updated,
-					'ad_startdate' => $this->ad_startdate,
-					'ad_enddate' => $this->ad_enddate,
-					'ad_key' => $this->ad_key,
-					'ad_transaction_id' => $this->ad_transaction_id,
-					'user_id' => $this->user_id,
+		$data = array(
+			'ad_id' => awpcp_get_property($this, 'ad_id'),
+			'adterm_id' => awpcp_get_property($this, 'adterm_id'),
+			'payment_term_type' => awpcp_get_property($this, 'payment_term_type'),
+			'ad_fee_paid' => awpcp_get_property($this, 'ad_fee_paid'),
+			'ad_category_id' => awpcp_get_property($this, 'ad_category_id'),
+			'ad_category_parent_id' => awpcp_get_property($this, 'ad_category_parent_id'),
+			'ad_title' => awpcp_get_property($this, 'ad_title'),
+			'ad_details' => awpcp_get_property($this, 'ad_details'),
+			'ad_contact_name' => awpcp_get_property($this, 'ad_contact_name'),
+			'ad_contact_phone' => awpcp_get_property($this, 'ad_contact_phone'),
+			'ad_contact_email' => awpcp_get_property($this, 'ad_contact_email'),
+			'ad_city' => awpcp_get_property($this, 'ad_city'),
+			'ad_state' => awpcp_get_property($this, 'ad_state'),
+			'ad_country' => awpcp_get_property($this, 'ad_country'),
+			'ad_county_village' => awpcp_get_property($this, 'ad_county_village'),
+			'ad_item_price' => awpcp_get_property($this, 'ad_item_price'),
+			'ad_views' => awpcp_get_property($this, 'ad_views'),
+			'ad_postdate' => awpcp_get_property($this, 'ad_postdate'),
+			'ad_last_updated' => awpcp_get_property($this, 'ad_last_updated'),
+			'ad_startdate' => awpcp_get_property($this, 'ad_startdate'),
+			'ad_enddate' => awpcp_get_property($this, 'ad_enddate'),
+			'ad_key' => awpcp_get_property($this, 'ad_key'),
+			'ad_transaction_id' => awpcp_get_property($this, 'ad_transaction_id'),
+			'user_id' => awpcp_get_property($this, 'user_id'),
 
-					'payment_gateway' => $this->payment_gateway,
-					'payment_status' => $this->payment_status,
+			'payment_gateway' => awpcp_get_property($this, 'payment_gateway'),
+			'payment_status' => awpcp_get_property($this, 'payment_status'),
 
-					'is_featured_ad' => $this->is_featured_ad,
-					'flagged' => $this->flagged,
-					'disabled' => $this->disabled,
-					'disabled_date' => $this->disabled_date,
+			'is_featured_ad' => awpcp_get_property($this, 'is_featured_ad'),
+			'flagged' => awpcp_get_property($this, 'flagged'),
+			'disabled' => awpcp_get_property($this, 'disabled'),
+			'disabled_date' => awpcp_get_property($this, 'disabled_date'),
 
-					'renew_email_sent' => $this->renew_email_sent,
-					'renewed_date' => $this->renewed_date,
+			'renew_email_sent' => awpcp_get_property($this, 'renew_email_sent'),
+			'renewed_date' => awpcp_get_property($this, 'renewed_date'),
 
-					'websiteurl' => $this->websiteurl,
-					'posterip' => $this->posterip);
+			'websiteurl' => awpcp_get_property($this, 'websiteurl'),
+			'posterip' => awpcp_get_property($this, 'posterip')
+		);
 
 		$data = $this->sanitize($data);
 
@@ -235,7 +397,7 @@ class AWPCP_Ad {
 			$result = $wpdb->update(AWPCP_TABLE_ADS, $data, array('ad_id' => $this->ad_id));
 		}
 
-		return $result;
+		return $result === false ? false : true;
 	}
 
 	public function delete() {
@@ -256,43 +418,34 @@ class AWPCP_Ad {
 		return $result === false ? false : true;
 	}
 
-	public function disable() {
-		$images = AWPCP_Image::find_by_ad_id($this->ad_id);
-		foreach ($images as $image) {
-			$image->disable();
-		}
-
-		$this->disabled = 1;
-		$this->disabled_date = current_time('mysql');
-		$this->save();
-
-		do_action('awpcp_disable_ad', $this);
-
-		return true;
+	public function get_title() {
+		return stripslashes($this->ad_title);
 	}
 
-	public function enable() {
-		$images = AWPCP_Image::find_by_ad_id($this->ad_id);
-		foreach ($images as $image) {
-			$image->enable();
-		}
-
-		$this->disabled = 0;
-		$this->save();
-
-		do_action('awpcp_approve_ad', $this);
-
-		return true;
-	}
-
-	function get_category_name() {
+	public function get_category_name() {
 		if (!isset($this->category_name))
 			$this->category_name = get_adcatname($object->category_id);
 		return $this->category_name;
 	}
 
-	function get_fee_plan_name() {
-		return awpcp_get_fee_plan_name($this->ad_id, $this->adterm_id);
+	/**
+	 * @since 3.0.0
+	 */
+	public function get_access_key() {
+		if ( empty( $this->ad_key ) ) {
+			$this->ad_key = AWPCP_Ad::generate_key();
+			$this->save();
+		}
+
+		return $this->ad_key;
+	}
+
+	/**
+	 * @since 2.1.4
+	 */
+	public function get_payment_term_name() {
+		$payment_term = awpcp_payments_api()->get_ad_payment_term( $this );
+		return $payment_term ? $payment_term->name : __( 'N/A', 'AWPCP' );
 	}
 
 	/**
@@ -304,8 +457,15 @@ class AWPCP_Ad {
 
 	function get_start_date() {
 		if (!empty($this->ad_startdate))
-			return date('M d Y', strtotime($this->ad_startdate));
+			return awpcp_time( strtotime( $this->ad_startdate ), 'awpcp-date' );
 		return '';
+	}
+
+	/**
+	 * @since 3.0
+	 */
+	public function get_start_timestamp() {
+		return strtotime($this->ad_startdate);
 	}
 
 	/**
@@ -317,19 +477,26 @@ class AWPCP_Ad {
 
 	function get_end_date() {
 		if (!empty($this->ad_enddate))
-			return date('M d Y', strtotime($this->ad_enddate));
+			return awpcp_time( strtotime( $this->ad_enddate ), 'awpcp-date' );
 		return '';
+	}
+
+	/**
+	 * @since 3.0
+	 */
+	public function get_end_timestamp() {
+		return strtotime($this->ad_enddate);
 	}
 
 	function get_disabled_date() {
 		if (!empty($this->disabled_date))
-			return date('M d Y', strtotime($this->disabled_date));
+			return awpcp_time( strtotime( $this->disabled_date ), 'awpcp-date' );
 		return '';
 	}
 
 	function get_renewed_date() {
 		if (!empty($this->renewed_date))
-			return date('M d Y', strtotime($this->renewed_date));
+			return awpcp_time( strtotime( $this->renewed_date ), 'awpcp-date' );
 		return '';
 	}
 
@@ -345,50 +512,53 @@ class AWPCP_Ad {
 		return $this->has_expired($date);
 	}
 
-	/**
-	 * Calculates Ad's end date based on Ad's payment term.
-	 *
-	 * Ad's end date will be calculated using $start_date as starting point. If
-	 * no $start_date is provided, Ad's start date will be used.
-	 *
-	 * @param $start_date	string or timestamp
-	 * @since 2.0.7
-	 */
-	function calculate_end_date($start_date=null) {
-		if ($this->adterm_id > 0) {
-			$payment_term = awpcp_payment_terms('ad-term-fee', $this->adterm_id);
-		} else {
-			$payment_term = null;
-		}
+	// /**
+	//  * Calculates Ad's end date based on Ad's payment term.
+	//  *
+	//  * Ad's end date will be calculated using $start_date as starting point. If
+	//  * no $start_date is provided, Ad's start date will be used.
+	//  *
+	//  * @param $start_date	string or timestamp
+	//  * @since 2.0.7
+	//  */
+	// function calculate_end_date($start_date=null) {
+	// 	if ($this->adterm_id > 0) {
+	// 		$payment_term = awpcp_payment_terms('ad-term-fee', $this->adterm_id);
+	// 	} else {
+	// 		$payment_term = null;
+	// 	}
 
-		if (is_null($payment_term)) {
-			$duration = get_awpcp_option('addurationfreemode');
-			$interval = 'DAY';
-		} else {
-			$duration = $payment_term->period;
-			$interval = $payment_term->increment;
-		}
+	// 	if (is_null($payment_term)) {
+	// 		$duration = get_awpcp_option('addurationfreemode');
+	// 		$interval = 'DAY';
+	// 	} else {
+	// 		$duration = $payment_term->period;
+	// 		$interval = $payment_term->increment;
+	// 	}
 
-		if (is_null($start_date) || empty($start_date)) {
-			$start_date = strtotime($this->ad_startdate);
-		} else if (is_string($start_date)) {
-			$start_date = strtotime($start_date);
-		} else {
-			// we asume a timestamp
-		}
+	// 	if (is_null($start_date) || empty($start_date)) {
+	// 		$start_date = strtotime($this->ad_startdate);
+	// 	} else if (is_string($start_date)) {
+	// 		$start_date = strtotime($start_date);
+	// 	} else {
+	// 		// we asume a timestamp
+	// 	}
 
-		$end_date = awpcp_calculate_end_date($duration, $interval, $start_date);
+	// 	$end_date = awpcp_calculate_end_date($duration, $interval, $start_date);
 
-		return apply_filters('awpcp-ad-calculate-end-date', $end_date, $start_date, $this);
-	}
+	// 	return apply_filters('awpcp-ad-calculate-end-date', $end_date, $start_date, $this);
+	// }
 
 	function renew($end_date=false) {
 		if ($end_date === false) {
-			$now = awpcp_time(null, 'timestamp');
 			// if the Ad's end date is in the future, use that as starting point
 			// for the new end date, else use current date.
-			$start_date = $this->ad_enddate > $now ? $this->ad_enddate : $now;
-			$this->set_end_date($this->calculate_end_date($start_date));
+			$end_date = awpcp_time($this->ad_enddate, 'timestamp');
+			$now = awpcp_time(null, 'timestamp');
+			$start_date = $end_date > $now ? $end_date : $now;
+
+			$payment_term = $this->get_payment_term();
+			$this->set_end_date($payment_term->calculate_end_date($start_date));
 		} else {
 			$this->set_end_date($end_date);
 		}
@@ -397,7 +567,7 @@ class AWPCP_Ad {
 		$this->renewed_date = current_time('mysql');
 
 		// if Ad is disabled lets see if we can enable it
-		if ($this->disabled || ! awpcp_calculate_ad_disabled_state($this->ad_id)) {
+		if ($this->disabled && ! awpcp_calculate_ad_disabled_state($this->ad_id)) {
 			$this->enable();
 		}
 
@@ -405,9 +575,24 @@ class AWPCP_Ad {
 	}
 
 	function get_payment_status() {
-		if (!empty($this->payment_status))
-			return $this->payment_status;
-		return 'N/A';
+		if (empty($this->payment_status)) {
+			return _x('N/A', 'ad payment status', 'AWPCP');
+		}
+
+		switch($this->payment_status) {
+			case AWPCP_Payment_Transaction::PAYMENT_STATUS_PENDING:
+				return _x('Pending', 'ad payment status', 'AWPCP');
+			case AWPCP_Payment_Transaction::PAYMENT_STATUS_COMPLETED:
+				return _x('Completed', 'ad payment status', 'AWPCP');
+			case AWPCP_Payment_Transaction::PAYMENT_STATUS_NOT_REQUIRED:
+				return _x('Not Required', 'ad payment status', 'AWPCP');
+			case 'Unpaid':
+				return _x('Unpaid', 'ad payment status', 'AWPCP');
+		}
+	}
+
+	function get_payment_term() {
+		return awpcp_payments_api()->get_payment_term($this->adterm_id, $this->payment_term_type);
 	}
 
 	function get_total_images_uploaded() {
@@ -415,22 +600,119 @@ class AWPCP_Ad {
 	}
 
 	/**
+	 * @since 3.0
+	 */
+	function get_characters_allowed_in_title() {
+		return $this->get_payment_term()->get_characters_allowed_in_title();
+	}
+
+	/**
+	 * @since 3.0
+	 */
+	function get_remaining_characters_in_title() {
+		return max( $this->get_characters_allowed_in_title() - strlen( $this->ad_title ), 0 );
+	}
+
+	/**
 	 * Returns the number of characters allowed for this Ad.
 	 *
 	 * @since 2.1.2
 	 */
-	function get_max_characters_allowed() {
-		if (intval($this->adterm_id) > 0) {
-			$fee = awpcp_get_fee($this->adterm_id);
-			$chars = is_null($fee) ? $chars : $fee->characters_allowed;
-		} else {
-			$chars = get_awpcp_option('maxcharactersallowed');
-		}
-		return apply_filters('awpcp-ad-max-characters-allowed', $chars, $this);
+	function get_characters_allowed() {
+		return $this->get_payment_term()->get_characters_allowed();
 	}
 
 	function get_remaining_characters_count() {
-		return max($this->get_max_characters_allowed() - strlen($this->ad_details), 0);
+		return max($this->get_characters_allowed() - strlen($this->ad_details), 0);
+	}
+
+	private function set_disabled_status($disabled) {
+		global $wpdb;
+
+		$this->disabled = absint($disabled);
+		$this->disabled_date = $disabled ? current_time('mysql') : null;
+
+		$query = "UPDATE  " . AWPCP_TABLE_ADS . " ";
+		if ($disabled) {
+			$query .= "SET disabled=1, disabled_date='{$this->disabled_date}' ";
+		} else {
+			$query .= "SET disabled=0, disabled_date=NULL ";
+		}
+		$query .= "WHERE ad_id=%d";
+
+		$result = $wpdb->query($wpdb->prepare($query, $this->ad_id));
+
+		return $result;
+	}
+
+	public function disable() {
+		if ($result = $this->set_disabled_status(true)) {
+			$images = AWPCP_Image::find_by_ad_id($this->ad_id);
+			foreach ($images as $image) {
+				$image->disable();
+			}
+
+			do_action('awpcp_disable_ad', $this);
+		}
+
+		return $result;
+	}
+
+	public function enable() {
+		if ($result = $this->set_disabled_status(false)) {
+			$images = AWPCP_Image::find_by_ad_id($this->ad_id);
+			foreach ($images as $image) {
+				$image->enable();
+			}
+
+			do_action('awpcp_approve_ad', $this);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @since  3.0-beta22
+	 */
+	public function flag() {
+		$this->flagged = 1;
+		return $this->save();
+	}
+
+	public function unflag() {
+		$this->flagged = 0;
+		return $this->save();
+	}
+
+	public function set_featured_status($featured) {
+		global $wpdb;
+
+		$query = 'UPDATE ' . AWPCP_TABLE_ADS . ' SET ';
+		$query.= 'is_featured_ad=' . intval($featured) . ' WHERE ad_id = %d';
+
+		if ($result = $wpdb->query($wpdb->prepare($query, $this->ad_id))) {
+			$this->is_featured_ad = $featured;
+		}
+
+		return $result;
+	}
+
+	public function mark_as_spam() {
+		// this doesn't feel right :\
+		if ($result = $this->delete()) {
+        	awpcp_submit_spam($this->ad_id);
+        }
+
+        return $result;
+	}
+
+	/**
+	 * Increase the number of views of this Ad by 1.
+	 *
+	 * @since 3.0
+	 */
+	public function visit() {
+		$this->ad_views = $this->ad_views + 1;
 	}
 }
 

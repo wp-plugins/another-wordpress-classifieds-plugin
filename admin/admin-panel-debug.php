@@ -10,13 +10,17 @@ class AWPCP_Admin_Debug {
 	}
 
 	private function blacklisted($setting) {
+		// TODO: add other settings from premium modules
 		$blacklisted = array(
-			'awpcpadminemail', 'tos',
+			'tos',
+			'admin-recipient-email',
+			'awpcpadminemail',
 			'paypalemail',
 			'2checkout',
 			'smtphost', 'smtpport', 'smtpusername', 'smtppassword',
-			'googlecheckoutmerchantID',
-			'authorize.net-login-id', 'authorize.net-transaction-key'
+			'googlecheckoutmerchantID', 'googlecheckoutsandboxseller', 'googlecheckoutbuttonurl',
+			'authorize.net-login-id', 'authorize.net-transaction-key',
+			'paypal-pro-username', 'paypal-pro-password', 'paypal-pro-signature',
 		);
 		return in_array($setting, $blacklisted);
 	}
@@ -66,7 +70,7 @@ class AWPCP_Admin_Debug {
 		$rules = (array) $wp_rewrite->wp_rewrite_rules();
 
 		ob_start();
-			include(AWPCP_DIR . 'admin/templates/admin-panel-debug.tpl.php');
+			include(AWPCP_DIR . '/admin/templates/admin-panel-debug.tpl.php');
 			$content = ob_get_contents();
 		ob_end_clean();
 

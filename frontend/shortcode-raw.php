@@ -23,7 +23,6 @@ class AWPCP_RawShortcode {
         $functions = array('my_formatter', 'theme_formatter', 'columns_formatter');
         $function = false;
 
-        // probably not the best way to write it, but I like how it this one looks :P
         foreach ($functions as $fn) if (function_exists($fn)) $function = $fn;
 
         // do nothing if we can't find one of the problematic functions

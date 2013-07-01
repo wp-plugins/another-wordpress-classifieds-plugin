@@ -3,18 +3,22 @@ Contributors: awpcp
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
-Tested up to: 3.5
-Last Updated: 2013-Jan-21
-Stable tag: tags/2.2.1
+Tested up to: 3.5.2
+Last Updated: 2013-Jul-1
+Stable tag: tags/3.0
+License: GPLv2 or later
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
 
 == Description ==
+
+[Main Site](http://awpcp.com/) | [Support Forum](http://awpcp.com/forum/) | [Documentation](http://awpcp.com/docs/) | [Showcase](http://awpcp.com/showcase/) | [Premium Modules](http://awpcp.com/premium-module/?ref=wp)
+
 Add a classified ads section to your Wordpress site, quickly and easily.  
 Lots of features, very configurable.  Easy to setup.  Great support.
-We're the #1 Wordpress Classified Ads Plugin: three+ years old and 150,000+ downloads!
+We're the #1 Wordpress Classified Ads Plugin: four+ years old and 180,000+ downloads!
 
-NEW modules:  Coupons/Discounts and Subscriptions!
+NEW modules:  Comments/Ratings, Authorize.net and PayPal Pro Gateways!
 
 Features:
 
@@ -98,20 +102,31 @@ Features:
        and not others, giving you more freedom on how to configure your classified
        section.  Allows for multiple fee plans per category, as well as a default
        plan to cover "all other unspecified" categories)
-    7. **NEW** Coupons/Discounts (allows you to offer coupon codes for ad
+    8. Coupons/Discounts (allows you to offer coupon codes for ad
        promotions to your users, coupons can be a percent off, or a fixed amount,
        have expiration dates and be tracked by usage)
-    7. **NEW** Subscriptions (allows power users to place blocks of ads at a time,
+    9. Subscriptions (allows power users to place blocks of ads at a time,
        great for real estate agents, car dealers, anyone who wants to place ads in
        bulk.)
+   10. **NEW** Comments/Ratings (allows users to rate ads and place comments on them.)
+   11. **NEW** Authorize.net Payment Gateway (allows users to purchase ads, subscriptions
+       and credit plans using Authorize.net)
+   12. **NEW** PayPal Pro Support (allows you to have an embedded payment form on your site
+       for use with PayPal Pro accounts)
 
 = Premium Module Links: =
 
-[Category Icons](http://awpcp.com/premium-modules/category-icons-module?ref=wp)
+**NEW** [Comments/Ratings](http://awpcp.com/premium-modules/comments-ratings-module?ref=wp)
+
+**NEW** [Authorize.net Gateway](http://www.awpcp.com/premium-modules/authorizenet-payment-module?ref=wp)
+
+**NEW** [PayPal Pro Gateway](http://www.awpcp.com/premium-modules/paypalpro-payment-module?ref=wp)
 
 [Extra Fields](http://awpcp.com/premium-modules/extra-fields-module?ref=wp)
 
 [Region Control](http://awpcp.com/premium-modules/regions-control-module?ref=wp)
+
+[Category Icons](http://awpcp.com/premium-modules/category-icons-module?ref=wp)
 
 [Google Checkout](http://awpcp.com/premium-modules/google-checkout-module?ref=wp)
 
@@ -136,7 +151,7 @@ If you love the plugin, [please consider purchasing a Premium Module](http://awp
 
 == Credits ==
 
-Copyright 2009-12 awpcp.com
+Copyright 2009-13 awpcp.com
 
 AWPCP Classifieds icons courtesy of http://www.famfamfam.com/lab/icons/silk/
 dcfunctions.php used with permission under GPL by Dan Caragea http://www.datemill.com
@@ -187,451 +202,545 @@ Your classifieds should now be ready and working. If you are having problems ple
 
 == Frequently Asked Questions ==
 
-Question: Will this plugin work with versions of WordPress earlier than 2.7?
-Answer: The plugin has only been tested with version 2.7 and above. It works best on
-    3.0 and higher, because these are the most stable, feature rich versions of WordPress
-    available.  
-    
-	If you wish to test it on earlier versions you are free to do so. If you find that it 
-	works on an earlier version please consider sharing this information for 
-	the benefit of others.
-
 Question: Does your plugin have any particular requirements for PHP or MySQL versions?
-Answer: Yes, you need PHP 5+ and MySQL 5+.  Earlier versions may work, 
-	but are not officially supported.
+Answer: Yes, you need PHP 5.2+ and MySQL 5+.  Earlier versions may work, but are not officially supported.
 
 Visit the support forum for [support, FAQs and docs](http://forum.awpcp.com)
 
-Find the [faqs here](http://www.awpcp.com/category/questions-answers/)
+Find the [faqs here](http://www.awpcp.com/forum/viewforum.php?f=3)
 
 [Plugin documentation](http://www.awpcp.com/documentation/)
 
 == Changelog ==
- = 2.2.1 =
- Updated translation files for missing strings
- Bug: Removed bogus file from plugin root directory causing problems on Windows
- Bug: Added support for IPv6 addresses on posterip column
- Bug: Fixed problem deleting images so all derived images are removed, not just the main one
- Bug: Fixed image upload problem where image filenames were dropping the first character of the name
- Bug: Changed session_start to launch from an init hook to reduce conflicts with other plugins
- 
- = 2.2 =
- NEW: Official Spanish translation added to AWPCP
- NEW: Added jQuery to plugin for formal regions support
- NEW: Allow Sidelist to show Regions from any level.
- Bug: Fixed PHP warning for WP 3.5 about wpdb::prepare
- Bug: Fixed Renew Ad link trailing slash problem
- Bug: Fixed payment table headers for Place Ad payment page
- Bug: Moved session_start to an init hook to reduce plugin conflicts
- Bug: Image upload bug where filename was being improperly truncated for thumbnails
- Bug: Added defensive code to handle conflict with Themeforest-based themes that use wpautop improperly, causing double-break output on AWPCP pages
- Bug: Fixed Regions Ajax conflict.
- Bug: Fixed cache problem that caused sidelisted regions not to appear.
- Bug: Store regions ad count in database to improve module performance.
- Bug: Move Regions CSS and JS to external files.
- Bug: Replace region parent dropdown fields with autocomplete fields.
+= Version 3.0 =
+* NEW: PayPal Pro (Express Checkout and Direct Payment integrations)
+* NEW: Comments and Ratings
+* NEW: Authorize.Net Payment Gateway support
+* NEW: New Credit System.
+* NEW: New Payment System.
+* NEW: Two Place Ad workflows: Pay First-Post Later; Post-First, Pay-Later.
+* NEW: Add settings to control currency and date formats.
+* NEW: Make category link clickable.
+* NEW: New Listings section.
+* NEW: Add bulk action to mark Ads as featured or non-featured.
+* NEW: Add bulk action to renew Ads.
+* NEW: Add bulk action to mark Ads as SPAM.
+* NEW: Add bulk action to Flag/Unflag Ads.
+* NEW: Add Unpaid Ads section in Admin Listings, to see unpublished Ads.
+* NEW: Allow Admin to re-send Access Key from Listings section.
+* NEW: Allow admin to edit Ad's start and end dates.
+* NEW: Allow admin users to change the category of an Ad.
+* NEW: Include a link to full version of Ad in the Ad Posted Email sent to admin.
+* NEW: New Fees section.
+* NEW: Allow Fee plans to be marked as private.
+* NEW: Add setting to hide decimals in price.
+* NEW: Add setting to control Fees order.
+* NEW: Allow admin users to control the number of characters in title per Fee plan.
+* NEW: Add new sort options and allow Search Results to have a different order.
+* NEW: Allow administrators to be notified when an Ad gets a response.
+* NEW: Allow for an email to be sent to the Ad owner when an Ad is approved.
+* NEW: Allow for an email to be sent to the admin when an Ad is pending approval.
+* NEW: Allow admin notifications to be send to a configurable email address.
+* NEW: Show category ID in Categories Admin listings for easy access.
+* NEW: Allow empty categories to be hidden.
+* NEW: New Widgets: Random Ad widget, Categories widget.
+* NEW: New shortcode: [AWPCPLATESTLISTINGS].
+* NEW: New shortcode: [AWPCPRANDOMLISTINGS].
+* NEW: New shortcode: [AWPCPFEATUREDLISYINGS]  (with Featured Ads module only).
+* NEW: Add support for reCAPTCHA in Place Ad and Reply to Ad pages.
+* NEW: Add new content placeholders to be used in Single and Listings layout.
+* NEW: Replace Max and Min price search dropdown fields with textfields.
+* NEW: Improved login form with register and lost password links.
+* NEW: Increase maximum file size per image to 1MB.
+* NEW: Use WordPress Thickbox.
+* NEW: Use jQuery Form included in WordPress.
+* Fix: Numerous missing translations added.
+* Fix: Email doesn't go to user when the Ad is pending approval.
+* Fix: Ad are posted prematurely.
+* Fix: Remove Payment Transactions objects from wp_options table.
+* Fix: Admin cannot Unflag Ads from the Ad Management panel.
+* Fix: Make keyword optional in Search form if other fields have values.
+* Fix: Consider Ad's renewed date when showing Ads Listings.
+* Fix: Search by ID in Admin Listings section.
+* Fix: PayPal payment gateway verification and validation functions.
+* Fix: Create Transactions objects only when there is a clear intention of posting an Ad.
+* Fix: Allow users to search by category from Search Widget.
+* Fix: Conflict with Events Manager.
+* Fix: Allow for partial searches on deafult region fields (without Region Control module).
+* Fix: Conflict with JetPack OpenGraph meta tags.
+* Fix: (PayPal) Consider Taxes to decide if paid amount matches order amount.
+* Fix: Uninstall function.
+* Fix: Minor fix to AWPCP Admin home screen layout.
+* Fix: Include styles and scripts using wp_enqueue_style and wp_enqueue_script.
+* Fix: Auto-populate region fields from Regions data available in existing Ads (without Region Control module).
+* Fix: Conflict with jQuery UI.
+* Fix: AWPCP styles overrides loginform CSS style.
+* Fix: Compatibility problem with CryptX.
+* Fix: Remove sevearl XSS and SQL Injection vulnerabilities.
+* Fix: Redirect users to current page after they register a new account.
+* Fix: Show categories hierarchy in the admin screen.
+* Fix: Improved compatibility with AdBlock add-on for Google Chrome.
+* Fix: Compatibility issue iwth SEO Ultimate plugin.
+* Fix: Use HTML labels in AWPCP forms.
+* Fix: Add CSS style to fix widgets format in IE8.
+* Fix: Replace "AWPCP Transaction" with "{blogname} Transaction".
+* Fix: Load CSS after all premium modules styles.
+* Fix: Use same URL for View Categories link and AWPCP Main page if "Show Ad listings on main page" is unchecked.
+* Fix: Show users dropdown list sorted alphabetically.
+* Fix: Allow for IPv6 addresses in posterip field.
+* Fix: Thumbnails files were being saved with the wrong name.
+* Fix: Better email address validation.
+* Fix: Ad Posted email was begin sent multiple times for the same Ad.
+* Fix: Move session_Start to the init hook.
+* Fix: Conflict with W3 Total Cache in Place Ad workflow.
+* Allow Extra Fields to be assigned to multiple categories.
+* Add ranged serach for numeric Extra Fields.
+* Add CSS classes to Extra Fields form fields and rendered values.
+* Render links fro Extra Fields with URL and Email validators.
+* Fix: Extra Fields not always showing up in Search Page.
+* Fix: Extra Fields search not working in some cases.
+* Fix: Allow Extra Fields with validators to be optional.
+* Allow admin users to control the number of characters in title per Subscription plan.
+* Allow image count and character count control in Subscription Plans.
+* Add setting to control Subscription Plans order.
+* RSS module is now a stand alone plugin.
+* Add RSS feeds per category.
+* Include Extra Fields in RSS feed.
+* Add options to show larger images in RSS feed.
+* Add Autocomplete field to choose Region Parent in Region Control admin screens.
+* Improved region Ad count implementation to reduce processing time.
+* Allow Region Selector to be collapsible.
+* Fix: Support for different regions hierarchy in Region Control (Country->County->State vs Country->State->City).
+* Fix: Show Regions in Sidelist in alphabetical order.
+* Fix: Conflcit between Region Control and Theme My Login.
+* Google Checkout module is now a stand alone plugin.
+* Fix: Featured Ads become non-Featured Ad when edited.
 
- = 2.1.3.1 =
- Bug: Fixed problem with category links where a 404 error would appear when AWPCP pages are used on the front of a site
+= Version 2.2.1 =
+* Updated translation files for missing strings
+* Removed bogus file from plugin root directory causing problems on Windows
+* Added support for IPv6 addresses on posterip column
+* Fixed problem deleting images so all derived images are removed, not just the main one
+* Fixed image upload problem where image filenames were dropping the first character of the name
+* Changed session_start to launch from an init hook to reduce conflicts with other plugins
  
- = 2.1.3 =
- NEW: Added shortcode for display of single categories of ads:  [AWPCPSHOWCAT id=4 children=true] where id is the category, children says whether to display child categories of this category or not (allowed values:  true, false, yes, no, 0, 1)
- NEW: Send email when Ad is successfully renewed.
- NEW: Store and display the most recent date when an Ad has been renewed.
- NEW: Enable Ad Images if the renewed Ad is enabled.
- NEW: Allow users to enable/disable images from frontend Edit Images screen.
- NEW: Add disable/enable operations in the Ad Management panel.
- Bug: Fixed JavaScript error in Admin Dashboard
- Bug: Fixed to not show primary image if the image is disabled.
- Bug: Fixed CSV Importer to consider default dates.
- Bug: Show accurate remaining character count when editing an Ad.
- Bug: Fixed SQL error when adding new Fee plan.
- Bug: Fixed ad counts not working with child regions (parent count inaccurate)
- Bug: Fixed problems with Renew Ads from dashboard
- Bug: Fixed issue with subscriptions not paginating on admin dashboard
- Bug: Fixed SEO Friendly URL issue when Browse Cats was main page
- Bug: Fixed widget registration issue when widget was translated (caused widget to disappear)
- Bug: Fixed compatibility with Simple Lightbox Plugin
- Bug: Fixed imported ads to have access keys generated for them during import
- Bug: Fixed missing translation strings in PO file
+= Version 2.2 =
+* NEW: Official Spanish translation added to AWPCP
+* NEW: Added jQuery to plugin for formal regions support
+* NEW: Allow Sidelist to show Regions from any level.
+* Fixed PHP warning for WP 3.5 about wpdb::prepare
+* Fixed Renew Ad link trailing slash problem
+* Fixed payment table headers for Place Ad payment page
+* Moved session_start to an init hook to reduce plugin conflicts
+* Image upload bug where filename was being improperly truncated for thumbnails
+* Added defensive code to handle conflict with Themeforest-based themes that use wpautop improperly, causing double-break output on AWPCP pages
+* Fixed Regions Ajax conflict.
+* Fixed cache problem that caused sidelisted regions not to appear.
+* Store regions ad count in database to improve module performance.
+* Move Regions CSS and JS to external files.
+* Replace region parent dropdown fields with autocomplete fields.
 
- = 2.1.2 =
- NEW: Allow for regions control region box to be collapsible
- NEW: Make Region Control Sidelist collapsible
- NEW: Redesign region selector widget to use less space
- Bug: Regions Module selector is not working on all sites
- Bug: wpautop and wptexturize break AWPCP's inline JavaScript
- Bug: PayPal certificate verification issues
- Bug: CSV Importer does not show useful error messages when upload fails.
- Bug: Add radio fields to choose which Roles have AWPCP admin access.
- Bug: Conflict between Region Sidelist and Region Selector
- Bug: awpcp_ajaxurl is returning the wrong URL
- Bug: Show images/icons (instead of just text) to identify the supported payment methods.
- Bug: Use cURL both with and without bundled CA to solve certificate verification issues.
- Bug: Fix Fatal error in 2Checkout validation function.
- Bug: Avoid creating Extra Fields named with WP Reserved Words
- Bug: Fix Google Checkout validation and verification module.
+= Version 2.1.3.1 =
+* Fixed problem with category links where a 404 error would appear when AWPCP pages are used on the front of a site
+ 
+= Version 2.1.3 =
+* NEW: Added shortcode for display of single categories of ads:  [AWPCPSHOWCAT id=4 children=true] where id is the category, children says whether to display child categories of this category or not (allowed values:  true, false, yes, no, 0, 1)
+* NEW: Send email when Ad is successfully renewed.
+* NEW: Store and display the most recent date when an Ad has been renewed.
+* NEW: Enable Ad Images if the renewed Ad is enabled.
+* NEW: Allow users to enable/disable images from frontend Edit Images screen.
+* NEW: Add disable/enable operations in the Ad Management panel.
+* Fixed JavaScript error in Admin Dashboard
+* Fixed to not show primary image if the image is disabled.
+* Fixed CSV Importer to consider default dates.
+* Show accurate remaining character count when editing an Ad.
+* Fixed SQL error when adding new Fee plan.
+* Fixed ad counts not working with child regions (parent count inaccurate)
+* Fixed problems with Renew Ads from dashboard
+* Fixed issue with subscriptions not paginating on admin dashboard
+* Fixed SEO Friendly URL issue when Browse Cats was main page
+* Fixed widget registration issue when widget was translated (caused widget to disappear)
+* Fixed compatibility with Simple Lightbox Plugin
+* Fixed imported ads to have access keys generated for them during import
+* Fixed missing translation strings in PO file
 
- = 2.1.1 =
- NEW: Display characters allowed in Payment Step screen
- NEW: Make Featured Ads widget take into account current selected Region
- Bug: MySQL Strict mode error when editing an Ad.
- Bug: Setting a location to a Region clears all sub-locations
- Bug: template errors. Move split tags to the same line
- Bug: Renew Ad template.
- Bug: JS error related to missing fields in Ad Details form.
- Bug: "Call Time Pass By Reference" PHP error in Ad class.
- Bug: provide a fallback for esc_textarea function.
- Bug: Remove extra HTML table tag.
- Bug: redirection problem in Region Control selector.
- Bug: SQL error in Region Control module.
- Bug: MySQL Strict mode when installing Region Control module.
- Bug: Fixed CSV import error with certain date formats.
+= Version 2.1.2 =
+* NEW: Allow for regions control region box to be collapsible
+* NEW: Make Region Control Sidelist collapsible
+* NEW: Redesign region selector widget to use less space
+* Regions Module selector is not working on all sites
+* wpautop and wptexturize break AWPCP's inline JavaScript
+* PayPal certificate verification issues
+* CSV Importer does not show useful error messages when upload fails.
+* Add radio fields to choose which Roles have AWPCP admin access.
+* Conflict between Region Sidelist and Region Selector
+* awpcp_ajaxurl is returning the wrong URL
+* Show images/icons (instead of just text) to identify the supported payment methods.
+* Use cURL both with and without bundled CA to solve certificate verification issues.
+* Fix Fatal error in 2Checkout validation function.
+* Avoid creating Extra Fields named with WP Reserved Words
+* Fix Google Checkout validation and verification module.
+
+= Version 2.1.1 =
+* NEW: Display characters allowed in Payment Step screen
+* NEW: Make Featured Ads widget take into account current selected Region
+* MySQL Strict mode error when editing an Ad.
+* Setting a location to a Region clears all sub-locations
+* template errors. Move split tags to the same line
+* Renew Ad template.
+* JS error related to missing fields in Ad Details form.
+* "Call Time Pass By Reference" PHP error in Ad class.
+* provide a fallback for esc_textarea function.
+* Remove extra HTML table tag.
+* redirection problem in Region Control selector.
+* SQL error in Region Control module.
+* MySQL Strict mode when installing Region Control module.
+* Fixed CSV import error with certain date formats.
  
- = 2.1.0 =
- NEW: Allow users to download Debug info as an HTML file.
- NEW: Add "Click to Enlarge Link" below primary image.
- NEW: Allow Extra Fields to be showen in two or three columns.
- NEW: Use primary image wherever a thumbnail would be shown.
- NEW: Add a template for Reply to Ad email
- NEW: Include Extra Field settings in Extra Fields section.
- NEW: Migrate Extra Fields to be a standalone plugin.
- NEW: Migrate Regions Control to be a standalone plugin.
- NEW: Allow Extra Field to have custom order.
- NEW: Add options to Featured Ads widget to show/hide Ad Title and Excerpt.
- Bug: Fixed Facebook share link so it's not picket up by thickbox function
- Bug: Fixed bug that removed umlauts from URLs
- Bug: Fixed twitter share button to include Ad's title.
- Bug: Fixed JS error in Search form.
- Bug: Fixed Extra Fields display error in Select elements.
- Bug: Fixed content type for RSS feed.
- Bug: Fixed remove empty separators from Show Ad page title.
- Bug: Fixed compatibility problem with YOAST SEO WordPress plugin.
- Bug: Fixed preserve original information when editing an Ad.
- Bug: Fixed Editing Ads as admin causes admin's info to be used in the Ad.
- Bug: Fixed Removed backslashes from  Ad Title, Reply To Ad email, and Ad Details form, when there were erros in the information submitted.
- Bug: Fixed Avoid showing validation errors when PayPal transaction is succesfully verified.
- Bug: Fixed Updated POT file with several missing strings.
- Bug: Fixed pagination when a category has been selected.
- Bug: Fixed several MySQL strict-mode related problems.
- Bug: Fixed Calculate new Ad expiration date base on current expiration date
- Bug: Fixed Calculate Ad's end date from the moment admin approves Ad
- Bug: Fixed thumbnail image src in Latest Ads widget.
- Bug: Fixed Allow editors to access AWPCP admin panel if they are allowed to in AWPCP settings.
- Bug: Fixed Use correct URL for home URL in emails.
- Bug: Fixed integration with Subscription and Coupons modules.
- Bug: Fixed Use blog language to set RSS Feed language
- Bug: Fixed Terms of Service should not be required when editing an Ad
- Bug: Use a password field for the SMTP Password setting
- Bug: Include "Return to Listings" link in Renew Ad screen
- Bug: Update button style in Fees admin screen
- Bug: Update Add/Update Fee for appearances
- Bug: Show Category name in Admin Ad View screen
- Bug: Improve appearance of Admin Ad View screen
- Bug: Add options to Latest Ads widget to show/hide Ad Title and Excerpt.
- Bug: Allow to set character limit on a per Fee basis.
- Bug: Remove website URL, passwords and email address from Debug info
- Bug: Include field in Debug info to check PayPal connection status.
- Bug: Include Renew Ad URL in Expired Ad email notification
- Bug: Include a file of trusted CA authorities to prevent SSL verification issues with cURL, when validating a PayPal transaction.
- Bug: Add settings to control width/height/crop settings of primary and thumbnail images.
- Bug: Allow users to choose a primary image for the Ad.
- Bug: Change CSS class for Ad Title from 'adtitle' to 'awpcp-title' to avoid problems with Ad blocking software.
- Bug: Include site name (not AWPCP) in Ad Management panel's page title.
- Bug: Renamed AWPCP Profile to Classifieds Profile.
- Bug: Auto populate phone number field field using user's profile information
- Bug: Removed Warning in Featured Ads module.
- Bug: Open documentation link in a new tab
- Bug: Fixed COLLATE and CHARSET in all premium modules.
- Bug: Fixed do not show empty Extra Fields setting.
- Bug: Fixed remove thickbox class from Featured Ad widget items.
- Bug: Put "Featured Ad Pricing" label in front of the checkbox
- Bug: Fixed Regions jQuery JavaScript error.
- Bug: Include a "No Parent" option when adding or editing Regions.
- Bug: Fixed Increase current_ad_count when an Ad is placed using a Subscription.
+= Version 2.1.0 =
+* NEW: Allow users to download Debug info as an HTML file.
+* NEW: Add "Click to Enlarge Link" below primary image.
+* NEW: Allow Extra Fields to be showen in two or three columns.
+* NEW: Use primary image wherever a thumbnail would be shown.
+* NEW: Add a template for Reply to Ad email
+* NEW: Include Extra Field settings in Extra Fields section.
+* NEW: Migrate Extra Fields to be a standalone plugin.
+* NEW: Migrate Regions Control to be a standalone plugin.
+* NEW: Allow Extra Field to have custom order.
+* NEW: Add options to Featured Ads widget to show/hide Ad Title and Excerpt.
+* Fixed Facebook share link so it's not picket up by thickbox function
+* Fixed bug that removed umlauts from URLs
+* Fixed twitter share button to include Ad's title.
+* Fixed JS error in Search form.
+* Fixed Extra Fields display error in Select elements.
+* Fixed content type for RSS feed.
+* Fixed remove empty separators from Show Ad page title.
+* Fixed compatibility problem with YOAST SEO WordPress plugin.
+* Fixed preserve original information when editing an Ad.
+* Fixed Editing Ads as admin causes admin's info to be used in the Ad.
+* Fixed Removed backslashes from  Ad Title, Reply To Ad email, and Ad Details form, when there were erros in the information submitted.
+* Fixed Avoid showing validation errors when PayPal transaction is successfully verified.
+* Fixed Updated POT file with several missing strings.
+* Fixed pagination when a category has been selected.
+* Fixed several MySQL strict-mode related problems.
+* Fixed Calculate new Ad expiration date base on current expiration date
+* Fixed Calculate Ad's end date from the moment admin approves Ad
+* Fixed thumbnail image src in Latest Ads widget.
+* Fixed Allow editors to access AWPCP admin panel if they are allowed to in AWPCP settings.
+* Fixed Use correct URL for home URL in emails.
+* Fixed integration with Subscription and Coupons modules.
+* Fixed Use blog language to set RSS Feed language
+* Fixed Terms of Service should not be required when editing an Ad
+* Use a password field for the SMTP Password setting
+* Include "Return to Listings" link in Renew Ad screen
+* Update button style in Fees admin screen
+* Update Add/Update Fee for appearances
+* Show Category name in Admin Ad View screen
+* Improve appearance of Admin Ad View screen
+* Add options to Latest Ads widget to show/hide Ad Title and Excerpt.
+* Allow to set character limit on a per Fee basis.
+* Remove website URL, passwords and email address from Debug info
+* Include field in Debug info to check PayPal connection status.
+* Include Renew Ad URL in Expired Ad email notification
+* Include a file of trusted CA authorities to prevent SSL verification issues with cURL, when validating a PayPal transaction.
+* Add settings to control width/height/crop settings of primary and thumbnail images.
+* Allow users to choose a primary image for the Ad.
+* Change CSS class for Ad Title from 'adtitle' to 'awpcp-title' to avoid problems with Ad blocking software.
+* Include site name (not AWPCP) in Ad Management panel's page title.
+* Renamed AWPCP Profile to Classifieds Profile.
+* Auto populate phone number field field using user's profile information
+* Removed Warning in Featured Ads module.
+* Open documentation link in a new tab
+* Fixed COLLATE and CHARSET in all premium modules.
+* Fixed do not show empty Extra Fields setting.
+* Fixed remove thickbox class from Featured Ad widget items.
+* Put "Featured Ad Pricing" label in front of the checkbox
+* Fixed Regions jQuery JavaScript error.
+* Include a "No Parent" option when adding or editing Regions.
+* Fixed Increase current_ad_count when an Ad is placed using a Subscription.
  
- = 2.0.6 =
- Bug: Extra fields rendered with .esc_attr
- Bug: Windows MySQL error when inserting new ad
- Bug: Featured ad widget missing in latest code
- Bug: Image upload issue
- Bug: Featured ads not getting set as featured upon submit
- Bug: Featured ad column not inserting proper data
- Bug: Region selector submitting to wrong URL
- Bug: Pagination links in Browse Ads point to Browse Categories page
- Bug: View categories link broken in some cases
- Bug: Sidebar getting pushed down
- Bug: Facebook share button not working correctly
- Bug: HTML issue with payment grid
- Bug: Ad pagination issue
- Bug: Category display problem
- Bug: Unable to delete fee plan
- NEW: Added TOUR dialog to AWPCP for new installations
- Bug: Latest ads widget doesn't honor background or title for theme
- Bug: Payment term display issue
- Bug: Ad visibility problem in Ad management
- Bug: Edit ads doesn't show state/city in ad mgmt panel
- Bug: Payment template page cleanup
- Bug: PayPal payment issue status problem
- Bug: View categories doesn't work as expected
- Bug: CSV import issue
- Bug: Image upload problem from 2.0.4.1
+= Version 2.0.6 =
+* Extra fields rendered with .esc_attr
+* Windows MySQL error when inserting new ad
+* Featured ad widget missing in latest code
+* Image upload issue
+* Featured ads not getting set as featured upon submit
+* Featured ad column not inserting proper data
+* Region selector submitting to wrong URL
+* Pagination links in Browse Ads point to Browse Categories page
+* View categories link broken in some cases
+* Sidebar getting pushed down
+* Facebook share button not working correctly
+* HTML issue with payment grid
+* Ad pagination issue
+* Category display problem
+* Unable to delete fee plan
+* NEW: Added TOUR dialog to AWPCP for new installations
+* Latest ads widget doesn't honor background or title for theme
+* Payment term display issue
+* Ad visibility problem in Ad management
+* Edit ads doesn't show state/city in ad mgmt panel
+* Payment template page cleanup
+* PayPal payment issue status problem
+* View categories doesn't work as expected
+* CSV import issue
+* Image upload problem from 2.0.4.1
  
- = 2.0.5 =
- Bug: Place Ad page upgrade issue (added Restore Pages button)
- Bug: PayPal issue for blogs that use GET instead of POST
- Bug: Extra Fields display issue
- Bug: 2.0.1 Place Ad shows HTML code issue
- Bug: Featured ads widget broken in 2.0.x
- Bug: Upgrade to 2.0.4.1 caused the board to go into uninitialized mode
- Bug: 2.0.4.1 has editing problems with ads
- Bug: Editing ads causes fields to disappear in 2.0.4.1
- Bug: Editing ads as User from Ad Mgmt Panel causes ads to disappear
- Bug: Sites with non-Latin character sets are displaying badly in 2.0
- Bug: Show message after a setting is automatically changed
- Bug: Place Ad fails when the payment status is not completed
- Bug: RSS feeds image URLs are broken in 2.0.4
- Bug: Latest ads widget not responding to parameters for ad display
- Bug: Ad expiration failing in 2.0.4.1
- Bug: Widget is missing title (Latest Ads) in 2.0.4.1
+= Version 2.0.5 =
+* Place Ad page upgrade issue (added Restore Pages button)
+* PayPal issue for blogs that use GET instead of POST
+* Extra Fields display issue
+* 2.0.1 Place Ad shows HTML code issue
+* Featured ads widget broken in 2.0.x
+* Upgrade to 2.0.4.1 caused the board to go into uninitialized mode
+* 2.0.4.1 has editing problems with ads
+* Editing ads causes fields to disappear in 2.0.4.1
+* Editing ads as User from Ad Mgmt Panel causes ads to disappear
+* Sites with non-Latin character sets are displaying badly in 2.0
+* Show message after a setting is automatically changed
+* Place Ad fails when the payment status is not completed
+* RSS feeds image URLs are broken in 2.0.4
+* Latest ads widget not responding to parameters for ad display
+* Ad expiration failing in 2.0.4.1
+* Widget is missing title (Latest Ads) in 2.0.4.1
  
 
- = 2.0.4.1 =
- Bug: Fixed install problem with AWPCP on new sites
- Bug: Updated PO and POT files
+= Version 2.0.4.1 =
+* Fixed install problem with AWPCP on new sites
+* Updated PO and POT files
  
 
- = 2.0.4 =
- Bug: Fixed PayPal issue when cURL wasn't available to process reply
- Bug: Placing ad as admin for other user didn't pull profile data properly
- Bug: Placed fees before subscriptions in Place Ad first step for paid boards
- Bug: Fixed extra fields display problem (category specific fields showed in all categories)
- Bug: RSS admin options restored
- Bug: Auto approval for ads with images and no payments fixed
- Bug: Used default thumbnail height (150/150) when image settings are at 0
- Bug: Category handling for CSV import uses drop down for options instead of checkbox now
- Bug: Fixed HTML template problem for Place Ad with mismatched tags
- Bug: Removed "You need to complete your setup" as this is no longer needed
+= Version 2.0.4 =
+* Fixed PayPal issue when cURL wasn't available to process reply
+* Placing ad as admin for other user didn't pull profile data properly
+* Placed fees before subscriptions in Place Ad first step for paid boards
+* Fixed extra fields display problem (category specific fields showed in all categories)
+* RSS admin options restored
+* Auto approval for ads with images and no payments fixed
+* Used default thumbnail height (150/150) when image settings are at 0
+* Category handling for CSV import uses drop down for options instead of checkbox now
+* Fixed HTML template problem for Place Ad with mismatched tags
+* Removed "You need to complete your setup" as this is no longer needed
  
  
- = 2.0.3 =
- Bug: PayPal issue with payments returning for mismatched emails
- Bug: Category Icons module failed to display images correctly
- Bug: Various PHP warnings fixed
- Bug: Fixed expiration date problem with free ads
- Bug: Fixed RSS feeds module issue (no ads displayed)
- Bug: Fixed ad editing problem from admin Listings link
- Bug: Changed workflow text that used "Step X of Y" to the actual step names to reduce confusion
+= Version 2.0.3 =
+* PayPal issue with payments returning for mismatched emails
+* Category Icons module failed to display images correctly
+* Various PHP warnings fixed
+* Fixed expiration date problem with free ads
+* Fixed RSS feeds module issue (no ads displayed)
+* Fixed ad editing problem from admin Listings link
+* Changed workflow text that used "Step X of Y" to the actual step names to reduce confusion
  
- = 2.0.2 =
- NEW: Added Debug panel in admin screen, to allow for users to copy/paste current info about site
- Bug: AWPCP page creation on upgrade fixed
- Bug: Problem with coupon module fixed
- Bug: Warnings about AWPCP::append_title arguments, awpcp_admin_sidebar, call-user-func fixed
- Bug: Payment amount matching fixed
+= Version 2.0.2 =
+* NEW: Added Debug panel in admin screen, to allow for users to copy/paste current info about site
+* AWPCP page creation on upgrade fixed
+* Problem with coupon module fixed
+* Warnings about AWPCP::append_title arguments, awpcp_admin_sidebar, call-user-func fixed
+* Payment amount matching fixed
  
- = 2.0.1 =
- Bug: Warnings about AWPCP::init suppressed
- Bug: Problem with table update for options fixed
- Bug: WP 3.0 lacked import file present in 3.1, fixed
+= Version 2.0.1 =
+* Warnings about AWPCP::init suppressed
+* Problem with table update for options fixed
+* WP 3.0 lacked import file present in 3.1, fixed
 
- = 2.0 =
- NEW: Ad Management Panel
- NEW: CSV ad importer
- NEW: Support for embedded videos in ads
- NEW: Full Ad Renewal Support:  emails sent X days before expiration, email customization, renewal links in email
- NEW: Feature to require registration for ad reply (reduces spam)
- NEW: Workflow text made clearer
- NEW: Ad Profile User meta fields are now auto-populated for ad creation (requires registration)
- NEW: Admin Panel look and feel upgraded to WP 3.0 standards
- NEW: Major back-end code revamp to split files for faster loading, easier maintenance
- Bug: Security issue for image uploads patched
- Bug: Minor cleanup of unused links in Admin Panel
- Bug: Fixed payment gateway selection bug (where a selected payment plan required you to "reselect" it on submission)
- Bug: Fixed email problem with ads and images
- Bug: Fixed page renaming bug
+= Version 2.0 =
+* NEW: Ad Management Panel
+* NEW: CSV ad importer
+* NEW: Support for embedded videos in ads
+* NEW: Full Ad Renewal Support:  emails sent X days before expiration, email customization, renewal links in email
+* NEW: Feature to require registration for ad reply (reduces spam)
+* NEW: Workflow text made clearer
+* NEW: Ad Profile User meta fields are now auto-populated for ad creation (requires registration)
+* NEW: Admin Panel look and feel upgraded to WP 3.0 standards
+* NEW: Major back-end code revamp to split files for faster loading, easier maintenance
+* Security issue for image uploads patched
+* Minor cleanup of unused links in Admin Panel
+* Fixed payment gateway selection bug (where a selected payment plan required you to "reselect" it on submission)
+* Fixed email problem with ads and images
+* Fixed page renaming bug
  
- = 1.8.9.4 =
- Bug: Disabled Facebook meta fix, caused problems on some themes
- Bug: Changed CSS to support category display on IE correctly
+= Version 1.8.9.4 =
+* Disabled Facebook meta fix, caused problems on some themes
+* Changed CSS to support category display on IE correctly
  
- = 1.8.9.3 =
- Bug: Fixed Facebook sharing metadata page injection
- Bug: Fixed install page renaming crash bug for some webhosts (Bluehost, GoDaddy)
+= Version 1.8.9.3 =
+* Fixed Facebook sharing metadata page injection
+* Fixed install page renaming crash bug for some webhosts (Bluehost, GoDaddy)
  
- = 1.8.9.2 =
- Bug: Fixed pagination issue with category pages.
- Bug: Fixed critical bug where install caused WSOD with conflicting page names.
- Bug: Fixed layout issue with categories not aligning correctly.
- Bug: Fixed Extra Fields category problem for root fields
- Bug: Fixed so city/state are displayable in the listing AND details of ads
+= Version 1.8.9.2 =
+* Fixed pagination issue with category pages.
+* Fixed critical bug where install caused WSOD with conflicting page names.
+* Fixed layout issue with categories not aligning correctly.
+* Fixed Extra Fields category problem for root fields
+* Fixed so city/state are displayable in the listing AND details of ads
  
- = 1.8.9.1 =
- Bug: Fixed extra fields category problem in main plugin.
+= Version 1.8.9.1 =
+* Fixed extra fields category problem in main plugin.
  
- = 1.8.9 =
- Bug: Fixed SEO mode, simplified usage in admin, corrected numerous bugs from SEO glitches.
+= Version 1.8.9 =
+* Fixed SEO mode, simplified usage in admin, corrected numerous bugs from SEO glitches.
  
- = 1.8.8.1 =
- Bug: Fixed function name for old Extra Fields module validation.
+= Version 1.8.8.1 =
+* Fixed function name for old Extra Fields module validation.
  
- = 1.8.8 =
- NEW: Integrated changes for Extra Fields to support ad listing display, search field hiding, category-specific fields
- NEW: Added support to auto-resize regular images (instead of just thumbnails) on upload
- NEW: Added support for category editing (admin only)
- Bug: Fixed pagination problems with browse ads
- Bug: Fixed issue with disabled ads being reachable via URL directly
- Bug: Fixed ad email issue (editing caused email resend)
- Bug: Fixed category delete SQL error
- Bug: Fixed Akismet integration to catch more spam
- Bug: Fixed image editing for admin, improved admin panel functionality for images
- Bug: Fixed SMTP to support port designation, fixed SMTP usage
- Bug: Fixed Akismet integration to detect if it's missing (prevents the "setting save" problem when Akismet not active)
- Bug: Fixed ad editing with images in top level categories
- Bug: Fixed place ad/display ad form spacing (reduced white space)
+= Version 1.8.8 =
+* NEW: Integrated changes for Extra Fields to support ad listing display, search field hiding, category-specific fields
+* NEW: Added support to auto-resize regular images (instead of just thumbnails) on upload
+* NEW: Added support for category editing (admin only)
+* Fixed pagination problems with browse ads
+* Fixed issue with disabled ads being reachable via URL directly
+* Fixed ad email issue (editing caused email resend)
+* Fixed category delete SQL error
+* Fixed Akismet integration to catch more spam
+* Fixed image editing for admin, improved admin panel functionality for images
+* Fixed SMTP to support port designation, fixed SMTP usage
+* Fixed Akismet integration to detect if it's missing (prevents the "setting save" problem when Akismet not active)
+* Fixed ad editing with images in top level categories
+* Fixed place ad/display ad form spacing (reduced white space)
  
- = 1.8.7.2 =
- Bug: Fixed unclosed ul and li items for empty categories
- Bug: Fixed CSS spacing issues with certain themes that put huge margins in the categories
- Bug: Fixed CSS spacing issues with Place Ad/Search Ad form (cut down on spacing between fields)
+= Version 1.8.7.2 =
+* Fixed unclosed ul and li items for empty categories
+* Fixed CSS spacing issues with certain themes that put huge margins in the categories
+* Fixed CSS spacing issues with Place Ad/Search Ad form (cut down on spacing between fields)
  
- = 1.8.7.1 =
- NEW: Support for Fee Per Category plugin added
- Bug: Fixed PayPal bogus error message on successful payment issue
- Bug: Fixed Place Ad issue where the first fee plan isn't selected
- Bug: Fixed website link to open in a new page
- Bug: Fixed Windows bugs for uninitialized variables
+= Version 1.8.7.1 =
+* NEW: Support for Fee Per Category plugin added
+* Fixed PayPal bogus error message on successful payment issue
+* Fixed Place Ad issue where the first fee plan isn't selected
+* Fixed website link to open in a new page
+* Fixed Windows bugs for uninitialized variables
 
- = 1.8.7 =
- Bug: Fixed category problem when editing ads
- Bug: Fixed problem with error on deleting ad images
- Bug: Fixed pagination issues
- Bug: Fixed field escaping for category names
- Bug: Fixed Notify admin of Ads textbox problem
- Bug: Fixed issue where disabled ads could be accessed via URL directly
- Bug: Fixed problem with 1-character domain emails (e.g. q.com)
+= Version 1.8.7 =
+* Fixed category problem when editing ads
+* Fixed problem with error on deleting ad images
+* Fixed pagination issues
+* Fixed field escaping for category names
+* Fixed Notify admin of Ads textbox problem
+* Fixed issue where disabled ads could be accessed via URL directly
+* Fixed problem with 1-character domain emails (e.g. q.com)
 
- = 1.8.6.4 =
- Bug: Fixed column issue for fee plans
- Bug: Updated license terms for all files according to WP terms of service requirements
+= Version 1.8.6.4 =
+* Fixed column issue for fee plans
+* Updated license terms for all files according to WP terms of service requirements
 
- = 1.8.6.3 =
- Bug: Fixed ad edit for admin panel (category error)
- Bug: Fixed free ad end date bug (Jan 1, 1970), added mechanism to update end date in free mode
+= Version 1.8.6.3 =
+* Fixed ad edit for admin panel (category error)
+* Fixed free ad end date bug (Jan 1, 1970), added mechanism to update end date in free mode
 
- = 1.8.6.2 =
- Bug: Fixed bad column names in functions_awpcp.php
+= Version 1.8.6.2 =
+* Fixed bad column names in functions_awpcp.php
  
- = 1.8.6.1 =
- Bug: Fixed install problems with categories tables, flagged column, etc.
- Bug: Fixed sort order of ads for all types
- Bug: Fixed Facebook share button title to use actual ad title
+= Version 1.8.6.1 =
+* Fixed install problems with categories tables, flagged column, etc.
+* Fixed sort order of ads for all types
+* Fixed Facebook share button title to use actual ad title
   
- = 1.8.6 = 
- NEW: Facebook share button for individual ad pages.  To use it, make sure you have $sharebtn in your single ad template
- NEW: Added field codes for single ad display: $ad_postdate, $ad_startdate, $ad_categoryurl
- NEW: Added ability to hide/show "Posted By" on search form
- NEW: Flag Ad link for individual ad pages.  To use it, make sure you have $flagad in your single ad template
- NEW: Terms of Service displayed for ads (optionally), if displayed, user must select accept.
- NEW: Admin can be notified of ads that expire (optionally).
- NEW: Admin panel now displays start/end date for ads, payment plan (if applicable)
- NEW: Admin panel has separate category for notification email templates (subject and body)
- NEW: Added IP address tracking for ad posters to improve Akismet spam detection when spam is marked later
- Bug: Fixed search form to hide private extra fields
- Bug: Fixed conflicting function name display_ads to be awpcp_display_ads
- Bug: Fixed ad expiration bug
- Bug: Fixed expired ads did not delete automatically (30 day delay now)
+= Version 1.8.6 = 
+* NEW: Facebook share button for individual ad pages.  To use it, make sure you have $sharebtn in your single ad template
+* NEW: Added field codes for single ad display: $ad_postdate, $ad_startdate, $ad_categoryurl
+* NEW: Added ability to hide/show "Posted By" on search form
+* NEW: Flag Ad link for individual ad pages.  To use it, make sure you have $flagad in your single ad template
+* NEW: Terms of Service displayed for ads (optionally), if displayed, user must select accept.
+* NEW: Admin can be notified of ads that expire (optionally).
+* NEW: Admin panel now displays start/end date for ads, payment plan (if applicable)
+* NEW: Admin panel has separate category for notification email templates (subject and body)
+* NEW: Added IP address tracking for ad posters to improve Akismet spam detection when spam is marked later
+* Fixed search form to hide private extra fields
+* Fixed conflicting function name display_ads to be awpcp_display_ads
+* Fixed ad expiration bug
+* Fixed expired ads did not delete automatically (30 day delay now)
 
- = 1.8.5 = 
- NEW: Tweet button for individual ad pages. To use it make sure you have $tweetbtn in your single ad template
- NEW: Ability to use your own custom stylesheet ( found under wp-content/plugins/awpcp_custom_stylesheet.css ), which isn't overwritten on upgrade. 
- NEW: Support added for Featured Ads premium module
- NEW: Added field code $ad_categoryname for ad display listing
- Bug: Fixed latest ads to display intra-day postings in descending order of ID after date
- Bug: Fixed display of UI Welcome message (backslash problem)
- Bug: Fixed city display in URL and page title (was missing even if city was valid)
- Bug: Fixed failing ad expirations
- Bug: Made the latest ads display consistent with the ad listing layout (thickbox around image)
+= Version 1.8.5 = 
+* NEW: Tweet button for individual ad pages. To use it make sure you have $tweetbtn in your single ad template
+* NEW: Ability to use your own custom stylesheet ( found under wp-content/plugins/awpcp_custom_stylesheet.css ), which isn't overwritten on upgrade. 
+* NEW: Support added for Featured Ads premium module
+* NEW: Added field code $ad_categoryname for ad display listing
+* Fixed latest ads to display intra-day postings in descending order of ID after date
+* Fixed display of UI Welcome message (backslash problem)
+* Fixed city display in URL and page title (was missing even if city was valid)
+* Fixed failing ad expirations
+* Made the latest ads display consistent with the ad listing layout (thickbox around image)
  
- = 1.8.1 =
- Bug:  Display went crazy with Latest Classifieds widget on upgrade.  Removed unnecessary div.
+= Version 1.8.1 =
+*  Display went crazy with Latest Classifieds widget on upgrade.  Removed unnecessary div.
  
- = 1.8.0 =
- NEW: Normalized version numbering to remove superfluous 0 (1.0.8.0 is now 1.8.0)
- NEW: Search widget
- NEW: Search works with Extra Fields
- NEW: Sitemap integration with Google Sitemap Generator (as separate plugin)
- NEW: Admin panel upgrades
- Bug: Fixed renewing ads failing to re-enable images
- Bug: Fixed workflow issue with free ads that don't have images (missing Next button)
- Bug: Changed showad id for div to showawpcpadpage to stop AdBlockPro/Plus from interfering with classifieds
- Bug: String extraction for ad terms
- Bug: Fixed widget backslash issue
- Bug: Fixed checked='checked' for XHTML compliance
- Bug: Fixed admin email spam for expiring ads, updated text for expiring ad emails
+= Version 1.8.0 =
+* NEW: Normalized version numbering to remove superfluous 0 (1.0.8.0 is now 1.8.0)
+* NEW: Search widget
+* NEW: Search works with Extra Fields
+* NEW: Sitemap integration with Google Sitemap Generator (as separate plugin)
+* NEW: Admin panel upgrades
+* Fixed renewing ads failing to re-enable images
+* Fixed workflow issue with free ads that don't have images (missing Next button)
+* Changed showad id for div to showawpcpadpage to stop AdBlockPro/Plus from interfering with classifieds
+* String extraction for ad terms
+* Fixed widget backslash issue
+* Fixed checked='checked' for XHTML compliance
+* Fixed admin email spam for expiring ads, updated text for expiring ad emails
  
- = 1.0.7 =
- NEW: Added full Akismet integration for spam control
- NEW: Added ad multiple spam submit in admin panel
- Bug: Fixed ad expiration to go against the ad expire setting, instead of end date
- Bug: Registered user name cleanup, added email hack for plugins that override get_currentuserinfo
- Bug: Backslash addition removed for all admin-level settings fields (unnecessary)
- Bug: Backslash encoding for single quotes added back for WP page inserts (required)
- Bug: Fixed unclosed img, li, and option selected for XHTML compliance
- Bug: Fixed bug with Checkhuman field not displaying (put 'inputboxmini' class on it)
- Bug: Fixed issue with RSS module and URLs requiring trailing slash for SEO Friendly URLs
- Bug: Removed dead functions to reduce size
- Bug: Updated workflow to remove image step if imagesallowed == 0
+= Version 1.0.7 =
+* NEW: Added full Akismet integration for spam control
+* NEW: Added ad multiple spam submit in admin panel
+* Fixed ad expiration to go against the ad expire setting, instead of end date
+* Registered user name cleanup, added email hack for plugins that override get_currentuserinfo
+* Backslash addition removed for all admin-level settings fields (unnecessary)
+* Backslash encoding for single quotes added back for WP page inserts (required)
+* Fixed unclosed img, li, and option selected for XHTML compliance
+* Fixed bug with Checkhuman field not displaying (put 'inputboxmini' class on it)
+* Fixed issue with RSS module and URLs requiring trailing slash for SEO Friendly URLs
+* Removed dead functions to reduce size
+* Updated workflow to remove image step if imagesallowed == 0
  
- = 1.0.6.18 =
- NEW: Added ability to approve/disable at all times
- Bug: Reverted ad expiration changes from .17, re-enabled disabled ads
+= Version 1.0.6.18 =
+* NEW: Added ability to approve/disable at all times
+* Reverted ad expiration changes from .17, re-enabled disabled ads
  
- = 1.0.6.17 =
- Bug: Translation file string fixes
- Bug: Backslash fixes for sidebar widget, AdSense
+= Version 1.0.6.17 =
+* Translation file string fixes
+* Backslash fixes for sidebar widget, AdSense
  
- = 1.0.6.16 =
- NEW: Added options to Latest Ads widget for image display
- Bug: Fixed bug regarding category ordering in the drop-down list under Browse Ads
- Bug: Fixed admin email override failure
- Bug: Fixed issue with ad layout HTML codes and backslashing
+= Version 1.0.6.16 =
+* NEW: Added options to Latest Ads widget for image display
+* Fixed bug regarding category ordering in the drop-down list under Browse Ads
+* Fixed admin email override failure
+* Fixed issue with ad layout HTML codes and backslashing
  
- = 1.0.6.15 =
- NEW: Image thumbnails now display in Latest Ads widget
- Bug: Fixed bug where thumbnails in ad lists did not have link to ad
- Bug: Set default search for listing in Admin panel to Keyword
- Bug: Fixed ad blocking problems by changing class 'adinfo' to 'cladinfo'
- Bug: Fixed editor role to allow for access to AWPCP Admin menu
- Bug: Fixed search to send back error when search keyword is < 4 letters
- Bug: Fixed pagination problem with Browse Categories
+= Version 1.0.6.15 =
+* NEW: Image thumbnails now display in Latest Ads widget
+* Fixed bug where thumbnails in ad lists did not have link to ad
+* Set default search for listing in Admin panel to Keyword
+* Fixed ad blocking problems by changing class 'adinfo' to 'cladinfo'
+* Fixed editor role to allow for access to AWPCP Admin menu
+* Fixed search to send back error when search keyword is < 4 letters
+* Fixed pagination problem with Browse Categories
  
- = 1.0.6.14 =
- NEW: RSS Module Support
- Bug: Fixed display problems with Extra Fields Module
- Bug: Fixed bug where users without POSIX installed got image upload errors
- Bug: Updated string handling for internationalization
+= Version 1.0.6.14 =
+* NEW: RSS Module Support
+* Fixed display problems with Extra Fields Module
+* Fixed bug where users without POSIX installed got image upload errors
+* Updated string handling for internationalization
  
- = 1.0.6.13 =
- Bug: Fixed PayPal output bugs
- Bug: Fixed slash escaping for all fields
- Bug: Added array_walk_recursive function for PHP4 users
- Bug: Fixed upload directory creation ownership issue
+= Version 1.0.6.13 =
+* Fixed PayPal output bugs
+* Fixed slash escaping for all fields
+* Added array_walk_recursive function for PHP4 users
+* Fixed upload directory creation ownership issue
  
- = 1.0.6.12 =
- Bug: Fixed category insert/delete bug
- Bug: Fixed admin panel edit for ads
- Bug: Fixed slash escaping for ads
+= Version 1.0.6.12 =
+* Fixed category insert/delete bug
+* Fixed admin panel edit for ads
+* Fixed slash escaping for ads
  
- = 1.0.6.11 =
- Bug: Fixed admin widget display
+= Version 1.0.6.11 =
+* Fixed admin widget display
  
- = 1.0.6.10 =
- NEW: Support for WordPress 3.0
- NEW: Support for category ordering
- NEW: Compatibility fix for Simple Facebook Connect
- Bug: Fixed image upload problem where directory not found
+= Version 1.0.6.10 =
+* NEW: Support for WordPress 3.0
+* NEW: Support for category ordering
+* NEW: Compatibility fix for Simple Facebook Connect
+* Fixed image upload problem where directory not found
  
- = 1.0.6.9 =
- Bug: Fixed $awpcpvisitwebsite missing from display codes
+= Version 1.0.6.9 =
+* Fixed $awpcpvisitwebsite missing from display codes
  

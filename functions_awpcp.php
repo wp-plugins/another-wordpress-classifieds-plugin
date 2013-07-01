@@ -71,7 +71,7 @@ function strip_slashes_recursive( $variable )
 	return $variable ;
 }
 
-function string_contains($haystack, $needle, $case=true, $pos = 0) {
+function string_contains_string_at_position($haystack, $needle, $pos = 0, $case=true) {
 	if ($case) {
 		$result = (strpos($haystack, $needle, 0) === $pos);
 	} else {
@@ -80,14 +80,12 @@ function string_contains($haystack, $needle, $case=true, $pos = 0) {
 	return $result;
 }
 
-function string_starts_with($haystack, $needle, $case = true)
-{
-	return string_contains($haystack, $needle, $case, 0);
+function string_starts_with($haystack, $needle, $case=true) {
+	return string_contains_string_at_position($haystack, $needle, 0, $case);
 }
 
-function string_ends_with($haystack, $needle, $case = true)
-{
-	return string_contains($haystack, $needle, $case, (strlen($haystack) - strlen($needle)));
+function string_ends_with($haystack, $needle, $case=true) {
+	return string_contains_string_at_position($haystack, $needle, (strlen($haystack) - strlen($needle)), $case);
 }
 
 function awpcp_submit_spam($ad_id) {
@@ -263,27 +261,6 @@ function awpcp_blacklist_check($author, $email, $url, $comment, $user_ip, $user_
         return false;
 }
 
-/**
- * Checks if $name is equal to $setting and then tries to find a POST 
- * parameter with that name. If it exists, and $value was specified, 
- * the function checks if that parameters' values is equal to $value.
- * 
- * @param $setting string
- * @param $value
- * 
- * @return boolean
- *
- function awpcp_setting_was_set($name, $setting, $value=NULL, $collection=$_POST) {
- 	if (strcmp($name, $setting) !== 0)
- 		return false;
- 	if (!isset($collection[$setting]))
- 		return false;
- 	if (!is_null($value) && $_POST[$setting] != $value)
- 		return false;
- 	return true;
- }
- */
-
 
 // START FUNCTION: retrieve individual options from settings table
 function get_awpcp_setting($column, $option) {
@@ -301,13 +278,8 @@ function get_awpcp_setting($column, $option) {
 	return $myreturn;
 }
 
-function get_awpcp_option($option, $default='') {
-	global $awpcp;
-	if ($awpcp && $awpcp->settings) {
-		return $awpcp->settings->get_option($option);
-	}
-	return $default;
-	// return get_awpcp_setting('config_value', $option);
+function get_awpcp_option($option, $default='', $reload=false) {
+	return AWPCP_Settings_API::instance()->get_option($option, $default, $reload);
 }
 
 function get_awpcp_option_group_id($option) {
@@ -718,17 +690,19 @@ function get_categorynameid($cat_id = 0,$cat_parent_id= 0,$exclude)
 	return $optionitem;
 }
 // END FUNCTION: create list of top level categories for admin category management
-// START FUNCTION: Create the list with both parent and child categories selection for ad post form
-function get_categorynameidall($cat_id = 0)
-{
 
+// START FUNCTION: Create the list with both parent and child categories selection for ad post form
+function get_categorynameidall($cat_id = 0) {
 	global $wpdb;
-	$tbl_categories = $wpdb->prefix . "awpcp_categories";
+
 	$optionitem='';
 
 	// Start with the main categories
 
-	$query="SELECT category_id,category_name FROM ".$tbl_categories." WHERE category_parent_id=0 and category_name <> '' ORDER BY category_order, category_name ASC";
+	$query = "SELECT category_id,category_name FROM " . AWPCP_TABLE_CATEGORIES . " ";
+	$query.= "WHERE category_parent_id=0 AND category_name <> '' ";
+	$query.= "ORDER BY category_order, category_name ASC";
+
 	$res = awpcp_query($query, __LINE__);
 
 	while ($rsrow=mysql_fetch_row($res)) {
@@ -750,7 +724,12 @@ function get_categorynameidall($cat_id = 0)
 
 		$maincatid = $cat_ID;
 
-		$query="SELECT category_id,category_name FROM ".$tbl_categories." WHERE category_parent_id='$maincatid' ORDER BY category_order, category_name ASC";
+		$query = "SELECT category_id,category_name FROM " . AWPCP_TABLE_CATEGORIES . " ";
+		$query.= "WHERE category_parent_id=%d ";
+		$query.= "ORDER BY category_order, category_name ASC";
+
+		$query = $wpdb->prepare( $query, $maincatid );
+
 		$res2 = awpcp_query($query, __LINE__);
 
 		while ($rsrow2=mysql_fetch_row($res2)) {
@@ -770,7 +749,7 @@ function get_categorynameidall($cat_id = 0)
 	return $optionitem;
 }
 
-function get_categorycheckboxes( $cats = array(), $adterm_id ) {
+function get_categorycheckboxes( $cats=array(), $adterm_id=null, $field_name='fee_cats' ) {
 	global $wpdb;
 
 	$tbl_categories = $wpdb->prefix . "awpcp_categories";
@@ -804,9 +783,9 @@ function get_categorycheckboxes( $cats = array(), $adterm_id ) {
 		$opstyle="class=\"checkboxparentcategory\"";
 
 		if(in_array($cat_ID, $catswithfees)) {
-			$maincatoptionitem = "<input name='fee_cats[]' type='checkbox' $opstyle checked='checked' value='$cat_ID'> $cat_name<br/>";
+			$maincatoptionitem = "<label><input name='{$field_name}[]' type='checkbox' $opstyle checked='checked' value='$cat_ID'> $cat_name</label><br/>";
 		} else {
-			$maincatoptionitem = "<input name='fee_cats[]' type='checkbox' $opstyle value='$cat_ID'> $cat_name<br/>";
+			$maincatoptionitem = "<label><input name='{$field_name}[]' type='checkbox' $opstyle value='$cat_ID'> $cat_name</label><br/>";
 		}
 
 		$optionitem.="$maincatoptionitem";
@@ -824,10 +803,10 @@ function get_categorycheckboxes( $cats = array(), $adterm_id ) {
 
 			if( in_array($subcat_ID, $catswithfees) )
 			{
-				$subcatoptionitem = " &nbsp; &nbsp; <input name='fee_cats[]' type='checkbox' checked='checked' value='$subcat_ID'>- $subcat_name</option><br/>";
+				$subcatoptionitem = "<label><input name='{$field_name}[]' type='checkbox' checked='checked' value='$subcat_ID'> &nbsp; &nbsp; - $subcat_name</label><br/>";
 			}
 			else {
-				$subcatoptionitem = " &nbsp; &nbsp; <input name='fee_cats[]' type='checkbox' value='$subcat_ID'>- $subcat_name</option><br/>";
+				$subcatoptionitem = "<label><input name='{$field_name}[]' type='checkbox' value='$subcat_ID'> &nbsp; &nbsp; - $subcat_name</label><br/>";
 			}
 
 			$optionitem.="$subcatoptionitem";
@@ -839,7 +818,7 @@ function get_categorycheckboxes( $cats = array(), $adterm_id ) {
 
 // END FUNCTION: create drop down list of categories for ad post form
 // START FUNCTION: Retrieve the category name
-function get_adcatname($cat_ID){
+function get_adcatname($cat_ID) {
 	global $wpdb;
 
 	$cname='';
@@ -905,9 +884,8 @@ function get_adparentcatname($cat_ID){
 	$tbl_categories = $wpdb->prefix . "awpcp_categories";
 	$cname='';
 
-	if($cat_ID == 0)
-	{
-		$cname="Top Level Category";
+	if ($cat_ID == 0) {
+		$cname = __('Top Level Category', 'AWPCP');
 	}
 
 	else
@@ -999,20 +977,18 @@ function category_is_child($catid) {
 // TODO: cache the results of this function
 function total_ads_in_cat($catid) {
     global $wpdb,$hasregionsmodule;
-    $tbl_ads = $wpdb->prefix . "awpcp_ads";
-    $totaladsincat='';
-    $filter='';
 
+    $totaladsincat = '';
+
+    // never allow Unpaid Ads
+    $filter = " AND payment_status != 'Unpaid'";
     // the name of the disablependingads setting gives the wrong meaning,
     // it actually means "Enable Paid Ads that are Pendings payment", so when
     // the setting has a value of 1, pending Ads should NOT be excluded.
     // I'll change the next condition considering the above
     if((get_awpcp_option('disablependingads') == 0) && (get_awpcp_option('freepay') == 1)){
-        $filter = " AND (payment_status != 'Pending' AND payment_status != 'Unpaid')";
-    }/* else {
-        // never allow Unpaid Ads
-        $filter = " AND payment_status != 'Unpaid' ";
-    }*/
+        $filter = " AND payment_status != 'Pending'";
+    }
 
     // TODO: ideally there would be a function to get all visible Ads
     // and modules, like Regions, would use hooks to include their own
@@ -1082,7 +1058,6 @@ function add_dashes($text) {
 //Function to replace addslashes_mq, which is causing major grief.  Stripping of undesireable characters now done
 // through above strip_slashes_recursive_gpc.
 function clean_field($foo) {
-	//debug();
 	return add_slashes_recursive($foo);
 }
 
@@ -1102,6 +1077,8 @@ function awpcp_get_page_id($name) {
 
 /**
  * Returns the ID of WP Page associated to a page-name setting.
+ *
+ * TOOD: get all page entries in one query an cache the result during the request
  *
  * @param $refname the name of the setting that holds the name of the page
  */
@@ -1142,50 +1119,8 @@ function awpcp_get_guid($awpcpshowadspageid){
 	return $awpcppageguid;
 }
 // END FUNCTION: Get the page guid
-// START FUNCTION: Get the order by setting for ad listings
-function get_group_orderby()
-{
-	$getgrouporderby=get_awpcp_option('groupbrowseadsby');
 
-	if(!isset($getgrouporderby) || empty($getgrouporderby))
-	{
-		$grouporderby='';
-	}
-	else
-	{
-		if(isset($getgrouporderby) && !empty($getgrouporderby))
-		{
-			if($getgrouporderby == 1)
-			{
-				$grouporderby="ORDER BY ad_id DESC";
-			}
-			elseif($getgrouporderby == 2)
-			{
-				$grouporderby="ORDER BY ad_title ASC, ad_id DESC";
-			}
-			elseif($getgrouporderby == 3)
-			{
-				$grouporderby="ORDER BY ad_is_paid DESC, ad_startdate DESC, ad_title ASC, ad_id DESC";
-			}
-			elseif($getgrouporderby == 4)
-			{
-				$grouporderby="ORDER BY ad_is_paid DESC, ad_title ASC, ad_id DESC";
-			}
-			elseif($getgrouporderby == 5)
-			{
-				$grouporderby="ORDER BY ad_views DESC, ad_title ASC, ad_id DESC";
-			}
-			elseif($getgrouporderby == 6)
-			{
-				$grouporderby="ORDER BY ad_views DESC, ad_id DESC";
-			}
-		}
-	}
 
-	return $grouporderby;
-}
-
-// END FUNCTION: Get the orderby setting for ad listings
 // START FUNCTION: 
 /**
  * Setup the structure of the URLs based on if permalinks are on and SEO urls
@@ -1224,51 +1159,46 @@ function url_showad($ad_id) {
 
 	$awpcp_showad_pageid = awpcp_get_page_id_by_ref('show-ads-page-name');
 	$base_url = get_permalink($awpcp_showad_pageid);
+	$url = false;
 
 	$params = array('id' => $ad_id);
 
-	if( $seoFriendlyUrls ) {
-		if(isset($permastruc) && !empty($permastruc)) {
-			$url = sprintf('%s/%s/%s', trim($base_url, '/'), $ad_id, $modtitle);
-		} else {
-			$url = add_query_arg($params, $base_url);
+	if($seoFriendlyUrls && isset($permastruc) && !empty($permastruc)) {
+		$url = sprintf('%s/%s/%s', trim($base_url, '/'), $ad_id, $modtitle);
+
+		$city = get_adcityvalue($ad_id);
+		$state = get_adstatevalue($ad_id);
+		$country = get_adcountryvalue($ad_id);
+		$county = get_adcountyvillagevalue($ad_id);
+
+		$parts = array();
+
+		if( get_awpcp_option('showcityinpagetitle') && !empty($city) ) {
+			$parts[] = sanitize_title($city);
 		}
+		if( get_awpcp_option('showstateinpagetitle') && !empty($state) ) {
+			$parts[] = sanitize_title($state);
+		}
+		if( get_awpcp_option('showcountryinpagetitle') && !empty($country) ) {
+			$parts[] = sanitize_title($country);
+		}
+		if( get_awpcp_option('showcountyvillageinpagetitle') && !empty($county) ) {
+			$parts[] = sanitize_title($county);
+		}
+		if( get_awpcp_option('showcategoryinpagetitle') ) {
+			$awpcp_ad_category_id = get_adcategory($ad_id);
+			$parts[] = sanitize_title(get_adcatname($awpcp_ad_category_id));
+		}
+
+		// always append a slash (RSS module issue)
+		$url = sprintf("%s%s", trailingslashit($url), join('/', $parts));
+		$url = user_trailingslashit($url);
 	} else {
+		$base_url = user_trailingslashit($base_url);
 		$url = add_query_arg($params, $base_url);
 	}
 
-	$city = get_adcityvalue($ad_id);
-	$state = get_adstatevalue($ad_id);
-	$country = get_adcountryvalue($ad_id);
-	$county = get_adcountyvillagevalue($ad_id);
-
-	if ($seoFriendlyUrls) {
-		if (isset($permastruc) && !empty($permastruc)) {
-			$parts = array();
-
-			if( get_awpcp_option('showcityinpagetitle') && !empty($city) ) {
-				$parts[] = sanitize_title($city);
-			}
-			if( get_awpcp_option('showstateinpagetitle') && !empty($state) ) {
-				$parts[] = sanitize_title($state);
-			}
-			if( get_awpcp_option('showcountryinpagetitle') && !empty($country) ) {
-				$parts[] = sanitize_title($country);
-			}
-			if( get_awpcp_option('showcountyvillageinpagetitle') && !empty($county) ) {
-				$parts[] = sanitize_title($county);
-			}
-			if( get_awpcp_option('showcategoryinpagetitle') ) {
-				$awpcp_ad_category_id = get_adcategory($ad_id);
-				$parts[] = sanitize_title(get_adcatname($awpcp_ad_category_id));
-			}
-
-			// always append a slash (RSS module issue)
-			$url = sprintf("%s%s", trailingslashit($url), join('/', $parts));
-		}
-	}
-
-	return user_trailingslashit($url);
+	return $url;
 }
 
 function url_browsecategory($cat_id) {
@@ -1625,15 +1555,6 @@ function massdeleteadsfromcategory($catid) {
 }
 
 
-
-// END FUNCTION: mass delete ads
-// add_action('widgets_init', 'widget_awpcp_search_init');
-function widget_awpcp_search_init() {
-	register_widget('AWPCP_Search_Widget');
-}
-
-
-
 // END FUNCTION: sidebar widget
 // START FUNCTION: make sure there's not more than one page with the name of the classifieds page
 function checkforduplicate($cpagename_awpcp) {
@@ -1679,61 +1600,6 @@ function create_ad_postedby_list($name) {
 	}
 	return $output;
 }
-// END FUNCTION: create a drop down list containing names of ad posters
-// START FUNCTION: create a drop down list containing price option
-function create_price_dropdownlist_min($searchpricemin)
-{
-	$output = '';
-	$pricerangevalues=array(0,'25','50','100','500','1000','2500','5000','7500','10000','25000','50000','100000','250000','500000','1000000');
-
-	if( isset($searchpricemin) && !empty($searchpricemin) )
-	{
-		$theawpcplowvalue=$searchpricemin;
-	}
-	else
-	{
-		$theawpcplowvalue='';
-	}
-	foreach ($pricerangevalues as $pricerangevalue)
-	{
-		$output .= "<option value=\"$pricerangevalue\"";
-
-		if($pricerangevalue == $theawpcplowvalue)
-		{
-			$output .= "selected='selected' ";
-		}
-		$output .= ">$pricerangevalue</option>";
-	}
-	return $output;
-}
-
-function create_price_dropdownlist_max($searchpricemax)
-{
-	$output = '';
-	$pricerangevalues=array(0,'25','50','100','500','1000','2500','5000','7500','10000','25000','50000','100000','250000','500000','1000000');
-
-	if( isset($searchpricemax) && !empty($searchpricemax) )
-	{
-		$theawpcphighvalue=$searchpricemax;
-	}
-	else
-	{
-		$theawpcphighvalue='';
-	}
-
-	foreach ($pricerangevalues as $pricerangevalue)
-	{
-		$output .= "<option value=\"$pricerangevalue\"";
-
-		if($pricerangevalue == $theawpcphighvalue)
-		{
-			$output .= "selected='selected' ";
-		}
-		$output .= ">$pricerangevalue</option>";
-	}
-	return $output;
-}
-
 
 function awpcp_array_range($from, $to, $step){
 
@@ -2008,44 +1874,7 @@ function check_ad_fee_paid($adid) {
 
 	return $adfeeispaid;
 }
-// START FUNCTION: get the currency code for price fields
-function awpcp_get_currency_code()
-{
-	$amtcurrencycode=get_awpcp_option('displaycurrencycode');
 
-	if(
-	($amtcurrencycode == 'CAD') ||
-	($amtcurrencycode == 'AUD') ||
-	($amtcurrencycode == 'NZD') ||
-	($amtcurrencycode == 'SGD') ||
-	($amtcurrencycode == 'HKD') ||
-	($amtcurrencycode == 'USD') )
-	{
-		$thecurrencysymbol="$";
-	}
-
-	if( ($amtcurrencycode == 'JPY') )
-	{
-		$thecurrencysymbol="&yen;";
-	}
-
-	if( ($amtcurrencycode == 'EUR') )
-	{
-		$thecurrencysymbol="&euro;";
-	}
-
-	if( ($amtcurrencycode == 'GBP') )
-	{
-		$thecurrencysymbol="&pound;";
-	}
-
-	if(empty($thecurrencysymbol)) {
-		$thecurrencysymbol="$amtcurrencycode";
-	}
-
-	return $thecurrencysymbol;
-}
-// END FUNCTION: get the currency code for price fields
 // START FUNCTION: Clear HTML tags
 function strip_html_tags( $text )
 {
@@ -2132,7 +1961,8 @@ function awpcp_process_mail($senderemail='', $receiveremail='',  $subject='',
 
 	$subject = $subject;
 
-	$time = date_i18n(__('l F j, Y \a\t g:i a', "AWPCP"), current_time('timestamp'));
+	$format = get_awpcp_option('date-format') . ' \a\t ' . get_awpcp_option('time-format');
+	$time = date_i18n($format, current_time('timestamp'));
 
 	$message = "$body\n\n";
 	$message.= __('Email sent on:', 'AWPCP')." $time\n\n";
@@ -2229,8 +2059,6 @@ function is_at_least_awpcp_version($version)
 }
 
 function awpcp_insert_tweet_button($layout, $adid, $title) {
-	// $ad = AWPCP_Ad::find_by_id($adid);
-
 	$properties = array(
 		'url' => urlencode(url_showad($adid)),
 		'text' => urlencode($title)
@@ -2269,6 +2097,9 @@ function awpcp_get_ad_share_info($id) {
 	}
 
 	$info['images'] = array();
+
+	$info['published-time'] = awpcp_time( $ad->ad_postdate, 'Y-m-d' );
+	$info['modified-time'] = awpcp_time( $ad->ad_last_updated, 'Y-m-d' );
 
 	$sql = 'SELECT image_name FROM ' . AWPCP_TABLE_ADPHOTOS . ' ';
 	$sql.= 'WHERE ad_id=%d AND disabled=0';

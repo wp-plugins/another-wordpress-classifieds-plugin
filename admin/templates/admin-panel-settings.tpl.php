@@ -1,7 +1,9 @@
 <?php $page_id = 'awpcp-admin-settings' ?>
 <?php $page_title = sprintf(__('AWPCP %s Settings', 'AWPCP'), $group->name) ?>
 
-<?php include(AWPCP_DIR . 'admin/templates/admin-panel-header.tpl.php') ?>
+<?php include(AWPCP_DIR . '/admin/templates/admin-panel-header.tpl.php') ?>
+
+<?php awpcp_print_messages(); ?>
 
 			<ul class="tabs clearfix">
 <?php foreach ($groups as $g):
@@ -25,7 +27,7 @@
 				<?php do_settings_sections($group->slug); ?>
 
 				<p class="submit">
-					<input type="submit" value="Save Changes" class="button-primary" id="submit" name="submit">
+					<input type="submit" value="<?php _e('Save Changes', 'AWPCP') ?>" class="button-primary" id="submit" name="submit">
 				</p>
 			</form>
 		</div><!-- end of .awpcp-main-content -->

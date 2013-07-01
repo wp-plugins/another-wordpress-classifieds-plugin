@@ -1,17 +1,9 @@
-<div id="classiwrapper">
-	<?php if (!is_admin()): ?>
-	<?php echo awpcp_menu_items() ?>
-	<?php endif ?>
+<h2><?php _ex('Complete Payment', 'place ad checkout step', 'AWPCP') ?></h2>
 
-	<h2><?php _e('Complete Payment', 'AWPCP') ?></h2>
+<?php awpcp_print_messages(); ?>
 
-	<?php foreach ($header as $part): ?>
-		<?php echo $part ?>
-	<?php endforeach ?>
+<?php foreach ($messages as $message): ?>
+    <?php echo awpcp_print_message($message) ?>
+<?php endforeach ?>
 
-	<?php if ($text): ?>
-	<p><?php echo sprintf($text, $transaction->get('amount')) ?></p>
-	<?php endif ?>
-
-	<?php echo $checkout_form ?>
-</div>
+<?php echo $payments->render_checkout_page($transaction, $hidden) ?>

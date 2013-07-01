@@ -1,44 +1,66 @@
 <?php
 
-class AWPCP_BrowseAdsPage {
+require_once( AWPCP_DIR . '/classes/helpers/page.php' );
 
-    public function __construct() {}
+class AWPCP_BrowseAdsPage extends AWPCP_Page {
+
+    public function __construct($page='awpcp-browse-ads', $title=null) {
+        $title = is_null($title) ? __( 'Browse Ads', 'AWPCP' ) : $title;
+        parent::__construct( $page, $title );
+    }
+
+    public function get_current_action($default='browseads') {
+        return awpcp_request_param('a', $default);
+    }
+
+    public function url($params=array()) {
+        $url = awpcp_get_page_url('browse-ads-page-name');
+        return add_query_arg($params, $url);
+    }
 
     public function dispatch() {
-        if (isset($_REQUEST['category_id']) && !empty($_REQUEST['category_id'])) {
-            $adcategory = $_REQUEST['category_id'];
+        return $this->_dispatch();
+    }
+
+    protected function _dispatch() {
+        $action = $this->get_current_action();
+
+        switch ($action) {
+            case 'browsecat':
+                return $this->browse_cat_step();
+            case 'browseads':
+            default:
+                return $this->browse_ads_step();
+        }
+    }
+
+    protected function browse_cat_step() {
+        global $wpdb;
+
+        $category_id = intval(awpcp_request_param('category_id', get_query_var('cid')));
+
+        if ($category_id == -1 || empty($category_id)) {
+            $conditions = array();
         } else {
-            $adcategory = get_query_var('cid');
+            $sql = '( ad_category_id = %1$d OR ad_category_parent_id = %1$d )';
+            $conditions[] = $wpdb->prepare( $sql,  $category_id );
+            $conditions[] = 'disabled = 0';
         }
 
-        $action = '';
-        if (isset($_REQUEST['a']) && !empty($_REQUEST['a'])) {
-            $action = $_REQUEST['a'];
-        }
-        if (!isset($action) || empty($action)){
-            $action = "browseads";
-        }
+        $order = get_awpcp_option('groupbrowseadsby');
 
-        if ($action == 'browsecat') {
-            if ($adcategory == -1 || empty($adcategory)) {
-                $where = "";
-            } else {
-                $where = "(ad_category_id='".$adcategory."' OR ad_category_parent_id='".$adcategory."') AND disabled =0";
-            }
-            $adorcat = 'cat';
+        if ( $category_id == -1 ) {
+            $message = __( "No specific category was selected for browsing so you are viewing listings from all categories." , "AWPCP" );
+            $output = awpcp_print_message( $message ) . awpcp_display_ads( join( ' AND ', $conditions ), '', '', $order, 'cat');
         } else {
-            $where = "disabled =0";
-            $adorcat ='ad';
-        }
-
-        $grouporderby = get_group_orderby();
-
-        if ('dosearch' == $action ) {
-            $output = dosearch();
-        } else {
-            $output = awpcp_display_ads($where,$byl='',$hidepager='',$grouporderby,$adorcat);
+            $output = awpcp_display_ads( join( ' AND ', $conditions ), '', '', $order, 'cat');
         }
 
         return $output;
+    }
+
+    protected function browse_ads_step() {
+        $order = get_awpcp_option('groupbrowseadsby');
+        return awpcp_display_ads( '', '', '', $order, 'ad');
     }
 }
