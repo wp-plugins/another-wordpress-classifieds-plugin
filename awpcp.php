@@ -3,7 +3,7 @@
  Plugin Name: Another Wordpress Classifieds Plugin (AWPCP)
  Plugin URI: http://www.awpcp.com
  Description: AWPCP - A plugin that provides the ability to run a free or paid classified ads service on your wordpress blog. <strong>!!!IMPORTANT!!!</strong> Whether updating a previous installation of Another Wordpress Classifieds Plugin or installing Another Wordpress Classifieds Plugin for the first time, please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
- Version: 3.0
+ Version: 3.0.1
  Author: D. Rodenbaugh
  License: GPLv2 or any later version
  Author URI: http://www.skylineconsult.com
@@ -365,14 +365,6 @@ class AWPCP {
 				'required' => '0',
 			),
 
-			'Google Checkout' => array(
-				'name' => __('Google Checkout', 'AWPCP'),
-				'url' => 'http://www.awpcp.com/premium-modules/google-checkout-module?ref=panel',
-				'installed' => $hasgooglecheckoutmodule,
-				'version' => 'AWPCP_GOOGLE_CHECKOUT_MODULE_DB_VERSION',
-				'required' => '3.0-beta',
-			),
-
 			'Extra Fields' => array(
 				'name' => __('Extra Fields', 'AWPCP'),
 				'url' => 'http://www.awpcp.com/premium-modules/extra-fields-module?ref=panel',
@@ -383,7 +375,7 @@ class AWPCP {
 
 			'XML Sitemap' => array(
 				'name' => __( 'XML Sitemap', 'AWPCP' ),
-				'url' => '#',
+				'url' => 'http://www.awpcp.com/premium-modules/',
 				'installed' => function_exists( 'awpcp_generate_ad_entries' ),
 				'version' => 'AWPCP_XML_SITEMAP_MODULE_DB_VERSION',
 				'required' => '3.0-beta',
@@ -431,9 +423,33 @@ class AWPCP {
 
 			'Comments & Ratings' => array(
 				'name' => __( 'Comments & Ratings', 'AWPCP' ),
-				'url' => '#',
+				'url' => 'http://www.awpcp.com/premium-modules/comments-ratings-module/?ref=user-panel',
 				'installed' => defined( 'AWPCP_COMMENTS_MODULE' ),
 				'version' => 'AWPCP_COMMENTS_MODULE_VERSION',
+				'required' => '3.0-beta',
+			),
+
+			'Authorize.Net' => array(
+				'name' => __( 'Authorize.Net', 'AWPCP' ),
+				'url' => 'http://www.awpcp.com/premium-modules/authorizenet-payment-module/?ref=user-panel',
+				'installed' => defined( 'AWPCP_AUTHORIZE_NET_MODULE' ),
+				'version' => 'AWPCP_AUTHORIZE_NET_MODULE_DB_VERSION',
+				'required' => '3.0-beta',
+			),
+
+			'PayPal Pro' => array(
+				'name' => __( 'PayPal Pro', 'AWPCP' ),
+				'url' => 'http://www.awpcp.com/premium-modules/paypalpro-payment-module/?ref=user-panel',
+				'installed' => defined( 'AWPCP_PAYPAL_PRO_MODULE' ),
+				'version' => 'AWPCP_PAYPAL_PRO_MODULE_DB_VERSION',
+				'required' => '3.0-beta',
+			),
+
+			'Google Checkout' => array(
+				'name' => __('Google Checkout', 'AWPCP'),
+				'url' => 'http://www.awpcp.com/premium-modules/google-checkout-module/?ref=panel',
+				'installed' => $hasgooglecheckoutmodule,
+				'version' => 'AWPCP_GOOGLE_CHECKOUT_MODULE_DB_VERSION',
 				'required' => '3.0-beta',
 			),
 		);

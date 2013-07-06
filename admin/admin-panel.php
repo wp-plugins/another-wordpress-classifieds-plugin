@@ -672,17 +672,14 @@ function awpcp_opsconfig_categories() {
 		$output .= __("Delete Category","AWPCP");
 
 
-		if ($hascaticonsmodule == 1 ) {
-			if ( is_installed_category_icon_module() )
-			{
-				$label = __("Manage Category Icon", "AWPCP");
-				$output .= " &nbsp;&nbsp;&nbsp;<img src=\"$awpcp_imagesurl/icon_manage_ico.png\" alt=\"";
-				$output .= $label;
-				$output .= "\" border=\"0\"/>";
-				$output .= $label;
-			}
+		if ($hascaticonsmodule == 1 && is_installed_category_icon_module() ) {
+			$label = __("Manage Category Icon", "AWPCP");
+			$output .= " &nbsp;&nbsp;&nbsp;<img src=\"$awpcp_imagesurl/icon_manage_ico.png\" alt=\"";
+			$output .= $label;
+			$output .= "\" border=\"0\"/>";
+			$output .= $label;
 		} else {
-			$output .= "<div class=\"fixfloat\"><p style=\"padding-top:25px;\">";
+			$output .= "<div><p style=\"padding-top:25px;\">";
 			$output .= __("There is a premium module available that allows you to add icons to your categories. If you are interested in adding icons to your categories ","AWPCP");
 			$output .= "<a href=\"http://www.awpcp.com/premium-modules/\">";
 			$output .= __("Click here to find out about purchasing the Category Icons Module","AWPCP");

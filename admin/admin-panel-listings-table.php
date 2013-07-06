@@ -92,6 +92,7 @@ class AWPCP_Listings_Table extends WP_List_Table {
                 $conditions[] = sprintf($sql, $category->id);
                 break;
 
+            case 'all':
             default:
                 break;
         }
@@ -235,15 +236,17 @@ class AWPCP_Listings_Table extends WP_List_Table {
             'flagged' => 'flagged-ads',
             'unpaid' => 'unpaid-ads',
             'awaiting-approval' => 'awaiting-approval',
+            'all' => 'all',
         );
 
-        $selected = awpcp_array_data($this->params['filterby'], null, $filters);
+        $selected = awpcp_array_data($this->params['filterby'], 'all', $filters);
 
         $views = array(
             'featured-ads' => array(__('Featured', 'AWPCP'), $this->page->url(array('filterby' => 'is-featured', 'filter' => true))),
             'flagged-ads'  => array(__('Flagged', 'AWPCP'), $this->page->url(array('filterby' => 'flagged', 'filter' => true))),
             'unpaid-ads' => array(__('Unpaid', 'AWPCP'), $this->page->url(array('filterby' => 'unpaid', 'filter' => true))),
             'awaiting-approval' => array( __( 'Awaiting Approval' ), $this->page->url( array( 'filterby' => 'awaiting-approval', 'filter' => true ) ) ),
+            'all' => array( __( 'All', 'AWPCP' ), $this->page->url( array( 'filterby' => 'all', 'filter' => false ) ) ),
         );
 
         return $this->page->links($views, $selected);

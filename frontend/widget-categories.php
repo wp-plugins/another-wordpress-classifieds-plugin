@@ -3,7 +3,7 @@
 class AWPCP_CategoriesWidget extends WP_Widget {
 
     public function __construct() {
-        $description = __('Displays a list of latest Ads', 'AWPCP');
+        $description = __('Displays a list of Ad categories.', 'AWPCP');
         parent::__construct( 'awpcp-categories', __( 'AWPCP Categories', 'AWPCP' ), array('description' => $description));
     }
 

@@ -5,9 +5,9 @@ msgstr ""
 "Project-Id-Version: AWPCP\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/another-wordpress-classifieds-"
 "plugin\n"
-"POT-Creation-Date: 2013-06-30 00:24:57+00:00\n"
+"POT-Creation-Date: 2013-07-05 20:26:20+00:00\n"
 "PO-Revision-Date: \n"
-"Last-Translator: \n"
+"Last-Translator: Willington Vega <wvega@wvega.com>\n"
 "Language-Team: \n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
@@ -16,6 +16,7 @@ msgstr ""
 "X-Poedit-KeywordsList: _e;__;_ex;_x\n"
 "X-Poedit-Basepath: .\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.5.7\n"
 "X-Poedit-SearchPath-0: .\n"
 
 #: admin/admin-panel-credit-plans-table.php:69
@@ -23,11 +24,11 @@ msgstr ""
 #: admin/templates/admin-panel-credit-plans-entry-form.tpl.php:9
 #: admin/templates/admin-panel-fees-entry-form.tpl.php:17
 #: classes/settings-api.php:298
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:704
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:739
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:698
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:733
 #: premium-modules/awpcp-subscriptions/admin/admin-panel-subscription-plans.php:30
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-form.tpl.php:9
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:141
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:152
 msgid "Name"
 msgstr "Nombre"
 
@@ -51,11 +52,11 @@ msgstr "Créditos"
 #: admin/admin-panel-fees-table.php:109
 #: admin/templates/admin-panel-credit-plans-entry-form.tpl.php:19
 #: admin/templates/admin-panel-fees-entry-form.tpl.php:22
-#: classes/settings-api.php:299 frontend/placeholders.php:359
+#: classes/settings-api.php:299 frontend/placeholders.php:362
 #: frontend/templates/page-search-ads.tpl.php:50
 #: premium-modules/awpcp-subscriptions/admin/admin-panel-subscription-plans.php:37
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-form.tpl.php:64
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:142
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:153
 msgid "Price"
 msgstr "Precio"
 
@@ -76,7 +77,7 @@ msgstr "Planes de Crédito"
 #: premium-modules/awpcp-comments-ratings/frontend/templates/comments-list-item.tpl.php:18
 #: premium-modules/awpcp-coupons/admin/admin-panel-coupons.php:39
 #: premium-modules/awpcp-coupons/admin/templates/coupons-form.tpl.php:5
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:812
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:806
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-create-form.tpl.php:5
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:8
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-form.tpl.php:6
@@ -86,13 +87,13 @@ msgid "Edit"
 msgstr "Editar"
 
 #: admin/admin-panel-credit-plans.php:43 admin/admin-panel-fees.php:46
-#: admin/admin-panel-listings-table.php:227 admin/admin-panel-listings.php:83
+#: admin/admin-panel-listings-table.php:228 admin/admin-panel-listings.php:83
 #: admin/admin-panel.php:901
 #: admin/templates/admin-panel-fees-delete-form.tpl.php:13
 #: admin/templates/delete_form.tpl.php:12
 #: admin/templates/user-panel-listings.tpl.php:138
 #: premium-modules/awpcp-coupons/admin/admin-panel-coupons.php:40
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:814
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:808
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:9
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-entry.tpl.php:7
 msgid "Delete"
@@ -149,7 +150,7 @@ msgstr "Fecha de finalización no válida - año debe ser de cuatro dígitos."
 #: classes/settings-api.php:301
 #: premium-modules/awpcp-subscriptions/admin/admin-panel-subscription-plans.php:32
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-form.tpl.php:17
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:144
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:155
 msgid "Duration"
 msgstr "Duración"
 
@@ -161,7 +162,7 @@ msgstr "Unidades"
 #: admin/admin-panel-fees-table.php:106
 #: admin/templates/admin-panel-fees-entry-form.tpl.php:56
 #: classes/settings-api.php:300
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:143
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:154
 msgid "Images Allowed"
 msgstr "Imágenes Permitidas"
 
@@ -183,7 +184,7 @@ msgstr "Caracteres en la descripción"
 msgid "Categories"
 msgstr "Categorías"
 
-#: admin/admin-panel-fees-table.php:116 awpcp.php:401
+#: admin/admin-panel-fees-table.php:116 awpcp.php:393
 #: premium-modules/awpcp-featured-ads/frontend/widget-featured-ads.php:14
 #: premium-modules/awpcp-subscriptions/admin/admin-panel-subscription-plans.php:39
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-form.tpl.php:29
@@ -193,13 +194,13 @@ msgid "Featured Ads"
 msgstr "Anuncios destacados"
 
 #: admin/admin-panel-fees-table.php:118
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1143
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1137
 msgid "Private"
 msgstr "Privado"
 
 #: admin/admin-panel-fees-table.php:197 admin/admin-panel-fees-table.php:201
 #: premium-modules/awpcp-coupons/admin/admin-panel-coupons-table.php:153
-#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:357
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:368
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:26
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:27
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-entry.tpl.php:18
@@ -208,7 +209,7 @@ msgstr "Sí"
 
 #: admin/admin-panel-fees-table.php:197 admin/admin-panel-fees-table.php:201
 #: premium-modules/awpcp-coupons/admin/admin-panel-coupons-table.php:153
-#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:359
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:370
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:26
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:27
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-plans-entry.tpl.php:18
@@ -291,154 +292,158 @@ msgstr ""
 "Sistema de Administración de Anuncios Classificados AWPCP - Administrar "
 "Anuncios - Renovar Anuncio"
 
-#: admin/admin-panel-listings-table.php:160
+#: admin/admin-panel-listings-table.php:161
 msgid "Showing Ads from %s category."
 msgstr "Mostrando anuncios en la categoría %s."
 
-#: admin/admin-panel-listings-table.php:180
+#: admin/admin-panel-listings-table.php:181
 msgid "Headline"
 msgstr "Título"
 
-#: admin/admin-panel-listings-table.php:181
+#: admin/admin-panel-listings-table.php:182
 #: admin/templates/user-panel-listings.tpl.php:102
 msgid "Manage Ad"
 msgstr "Administrar Aviso"
 
-#: admin/admin-panel-listings-table.php:182
+#: admin/admin-panel-listings-table.php:183
 #: admin/templates/user-panel-listings.tpl.php:107
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-form.tpl.php:9
 #: premium-modules/awpcp-subscriptions/admin/user-panel-subscriptions.php:37
 msgid "Start Date"
 msgstr "Fecha de inicio"
 
-#: admin/admin-panel-listings-table.php:183
+#: admin/admin-panel-listings-table.php:184
 #: admin/templates/user-panel-listings.tpl.php:108
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-form.tpl.php:19
 #: premium-modules/awpcp-subscriptions/admin/user-panel-subscriptions.php:38
 msgid "End Date"
 msgstr "Fecha de finalización"
 
-#: admin/admin-panel-listings-table.php:184
+#: admin/admin-panel-listings-table.php:185
 msgid "Renewed Date"
 msgstr "Fecha de Renovación"
 
-#: admin/admin-panel-listings-table.php:185
+#: admin/admin-panel-listings-table.php:186
 #: admin/templates/user-panel-listings.tpl.php:111
 #: premium-modules/awpcp-comments-ratings/admin/comments-table.php:28
 msgid "Status"
 msgstr "Estado"
 
-#: admin/admin-panel-listings-table.php:186
+#: admin/admin-panel-listings-table.php:187
 msgid "Payment Term"
 msgstr "Plan de Pagos"
 
-#: admin/admin-panel-listings-table.php:187
+#: admin/admin-panel-listings-table.php:188
 #: admin/templates/user-panel-listings.tpl.php:112
 msgid "Payment Status"
 msgstr "Estado del Pago"
 
-#: admin/admin-panel-listings-table.php:190
-#: admin/admin-panel-listings-table.php:243
-#: admin/admin-panel-listings-table.php:363
+#: admin/admin-panel-listings-table.php:191
+#: admin/admin-panel-listings-table.php:245
+#: admin/admin-panel-listings-table.php:366
 msgid "Featured"
 msgstr "Destacado"
 
-#: admin/admin-panel-listings-table.php:194
+#: admin/admin-panel-listings-table.php:195
 #: admin/templates/user-panel-listings.tpl.php:114
 #: premium-modules/awpcp-subscriptions/admin/user-panel-subscriptions.php:50
 msgid "Owner"
 msgstr "Propietario"
 
-#: admin/admin-panel-listings-table.php:218 admin/admin-panel-listings.php:87
+#: admin/admin-panel-listings-table.php:219 admin/admin-panel-listings.php:87
 msgid "Enable"
 msgstr "Aprobar"
 
-#: admin/admin-panel-listings-table.php:219 admin/admin-panel-listings.php:89
+#: admin/admin-panel-listings-table.php:220 admin/admin-panel-listings.php:89
 #: admin/admin-panel.php:933
 msgid "Disable"
 msgstr "Desaprobar"
 
-#: admin/admin-panel-listings-table.php:220 admin/admin-panel-listings.php:101
+#: admin/admin-panel-listings-table.php:221 admin/admin-panel-listings.php:101
 msgid "Make Featured"
 msgstr "Destacar"
 
-#: admin/admin-panel-listings-table.php:221
+#: admin/admin-panel-listings-table.php:222
 msgid "Make Non Featured"
 msgstr "Marcar como no destacado"
 
-#: admin/admin-panel-listings-table.php:222
+#: admin/admin-panel-listings-table.php:223
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-entry.tpl.php:15
 msgid "Renew"
 msgstr "Renovar"
 
-#: admin/admin-panel-listings-table.php:223
+#: admin/admin-panel-listings-table.php:224
 msgid "Mark as SPAM"
 msgstr "Marcar como SPAM"
 
-#: admin/admin-panel-listings-table.php:244
+#: admin/admin-panel-listings-table.php:246
 msgid "Flagged"
 msgstr "Reportado"
 
-#: admin/admin-panel-listings-table.php:245
+#: admin/admin-panel-listings-table.php:247
 msgid "Unpaid"
 msgstr "No pagada."
 
-#: admin/admin-panel-listings-table.php:246
+#: admin/admin-panel-listings-table.php:248
 msgid "Awaiting Approval"
 msgstr "Esperando aprobación"
 
-#: admin/admin-panel-listings-table.php:257
+#: admin/admin-panel-listings-table.php:249
+msgid "All"
+msgstr "Todos"
+
+#: admin/admin-panel-listings-table.php:260
 msgid "Search by"
 msgstr "Buscar por"
 
-#: admin/admin-panel-listings-table.php:261
+#: admin/admin-panel-listings-table.php:264
 #: frontend/templates/page-place-ad-details-step.tpl.php:72
 msgid "Ad Title"
 msgstr "Título de Aviso"
 
-#: admin/admin-panel-listings-table.php:262
+#: admin/admin-panel-listings-table.php:265
 msgid "Keyword"
 msgstr "Palabra clave"
 
-#: admin/admin-panel-listings-table.php:263 frontend/page-show-ad.php:71
-#: frontend/placeholders.php:544
+#: admin/admin-panel-listings-table.php:266 frontend/page-show-ad.php:71
+#: frontend/placeholders.php:547
 msgid "Location"
 msgstr "Ubicación"
 
-#: admin/admin-panel-listings-table.php:264
+#: admin/admin-panel-listings-table.php:267
 #: frontend/templates/page-place-ad-details-step-users-dropdown.tpl.php:2
 #: premium-modules/awpcp-comments-ratings/admin/comments-table.php:30
 #: premium-modules/awpcp-subscriptions/admin/templates/subscriptions-create-form.tpl.php:21
 msgid "User"
 msgstr "Usuario"
 
-#: admin/admin-panel-listings-table.php:317
 #: admin/admin-panel-listings-table.php:320
+#: admin/admin-panel-listings-table.php:323
 msgid "View Ad."
 msgstr "Ver anuncio."
 
-#: admin/admin-panel-listings-table.php:317
+#: admin/admin-panel-listings-table.php:320
 #: admin/templates/admin-panel-listings-view.tpl.php:5
 #: frontend/templates/email-send-ad-access-key.tpl.php:6
 #: frontend/templates/email-send-all-ad-access-keys.tpl.php:8
 msgid "Access Key"
 msgstr "Clave de acceso"
 
-#: admin/admin-panel-listings-table.php:343
+#: admin/admin-panel-listings-table.php:346
 #: admin/templates/user-panel-listings.tpl.php:167 frontend/shortcode.php:838
 msgid "Disabled"
 msgstr "Deshabilitar"
 
-#: admin/admin-panel-listings-table.php:343
+#: admin/admin-panel-listings-table.php:346
 #: admin/templates/user-panel-listings.tpl.php:167
 msgid "Enabled"
 msgstr "Habilitado"
 
-#: admin/admin-panel-listings-table.php:353
+#: admin/admin-panel-listings-table.php:356
 msgid "Mark as Paid"
 msgstr "Marcar como pagada"
 
-#: admin/admin-panel-listings-table.php:363
+#: admin/admin-panel-listings-table.php:366
 msgid "Not Featured"
 msgstr "No destacado"
 
@@ -513,7 +518,7 @@ msgctxt "admin litings"
 msgid "You do not have sufficient permissions to perform that action."
 msgstr "Usted no tiene permisos suficientes para realizar esa acción."
 
-#: admin/admin-panel-listings.php:232
+#: admin/admin-panel-listings.php:232 frontend/ad-functions.php:419
 msgid "The specified Ad doesn't exists."
 msgstr "El Anuncio especificado no existe."
 
@@ -618,11 +623,15 @@ msgstr "La imagen ha sido habilitada y ahora puede ser vista."
 msgid " User Ad Management Panel - Manage Images"
 msgstr " Administrador de Usuarios de Anuncios - Imágenes"
 
-#: admin/admin-panel-listings.php:560
-msgid "%d Ads were deleted."
-msgstr "El Anuncio %d ha sido eliminado"
+#: admin/admin-panel-listings.php:570
+msgid "%d of %d Ads were deleted. %d generated errors."
+msgstr "%d de %d anuncios fueron eliminados. %d generaron errores."
 
-#: admin/admin-panel-listings.php:587
+#: admin/admin-panel-listings.php:572
+msgid "%d of %d Ads were deleted."
+msgstr "%d de %d anuncios fueron eliminados."
+
+#: admin/admin-panel-listings.php:600
 msgctxt "ajax delete ad"
 msgid "The specified Ad doesn't exists."
 msgstr "El Anuncio especificado no existe."
@@ -691,8 +700,8 @@ msgstr "Agregar/Editar Categorías"
 msgid "Manage Extra Fields"
 msgstr "Administrar Campos Extras"
 
-#: admin/admin-panel.php:157 awpcp.php:377
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:150
+#: admin/admin-panel.php:157 awpcp.php:369
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:144
 msgid "Extra Fields"
 msgstr "Campos Extras"
 
@@ -897,8 +906,8 @@ msgid "Order"
 msgstr "Orden"
 
 #: admin/admin-panel.php:776 admin/admin-panel.php:788
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:731
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:766
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:725
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:760
 msgid "Action"
 msgstr "Acción"
 
@@ -1053,7 +1062,7 @@ msgstr "Opciones del Sistema de Créditos"
 
 #: admin/templates/admin-panel-credit-plans.tpl.php:13
 #: admin/templates/admin-panel-settings.tpl.php:30
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:652
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:646
 msgid "Save Changes"
 msgstr "Guardar Cambios"
 
@@ -1287,16 +1296,16 @@ msgid "cURL"
 msgstr "cURL"
 
 #: admin/templates/admin-panel-debug.tpl.php:108
-#: admin/templates/admin-sidebar.tpl.php:120
-#: admin/templates/admin-sidebar.tpl.php:161
+#: admin/templates/admin-sidebar.tpl.php:126
+#: admin/templates/admin-sidebar.tpl.php:167
 #: premium-modules/awpcp-xml-sitemap/awpcp-xml-sitemap.php:211
 #: premium-modules/awpcp-xml-sitemap/awpcp-xml-sitemap.php:217
 msgid "Installed"
 msgstr "Instalado"
 
 #: admin/templates/admin-panel-debug.tpl.php:108
-#: admin/templates/admin-sidebar.tpl.php:137
-#: admin/templates/admin-sidebar.tpl.php:178
+#: admin/templates/admin-sidebar.tpl.php:143
+#: admin/templates/admin-sidebar.tpl.php:184
 msgid "Not Installed"
 msgstr "No Instalado"
 
@@ -1363,13 +1372,13 @@ msgid "This Plan is for Featured Ads."
 msgstr "Es un plan de pago para anuncios destacados."
 
 #: admin/templates/admin-panel-fees-entry-form.tpl.php:92
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1150
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1144
 msgctxt "all categories"
 msgid "All"
 msgstr "Todas"
 
 #: admin/templates/admin-panel-fees-entry-form.tpl.php:93
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1151
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1145
 msgctxt "no categories"
 msgid "None"
 msgstr "Ninguna"
@@ -1578,9 +1587,9 @@ msgid "Return to Listings"
 msgstr "Configuración de Registro"
 
 #: admin/templates/admin-panel-listings-view.tpl.php:14
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:728
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:763
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1149
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:722
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:757
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1143
 msgid "Category"
 msgstr "Categoría"
 
@@ -1796,102 +1805,106 @@ msgstr "Modulo de Comentarios y Calificaciones"
 msgid "Authorize.Net Module"
 msgstr "Modulo Authorize.Net"
 
-#: admin/templates/admin-sidebar.tpl.php:49
+#: admin/templates/admin-sidebar.tpl.php:50
+msgid "PayPal Pro Module"
+msgstr "Módulo PayPal Pro"
+
+#: admin/templates/admin-sidebar.tpl.php:55
 msgid "Coupon/Discount Module"
 msgstr "Módulo de Cupones/Descuentos"
 
-#: admin/templates/admin-sidebar.tpl.php:54
+#: admin/templates/admin-sidebar.tpl.php:60
 msgid "Subscriptions Module"
 msgstr "Módulo de Subscripciones"
 
-#: admin/templates/admin-sidebar.tpl.php:59
+#: admin/templates/admin-sidebar.tpl.php:65
 msgid "Fee Per Category Module"
 msgstr "Módulo de Precio por Categorías"
 
-#: admin/templates/admin-sidebar.tpl.php:64
+#: admin/templates/admin-sidebar.tpl.php:70
 msgid "Featured Ads Module"
 msgstr "Módulo de Anuncios Destacados"
 
-#: admin/templates/admin-sidebar.tpl.php:69
+#: admin/templates/admin-sidebar.tpl.php:75
 msgid "Extra Fields Module"
 msgstr "Módulo de Campos Extras"
 
-#: admin/templates/admin-sidebar.tpl.php:74
+#: admin/templates/admin-sidebar.tpl.php:80
 msgid "Category Icons Premium Module"
 msgstr "Módulo de Íconos para Categorías"
 
-#: admin/templates/admin-sidebar.tpl.php:79
+#: admin/templates/admin-sidebar.tpl.php:85
 msgid "Regions Control Module"
 msgstr "Módulo Regions Control"
 
-#: admin/templates/admin-sidebar.tpl.php:84
+#: admin/templates/admin-sidebar.tpl.php:90
 msgid "Google Checkout Payment Module"
 msgstr "Módulo de Pagos con Google Checkout"
 
-#: admin/templates/admin-sidebar.tpl.php:89
+#: admin/templates/admin-sidebar.tpl.php:95
 msgid "RSS Module"
 msgstr "Módulo RSS"
 
-#: admin/templates/admin-sidebar.tpl.php:94
+#: admin/templates/admin-sidebar.tpl.php:100
 msgid "Donate to Support AWPCP"
 msgstr "Haga una donación para apoyar AWPCP"
 
-#: admin/templates/admin-sidebar.tpl.php:102
+#: admin/templates/admin-sidebar.tpl.php:108
 msgid "Found a bug?"
 msgstr "Encontró un bug?"
 
-#: admin/templates/admin-sidebar.tpl.php:102
+#: admin/templates/admin-sidebar.tpl.php:108
 msgid "Need Support?"
 msgstr "Necesita soporte?"
 
-#: admin/templates/admin-sidebar.tpl.php:106
+#: admin/templates/admin-sidebar.tpl.php:112
 msgid "Quick Start Guide"
 msgstr "Guía de incio rápido"
 
-#: admin/templates/admin-sidebar.tpl.php:107
+#: admin/templates/admin-sidebar.tpl.php:113
 msgctxt "Browse the <a>Quick Start Guide</a>"
 msgid "Browse the %s."
 msgstr "Explore la %s."
 
-#: admin/templates/admin-sidebar.tpl.php:108
+#: admin/templates/admin-sidebar.tpl.php:114
 msgid "Documentation"
 msgstr "Documentación"
 
-#: admin/templates/admin-sidebar.tpl.php:109
+#: admin/templates/admin-sidebar.tpl.php:115
 msgctxt "Read the full <a>Documentation</a>"
 msgid "Read the full %s."
 msgstr "Lea la %s completa."
 
-#: admin/templates/admin-sidebar.tpl.php:110
+#: admin/templates/admin-sidebar.tpl.php:116
 msgid "visit the forums!"
 msgstr "viste los foros!"
 
-#: admin/templates/admin-sidebar.tpl.php:111
+#: admin/templates/admin-sidebar.tpl.php:117
 msgctxt "Report bugs or get more help: <a>visit the forums!</a>"
 msgid "Report bugs or get more help: %s."
 msgstr "Reporte errores o obtenga más ayuda: %s."
 
-#: admin/templates/admin-sidebar.tpl.php:117
+#: admin/templates/admin-sidebar.tpl.php:123
 msgid "Premium Modules"
 msgstr "Módulos Premiun"
 
-#: admin/templates/admin-sidebar.tpl.php:124
+#: admin/templates/admin-sidebar.tpl.php:130
 msgid "No premium modules installed."
 msgstr "No hay módulos premiun instalados."
 
-#: admin/templates/admin-sidebar.tpl.php:141
+#: admin/templates/admin-sidebar.tpl.php:147
 msgid "All premium modules installed!"
 msgstr "Todos los Módulos Premiun Instalados!"
 
-#: admin/templates/admin-sidebar.tpl.php:157
+#: admin/templates/admin-sidebar.tpl.php:163
 msgid "Other Modules"
 msgstr "Otros Módulos"
 
-#: admin/templates/admin-sidebar.tpl.php:165
+#: admin/templates/admin-sidebar.tpl.php:171
 msgid "No other modules installed"
 msgstr "No hay otros módulos instalados"
 
-#: admin/templates/admin-sidebar.tpl.php:182
+#: admin/templates/admin-sidebar.tpl.php:188
 msgid "All other modules installed!"
 msgstr "Todos los modules están instalados."
 
@@ -2066,7 +2079,7 @@ msgstr ""
 "administrador del sitio e incluya el siguiente número de transacción en el "
 "mensaje: %s"
 
-#: admin/user-panel-account.php:203 frontend/page-place-ad.php:1095
+#: admin/user-panel-account.php:203 frontend/page-place-ad.php:1102
 #: premium-modules/awpcp-subscriptions/frontend/page-buy-subscription.php:286
 msgid ""
 "We were unable to find a Payment Transaction assigned to this operation."
@@ -2097,7 +2110,7 @@ msgid "%s Ad Management Panel"
 msgstr "%s Panel de Administración de Anuncios"
 
 #: admin/user-panel.php:45
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:592
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:603
 #: premium-modules/awpcp-subscriptions/classes/subscription-type.php:43
 msgid "Ad Management"
 msgstr "Administrar Anuncios"
@@ -2116,14 +2129,14 @@ msgstr ""
 "este problema."
 
 #: awpcp.php:320
-#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:40
+#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:51
 #: premium-modules/awpcp-google-checkout/awpcp-google-checkout.php:83
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:64
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:70
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:79
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:75
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:81
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:90
 #: premium-modules/awpcp-region-control/awpcp_region_control_module.php:112
 #: premium-modules/awpcp-rss-module/awpcp-rss-module.php:79
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:133
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:144
 #: premium-modules/awpcp-xml-sitemap/awpcp-xml-sitemap.php:58
 #: premium-modules/awpcp-xml-sitemap/awpcp-xml-sitemap.php:69
 msgid "Warning"
@@ -2141,37 +2154,45 @@ msgstr "Control de Regiones"
 msgid "Category Icons"
 msgstr "Íconos para Categorías"
 
-#: awpcp.php:369
-#: premium-modules/awpcp-google-checkout/classes/payment-gateway-google-checkout.php:8
-msgid "Google Checkout"
-msgstr "Google Checkout"
-
-#: awpcp.php:385
+#: awpcp.php:377
 msgid "XML Sitemap"
 msgstr "XML Sitemap"
 
-#: awpcp.php:393
+#: awpcp.php:385
 msgid "RSS"
 msgstr "RSS"
 
-#: awpcp.php:409
+#: awpcp.php:401
 msgid "Fee per Category"
 msgstr "Precio por Categoría"
 
-#: awpcp.php:417
+#: awpcp.php:409
 #: premium-modules/awpcp-subscriptions/admin/user-panel-subscriptions.php:11
 msgid "Subscriptions"
 msgstr "Suscripciones"
 
-#: awpcp.php:425
+#: awpcp.php:417
 msgid "Coupons/Discount"
 msgstr "Cupones/Descuentos"
 
-#: awpcp.php:433
+#: awpcp.php:425
 msgid "Comments & Ratings"
 msgstr "Comentarios y Calificaciones"
 
-#: awpcp.php:457
+#: awpcp.php:433
+msgid "Authorize.Net"
+msgstr "Authorize.Net"
+
+#: awpcp.php:441
+msgid "PayPal Pro"
+msgstr "PayPal Pro"
+
+#: awpcp.php:449
+#: premium-modules/awpcp-google-checkout/classes/payment-gateway-google-checkout.php:8
+msgid "Google Checkout"
+msgstr "Google Checkout"
+
+#: awpcp.php:473
 msgid ""
 "The %1$s module you have installed is outdated and not compatible with this "
 "version of AWPCP. Please get %1$s %2$s or newer."
@@ -2179,23 +2200,23 @@ msgstr ""
 "El módulo %1$s que usted ha instalado está desactualizado y no es compatible "
 "con esta versión de AWPCP. Por favor descargue %1$s %2$s o posterior."
 
-#: awpcp.php:583
+#: awpcp.php:599
 msgid "This field is required."
 msgstr "Este campo es obligatorio."
 
-#: awpcp.php:584 frontend/page-edit-ad.php:127 frontend/page-edit-ad.php:356
+#: awpcp.php:600 frontend/page-edit-ad.php:127 frontend/page-edit-ad.php:356
 msgid "Please enter a valid email address."
 msgstr "Por favor ingrese una dirección de correo electrónico válida."
 
-#: awpcp.php:585
+#: awpcp.php:601
 msgid "Please enter a valid URL."
 msgstr "Por favor ingrese una URL válida."
 
-#: awpcp.php:586
+#: awpcp.php:602
 msgid "Please enter a valid number."
 msgstr "Por favor ingrese un número."
 
-#: awpcp.php:587
+#: awpcp.php:603
 msgid "Please enter a valid amount."
 msgstr "Por favor ingresa una cantidad válida."
 
@@ -2215,35 +2236,35 @@ msgstr "El precio debe ser mayor o igual a cero."
 msgid "The Credit Plan doesn't exist."
 msgstr "El Plan de Crédito no existe."
 
-#: classes/helpers/captcha.php:42
+#: classes/helpers/captcha.php:39
 msgctxt "CAPTCHA"
 msgid "Enter the value of the following sum: %d + %d "
 msgstr "Ingrese el resultado de la siguiente suma: %d + %d"
 
-#: classes/helpers/captcha.php:59
+#: classes/helpers/captcha.php:56
 msgid ""
 "You did not solve the math problem. Please solve the math problem to proceed."
 msgstr ""
 "No ingresaste el resultado de la cuenta matemática. Por favor hazlo para "
 "poder proceder."
 
-#: classes/helpers/captcha.php:61
+#: classes/helpers/captcha.php:58
 msgid "Your solution to the math problem was incorrect. Please try again."
 msgstr ""
 "La solución a la operación mátemática fue incorrecta. Por favor intentalo "
 "nuevamente."
 
-#: classes/helpers/captcha.php:79
+#: classes/helpers/captcha.php:81
 msgid "To use reCAPTCHA you must get an API key from %s."
 msgstr "Para usar reCAPTCHA usted debe obtener una clave para la API en %s."
 
-#: classes/helpers/captcha.php:85
+#: classes/helpers/captcha.php:87
 msgid "For security reasons, you must pass the remote ip to reCAPTCHA."
 msgstr ""
 "Por razones de seguridad, usted debe pasarle a reCAPTCHA un parámetro con la "
 "IP remota."
 
-#: classes/helpers/captcha.php:108
+#: classes/helpers/captcha.php:110
 msgid ""
 "The characters in the image weren't entered correctly. Please try it again."
 msgstr ""
@@ -3602,12 +3623,12 @@ msgid "Payment Settings"
 msgstr "Configuración de Pagos"
 
 #: classes/settings-api.php:305
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:148
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:159
 msgid "Ascending"
 msgstr "Ascendente"
 
 #: classes/settings-api.php:306
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:149
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:160
 msgid "Descending"
 msgstr "Descendente"
 
@@ -4578,7 +4599,7 @@ msgstr ""
 "que reCAPTCHA funcione adecuadamente."
 
 #: classes/settings-api.php:780
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:178
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:189
 msgid ""
 "Require Registration setting was enabled automatically because you activated "
 "the User Ad Management panel."
@@ -4763,11 +4784,11 @@ msgstr ""
 "No tenés los permisos necesarios para llevar a cabo esta acción. El acceso a "
 "esta Página te ha sido denegado"
 
-#: frontend/ad-functions.php:413
+#: frontend/ad-functions.php:412
 msgid "The Ad has been deleted"
 msgstr "El Aviso ha sido eliminado."
 
-#: frontend/ad-functions.php:416
+#: frontend/ad-functions.php:415
 msgid ""
 "Your Ad details and any photos you have uploaded have been deleted from the "
 "system"
@@ -4775,15 +4796,21 @@ msgstr ""
 "Los detalles de tu Anuncio y las imágenes que cargaste serán eliminadas del "
 "sistema"
 
-#: frontend/ad-functions.php:420
+#: frontend/ad-functions.php:421
+msgid "There was an error trying to delete the Ad. The Ad was not deleted."
+msgstr ""
+"Ocurrió un error tratando de eliminar su anuncio. El anuncio no fue "
+"eliminado."
+
+#: frontend/ad-functions.php:424
 msgid "Problem encountered. Cannot complete  request"
 msgstr "Problema encontrado. No se pudo completar el proceso"
 
-#: frontend/ad-functions.php:464
+#: frontend/ad-functions.php:468
 msgid "New classified Ad listing posted."
 msgstr "Un nuevo anuncio ha sido publicado."
 
-#: frontend/ad-functions.php:486
+#: frontend/ad-functions.php:490
 msgid ""
 "An un expected error occurred while trying to send a notification email "
 "about your Ad being posted. Please contact an Administrator if your Ad is "
@@ -4793,11 +4820,11 @@ msgstr ""
 "correo electrónico sobre su Anuncio a publicarse. Por favor, póngase en "
 "contacto con un administrador si su anuncio no se está debidamente indicado."
 
-#: frontend/ad-functions.php:500
+#: frontend/ad-functions.php:504
 msgid "New classified ad listing posted"
 msgstr "Nuevo Aviso Clasificado Cargado al sistema"
 
-#: frontend/ad-functions.php:523
+#: frontend/ad-functions.php:527
 msgid ""
 "Your Ad has been submitted and an email has been sent to the email address "
 "you provided with information you will need to edit your listing."
@@ -4806,12 +4833,12 @@ msgstr ""
 "dirección de correo electrónico que nos has facilitado con la información "
 "que va a necesitar para editar su anuncio."
 
-#: frontend/ad-functions.php:531
+#: frontend/ad-functions.php:535
 #: frontend/templates/page-place-ad-finish-step.tpl.php:5
 msgid "Your Ad has been submitted."
 msgstr "Tu anucio ha sido enviado."
 
-#: frontend/ad-functions.php:554
+#: frontend/ad-functions.php:558
 msgid ""
 "Although your Ad has been submitted, there was a problem encountered while "
 "attempting to email your Ad details to the email address you provided."
@@ -4820,27 +4847,27 @@ msgstr ""
 "enviar los detalles del anuncio a la dirección de correo electrónico que nos "
 "indicó."
 
-#: frontend/ad-functions.php:697
+#: frontend/ad-functions.php:701
 msgid "There are currently no ads in the system"
 msgstr "No hay actualmente ningún Aviso en el Sistema"
 
-#: frontend/ad-functions.php:764
+#: frontend/ad-functions.php:768
 msgid "There were no ads found"
 msgstr "No se han encontrado Avisos"
 
-#: frontend/ad-functions.php:782
+#: frontend/ad-functions.php:786
 msgid "Select Category"
 msgstr "Seleccionar Categoría"
 
-#: frontend/ad-functions.php:787
+#: frontend/ad-functions.php:791
 msgid "Change Category"
 msgstr "Cambiar Categoría"
 
-#: frontend/ad-functions.php:793
+#: frontend/ad-functions.php:797
 msgid "Category: "
 msgstr "Categoría: "
 
-#: frontend/ad-functions.php:809 frontend/shortcode.php:332
+#: frontend/ad-functions.php:813 frontend/shortcode.php:332
 msgid "Powered by "
 msgstr "Desarrollado por "
 
@@ -4910,7 +4937,7 @@ msgstr ""
 msgid "The especified Ad doesn't exists."
 msgstr "El anuncio especificado no existe."
 
-#: frontend/page-edit-ad.php:230 frontend/page-place-ad.php:947
+#: frontend/page-edit-ad.php:230 frontend/page-place-ad.php:954
 msgid ""
 "There was an unexpected error trying to save your Ad details. Please try "
 "again or contact an administrator."
@@ -4918,7 +4945,7 @@ msgstr ""
 "Ocurrió un error inesperado intentando guardar los detalles de su anuncio. "
 "Por favor intente de nuevo o contacte un administrador."
 
-#: frontend/page-edit-ad.php:247 frontend/page-place-ad.php:1031
+#: frontend/page-edit-ad.php:247 frontend/page-place-ad.php:1038
 msgid "The specified Ad doesn't exists. No images can be added at this time."
 msgstr ""
 "El anuncio especificado no existe. No se puede agregar imágenes en este "
@@ -5067,7 +5094,7 @@ msgstr ""
 "El término de pago que seleccionó solo está disponible para usuarios "
 "administradores."
 
-#: frontend/page-place-ad.php:322 frontend/page-place-ad.php:594
+#: frontend/page-place-ad.php:322 frontend/page-place-ad.php:599
 #: frontend/page-renew-ad.php:219
 msgid ""
 "You are logged in as an administrator. Any payment steps will be skipped."
@@ -5075,7 +5102,7 @@ msgstr ""
 "Está conectado como administrador. Los pasos que involucren pago no se "
 "mostrarán."
 
-#: frontend/page-place-ad.php:592
+#: frontend/page-place-ad.php:597
 msgid ""
 "Your Ad details have been filled out in the form below. Make any changes "
 "needed then resubmit the Ad to update it."
@@ -5084,17 +5111,17 @@ msgstr ""
 "debajo. Haga los cambios que considere necesario y luego reenvie el anuncio "
 "para actualizarlo."
 
-#: frontend/page-place-ad.php:596
+#: frontend/page-place-ad.php:601
 msgid "Fill out the form below to post your classified Ad."
 msgstr ""
 "Complete el formulario que aparece a continuación para publicar tu anuncio."
 
-#: frontend/page-place-ad.php:600
+#: frontend/page-place-ad.php:605
 msgid "We found some errors, please fix them and submit the form again."
 msgstr ""
 "Encontramos algunos errores, por favor corrijalos y envíe el form de nuevo."
 
-#: frontend/page-place-ad.php:673
+#: frontend/page-place-ad.php:680
 msgid ""
 "Hi, Payment is required for posting Ads in this website and we couldn't find "
 "a Payment Transaction asssigned to you. You can't post Ads this time. If you "
@@ -5105,37 +5132,37 @@ msgstr ""
 "no puede publicar anuncios en esta ocasión. Si cree que esto es un error, "
 "por favor póngase en contacto con el administrador del sitio web."
 
-#: frontend/page-place-ad.php:700
+#: frontend/page-place-ad.php:707
 msgid ""
 "You did not select a Payment Term. Please select a Payment Term for this Ad."
 msgstr ""
 "No has seleccionado un plan de pago. Por favor selecciona una para tu "
 "anuncio."
 
-#: frontend/page-place-ad.php:705
+#: frontend/page-place-ad.php:712
 msgid "Please enter a start date for the Ad."
 msgstr "Por favor ingrese una fecha de inicio para el anuncio."
 
-#: frontend/page-place-ad.php:710
+#: frontend/page-place-ad.php:717
 msgid "Please enter an end date for the Ad."
 msgstr "Por favor ingrese una fecha de finalización para el anuncio."
 
-#: frontend/page-place-ad.php:714
+#: frontend/page-place-ad.php:721
 msgid "The start date must occur before the end date."
 msgstr "La fecha de inicio debe ser anterior de la fecha de finalización."
 
-#: frontend/page-place-ad.php:719
+#: frontend/page-place-ad.php:726
 msgid "You did not enter a title for your Ad"
 msgstr "No iingresó un título para su anuncio"
 
-#: frontend/page-place-ad.php:724
+#: frontend/page-place-ad.php:731
 msgid ""
 "You did not enter any text for your Ad. Please enter some text for your Ad."
 msgstr ""
 "No ingresó una descripción para su anuncio. Por favor ingrese los detalles "
 "de su anuncio."
 
-#: frontend/page-place-ad.php:729
+#: frontend/page-place-ad.php:736
 msgid ""
 "You did not select a category for your Ad. Please select a category for your "
 "Ad."
@@ -5143,14 +5170,14 @@ msgstr ""
 "No seleccionó ninguna categoría para su anuncio. Por favor seleccione una "
 "categoría."
 
-#: frontend/page-place-ad.php:737
+#: frontend/page-place-ad.php:744
 msgid ""
 "You did not enter your website address. Your website address is required."
 msgstr ""
 "No ingresaste la dirección de tu sitio web. Es una información requerida "
 "para continuar."
 
-#: frontend/page-place-ad.php:743
+#: frontend/page-place-ad.php:750
 msgid ""
 "Your website address is not properly formatted. Please make sure you have "
 "included the http:// part of your website address"
@@ -5158,17 +5185,17 @@ msgstr ""
 "La dirección de tu sitio web no tiene un formato adecuado. Por favor, "
 "asegurate de que tiene incluida la parte de http:// en la dirección"
 
-#: frontend/page-place-ad.php:748
+#: frontend/page-place-ad.php:755
 msgid "You did not enter your name. Your name is required."
 msgstr "No ingresó su nombre. El nombre es requerido."
 
-#: frontend/page-place-ad.php:753
+#: frontend/page-place-ad.php:760
 msgid "You did not enter your email. Your email is required."
 msgstr ""
 "No ingresó su dirección de correo electrónico. La dirección de correo es "
 "necesaria."
 
-#: frontend/page-place-ad.php:758 frontend/page-reply-to-ad.php:100
+#: frontend/page-place-ad.php:765 frontend/page-reply-to-ad.php:100
 msgid ""
 "The email address you entered was not a valid email address. Please check "
 "for errors and try again."
@@ -5176,33 +5203,33 @@ msgstr ""
 "La dirección de correo electrónico que ingresó no es una dirección válida. "
 "Por favor revise los errores e intente de nuevo."
 
-#: frontend/page-place-ad.php:766
+#: frontend/page-place-ad.php:773
 msgid "You did not enter your phone number. Your phone number is required."
 msgstr "No ingreso un número de teléfono. El número de teléfono es necesario."
 
-#: frontend/page-place-ad.php:775
+#: frontend/page-place-ad.php:782
 msgid "You did not enter your country. Your country is required."
 msgstr "No ingreso un país. Es necesario ingresar un país."
 
-#: frontend/page-place-ad.php:784
+#: frontend/page-place-ad.php:791
 msgid "You did not enter your state. Your state is required."
 msgstr "No ingresó un estado. Es necesario ingresar un estado."
 
-#: frontend/page-place-ad.php:793
+#: frontend/page-place-ad.php:800
 msgid "You did not enter your city. Your city is required."
 msgstr "No ingresó una ciudad. Es necesario ingresar una ciudad."
 
-#: frontend/page-place-ad.php:802
+#: frontend/page-place-ad.php:809
 msgid "You did not enter your county/village. Your county/village is required."
 msgstr ""
 "No ingresó un condado ó pueblo. Es necesario ingresar un condado ó pueblo."
 
-#: frontend/page-place-ad.php:811
+#: frontend/page-place-ad.php:818
 msgid "You did not enter the price of your item. The item price is required."
 msgstr ""
 "No ingresaste el precio de tu item. El precio es requerido por el sistema."
 
-#: frontend/page-place-ad.php:818
+#: frontend/page-place-ad.php:825
 msgid ""
 "You have entered an invalid item price. Make sure your price contains "
 "numbers only. Please do not include currency symbols."
@@ -5210,18 +5237,18 @@ msgstr ""
 "Ingresaste un precio no válido. Asegurate de que sólo contenga números. NO "
 "incluyas el símbolo de la moneda (Ej: $)"
 
-#: frontend/page-place-ad.php:837
+#: frontend/page-place-ad.php:844
 msgid "You did not accept the terms of service"
 msgstr "No has aceptado los términos del servicio."
 
-#: frontend/page-place-ad.php:853
+#: frontend/page-place-ad.php:860
 msgid ""
 "Your Ad was flagged as spam.  Please contact the administrator of this site."
 msgstr ""
 "Su anuncio ha sido marcado como SPAM. Por favor contacte al administrador "
 "del sitio."
 
-#: frontend/page-place-ad.php:1024
+#: frontend/page-place-ad.php:1031
 msgid ""
 "We were unable to find a Payment Transaction assigned to this operation. No "
 "images can be added at this time."
@@ -5229,7 +5256,7 @@ msgstr ""
 "No pudimos encontrar una transacción de pago asignada a esta operación. No "
 "se puede agregar imagenes esta vez."
 
-#: frontend/page-place-ad.php:1082
+#: frontend/page-place-ad.php:1089
 msgid ""
 "If you have uploaded images your images will not show up until an admin has "
 "approved them."
@@ -5237,7 +5264,7 @@ msgstr ""
 "Si subiste imágenes asociadas a tu Aviso, no serán visibles hasta que el "
 "Administrador las apruebe"
 
-#: frontend/page-place-ad.php:1102 frontend/page-renew-ad.php:322
+#: frontend/page-place-ad.php:1109 frontend/page-renew-ad.php:322
 msgid "The Ad associated with this transaction doesn't exists."
 msgstr "El anuncio asociado con esta transacción no existe."
 
@@ -5445,37 +5472,37 @@ msgstr ""
 msgid "Customer attempt to pay has failed"
 msgstr "El intento de pago del cliente ha fallado"
 
-#: frontend/placeholders.php:330
+#: frontend/placeholders.php:333
 msgid "Visit Website"
 msgstr "Visitar el Sitio Web"
 
-#: frontend/placeholders.php:411
+#: frontend/placeholders.php:414
 msgid "Click to enlarge image."
 msgstr "Click para ampliar la imagen."
 
-#: frontend/placeholders.php:580
+#: frontend/placeholders.php:583
 msgid "This Ad has been viewed %d time."
 msgid_plural "This Ad has been viewed %d times."
 msgstr[0] "Este anuncio ha sido visto %d vez: "
 msgstr[1] "Este anuncio ha sido visto %d veces: "
 
-#: frontend/placeholders.php:584
+#: frontend/placeholders.php:587
 msgid "Total views: %d"
 msgstr "Vistas totales: %d"
 
-#: frontend/placeholders.php:627
+#: frontend/placeholders.php:630
 msgid "Phone"
 msgstr "Teléfono"
 
-#: frontend/placeholders.php:683
+#: frontend/placeholders.php:686
 msgid "Flag Ad"
 msgstr "Marcar anuncio"
 
-#: frontend/placeholders.php:701
+#: frontend/placeholders.php:704
 msgid "Tweet This"
 msgstr "Twitear esto"
 
-#: frontend/placeholders.php:733
+#: frontend/placeholders.php:736
 msgid "Share on Facebook"
 msgstr "Compartir en Facebook"
 
@@ -5792,7 +5819,7 @@ msgid "Click here to have your Ad access keys sent to you."
 msgstr "Haga click aquí para enviarle las claves de acceso de sus anuncios."
 
 #: frontend/templates/page-edit-ad-email-key-step.tpl.php:34
-#: frontend/templates/page-place-ad-details-step.tpl.php:221
+#: frontend/templates/page-place-ad-details-step.tpl.php:223
 msgctxt "ad details form"
 msgid "Continue"
 msgstr "Continuar"
@@ -5855,13 +5882,13 @@ msgid "Add Details and Contact Information"
 msgstr "Detalles e Información de Contacto para el Anuncio"
 
 #: frontend/templates/page-place-ad-details-step.tpl.php:76
-#: frontend/templates/page-place-ad-details-step.tpl.php:165
+#: frontend/templates/page-place-ad-details-step.tpl.php:167
 msgctxt "ad details form"
 msgid "No characters limit."
 msgstr "No hay límite de caracteres."
 
 #: frontend/templates/page-place-ad-details-step.tpl.php:79
-#: frontend/templates/page-place-ad-details-step.tpl.php:168
+#: frontend/templates/page-place-ad-details-step.tpl.php:170
 msgctxt "ad details form"
 msgid "characters left."
 msgstr "caracteres restantes."
@@ -5879,17 +5906,17 @@ msgctxt "ad details form"
 msgid "Website URL"
 msgstr "URL del sitio web"
 
-#: frontend/templates/page-place-ad-details-step.tpl.php:110
+#: frontend/templates/page-place-ad-details-step.tpl.php:111
 msgctxt "ad details form"
 msgid "Name of Person to Contact"
 msgstr "Nombre de la persona de contacto"
 
-#: frontend/templates/page-place-ad-details-step.tpl.php:116
+#: frontend/templates/page-place-ad-details-step.tpl.php:118
 msgctxt "ad details form"
 msgid "Contact Person's Email"
 msgstr "Dirección de correo electrónico de la persona de contacto"
 
-#: frontend/templates/page-place-ad-details-step.tpl.php:116
+#: frontend/templates/page-place-ad-details-step.tpl.php:118
 msgctxt "ad details form"
 msgid ""
 "(Please enter a valid email. The codes needed to edit your Ad will be sent "
@@ -5898,32 +5925,32 @@ msgstr ""
 "(Por favor, ingrese una dirección de correo válida. Los códigos para poder "
 "editar este anuncio serán enviados a esa misma dirección)"
 
-#: frontend/templates/page-place-ad-details-step.tpl.php:124
+#: frontend/templates/page-place-ad-details-step.tpl.php:126
 msgctxt "ad details form"
 msgid "Contact Person's Phone Number"
 msgstr "Teléfono de la persona de contacto"
 
-#: frontend/templates/page-place-ad-details-step.tpl.php:154
+#: frontend/templates/page-place-ad-details-step.tpl.php:156
 msgctxt "ad details form"
 msgid "Item Price"
 msgstr "Precio del Item (Solo números SIN signos de moneda)"
 
-#: frontend/templates/page-place-ad-details-step.tpl.php:161
+#: frontend/templates/page-place-ad-details-step.tpl.php:163
 msgctxt "ad details form"
 msgid "Ad Details"
 msgstr "Detalles del Anuncio"
 
-#: frontend/templates/page-place-ad-details-step.tpl.php:194
+#: frontend/templates/page-place-ad-details-step.tpl.php:196
 msgctxt "ad details form"
 msgid "Read our Terms of Service"
 msgstr "Lea nuestros Términos de Servicio"
 
-#: frontend/templates/page-place-ad-details-step.tpl.php:196
+#: frontend/templates/page-place-ad-details-step.tpl.php:198
 msgctxt "ad details form"
 msgid "Terms of service:"
 msgstr "Términos de servicio:"
 
-#: frontend/templates/page-place-ad-details-step.tpl.php:201
+#: frontend/templates/page-place-ad-details-step.tpl.php:203
 msgctxt "ad details form"
 msgid "I agree to the terms of service"
 msgstr "Estoy de acuerdo con los términos del servicio"
@@ -6089,7 +6116,7 @@ msgstr "Buscar en la Categoría"
 #: frontend/templates/page-search-ads.tpl.php:33
 #: frontend/templates/page-search-ads.tpl.php:42 frontend/widget-search.php:83
 #: frontend/widget-search.php:93 functions.php:599
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1103
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1097
 #: premium-modules/awpcp-region-control/awpcp_region_control_module.php:453
 #: premium-modules/awpcp-region-control/awpcp_region_control_module.php:3201
 msgid "Select Option"
@@ -6100,12 +6127,12 @@ msgid "For Ads Posted By"
 msgstr "Para Avisos Publicados por"
 
 #: frontend/templates/page-search-ads.tpl.php:52
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1299
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1293
 msgid "Min"
 msgstr "Mínimo"
 
 #: frontend/templates/page-search-ads.tpl.php:54
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1301
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1295
 msgid "Max"
 msgstr "Máximo"
 
@@ -6344,9 +6371,9 @@ msgstr "Mostrar campo de Ciudad?"
 msgid "Show Country field?"
 msgstr "Mostrar campo de País?"
 
-#: frontend/widget-categories.php:6 frontend/widget-latest-ads.php:8
-msgid "Displays a list of latest Ads"
-msgstr "Muestra una lista de los anuncions más recientes."
+#: frontend/widget-categories.php:6
+msgid "Displays a list of Ad categories."
+msgstr "Muestra una lista de categorías de anuncios clasificados."
 
 #: frontend/widget-categories.php:7
 msgid "AWPCP Categories"
@@ -6360,12 +6387,16 @@ msgstr "Categorias de Anuncios"
 msgid "AWPCP Latest Ads"
 msgstr "AWPCP Últimos Anuncios"
 
+#: frontend/widget-latest-ads.php:8
+msgid "Displays a list of latest Ads"
+msgstr "Muestra una lista de los anuncions más recientes."
+
 #: frontend/widget-latest-ads.php:20
 msgid "Latest Ads"
 msgstr "Últimos Anuncios"
 
 #: frontend/widget-latest-ads.php:86
-#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:254
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:265
 msgid "Read more"
 msgstr "Leer Más"
 
@@ -6446,56 +6477,56 @@ msgstr "Distrito/Otro"
 msgid "separate counties by commas"
 msgstr "Separar Distritos por comas"
 
-#: functions.php:867
+#: functions.php:874
 msgid "-- Choose a Country --"
 msgstr "Elija un país"
 
-#: functions.php:1388
+#: functions.php:1395
 msgctxt "default blog title"
 msgid "Classifieds Website"
 msgstr "Página de Clasificados"
 
-#: functions.php:1612
+#: functions.php:1619
 msgid "No errors."
 msgstr "Sin errores."
 
-#: functions.php:1613
+#: functions.php:1620
 msgid "The file is larger than upload_max_filesize."
 msgstr "El tamaño del archivo es mayor que upload_max_filesize."
 
-#: functions.php:1614
+#: functions.php:1621
 msgid "The file is larger than form MAX_FILE_SIZE."
 msgstr "ElEl tamaño del archivo es mayor que MAX_FILE_SIZE."
 
-#: functions.php:1615
+#: functions.php:1622
 msgid "The file was only partially uploaded."
 msgstr "El archivo fue cargado parcialmente."
 
-#: functions.php:1616
+#: functions.php:1623
 msgid "No file was uploaded."
 msgstr "Ningún archivo fue cargado."
 
-#: functions.php:1617
+#: functions.php:1624
 msgid "Missing temporary directory."
 msgstr "El directorio temporarl no existe."
 
-#: functions.php:1618
+#: functions.php:1625
 msgid "Can't write file to disk."
 msgstr "No se puede escribir el archivo en disco."
 
-#: functions.php:1619
+#: functions.php:1626
 msgid "The file upload was stopped by extension."
 msgstr "La carga del archivo fue detenida por una extensión."
 
-#: functions.php:1710
+#: functions.php:1717
 msgid "Your Ad \"%s\" has been approved"
 msgstr "Su anuncio \"%s\" ha sido aprobado"
 
-#: functions.php:1725
+#: functions.php:1732
 msgid "Your Ad \"%s\" has been successfully updated"
 msgstr "Su anuncio \"%s\" ha sido actualizado exitosamente"
 
-#: functions.php:1738
+#: functions.php:1745
 msgid "The Ad \"%s\" is awaiting approval"
 msgstr "El anuncio \"%s\" está esperando aprobación"
 
@@ -6648,20 +6679,20 @@ msgstr ""
 msgid "30 Day Listing"
 msgstr "Listado de 30 días"
 
-#: premium-modules/awpcp-authorize.net/awpcp-authorize.net.php:69
+#: premium-modules/awpcp-authorize.net/awpcp-authorize.net.php:80
 msgid "Authorize.Net Settings"
 msgstr "Configuración de Authorize.Net"
 
-#: premium-modules/awpcp-authorize.net/awpcp-authorize.net.php:71
+#: premium-modules/awpcp-authorize.net/awpcp-authorize.net.php:82
 msgid "Activate Authorize.Net"
 msgstr "Activar Authorize.Net"
 
-#: premium-modules/awpcp-authorize.net/awpcp-authorize.net.php:73
+#: premium-modules/awpcp-authorize.net/awpcp-authorize.net.php:84
 msgctxt "authorize.net"
 msgid "Login ID"
 msgstr "Login ID"
 
-#: premium-modules/awpcp-authorize.net/awpcp-authorize.net.php:74
+#: premium-modules/awpcp-authorize.net/awpcp-authorize.net.php:85
 msgctxt "authorize.net"
 msgid "Transaction Key"
 msgstr "Clave de Transacción"
@@ -6692,8 +6723,8 @@ msgstr "Se ha producido un error procesando su transacción de pago:<br/>%s"
 
 #: premium-modules/awpcp-comments-ratings/admin/admin.php:13
 #: premium-modules/awpcp-comments-ratings/admin/comments-table.php:11
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:133
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:136
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:144
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:147
 #: premium-modules/awpcp-comments-ratings/frontend/templates/comments-list.tpl.php:1
 #: premium-modules/awpcp-comments-ratings/frontend/templates/comments.tpl.php:4
 msgid "Comments"
@@ -6816,13 +6847,13 @@ msgstr "No SPAM"
 msgid "AWPCP Classifieds Management System: Comments"
 msgstr "AWPCP Sistema de Administración de Avisos Clasificados: Comentarios"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:116
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:127
 msgctxt "awpcp comments notices"
 msgid "The AWPCP Comments module requires AWPCP version %s or newer!"
 msgstr ""
 "El módulo AWPCP Comments require la version %s o posterior del plugin AWPCP!"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:121
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:132
 msgctxt "awpcp comments notices"
 msgid ""
 "The AWPCP Comments module requires Akismet to be configured with a valid API "
@@ -6831,76 +6862,76 @@ msgstr ""
 "El módulo AWPCP Comments requiere que Akismet esté configurado con una API "
 "key válida."
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:140
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:151
 msgid "Display Comments in Ads?"
 msgstr "Mostrar comentarios en Ads?"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:141
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:152
 msgid "Check to enable User Comments."
 msgstr ""
 "Seleccione para permitir que los usuarios publiquen comentarios en los "
 "anuncios."
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:143
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:154
 msgid "Limit comments to Admin users"
 msgstr "Limitar comentarios a usuarios administradores"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:144
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:155
 msgid "Only Admin users can place Ad comments."
 msgstr ""
 "Solo los usuarios administradores pueden publicar comentarios en los "
 "anuncios."
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:146
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:157
 msgid "Limit comments to registered users"
 msgstr "Limitar comentarios a usuarios registrados"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:147
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:158
 msgid "Only registered users can place Ad comments."
 msgstr ""
 "Solo usuarios registrados pueden publicar comentarios en los anunucios."
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:149
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:160
 msgid "Allow comments to be edited by poster user?"
 msgstr "Permitir que los usuarios editen sus propios comentarios."
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:150
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:161
 msgid "Comment poster will be allowed to edit their comments."
 msgstr "Los usuarios podrán editar sus propios comentarios."
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:153
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:164
 msgid "Comments Layout"
 msgstr "Apariencia de los Comentarios"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:155
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:166
 msgid "Oldest First"
 msgstr "Los más viejos primero"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:155
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:166
 msgid "Newest First"
 msgstr "Los más nuevos primero"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:156
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:167
 msgid "Comments Order"
 msgstr "Orden de los comentarios"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:158
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:169
 msgid "Show comments title"
 msgstr "Mostrar el título de los comentarios"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:163
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:174
 msgid "User Ratings"
 msgstr "Calificaciones de Usuario"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:166
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:177
 msgid "Enable User Ratings"
 msgstr "Habilitar Calificaciones"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:167
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:178
 msgid "Check to enable User Ratings."
 msgstr "Seleccione para permitir que los usuarios califiquen los anuncios."
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:169
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:180
 msgid ""
 "Use your own. Create custom-on.png, custom-off.png and custom-half.png 16x16 "
 "icons in %s."
@@ -6908,43 +6939,43 @@ msgstr ""
 "Use sus propios íconos. Debe crear iconos 16x16 llamados custom-on.png, "
 "custom-off.png y custom-half.png y subirlos al directorio %s."
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:181
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:192
 msgid "Rating Icons"
 msgstr "Íconos de Calificaciones"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:181
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:192
 msgid "Choose the icons you want to use to show Ad Ratings."
 msgstr ""
 "Elija los íconos que quiere usar para mostrar las califaciones de los "
 "anuncions."
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:187
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:198
 msgid "Comment Posted Message"
 msgstr "Mensaje de comentario publicado"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:190
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:201
 msgid "Subject for Comment Posted email"
 msgstr "Asunto para el mensaje Comentario Publicado"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:191
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:202
 msgid "Your received a comment for your Ad \"$title\" from $author"
 msgstr "Usted recibió un comentario de $author en su anuncio \"$title\""
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:192
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:203
 msgid "Subject line for email sent out when a comment is posted to an Ad"
 msgstr ""
 "Asunto para el mensaje de correo enviado cuando se publica un comentario en "
 "un anuncio."
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:193
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:204
 msgid "Body for Comment Posted email"
 msgstr "Contenido para el mensaje Comentario Publicado"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:194
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:205
 msgid "Your received a comment for your ad, don't forget to reply!"
 msgstr "Usted recibió un comentario en su anuncio, no olvide responder!"
 
-#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:195
+#: premium-modules/awpcp-comments-ratings/awpcp-comments.php:206
 msgid "Body text for email sent out when a comment is posted to an Ad"
 msgstr ""
 "Cuerpo para el mensaje enviado cuando se publica un comentario en un anuncio."
@@ -7076,7 +7107,7 @@ msgstr ""
 "Administración de Anuncios Clasificados AWPCP - Administración de Cupones"
 
 #: premium-modules/awpcp-coupons/admin/admin-panel-coupons.php:12
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:170
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:181
 msgid "Coupons/Discounts"
 msgstr "Cupones/Descuentos"
 
@@ -7089,7 +7120,7 @@ msgid "Coupons Settings"
 msgstr "Configuración de Coupones"
 
 #: premium-modules/awpcp-coupons/admin/templates/admin-panel-coupons.tpl.php:7
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:155
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:166
 msgid "Use Coupon System"
 msgstr "Usar sistema de cupones"
 
@@ -7109,16 +7140,16 @@ msgstr "Porcentaje"
 msgid "is Coupon active?"
 msgstr "Cupón está activo?"
 
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:170
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:181
 msgid "Manage Coupons/Discounts"
 msgstr "Administrar Cupones/Descuentos"
 
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:219
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:230
 msgctxt "awpcp coupons"
 msgid "Coupon Discount (%s)"
 msgstr "Descuento (%s)"
 
-#: premium-modules/awpcp-coupons/awpcp-coupons.php:227
+#: premium-modules/awpcp-coupons/awpcp-coupons.php:238
 msgctxt "awpcp coupons"
 msgid ""
 "No coupons could be used, either they expired or already exceeded the "
@@ -7199,7 +7230,7 @@ msgstr "Tenga en cuenta que usted ya está usando el cupón siguiente:"
 msgid "Use Coupon"
 msgstr "Usar coupon"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:36
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:30
 msgid ""
 "An old version of Extra Fields Module is already loaded. Please remove "
 "awpcp_extra_fields_module.php from your AWPCP plugin directory."
@@ -7207,36 +7238,36 @@ msgstr ""
 "Una versión antigua de módulo Campos Extras ya está cargado. Por favor, "
 "elimine awpcp_extra_fields_module.php de su directorio de plugins AWPCP."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:151
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:145
 msgid "Show empty Extra Fields in Ads?"
 msgstr "Mostrar vacíos Campos Extras en los anuncios?"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:152
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:146
 msgid "Number of columns of Extra Fields to show."
 msgstr "Número de columnas de Campos Extras a mostrar."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:152
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:146
 msgid "Extra Fields will be shown in the selected number of columns."
 msgstr "Los Campos Extra se muestra en el número seleccionado de columnas."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:322
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:316
 msgid "There was no ID supplied for the field you would like to edit"
 msgstr "No se ha proporcionado un ID para el campo que estás intentando editar"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:354
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:348
 msgid "There was no ID supplied for the field you would like to delete"
 msgstr ""
 "No se ha proporcionado un ID para el campo que estás intentando eliminar"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:387
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:381
 msgid "The field has been successfully deleted"
 msgstr "El campo ha sido satisfactoriamente eliminado"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:424
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:418
 msgid "You did not provide a name for the field."
 msgstr "No ingresaste un nombre para el campo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:427
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:421
 msgid ""
 "You can't use <strong>%s</strong> as the name for the field. It is a "
 "WordPress Reserved Term."
@@ -7244,19 +7275,19 @@ msgstr ""
 "No puede usar <strong>%s</strong> como el nombre del campo. Es una palabra "
 "reservada de WordPress."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:433
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:427
 msgid "You did not provide a post form label for the field."
 msgstr "No proporcionaste un nombre interno para el campo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:438
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:432
 msgid "You did not provide an ad view label for the field."
 msgstr "No proporcionaste un nombre visible para el campo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:443
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:437
 msgid "You did not indicate the input element type for the field."
 msgstr "No indicaste el tipo de elemento de entrada para el campo."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:451
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:445
 msgid ""
 "You have indicated the field input type is either a checkbox, radio button "
 "or drop down element, however you did not provide any options for the field. "
@@ -7268,94 +7299,94 @@ msgstr ""
 "ninguna opción para el campo. Necesitás cambiar el tipo de entrada al campo "
 "o área de texto o proporcionar algunas opciones."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:457
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:451
 msgid "You did not indicate the field MYSQL data type."
 msgstr "No indicaste el tipo de entrada MYSQL"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:462
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:456
 msgid ""
 "Duplicate field name. You cannot use the same field name more than once."
 msgstr ""
 "Nombre de campo duplicado. No se puede usar el mismo nombre de campo más de "
 "una vez"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:565
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:559
 msgid "The new field has been added successfully."
 msgstr "El nuevo campo ha sido agregado exitosamente."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:567
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:561
 msgid "There was an error trying to add the new field."
 msgstr "Ocurrió un error tratando de agregar el nuevo campo."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:579
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:573
 msgid "The field has been updated successfully"
 msgstr "El campo ha sido actualizado."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:581
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:575
 msgid "There was an error trying to update the new field."
 msgstr "Ocurrió un error tratando de actualizar el nuevo campo."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:630
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:624
 msgid "AWPCP - Extra Fields Module"
 msgstr "AWPCP - Módulo de Campos Extras"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:642
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:636
 msgid "Extra Field Settings"
 msgstr "Configuración Campos Extras"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:686
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:680
 msgid "Ad New Field"
 msgstr "Agregar Nuevo Campo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:707
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:742
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:701
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:736
 msgid "Post Label"
 msgstr "Etiqueta del Campo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:710
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:745
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:704
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:739
 msgid "View Label"
 msgstr "Referencia del Campo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:713
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:748
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:707
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:742
 msgid "Input Type"
 msgstr "Tipo de Entrada"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:716
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:751
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:710
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:745
 msgid "Data Type"
 msgstr "Tipo de Información"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:719
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:754
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:713
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:748
 msgid "Options"
 msgstr "Opciones"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:722
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:757
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:716
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:751
 msgid "Validation"
 msgstr "Validaciones"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:725
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:760
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1140
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:719
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:754
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1134
 msgid "Privacy"
 msgstr "Privacidad"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:795
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:789
 msgid "required"
 msgstr "requerido"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:816
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:810
 msgid "Up"
 msgstr "Arriba"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:818
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:812
 msgid "Down"
 msgstr "Abajo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:852
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:846
 msgid ""
 "It appears you have not added any extra fields yet. Start adding extra "
 "fields using the link below"
@@ -7363,81 +7394,81 @@ msgstr ""
 "Al parecer aun no agregaste ningún campo extra. Podés comenzar a hacerlo "
 "usando el link que aparece a continuación"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:994
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:988
 msgid "View Current Fields"
 msgstr "Ver Campos Actuales"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:999
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:993
 msgid "Field Name"
 msgstr "Nombre del Campo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1001
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:995
 msgid "A short name for the form field. This is not visible to user"
 msgstr ""
 "Nombre corto para el campo del formulario. No será visible para el usuario"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1007
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1001
 msgid "Field Post Label"
 msgstr "Nombre Interno del Campo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1009
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1003
 msgid "Text that tells the user what they need to enter or select in the form."
 msgstr ""
 "Nombre que le dirá al usuario qué debe ingresar en el casillero del "
 "formulario."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1015
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1009
 msgid "Field View Label"
 msgstr "Nombre Visible del Campo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1017
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1011
 msgid "Text to use when displaying the field data on the ad view page."
 msgstr ""
 "Nombre que se usa en la página del Anuncio para mostrar la información "
 "cargada."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1023
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1017
 msgid "Field Input Element Type"
 msgstr "Tipo de elemento de entrada"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1025
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1019
 msgid "What input element type should be used to collect the data from user?"
 msgstr ""
 "Qué tipo de elemento deberá ser para recoger la información del usuario"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1030
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1024
 msgid "Select Field Input Type"
 msgstr "Seleccioná el tipo de entrada"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1042
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1036
 msgid "Input Text Box"
 msgstr "Casilla de texto"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1045
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1039
 msgid "Select List"
 msgstr "Lista de selección"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1048
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1042
 msgid "Multiple Select List"
 msgstr "Lista de selección múltiple"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1051
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1045
 msgid "Radio Button"
 msgstr "Botón de Opción"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1054
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1048
 msgid "Checkbox"
 msgstr "Casilla de Verificación"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1057
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1051
 msgid "Textarea"
 msgstr "Área de texto"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1061
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1055
 msgid "Field MYSQL Data Type"
 msgstr "Tipo de entrada MYSQL"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1063
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1057
 msgid ""
 "Select Number for values that must save as numbers, money for money values, "
 "short text for string values under 300 characters and long text for string "
@@ -7447,71 +7478,71 @@ msgstr ""
 "Moneda para los valores monetarios, Texto corto para entradas que usen menos "
 "de 300 caracteres y Texto largo para entradas que usen más de 300 caracteres"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1068
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1062
 msgid "Select Field MYSQL Data Type"
 msgstr "Seleccione el tipo de entrada MYSQL"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1077
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1071
 msgid "Whole Number"
 msgstr "Números enteros"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1080
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1074
 msgid "Decimal (Money and other floating values. Uses FLOAT)"
 msgstr "Decimal (Dinero y otros valores de coma flotante. Usar FLOAT)"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1083
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1077
 msgid "Short Text"
 msgstr "Texto Corto"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1086
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1080
 msgid "Long Text"
 msgstr "Texto Largo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1090
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1084
 msgid "Field Options"
 msgstr "Opciones del Campo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1091
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1085
 msgid " for drop down lists, radio buttons, checkboxes "
 msgstr "para listas desplegables, botones de opción, casillas de verificación"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1093
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1087
 msgid "type an option in each line"
 msgstr "escriba una opción en cada línea"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1100
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1094
 msgid "Validate Against"
 msgstr "Validar con"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1113
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1107
 msgid "Email Format"
 msgstr "Formato de Email"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1116
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1110
 msgid "URL format"
 msgstr "Formato de URL"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1119
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1113
 msgid "Missing Value"
 msgstr "Falta valor"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1122
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1116
 msgid "Numeric decimal allowed"
 msgstr "Numérico decimal permitido"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1125
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1119
 msgid "Numeric no decimal allowed"
 msgstr "Numérico decimal no permitido"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1136
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1130
 msgid "Required (Check if this field should always have a value)."
 msgstr "Requerido (Marque si este campo siempre debe tener un valor)"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1142
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1136
 msgid "Public"
 msgstr "Público"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1145
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1139
 msgid ""
 "If you want to collect information from users but don't want it to be "
 "displayed publicly, choose Private."
@@ -7519,82 +7550,82 @@ msgstr ""
 "Si desea almacenar información para este campo pero no quiere mostrarla "
 "publicamente, seleccione Privado."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1155
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1149
 msgid "This field will appear only in the selected category."
 msgstr "El campo aparecerá solo en las categorías seleccionadas."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1162
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1156
 msgid "Show this field to the user on"
 msgstr "Mostrar este campo para el usuario en"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1165
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1159
 msgid "Ad Listing Display"
 msgstr "Visualización de Lista de Anuncios"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1168
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1162
 msgid "Single Ad Display"
 msgstr "Muestra del Anuncio particular"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1171
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1165
 msgid "Both"
 msgstr "Ambos"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1183
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1177
 msgid "Do not show this field on the search form."
 msgstr "No mostrar este campo en el formulario de búsqueda."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1191
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1185
 msgid "Add New Field"
 msgstr "Agregar Nuevo Campo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1191
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1185
 msgid "Update Field"
 msgstr "Actualizar Campo"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1318
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1312
 msgid "Select One"
 msgstr "Seleccione Uno"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1468
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1476
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1462
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1470
 msgid "%s is required."
 msgstr "% is requerido."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1481
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1475
 msgid "%s is badly formatted. Valid URL format required. Include http://"
 msgstr ""
 "%s tiene un formato inválido. Una URL válida es necesaria. Incluya http://"
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1487
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1481
 msgid "%s is badly formatted. Valid Email format required."
 msgstr "% tiene un formato inválido. Un correo válido es necesario."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1493
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1487
 msgid "%s must be a number."
 msgstr "%s debe ser un número."
 
-#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1499
+#: premium-modules/awpcp-extra-fields/awpcp_extra_fields_module.php:1493
 msgid "%s must be a number. Decimal values not allowed."
 msgstr "%s debe ser un número. Valores decimales no permitidos."
 
-#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:233
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:244
 msgid "No featured ads yet!"
 msgstr "No hay anuncios destacados todavía!"
 
-#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:288
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:299
 msgid "Featured Ad Pricing"
 msgstr "Precio de Anuncios Destacados"
 
-#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:351
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:362
 msgid "Featured Ad"
 msgstr "Aviso Destacado"
 
-#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:366
-#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:370
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:377
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:381
 msgid "Featured Ads First"
 msgstr "Anuncios Destacados primeros"
 
-#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:387
+#: premium-modules/awpcp-featured-ads/awpcp_featured_ads.php:398
 msgid "Make this ad a Featured Ad"
 msgstr "Hacer destacado a este Anuncio"
 
@@ -7606,18 +7637,18 @@ msgstr "AWPCP Anuncios Destacados"
 msgid "Display a list of featured Ads."
 msgstr "Muestra una lista de los anuncions destacados."
 
-#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:38
+#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:49
 msgid "The AWPCP Fee Per Category module requires AWPCP version %s or newer!"
 msgstr "El modulo AWPCP RSS Sitemap requiere AWPCP versión %s o más nueva!"
 
-#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:107
+#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:118
 msgid ""
 "<strong>Warning</strong>: You have fee categories not assigned to fee plans"
 msgstr ""
 "<strong>Advertencia</strong>: Usted tiene categorías que no están asignados "
 "a ningún plan de pago"
 
-#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:113
+#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:124
 msgid ""
 "Either assign the categories to fee plans, or define at least one fee plan "
 "with no categories associated."
@@ -7625,7 +7656,7 @@ msgstr ""
 "Asigne las categorías para los planes de pago, o defina por lo menos un plan "
 "de pago sin categorías seleccionadas."
 
-#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:114
+#: premium-modules/awpcp-fee-per-category/awpcp_fee_per_category.php:125
 msgid "Click here to configure fees"
 msgstr "Haga clic aquí para configurar los planes de pago"
 
@@ -7667,11 +7698,11 @@ msgstr "Botón URL"
 msgid "URL for your Google Checkout button"
 msgstr "URL de tu botón de Google Checkout"
 
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:62
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:73
 msgid "The AWPCP PayPal Pro module requires AWPCP version %s or newer!"
 msgstr "El modulo AWPCP RSS Sitemap requiere AWPCP versión %s o más nueva!"
 
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:69
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:80
 msgid ""
 "The AWPCP PayPal Pro Module is not properly configured, please make sure you "
 "have entered values for the API Username, API Password and Signature "
@@ -7681,7 +7712,7 @@ msgstr ""
 "favor asegurese de haber ingresado valores para el nombre de usuario, "
 "contraseña y la firma digital."
 
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:77
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:88
 msgid ""
 "PayPal does not allows %s as a currency for Direct Payment. Allowed "
 "currencies are %s."
@@ -7689,15 +7720,15 @@ msgstr ""
 "PayPal no permite %s como moneda para realizar transacciones a través de "
 "Direct Payment. Las monedas soportadas son %s."
 
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:136
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:147
 msgid "PayPal Pro Settings"
 msgstr "Configuración de PayPal Pro"
 
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:137
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:148
 msgid "Activate PayPal Pro - Direct Payment"
 msgstr "Activar PayPal Pro - Direct Payment"
 
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:137
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:148
 msgid ""
 "Direct Payment allow your customers to pay using their credit card without "
 "leaving the website."
@@ -7705,11 +7736,11 @@ msgstr ""
 "Direct Payment le permite a sus clientes pagar usando la tarjeta de crédito "
 "sin abandonar el sitio."
 
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:138
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:149
 msgid "Activate PayPal Pro - Express Checkout"
 msgstr "Activar PayPal Pro - Express Checkout"
 
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:138
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:149
 msgid ""
 "Express Checkout allow your customers to pay using their credit card or "
 "PayPal account. The user will is redirect to PayPal's website to pay"
@@ -7718,15 +7749,15 @@ msgstr ""
 "crédito o una cuenta PayPal. El usuario es redirigido al sitio de PayPal "
 "para realizar el pago."
 
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:139
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:150
 msgid "API Username"
 msgstr "Usuario"
 
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:140
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:151
 msgid "API Password"
 msgstr "Contraseña"
 
-#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:141
+#: premium-modules/awpcp-paypal-pro/awpcp-paypal-pro.php:152
 msgid "Signature"
 msgstr "Firma Digital"
 
@@ -8167,7 +8198,7 @@ msgid "Add Subscription"
 msgstr "Agregar Suscripción"
 
 #: premium-modules/awpcp-subscriptions/admin/user-panel-subscriptions.php:66
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:157
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:168
 msgid "Buy Subscription"
 msgstr "Comprar suscripción"
 
@@ -8190,51 +8221,51 @@ msgstr ""
 msgid "The selected Subscription Plan doesn't exists."
 msgstr "El Plan de Suscripción seleccionado no existe."
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:131
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:142
 msgid "The AWPCP Subscriptions module requires AWPCP version %s or newer!"
 msgstr "El modulo AWPCP RSS Sitemap requiere AWPCP versión %s o más nueva!"
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:138
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:149
 msgid "Subscriptions Settings"
 msgstr "Configuración de Suscripción"
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:153
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:164
 msgid "Allow Ad Subscriptions"
 msgstr "Permitir suscripciones del Anuncio"
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:154
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:165
 msgid "Subscription Plans order"
 msgstr "Orden de los Planes de Subscripción"
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:154
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:165
 msgid "The order used to sort Subscription Plans in the payment screens."
 msgstr ""
 "El orden usado para ordenar los planes de subscripción en los formularios de "
 "pagos."
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:155
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:166
 msgid "Subscription Plans order direction"
 msgstr "Dirección del orden de los Planes de Subscripción"
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:155
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:166
 msgid "The direction used to sort Subscription Plans in the payment screens."
 msgstr ""
 "La dirección del orden usado para ordenar los planes de subscripción en los "
 "formularios de pagos."
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:157
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:168
 msgid "Buy Subscription page"
 msgstr "Comprar página de suscripción"
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:157
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:168
 msgid "Name for Buy Subscription page."
 msgstr "Nombre de la página Buy Suscription."
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:158
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:169
 msgid "Show Buy Subscription menu item"
 msgstr "Mostrar Comprar Suscripción en el menú"
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:190
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:201
 msgid ""
 "Subscriptions were automatically disabled because you disabled Require "
 "Registration setting."
@@ -8242,7 +8273,7 @@ msgstr ""
 "Las suscripciones se desactivaron debido a que desactivó opción Requerir "
 "registro."
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:394
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:405
 msgid ""
 "An error has ocurred. It seems like a different user attempted to purchase a "
 "Subscription Plan on this computer but his session already expired or he/she "
@@ -8252,15 +8283,15 @@ msgstr ""
 "Plan de Suscripción en este equipo, pero su sesión ha vencido o él/ella se "
 "ha desconectado antes de completar el pago."
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:398
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:409
 msgid "Your session has expired. Please log in."
 msgstr "Su sesión ha caducado. Por favor, iniciar sesión."
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:404
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:415
 msgid "Your payment has been cancelled. Thank you for visiting us."
 msgstr "Su pago ha sido cancelado. Gracias por visitarnos."
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:407
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:418
 msgid ""
 "You have decided to cancel the payment transaction. If you want to complete "
 "the purchase of the following Subscription Plan please click the button "
@@ -8270,19 +8301,19 @@ msgstr ""
 "compra del siguiente Plan de Suscripción por favor haga clic en el botón de "
 "abajo."
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:468
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:479
 msgid "Subscription Checkout"
 msgstr "Pago de Suscripción"
 
 #. translators: the first placeholder is for the allowed Ad count, the second
 #. one is for a link to the Ad Management panel
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:597
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:608
 msgid "You can also choose a different Payment Term to pay for the current Ad."
 msgstr ""
 "También puede optar por un plazo de pago diferente al pago por el anuncio "
 "actual."
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:604
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:615
 msgid ""
 "Your Subscription Plan expired on %s. Please renew the subscription or "
 "choose different Payment Term for this Ad."
@@ -8290,7 +8321,7 @@ msgstr ""
 "Su Plan de Suscripción expiró el %s. Gracias por renovar la suscripción o "
 "elegir un Término del pago diferente para este anuncio."
 
-#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:607
+#: premium-modules/awpcp-subscriptions/awpcp-subscriptions.php:618
 msgid ""
 "To renew your Subscription Plan choose %s as the Payment Term and proceed "
 "with Payment."

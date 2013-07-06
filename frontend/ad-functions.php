@@ -407,14 +407,18 @@ function deletead($adid, $adkey, $editemail, $force=false, &$errors=array()) {
 
 		if ((strcasecmp($editemail, $savedemail) == 0) || ($isadmin == 1 )) {
 			$ad = AWPCP_Ad::find_by_id($adid);
-			$ad->delete();
-
-			if (($isadmin == 1) && is_admin()) {
-				$message=__("The Ad has been deleted","AWPCP");
-				return $message;
+			if ( $ad && $ad->delete() ) {
+				if (($isadmin == 1) && is_admin()) {
+					$message=__("The Ad has been deleted","AWPCP");
+					return $message;
+				} else {
+					$message=__("Your Ad details and any photos you have uploaded have been deleted from the system","AWPCP");
+					$errors[] = $message;
+				}
+			} else if ( $ad === null ) {
+				$errors[] = __( "The specified Ad doesn't exists.", 'AWPCP' );
 			} else {
-				$message=__("Your Ad details and any photos you have uploaded have been deleted from the system","AWPCP");
-				$errors[] = $message;
+				$errors[] = __( "There was an error trying to delete the Ad. The Ad was not deleted.", 'AWPCP' );
 			}
 		} else {
 			$message=__("Problem encountered. Cannot complete  request","AWPCP");

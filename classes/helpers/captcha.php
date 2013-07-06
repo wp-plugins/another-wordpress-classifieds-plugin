@@ -1,9 +1,6 @@
 <?php
 
 
-require_once( AWPCP_DIR . '/vendors/recaptcha/recaptchalib.php' );
-
-
 class AWPCP_CAPTCHA {
 
     public function __construct() { }
@@ -70,6 +67,11 @@ class AWPCP_reCAPTCHA extends AWPCP_CAPTCHA {
 
     public function __construct($public_key, $private_key) {
         parent::__construct();
+
+        // lazy load reCAPTCHA to avoid conflicts with other plugins
+        if ( !function_exists( 'recaptcha_get_html' ) ) {
+            require_once( AWPCP_DIR . '/vendors/recaptcha/recaptchalib.php' );
+        }
 
         $this->public_key = $public_key;
         $this->private_key = $private_key;

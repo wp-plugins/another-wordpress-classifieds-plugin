@@ -107,14 +107,16 @@
         <?php endif ?>
 
         <p class="awpcp-form-spacer">
+            <?php $readonly = $ui['contact-name-field-readonly'] ? 'readonly="readonly"' : ''; ?>
             <label for="ad-contact-name"><?php _ex('Name of Person to Contact', 'ad details form', 'AWPCP') ?></label>
-            <input class="inputbox required" id="ad-contact-name" type="text"  size="50" name="ad_contact_name" value="<?php echo awpcp_esc_attr($form['ad_contact_name']) ?>" />
+            <input class="inputbox required" id="ad-contact-name" <?php echo $readonly; ?> type="text"  size="50" name="ad_contact_name" value="<?php echo awpcp_esc_attr($form['ad_contact_name']) ?>" />
             <?php echo awpcp_form_error('ad_contact_name', $errors) ?>
         </p>
 
         <p class="awpcp-form-spacer">
+            <?php $readonly = $ui['contact-email-field-readonly'] ? 'readonly="readonly"' : ''; ?>
             <label for="ad-contact-email"><?php _ex("Contact Person's Email", 'ad details form', 'AWPCP') ?>&nbsp;<span class="helptext"><?php _ex('(Please enter a valid email. The codes needed to edit your Ad will be sent to your email address)', 'ad details form', 'AWPCP') ?></span></label>
-            <input class="inputbox required email" id="ad-contact-email" type="text" size="50" name="ad_contact_email" value="<?php echo awpcp_esc_attr($form['ad_contact_email']) ?>" />
+            <input class="inputbox required email" id="ad-contact-email" <?php echo $readonly; ?> type="text" size="50" name="ad_contact_email" value="<?php echo awpcp_esc_attr($form['ad_contact_email']) ?>" />
             <?php echo awpcp_form_error('ad_contact_email', $errors) ?>
         </p>
 

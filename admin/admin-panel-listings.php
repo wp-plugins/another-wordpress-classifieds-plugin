@@ -545,19 +545,32 @@ class AWPCP_Admin_Listings extends AWPCP_AdminPageWithTable {
         if (!wp_verify_nonce(awpcp_request_param('_wpnonce'), 'bulk-awpcp-listings'))
             return $this->index();
 
+        $current_user_is_admin = awpcp_current_user_is_admin();
         $user = wp_get_current_user();
         $selected = awpcp_request_param('selected');
+
         $deleted = 0;
+        $failed = 0;
+        $total = count( $selected );
 
         foreach ($selected as $id) {
-            if (AWPCP_Ad::belongs_to_user($id, $user->ID) || awpcp_current_user_is_admin()) {
+            if ( AWPCP_Ad::belongs_to_user($id, $user->ID) || $current_user_is_admin ) {
                 $errors = array();
                 deletead($id, '', '', $force=true, $errors);
-                $deleted = $deleted + (empty($errors) ? 1 : 0);
+
+                if (empty($errors)) {
+                    $deleted = $deleted + 1;
+                } else {
+                    $failed = $failed + 1;
+                }
             }
         }
 
-        awpcp_flash(sprintf(__('%d Ads were deleted.', 'AWPCP'), $deleted));
+        if ( $deleted > 0 && $failed > 0 ) {
+            awpcp_flash( sprintf( __( '%d of %d Ads were deleted. %d generated errors.', 'AWPCP' ), $deleted,$total, $failed ) );
+        } else {
+            awpcp_flash( sprintf( __( '%d of %d Ads were deleted.', 'AWPCP' ), $deleted, $total ) );
+        }
 
         return $this->redirect('index');
     }

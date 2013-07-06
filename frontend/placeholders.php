@@ -208,6 +208,9 @@ function awpcp_content_placeholders() {
 function awpcp_do_placeholders($ad, $content, $context) {
     $original_content = $content;
 
+    // remove old $quers/ placeholders
+    $content = str_replace('$quers/', '', $content);
+
     $placeholders = awpcp_content_placeholders();
     $placeholders_names = array_keys($placeholders);
     $pattern = sprintf('\$%s', join('|\$', array_map('preg_quote', $placeholders_names)));

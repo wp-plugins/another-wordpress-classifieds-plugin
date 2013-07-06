@@ -45,6 +45,12 @@
                             </a>
                         </li>
                         <li class="li_link">
+                            <img style="align:left" src="<?php echo $url; ?>/images/new.gif"/>
+                            <a style="color:#145200;" href="http://www.awpcp.com/premium-modules/paypalpro-payment-module/?ref=panel" target="_blank">
+                                <?php _e('PayPal Pro Module', 'AWPCP'); ?>
+                            </a>
+                        </li>
+                        <li class="li_link">
                             <a style="color:#145200;" href="http://www.awpcp.com/premium-modules/coupon-module/?ref=panel" target="_blank">
                                 <?php _e('Coupon/Discount Module', 'AWPCP'); ?>
                             </a>

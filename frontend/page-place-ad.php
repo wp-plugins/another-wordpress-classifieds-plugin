@@ -469,8 +469,8 @@ class AWPCP_Place_Ad_Page extends AWPCP_Page {
         $data = awpcp_get_user_data($user_id);
 
         $translations = array(
-            'ad_contact_name' => 'username',
-            'ad_contact_email' => 'email',
+            'ad_contact_name' => array('display_name', 'user_login', 'username'),
+            'ad_contact_email' => 'user_email',
             'ad_contact_phone' => 'phone',
             'websiteurl' => 'user_url',
             'ad_city' => 'city',
@@ -478,10 +478,15 @@ class AWPCP_Place_Ad_Page extends AWPCP_Page {
         );
 
         $info['ad_contact_name'] = trim($data->first_name . " " . $data->last_name);
-        $info['ad_contact_email'] = $data->user_email;
 
-        foreach ($translations as $field => $key) {
-            $info[$field] = awpcp_get_property($data, $key, awpcp_array_data($field, '', $info));
+        foreach ($translations as $field => $keys) {
+            foreach ( (array) $keys as $key ) {
+                $value = awpcp_get_property( $data, $key );
+                if ( !empty( $value ) ) {
+                    $info[ $field ] = $value;
+                    break;
+                }
+            }
         }
 
         return $info;
@@ -612,6 +617,8 @@ class AWPCP_Place_Ad_Page extends AWPCP_Page {
         // $ui['payment-term-dropdown'] = !$pay_first || ($is_admin_user && !$edit && $payments_enabled);
         $ui['website-field'] = get_awpcp_option('displaywebsitefield') == 1;
         $ui['website-field-required'] = get_awpcp_option('displaywebsitefieldreqop') == 1;
+        $ui['contact-name-field-readonly'] = !empty( $form['ad_contact_name'] ) && !$is_admin_user;
+        $ui['contact-email-field-readonly'] = !empty( $form['ad_contact_email'] ) && !$is_admin_user;
         $ui['contact-phone-field'] = get_awpcp_option('displayphonefield') == 1;
         $ui['contact-phone-field-required'] = get_awpcp_option('displayphonefieldreqop') == 1;
         $ui['price-field'] = get_awpcp_option('displaypricefield') == 1;

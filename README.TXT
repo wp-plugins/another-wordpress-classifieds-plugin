@@ -4,8 +4,8 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 2.7
 Tested up to: 3.5.2
-Last Updated: 2013-Jul-1
-Stable tag: tags/3.0
+Last Updated: 2013-Jul-5
+Stable tag: tags/3.0.1
 License: GPLv2 or later
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
@@ -20,8 +20,7 @@ We're the #1 Wordpress Classified Ads Plugin: 4+ years old and 200,000+ download
 
 NEW modules:  Comments/Ratings, Authorize.net and PayPal Pro Gateways!
 
-Features:
-
+= Features =
  = Ad Features =
     1. Search ads by city, state, country, username, or keyword
     2. Allow AdSense ads to be displayed
@@ -108,37 +107,26 @@ Features:
     9. Subscriptions (allows power users to place blocks of ads at a time,
        great for real estate agents, car dealers, anyone who wants to place ads in
        bulk.)
-    10. **NEW** Comments/Ratings (allows users to rate ads and place comments on them.)
-    11. **NEW** Authorize.net Payment Gateway (allows users to purchase ads, subscriptions
-        and credit plans using Authorize.net)
-    12. **NEW** PayPal Pro Support (allows you to have an embedded payment form on your site
-        for use with PayPal Pro accounts)
+    10. **NEW** Comments/Ratings (allows users to rate ads and place comments 
+        on them.)
+    11. **NEW** Authorize.net Payment Gateway (allows users to purchase ads, 
+        subscriptions and credit plans using Authorize.net)
+    12. **NEW** PayPal Pro Support (allows you to have an embedded payment 
+        form on your site for use with PayPal Pro accounts)
 
 = Premium Module Links: =
-
-**NEW** [Comments/Ratings](http://awpcp.com/premium-modules/comments-ratings-module?ref=wp)
-
-**NEW** [Authorize.net Gateway](http://www.awpcp.com/premium-modules/authorizenet-payment-module?ref=wp)
-
-**NEW** [PayPal Pro Gateway](http://www.awpcp.com/premium-modules/paypalpro-payment-module?ref=wp)
-
-[Extra Fields](http://awpcp.com/premium-modules/extra-fields-module?ref=wp)
-
-[Region Control](http://awpcp.com/premium-modules/regions-control-module?ref=wp)
-
-[Category Icons](http://awpcp.com/premium-modules/category-icons-module?ref=wp)
-
-[Google Checkout](http://awpcp.com/premium-modules/google-checkout-module?ref=wp)
-
-[RSS Feeds](http://awpcp.com/premium-modules/rss-module?ref=wp)
-
-[Featured Ads](http://awpcp.com/premium-modules/featured-ads-module?ref=wp)
-
-[Fee per Category](http://www.awpcp.com/premium-modules/fee-per-category-module?ref=wp)
-
-[Coupons/Discounts](http://www.awpcp.com/premium-modules/coupon-module?ref=wp)
-
-[Subscriptions](http://www.awpcp.com/premium-modules/subscriptions-module?ref=wp)
+* **NEW** [Comments/Ratings](http://awpcp.com/premium-modules/comments-ratings-module?ref=wp)
+* **NEW** [Authorize.net Gateway](http://www.awpcp.com/premium-modules/authorizenet-payment-module?ref=wp)
+* **NEW** [PayPal Pro Gateway](http://www.awpcp.com/premium-modules/paypalpro-payment-module?ref=wp)
+* [Extra Fields](http://awpcp.com/premium-modules/extra-fields-module?ref=wp)
+* [Region Control](http://awpcp.com/premium-modules/regions-control-module?ref=wp)
+* [Category Icons](http://awpcp.com/premium-modules/category-icons-module?ref=wp)
+* [Google Checkout](http://awpcp.com/premium-modules/google-checkout-module?ref=wp)
+* [RSS Feeds](http://awpcp.com/premium-modules/rss-module?ref=wp)
+* [Featured Ads](http://awpcp.com/premium-modules/featured-ads-module?ref=wp)
+* [Fee per Category](http://www.awpcp.com/premium-modules/fee-per-category-module?ref=wp)
+* [Coupons/Discounts](http://www.awpcp.com/premium-modules/coupon-module?ref=wp)
+* [Subscriptions](http://www.awpcp.com/premium-modules/subscriptions-module?ref=wp)
 
 Or, just [Donate to AWPCP to Support further development](http://awpcp.com/donate?ref=wp)
 
@@ -174,8 +162,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 == Installation ==
-
- = IMPORTANT = 
+= IMPORTANT = 
 
 Please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another Wordpress Classifieds Plugin.
 
@@ -212,6 +199,14 @@ Find the [faqs here](http://www.awpcp.com/forum/viewforum.php?f=3)
 [Plugin documentation](http://www.awpcp.com/documentation/)
 
 == Changelog ==
+= Version 3.0.1 =
+* Made regions control fields optional on search (new settings)
+* Fixed reCAPTCHA conflict with other plugins
+* Fixed Place Ad JavaScript bug affecting some users
+* Fixed 414 error generated on bulk operations for admin Listings screen
+* Fixed contact name/email display issue for non-admin users
+* Fixed Category icon module display issue for 3.0 upgrade
+
 = Version 3.0 =
 * NEW: PayPal Pro (Express Checkout and Direct Payment integrations)
 * NEW: Comments and Ratings

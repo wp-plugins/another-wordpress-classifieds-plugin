@@ -659,6 +659,13 @@ function awpcp_region_form_fields($query, $translations=null, $context='details'
 		$fields[$key] = $field;
 	}
 
+	// no field is required in Search Ads screen
+	if ( $context == 'search' ) {
+		foreach ( $fields as &$field ) {
+			$field['required'] = false;
+		}
+	}
+
 	$ordered = array('country', 'state', 'city', 'county');
 
 	ob_start();
