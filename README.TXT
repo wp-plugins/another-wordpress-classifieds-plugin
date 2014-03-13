@@ -2,7 +2,7 @@
 Contributors: awpcp
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
-Requires at least: 3.0
+Requires at least: 3.5
 Tested up to: 3.8.1
 Last Updated: 2014-Mar-13
 Stable tag: tags/3.2.1
@@ -16,9 +16,9 @@ AWPCP Classifieds:  Great for increasing retention to your site, adding revenue 
 
 Add a classified ads section to your Wordpress site, quickly and easily.  
 Lots of features, very configurable.  Easy to setup.  Great support.
-We're the #1 Wordpress Classified Ads Plugin: 6+ years old and 250,000+ downloads!
+We're the #1 Wordpress Classified Ads Plugin: 6+ years old and 225,000+ downloads!
 
-NEW modules:  [Attachments](http://awpcp.com/premium-modules/attachments-module?ref=wp)
+NEW module(s):  [Attachments](http://awpcp.com/premium-modules/attachments-module?ref=wp)
 
 = Features =
  = Ad Features =
