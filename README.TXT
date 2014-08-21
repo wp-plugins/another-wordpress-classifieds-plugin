@@ -3,7 +3,7 @@ Contributors: awpcp
 Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 3.5
-Tested up to: 3.9
+Tested up to: 4.0
 Last Updated: 2014-Apr-16
 Stable tag: tags/3.2.2
 License: GPLv2 or later
