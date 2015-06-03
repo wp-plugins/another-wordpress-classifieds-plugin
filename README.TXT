@@ -4,8 +4,8 @@ Donate link: http://awpcp.com/donate
 Tags: classifieds,ads,classified ads,classified,awpcp,classifieds script,classified script,classified theme,classifieds theme,wp classifieds,wp classified
 Requires at least: 3.9
 Tested up to: 4.2.2
-Last Updated: 2015-Jun-2
-Stable tag: tags/3.5
+Last Updated: 2015-Jun-3
+Stable tag: tags/3.5.1
 License: GPLv2 or later
 
 AWPCP Classifieds:  Great for increasing retention to your site, adding revenue for your business, and creating customer interaction.
@@ -18,7 +18,9 @@ Add a classified ads section to your WordPress site, quickly and easily.
 Lots of features, very configurable.  Easy to setup.  Great support.
 We're the #1 WordPress Classified Ads Plugin: 8+ years old and over 10,000 active sites
 
-NEW module(s):  [BuddyPress](http://awpcp.com/premium-modules/buddypress-module?ref=wp) and [Attachments](http://awpcp.com/premium-modules/attachments-module?ref=wp)
+NEW module(s): [Mark as Sold](http://awpcp.com/premium-modules/mark-as-sold-module?ref=wp)
+, [Restricted Categories](http://awpcp.com/premium-modules/restricted-categories-module?ref=wp) and [Ad Campaign Manager](http://awpcp.com/premium-modules/campaign-manager-module?ref=wp)
+
 
 = Features =
  = Ad Features =
@@ -185,7 +187,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 == Installation ==
 = IMPORTANT = 
 
-Please backup your wordpress database before you install/uninstall/activate/deactivate/upgrade Another WordPress Classifieds Plugin.
+Please backup your WordPress database before you install/uninstall/activate/deactivate/upgrade Another WordPress Classifieds Plugin.
 
 Pre-installation note: If you have previously tried other classified plugins and you plan to give the classifieds page created by Another WordPress Classifieds Plugin the same name as previously used with other classifieds plugins you've installed, please make sure your database has been cleared of any entries in the wp_posts table where the post_name value and the post_title value are the same as the name you plan to give your classifieds page.
 For example, if your classifieds page will be named "Classifieds", you might have a wp_posts database entry post_title value of "Classifieds" and post_name value of "classifieds" still left over from previous installations of other classifieds plugins. 
@@ -220,6 +222,10 @@ Find the [faqs here](http://www.awpcp.com/forum/viewforum.php?f=3)
 [Plugin documentation](http://www.awpcp.com/documentation/)
 
 == Changelog ==
+= Version 3.5.1 =
+- Use mb_strtoupper if available in _get_currency_code
+- Fix function that finds media thumbnails for sites not under single site directory structure
+- Make button's tooltip translatable in Delete Form.
 
 = Version 3.5 =
 * NEW: Allow users to remove the title of the entry from the listing URL 
@@ -313,6 +319,7 @@ Find the [faqs here](http://www.awpcp.com/forum/viewforum.php?f=3)
 * Fix bug in Settings Validator code 
 * Fix error presentation in Buy Credits page 
 * Use a relative URL for the Manage Credit menu item 
+* Namespace rules for messages in plugin's stylesheet
 
 = Version 3.3.3 =
 * Fix problem with image uploads that allowed for non-image files to be uploaded instead.  Strict extension checking enabled.  Security problem if left unpatched.

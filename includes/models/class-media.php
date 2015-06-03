@@ -83,7 +83,7 @@ class AWPCP_Media {
     }
 
     private function get_url_from_alternatives( $alternatives ) {
-        $home_url = get_home_url();
+        $home_url = get_site_url();
         $abs_path = rtrim( ABSPATH, '/' );
 
         foreach ( $alternatives as $path ) {

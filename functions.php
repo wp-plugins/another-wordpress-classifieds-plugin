@@ -1490,7 +1490,13 @@ function awpcp_parse_bool($value) {
 }
 
 function awpcp_get_currency_code() {
-    return strtoupper( get_awpcp_option( ''. 'currency-code' ) );
+    $currency_code = get_awpcp_option( ''. 'currency-code' );
+
+    if ( function_exists( 'mb_strtoupper' ) ) {
+        return mb_strtoupper( $currency_code );
+    } else {
+        return strtoupper( $currency_code );
+    }
 }
 
 
